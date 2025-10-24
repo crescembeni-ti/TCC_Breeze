@@ -33,7 +33,7 @@
             <x-input-label for="cpf" :value="__('CPF')" />
 
             <x-text-input id="cpf" class="block mt-1 w-full"
-                            type="cpf"
+                            type="text"
                             name="cpf"
                             autocomplete="new-cpf" 
                             x-mask="999.999.999-99"
