@@ -102,22 +102,7 @@
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="cpf" class="block text-sm font-semibold text-gray-700 mb-2">CPF *</label>
-                            <input 
-                                type="text" 
-                                id="cpf" 
-                                name="cpf" 
-                                required
-                                maxlength="14"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('cpf') border-red-500 @enderror"
-                                placeholder="000.000.000-00"
-                                value="{{ old('cpf') }}"
-                            >
-                            @error('cpf')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    
 
                         <div>
                             <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">E-mail *</label>
@@ -193,24 +178,6 @@
         </footer>
     </div>
 
-    <script>
-        // Máscara para CPF
-        const cpfInput = document.getElementById('cpf');
-        cpfInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.slice(0, 11);
-            
-            if (value.length > 9) {
-                value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-            } else if (value.length > 6) {
-                value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
-            } else if (value.length > 3) {
-                value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
-            }
-            
-            e.target.value = value;
-        });
-    </script>
 </body>
 </html>
 
