@@ -100,6 +100,10 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
+
+        // Coordenadas de Paracambi/RJ
+        const PARACAMBI_CENTER = [-22.6063, -43.7086];
+        
         // Inicializar o mapa (Paracambi-RJ, Brasil)
         const map = L.map('map').setView([-22.6111, -43.7089], 14);
 
@@ -107,6 +111,24 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
+
+        // Definir limites (caixa que envolve Paracambi)
+        var bounds = [
+            [-22.71, -43.85], // sudoeste (lat, lng)
+            [-22.51, -43.58]  // nordeste (lat, lng)
+        ];
+
+        // Aplica os limites no mapa
+        map.setMaxBounds(bounds);
+
+        // Impede de "escapar" dos limites ao arrastar
+        map.on('drag', function () {
+            map.panInsideBounds(bounds, { animate: false });
+        });
+
+        // Define zoom mínimo e máximo
+        map.setMinZoom(13);
+        map.setMaxZoom(17);
 
         // Buscar dados das árvores via API
         fetch('{{ route('trees.data') }}')
