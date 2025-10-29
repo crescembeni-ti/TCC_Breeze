@@ -28,19 +28,6 @@
             <x-input-error :messages="$errors->get('username')" class="mt-2" />
         </div>
 
-          <!-- cpf -->
-        <div class="mt-4" x-data>
-            <x-input-label for="cpf" :value="__('CPF')" />
-
-            <x-text-input id="cpf" class="block mt-1 w-full"
-                            type="text"
-                            name="cpf"
-                            autocomplete="new-cpf" 
-                            x-mask="999.999.999-99"
-                            placeholder="999.999.999-99"/>
-
-            <x-input-error :messages="$errors->get('cpf')" class="mt-2" />
-        </div>
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />

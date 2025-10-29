@@ -1,32 +1,33 @@
-<x-guest-layout>
+<div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+    {{ __('Enviamos um código de 6 dígitos para o seu e-mail. Por favor, insira-o abaixo para verificar sua conta.') }}
+</div>
 
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Obrigado por se cadastrar! Antes de começar, você pode verificar seu endereço de e-mail clicando no link que acabamos de enviar? Se você não recebeu o e-mail, teremos prazer em enviar outro.') }}
+<x-auth-session-status class="mb-4" :status="session('status')" />
+
+<form method="POST" action="{{ route('verification.verify_code') }}">
+    @csrf
+
+    <div>
+        <x-input-label for="code" :value="__('Código de Verificação')" />
+        <x-text-input id="code" class="block mt-1 w-full" type="text" name="code" required autofocus autocomplete="one-time-code" />
+
+        <x-input-error :messages="$errors->get('code')" class="mt-2" />
     </div>
 
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('Um novo link de verificação foi enviado para o endereço de e-mail fornecido durante o registro.') }}
-        </div>
-    @endif
-
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
-
-            <div>
-                <x-primary-button>
-                    {{ __('Reenviar E-mail de Verificação') }}
-                </x-primary-button>
-            </div>
-        </form>
-
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Sair') }}
-            </button>
-        </form>
+    <div class="flex items-center justify-between mt-4">
+        <x-primary-button>
+            {{ __('Verificar Código') }}
+        </x-primary-button>
     </div>
-</x-guest-layout>
+</form>
+
+<hr class="my-6">
+
+<form method="POST" action="{{ route('verification.send') }}">
+    @csrf
+    <div>
+        <x-primary-button>
+            {{ __('Reenviar Código de Verificação') }}
+        </x-primary-button>
+    </div>
+</form>
