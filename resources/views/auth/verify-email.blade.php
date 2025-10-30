@@ -27,7 +27,7 @@
     @csrf
     <div>
         <x-primary-button>
-            {{ __('Reenviar Código de Verificaçãoo') }}
+            {{ __('Reenviar Código de Verificação') }}
         </x-primary-button>
     </div>
 </form>
