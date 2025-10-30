@@ -63,4 +63,9 @@ public function sendEmailVerificationNotification()
 {
     $this->notify(new VerifyEmailWithCode);
 }
+
+public function contacts()
+    {
+        return $this->hasMany(Contact::class);
+    }
 }

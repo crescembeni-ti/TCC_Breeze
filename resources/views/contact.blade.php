@@ -85,70 +85,69 @@
                     <form action="{{ route('contact.store') }}" method="POST" class="space-y-6">
                         @csrf
                         
+
                         <div>
-                            <label for="full_name" class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo *</label>
+                            <label for="bairro" class="block text-sm font-semibold text-gray-700 mb-2">Bairro *</label>
                             <input 
                                 type="text" 
-                                id="full_name" 
-                                name="full_name" 
-                                required
-                                maxlength="255"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('full_name') border-red-500 @enderror"
-                                placeholder="Digite seu nome completo"
-                                value="{{ old('full_name') }}"
-                            >
-                            @error('full_name')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                    
-
-                        <div>
-                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">E-mail *</label>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                name="email" 
-                                required
-                                maxlength="255"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('email') border-red-500 @enderror"
-                                placeholder="seu@email.com"
-                                value="{{ old('email') }}"
-                            >
-                            @error('email')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">Endereço do Ocorrido *</label>
-                            <input 
-                                type="text" 
-                                id="address" 
-                                name="address" 
+                                id="bairro" 
+                                name="bairro" 
                                 required
                                 maxlength="255"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('address') border-red-500 @enderror"
-                                placeholder="Ex: Rua Principal, 123 - Centro, Paracambi-RJ"
-                                value="{{ old('address') }}"
+                                placeholder="Ex: Centro"
+                                value="{{ old('bairro') }}"
                             >
-                            @error('address')
+                            @error('bairro')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                         <div>
+                            <label for="rua" class="block text-sm font-semibold text-gray-700 mb-2">Rua *</label>
+                            <input 
+                                type="text" 
+                                id="rua" 
+                                name="rua" 
+                                required
+                                maxlength="255"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('address') border-red-500 @enderror"
+                                placeholder="Ex: Rua das Flores"
+                                value="{{ old('rua') }}"
+                            >
+                            @error('rua')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
-                            <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Descrição do Ocorrido *</label>
+                            <label for="numero" class="block text-sm font-semibold text-gray-700 mb-2">Número *</label>
+                            <input 
+                                type="text" 
+                                id="numero" 
+                                name="numero" 
+                                required
+                                maxlength="255"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('address') border-red-500 @enderror"
+                                placeholder="Ex: 14"
+                                value="{{ old('rua') }}"
+                            >
+                            @error('numero')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="descricao" class="block text-sm font-semibold text-gray-700 mb-2">Descrição do Ocorrido *</label>
                             <textarea 
-                                id="description" 
-                                name="description" 
+                                id="descricao" 
+                                name="descricao" 
                                 rows="6"
                                 required
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('description') border-red-500 @enderror"
                                 placeholder="Descreva detalhadamente o ocorrido..."
-                            >{{ old('description') }}</textarea>
-                            @error('description')
+                            >{{ old('descricao') }}</textarea>
+                            @error('descricao')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
