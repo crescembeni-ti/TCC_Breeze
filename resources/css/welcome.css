@@ -1,0 +1,84 @@
+/*
+ * resources/css/welcome.css
+ *
+ * Estilos refinados para a página principal (welcome.blade.php)
+ * Compatível com o novo app.css
+ */
+
+/* Botões */
+.btn {
+    background-color: #059669; /* Verde principal */
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* HEADER: Gradiente e sombra */
+header.site-header {
+    background: linear-gradient(90deg, #065f46, #047857, #059669);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid #064e3b;
+}
+
+/* CARDS DE ESTATÍSTICAS */
+.stats-card {
+    transition: all 0.3s ease-in-out;
+    border: 1px solid #e5e7eb;
+}
+
+.stats-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1),
+                0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    border-color: #16a34a;
+}
+
+/* MAPA */
+#map {
+    height: 600px;
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 3px solid #ffffff;
+    box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.15),
+                0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* LISTA DE ATIVIDADES */
+.activity-item {
+    transition: all 0.2s ease-in-out;
+    border-radius: 0.25rem;
+}
+
+.activity-item:hover {
+    background-color: #f9fafb;
+    transform: translateX(5px);
+}
+
+/* Fade-in para o conteúdo */
+main {
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+.card, .bg-white.shadow-lg {
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+.card:hover, .bg-white.shadow-lg:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+}

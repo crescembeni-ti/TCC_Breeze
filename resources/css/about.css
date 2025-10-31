@@ -1,0 +1,96 @@
+/*
+ * resources/css/about.css
+ *
+ * Estilos refinados para a página "Sobre".
+ */
+
+/* HEADER */
+body > .min-h-screen > header.bg-green-700 {
+    background: linear-gradient(90deg, #065f46, #047857, #059669);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Título principal */
+header h1.text-3xl {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Card principal */
+main .bg-white.shadow-lg {
+    border: 1px solid #059669;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Subtítulos */
+main h3.text-2xl {
+    border-bottom: 2px solid #d1fae5;
+    padding-bottom: 8px;
+}
+
+/* Lista */
+main ul.list-disc li {
+    padding-left: 4px;
+}
+
+main ul.list-disc li::marker {
+    color: #059669;
+    font-size: 1.1em;
+}
+
+/* Box verde no final */
+main .bg-green-50 {
+    transition: all 0.3s ease-in-out;
+}
+
+main .bg-green-50:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(5, 150, 105, 0.1);
+}
+
+/* BOTÕES */
+main a.btn {
+    background-color: #059669;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease-in-out;
+}
+
+main a.btn:hover {
+    background-color: #047857;
+    transform: scale(1.05);
+}
+
+/* Animação geral */
+main {
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== BOTÕES DO HEADER ===== */
+header .btn {
+    background-color: #059669; /* Verde do tema */
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+header .btn:hover {
+    background-color: #047857; /* Verde mais escuro no hover */
+    transform: scale(1.05);
+    filter: brightness(1.05);
+}
+
+.card, .bg-white.shadow-lg {
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+.card:hover, .bg-white.shadow-lg:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+}

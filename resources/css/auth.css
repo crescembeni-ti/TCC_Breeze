@@ -1,0 +1,74 @@
+/*
+ * resources/css/auth.css
+ *
+ * Estilos para as páginas de autenticação (Login, Registro, Verificação)
+ * Baseado nos estilos de contact.css, welcome.css e about.css
+ */
+
+/* 1. Animação de "Fade In" para o card de autenticação
+ * (Baseado no 'welcome.css' e 'about.css')
+ * Alvo: O <div> 'sm:max-w-md' do 'layouts/guest.blade.php'
+ */
+body > .min-h-screen > .sm\:max-w-md {
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 2. Estilo de Foco do Input (para o #code)
+ * (Baseado no 'contact.css')
+ * Vamos usar o verde do seu tema ao invés do azul.
+ */
+#code:focus {
+    /* Essas 4 linhas sobrescrevem o 'focus:ring' do Tailwind */
+    border-color: #16a34a; /* Verde do seu tema */
+    --tw-ring-color: #16a34a;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+    transition: all 0.2s ease-in-out;
+}
+
+
+/* 3. Estilo do Botão Principal "Verificar Código"
+ * (Baseado no 'contact.css' - hover scale)
+ * Usamos um seletor de atributo para "pegar" o botão certo.
+ */
+form[action*="verify_code"] button[type="submit"] {
+    /* O botão <x-primary-button> padrão é escuro.
+       Vamos sobrescrever para o verde principal do seu tema. */
+    background-color: #059669; /* Verde do header da 'about' */
+    transition: all 0.2s ease-in-out;
+}
+
+form[action*="verify_code"] button[type="submit"]:hover {
+    background-color: #065f46; /* Verde escuro do header da 'about' */
+    transform: scale(1.02); /* Efeito de scale do 'contact.css' */
+}
+
+/* 4. Estilo do Botão Secundário "Reenviar Código"
+ * (Baseado no botão "Criar Conta" do 'contact.css')
+ * Usamos o seletor de atributo para "pegar" o botão de reenviar.
+ */
+form[action*="verification.send"] button[type="submit"] {
+    /* Estilo "fantasma" (transparente com borda) */
+    background-color: transparent;
+    border: 2px solid #6b7280; /* cinza-500 */
+    color: #6b7280; /* cinza-500 */
+    box-shadow: none;
+    transition: all 0.2s ease-in-out;
+}
+
+form[action*="verification.send"] button[type="submit"]:hover {
+    background-color: #6b7280;
+    color: white;
+}

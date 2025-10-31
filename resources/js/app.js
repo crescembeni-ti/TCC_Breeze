@@ -8,3 +8,4 @@ window.Alpine = Alpine;
 Alpine.plugin(mask)
 
 Alpine.start();
+

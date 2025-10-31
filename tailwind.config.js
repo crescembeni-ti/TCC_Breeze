@@ -1,5 +1,6 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import typography from '@tailwindcss/typography'; // <-- 1. ADICIONE ESTA LINHA
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -17,5 +18,8 @@ export default {
         },
     },
 
-    plugins: [forms],
+    plugins: [
+        forms,
+        typography, // <-- 2. ADICIONE ESTA LINHA
+    ],
 };

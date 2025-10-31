@@ -1,0 +1,175 @@
+/*
+ * resources/css/contact.css
+ *
+ * Estilos refinados para a página "Contato".
+ */
+
+/* HEADER: gradiente igual ao padrão */
+body > .min-h-screen > header {
+    background: linear-gradient(90deg, #065f46, #047857, #059669);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Título com sombra */
+header h1.text-3xl {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Inputs em foco */
+#subject:focus,
+#message:focus {
+    border-color: #3b82f6;
+    --tw-ring-color: #3b82f6;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+/* Transição dos inputs */
+#subject, #message {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Coluna de informações */
+.info-column {
+    background: #fdfdfd;
+    border-left: 4px solid #3b82f6;
+}
+
+.info-column h3 {
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+/* Caixa "Login necessário" */
+main .bg-gray-50.border-dashed {
+    border-color: #059669;
+    background-color: #f8fdfb;
+}
+
+/* Botão "Criar conta" */
+main .bg-gray-50 a.bg-gray-600 {
+    background-color: transparent;
+    border: 2px solid #065f46;
+    color: #065f46;
+}
+
+main .bg-gray-50 a.bg-gray-600:hover {
+    background-color: #065f46;
+    color: white;
+}
+
+/* BOTÕES PRINCIPAIS */
+main a.btn,
+main button.btn {
+    background-color: #059669;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+main a.btn:hover,
+main button.btn:hover {
+    background-color: #047857;
+    transform: scale(1.05);
+}
+
+/* ===== BOTÕES DO HEADER ===== */
+header .btn {
+    background-color: #059669; /* Verde do tema */
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+header .btn:hover {
+    background-color: #047857; /* Verde mais escuro no hover */
+    transform: scale(1.05);
+    filter: brightness(1.05);
+}
+
+
+.card, .bg-white.shadow-lg {
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+.card:hover, .bg-white.shadow-lg:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+}
+
+/* ===== LAYOUT MODERNO ===== */
+main {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.grid {
+  gap: 2rem; /* espaçamento entre colunas */
+}
+
+.bg-white.rounded-lg.shadow-lg {
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease-in-out;
+}
+
+.bg-white.rounded-lg.shadow-lg:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== FORMULÁRIO ===== */
+form input,
+form textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+form input:focus,
+form textarea:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* ===== BOTÃO DO FORM ===== */
+form .btn {
+  background-color: #059669;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+form .btn:hover {
+  background-color: #047857;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* ===== INFO COLUMN ===== */
+.info-column {
+  border-left: 4px solid #059669;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(245,255,248,0.9));
+}
+
+.info-column h3 {
+  color: #047857;
+  font-weight: 600;
+}
+
+.info-column a {
+  color: #065f46;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.info-column a:hover {
+  color: #047857;
+}
+
+/* Fade suave de entrada */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

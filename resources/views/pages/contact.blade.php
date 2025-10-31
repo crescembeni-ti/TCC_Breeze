@@ -5,31 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Contato - Mapa de Árvores</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     
-    <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @vite('resources/css/contact.css')
+    
 </head>
-<body class="font-sans antialiased bg-gray-50">
+<body class="font-sans antialiased bg-gray-100">
     <div class="min-h-screen">
-        <!-- Header -->
-        <header class="bg-white shadow">
+        <header class="site-header bg-green-700 shadow">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex justify-between items-center">
-                    <h1 class="text-3xl font-bold text-gray-900">Contato e Denúncias</h1>
+                    <h1 class="text-3xl font-bold text-white">Contato e Denúncias</h1>
                     <div class="flex gap-4">
-                        <a href="{{ route('home') }}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Voltar ao Mapa</a>
-                        <a href="{{ route('about') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Sobre</a>
+                        
+                        <!-- ▼▼▼ BOTÕES ATUALIZADOS COM A CLASSE .btn ▼▼▼ -->
+                        <a href="{{ route('home') }}" class="btn bg-white text-green-700 hover:bg-gray-100">Voltar ao Mapa</a>
+                        <a href="{{ route('about') }}" class="btn bg-white text-blue-700 hover:bg-gray-100">Sobre</a>
+                        
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <!-- Success Message -->
             @if(session('success'))
                 <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg" role="alert">
                     <p class="font-bold">Sucesso!</p>
@@ -38,8 +39,7 @@
             @endif
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Contact Information -->
-                <div class="bg-white rounded-lg shadow-lg p-8">
+                <div class="bg-white rounded-lg shadow-lg p-8 info-column">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
                     
                     <div class="space-y-6">
@@ -78,8 +78,7 @@
                     </div>
                 </div>
 
-                <!-- Report Form -->
-                <div class="bg-white rounded-lg shadow-lg p-8">
+                <div class="bg-white rounded-lg shadow-lg p-8 info-column">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Formulário de Denúncia</h2>
                     
                     @auth
@@ -88,7 +87,7 @@
                             
                             <div>
                                 <label for="subject" class="block text-sm font-semibold text-gray-700 mb-2">Assunto</label>
-                                <input 
+                                <input id="subject" 
                                     type="text" 
                                     id="subject" 
                                     name="subject" 
@@ -105,7 +104,7 @@
 
                             <div>
                                 <label for="message" class="block text-sm font-semibold text-gray-700 mb-2">Mensagem</label>
-                                <textarea 
+                                <textarea id="message" 
                                     id="message" 
                                     name="message" 
                                     rows="8"
@@ -125,9 +124,10 @@
                                 </p>
                             </div>
 
+                            <!-- ▼▼▼ BOTÃO ATUALIZADO COM A CLASSE .btn ▼▼▼ -->
                             <button 
                                 type="submit" 
-                                class="w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-200 shadow-md hover:shadow-lg"
+                                class="btn w-full bg-green-600 text-white hover:bg-green-700"
                             >
                                 Enviar Denúncia
                             </button>
@@ -142,12 +142,15 @@
                                 Para enviar uma denúncia, você precisa estar logado no sistema. Isso nos ajuda a manter um registro de todas as denúncias e entrar em contato caso necessário.
                             </p>
                             <div class="flex gap-4 justify-center">
-                                <a href="{{ route('login') }}" class="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition">
+                                
+                                <!-- ▼▼▼ BOTÕES ATUALIZADOS COM A CLASSE .btn ▼▼▼ -->
+                                <a href="{{ route('login') }}" class="btn bg-green-600 text-white hover:bg-green-700">
                                     Fazer Login
                                 </a>
-                                <a href="{{ route('register') }}" class="px-6 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition">
+                                <a href="{{ route('register') }}" class="btn bg-gray-600 text-white hover:bg-gray-700">
                                     Criar Conta
                                 </a>
+
                             </div>
                         </div>
                     @endauth
@@ -155,10 +158,9 @@
             </div>
         </main>
 
-        <!-- Footer -->
-        <footer class="bg-white shadow mt-12">
+        <footer class="bg-gray-800 shadow mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <p class="text-center text-gray-600">© {{ date('Y') }} Mapa de Árvores de Paracambi-RJ. Desenvolvido com Laravel e Leaflet.</p>
+                <p class="text-center text-gray-300">© {{ date('Y') }} Mapa de Árvores de Paracambi-RJ. Desenvolvido com Laravel e Leaflet.</p>
             </div>
         </footer>
     </div>
