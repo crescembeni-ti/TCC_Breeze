@@ -15,7 +15,7 @@ use Illuminate\View\View;
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Exibe a tela de registro.
      */
     public function create(): View
     {
@@ -23,30 +23,29 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Registra um novo usuário e envia o e-mail de verificação.
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
-
+        // Dispara o evento de registro, que envia o e-mail de verificação
         event(new Registered($user));
 
+        // Loga automaticamente o usuário
         Auth::login($user);
 
-        return redirect()->route('home');
-
+        // Redireciona para a página de verificação de e-mail
+        return redirect()->route('verification.notice');
     }
 }

@@ -1,74 +1,155 @@
-/*
- * resources/css/auth.css
- *
- * Estilos para as páginas de autenticação (Login, Registro, Verificação)
- * Baseado nos estilos de contact.css, welcome.css e about.css
- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* 1. Animação de "Fade In" para o card de autenticação
- * (Baseado no 'welcome.css' e 'about.css')
- * Alvo: O <div> 'sm:max-w-md' do 'layouts/guest.blade.php'
- */
-body > .min-h-screen > .sm\:max-w-md {
-    animation: fadeIn 0.8s ease-out;
+/* ====== FUNDO TOTAL ====== */
+body {
+  background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* ====== CONTAINER CENTRAL ====== */
+.min-h-screen {
+  background: none !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* 2. Estilo de Foco do Input (para o #code)
- * (Baseado no 'contact.css')
- * Vamos usar o verde do seu tema ao invés do azul.
- */
-#code:focus {
-    /* Essas 4 linhas sobrescrevem o 'focus:ring' do Tailwind */
-    border-color: #16a34a; /* Verde do seu tema */
-    --tw-ring-color: #16a34a;
-    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-    transition: all 0.2s ease-in-out;
+/* ====== CARD ====== */
+.sm\:max-w-md {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.8s ease-out;
+  transition: all 0.3s ease;
 }
 
-
-/* 3. Estilo do Botão Principal "Verificar Código"
- * (Baseado no 'contact.css' - hover scale)
- * Usamos um seletor de atributo para "pegar" o botão certo.
- */
-form[action*="verify_code"] button[type="submit"] {
-    /* O botão <x-primary-button> padrão é escuro.
-       Vamos sobrescrever para o verde principal do seu tema. */
-    background-color: #059669; /* Verde do header da 'about' */
-    transition: all 0.2s ease-in-out;
+.sm\:max-w-md:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
 }
 
-form[action*="verify_code"] button[type="submit"]:hover {
-    background-color: #065f46; /* Verde escuro do header da 'about' */
-    transform: scale(1.02); /* Efeito de scale do 'contact.css' */
+/* ====== TÍTULOS E TEXTO ====== */
+h1, h2, label, .text-gray-900 {
+  color: #065f46 !important;
+  font-weight: 600;
 }
 
-/* 4. Estilo do Botão Secundário "Reenviar Código"
- * (Baseado no botão "Criar Conta" do 'contact.css')
- * Usamos o seletor de atributo para "pegar" o botão de reenviar.
- */
-form[action*="verification.send"] button[type="submit"] {
-    /* Estilo "fantasma" (transparente com borda) */
-    background-color: transparent;
-    border: 2px solid #6b7280; /* cinza-500 */
-    color: #6b7280; /* cinza-500 */
-    box-shadow: none;
-    transition: all 0.2s ease-in-out;
+/* ====== FORMULÁRIO ====== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-form[action*="verification.send"] button[type="submit"]:hover {
-    background-color: #6b7280;
-    color: white;
+form label {
+  color: #065f46;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* ====== INPUTS ====== */
+form input,
+input.block.w-full {
+  border: 1.5px solid #d1d5db;
+  border-radius: 0.6rem;
+  background-color: #f9fafb;
+  padding: 0.65rem 0.9rem;
+  transition: all 0.25s ease;
+  color: #111827;
+}
+
+form input:focus,
+input.block.w-full:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.25);
+  background-color: #fff;
+}
+
+/* ====== BOTÃO PRINCIPAL ====== */
+button,
+.x-primary-button,
+[type="submit"] {
+  background-color: #059669;
+  color: white;
+  font-weight: 600;
+  border-radius: 0.6rem;
+  padding: 0.7rem 1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
+}
+
+button:hover,
+.x-primary-button:hover,
+[type="submit"]:hover {
+  background-color: #047857;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 16px rgba(4, 120, 87, 0.35);
+}
+
+/* ====== LINKS ====== */
+a.text-sm,
+a.underline,
+form a {
+  color: #065f46;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+a.text-sm:hover,
+a.underline:hover,
+form a:hover {
+  color: #047857;
+  text-decoration: underline;
+}
+
+/* ====== CHECKBOX ====== */
+input[type="checkbox"] {
+  accent-color: #059669;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+/* ====== LOGO (CASO EXISTA ALGUM SVG) ====== */
+a > svg {
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+  transition: transform 0.3s ease;
+}
+
+a:hover > svg {
+  transform: scale(1.05);
+}
+
+/* ====== ANIMAÇÃO ====== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ====== RESPONSIVIDADE ====== */
+@media (max-width: 480px) {
+  .sm\:max-w-md {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  form input,
+  button {
+    font-size: 0.95rem;
+  }
 }
