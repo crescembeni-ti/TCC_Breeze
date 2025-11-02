@@ -4,7 +4,7 @@
 
 /* ====== FUNDO TOTAL ====== */
 body {
-  background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%);
+  background: #358054;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -38,8 +38,11 @@ body {
 }
 
 /* ====== TÍTULOS E TEXTO ====== */
-h1, h2, label, .text-gray-900 {
-  color: #065f46 !important;
+h1,
+h2,
+label,
+.text-gray-900 {
+  color: #358054 !important;
   font-weight: 600;
 }
 
@@ -51,7 +54,7 @@ form {
 }
 
 form label {
-  color: #065f46;
+  color: #358054;
   font-weight: 600;
   font-size: 0.95rem;
 }
@@ -64,13 +67,13 @@ input.block.w-full {
   background-color: #f9fafb;
   padding: 0.65rem 0.9rem;
   transition: all 0.25s ease;
-  color: #111827;
+  color: #358054;
 }
 
 form input:focus,
 input.block.w-full:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.25);
+  border-color: #358054;
+  box-shadow: 0 0 0 3px rgba(190, 255, 180, 0.25);
   background-color: #fff;
 }
 
@@ -78,7 +81,7 @@ input.block.w-full:focus {
 button,
 .x-primary-button,
 [type="submit"] {
-  background-color: #059669;
+  background-color: #358054;
   color: white;
   font-weight: 600;
   border-radius: 0.6rem;
@@ -91,7 +94,7 @@ button,
 button:hover,
 .x-primary-button:hover,
 [type="submit"]:hover {
-  background-color: #047857;
+  background-color: #38c224;
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 8px 16px rgba(4, 120, 87, 0.35);
 }
@@ -100,7 +103,7 @@ button:hover,
 a.text-sm,
 a.underline,
 form a {
-  color: #065f46;
+  color: #358054;
   font-weight: 500;
   transition: color 0.2s ease;
 }
@@ -108,24 +111,24 @@ form a {
 a.text-sm:hover,
 a.underline:hover,
 form a:hover {
-  color: #047857;
+  color: #38c224;
   text-decoration: underline;
 }
 
 /* ====== CHECKBOX ====== */
 input[type="checkbox"] {
-  accent-color: #059669;
+  accent-color: red;
   transform: scale(1.2);
   cursor: pointer;
 }
 
 /* ====== LOGO (CASO EXISTA ALGUM SVG) ====== */
-a > svg {
+a>svg {
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
   transition: transform 0.3s ease;
 }
 
-a:hover > svg {
+a:hover>svg {
   transform: scale(1.05);
 }
 
@@ -135,6 +138,7 @@ a:hover > svg {
     opacity: 0;
     transform: translateY(25px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

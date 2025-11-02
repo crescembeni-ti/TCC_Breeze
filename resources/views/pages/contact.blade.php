@@ -11,7 +11,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @vite('resources/css/contact.css')
-    
+        <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
+
 </head>
 <body class="font-sans antialiased bg-gray-100">
     <div class="min-h-screen">

@@ -7,9 +7,10 @@
 
 /* Botões */
 .btn {
-    background-color: #059669; /* Verde principal */
+    background-color: #358054;
+    /* Verde principal */
     color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(56, 194, 36, 0.2);
     transition: all 0.2s ease-in-out;
 }
 
@@ -21,22 +22,22 @@
 
 /* HEADER: Gradiente e sombra */
 header.site-header {
-    background: linear-gradient(90deg, #065f46, #047857, #059669);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    border-bottom: 2px solid #064e3b;
+    background: #beffb4;
+    box-shadow: 0 6px 12px rgba(53, 128, 84, 0.3);
+    border-bottom: 2px solid #358054;
 }
 
 /* CARDS DE ESTATÍSTICAS */
 .stats-card {
     transition: all 0.3s ease-in-out;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #358054;
 }
 
 .stats-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1),
-                0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    border-color: #16a34a;
+        0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    border-color: #38c224;
 }
 
 /* MAPA */
@@ -44,9 +45,9 @@ header.site-header {
     height: 600px;
     width: 100%;
     border-radius: 0.5rem;
-    border: 3px solid #ffffff;
+    border: 2px solid #358054;
     box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.15),
-                0 1px 3px rgba(0, 0, 0, 0.1);
+        0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* LISTA DE ATIVIDADES */
@@ -66,19 +67,28 @@ main {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 
-.card, .bg-white.shadow-lg {
-  border-radius: 0.75rem;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
-  transform: translateY(0);
-  transition: all 0.3s ease;
+.card,
+.bg-white.shadow-lg {
+    border-radius: 0.75rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    transform: translateY(0);
+    transition: all 0.3s ease;
 }
 
-.card:hover, .bg-white.shadow-lg:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+.card:hover,
+.bg-white.shadow-lg:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
 }

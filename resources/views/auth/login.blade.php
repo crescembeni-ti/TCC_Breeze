@@ -1,6 +1,12 @@
 <x-guest-layout>
     <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold text-green-700">Bem-vindo de volta 🌳</h2>
+        <div class="flex items-center justify-center gap-8">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-24 w-24 object-contain">
+            <h1 class="text-3xl font-bold">
+            <span class="text-[#358054]">Bem-vindo</span><br>
+            <span class="text-[#a0c520]">de volta</span>
+            </h1>
+        </div> 
         <p class="text-gray-600 text-sm">Entre para continuar ajudando a mapear o verde de Paracambi</p>
     </div>
 
