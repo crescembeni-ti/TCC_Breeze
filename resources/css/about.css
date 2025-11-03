@@ -6,8 +6,9 @@
 
 /* HEADER */
 body > .min-h-screen > header.bg-green-700 {
-    background: linear-gradient(90deg, #065f46, #047857, #059669);
+    background:  #beffb4;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid #358054;
 }
 
 /* Título principal */
@@ -17,8 +18,8 @@ header h1.text-3xl {
 
 /* Card principal */
 main .bg-white.shadow-lg {
-    border: 1px solid #059669;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #358054;
+    box-shadow: 0 10px 20px rgba(53, 128, 84, 0.3);
 }
 
 /* Subtítulos */
@@ -33,7 +34,7 @@ main ul.list-disc li {
 }
 
 main ul.list-disc li::marker {
-    color: #059669;
+    color: red;
     font-size: 1.1em;
 }
 
@@ -72,13 +73,13 @@ main {
 
 /* ===== BOTÕES DO HEADER ===== */
 header .btn {
-    background-color: #059669; /* Verde do tema */
+    background-color: #358054; /* Verde do tema */
     color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 header .btn:hover {
-    background-color: #047857; /* Verde mais escuro no hover */
+    background-color: #38c224; /* Verde mais escuro no hover */
     transform: scale(1.05);
     filter: brightness(1.05);
 }

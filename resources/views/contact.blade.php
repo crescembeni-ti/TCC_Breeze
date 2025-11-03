@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Contato - Mapa de Árvores</title>
+    <title>Contato - Árvores de Paracambi</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -11,6 +11,8 @@
     
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+<!-- Ícone do site -->
+    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <div class="min-h-screen">

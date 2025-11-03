@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mapa de Árvores</title>
+    <title>Árvores de Paracambi</title>
     
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -16,7 +16,8 @@
     -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @vite('resources/css/welcome.css')
-    
+     <!-- Ícone do site -->
+    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
 <body class="font-sans antialiased bg-gray-100"> <!-- Agora o bg-gray-100 vem do app.css! -->
     <div class="min-h-screen">
@@ -24,7 +25,13 @@
         <header class="site-header">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex justify-between items-center">
-                    <h1 class="text-3xl font-bold text-white">Mapa de Árvores - Paracambi-RJ</h1>
+                    <div class="flex items-center gap-12">
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-24 w-24 object-contain">
+                            <h1 class="text-5xl font-bold">
+                            <span class="text-[#358054]">Árvores de</span>
+                            <span class="text-[#a0c520]"> Paracambi</span>
+                            </h1>
+                    </div>                    
                     <div class="flex gap-4">
                         <a href="{{ route('about') }}" class="btn bg-blue-600 hover:bg-blue-700">Sobre</a>
                         <a href="{{ route('contact') }}" class="btn bg-purple-600 hover:bg-purple-700">Contato</a>
