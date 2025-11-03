@@ -9,27 +9,36 @@
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    @vite('resources/css/welcome.css')
     @vite('resources/css/contact.css')
-        <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 
+    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
 <body class="font-sans antialiased bg-gray-100">
     <div class="min-h-screen">
-        <header class="site-header bg-green-700 shadow">
+
+        <!-- HEADER IGUAL AO WELCOME, COM ESTILO DO welcome.css -->
+        <header class="site-header">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex justify-between items-center">
-                    <h1 class="text-3xl font-bold text-white">Contato e Denúncias</h1>
+                    <!-- Logo e título -->
+                    <div class="flex items-center gap-12">
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-24 w-24 object-contain">
+                        <h1 class="text-5xl font-bold">
+                            <span class="text-[#358054]">Árvores de</span>
+                            <span class="text-[#a0c520]"> Paracambi</span>
+                        </h1>
+                    </div>
+
+                    <!-- Botões -->
                     <div class="flex gap-4">
-                        
-                        <!-- ▼▼▼ BOTÕES ATUALIZADOS COM A CLASSE .btn ▼▼▼ -->
-                        <a href="{{ route('home') }}" class="btn bg-white text-green-700 hover:bg-gray-100">Voltar ao Mapa</a>
-                        <a href="{{ route('about') }}" class="btn bg-white text-blue-700 hover:bg-gray-100">Sobre</a>
-                        
+                        <a href="{{ route('home') }}" class="btn">Voltar ao Mapa</a>
+                        <a href="{{ route('about') }}" class="btn bg-blue-600 hover:bg-blue-700">Sobre</a>
                     </div>
                 </div>
             </div>
         </header>
+        <!-- FIM DO HEADER -->
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             @if(session('success'))
@@ -88,7 +97,7 @@
                             
                             <div>
                                 <label for="subject" class="block text-sm font-semibold text-gray-700 mb-2">Assunto</label>
-                                <input id="subject" 
+                                <input 
                                     type="text" 
                                     id="subject" 
                                     name="subject" 
@@ -105,7 +114,7 @@
 
                             <div>
                                 <label for="message" class="block text-sm font-semibold text-gray-700 mb-2">Mensagem</label>
-                                <textarea id="message" 
+                                <textarea 
                                     id="message" 
                                     name="message" 
                                     rows="8"
@@ -125,7 +134,6 @@
                                 </p>
                             </div>
 
-                            <!-- ▼▼▼ BOTÃO ATUALIZADO COM A CLASSE .btn ▼▼▼ -->
                             <button 
                                 type="submit" 
                                 class="btn w-full bg-green-600 text-white hover:bg-green-700"
@@ -143,15 +151,12 @@
                                 Para enviar uma denúncia, você precisa estar logado no sistema. Isso nos ajuda a manter um registro de todas as denúncias e entrar em contato caso necessário.
                             </p>
                             <div class="flex gap-4 justify-center">
-                                
-                                <!-- ▼▼▼ BOTÕES ATUALIZADOS COM A CLASSE .btn ▼▼▼ -->
                                 <a href="{{ route('login') }}" class="btn bg-green-600 text-white hover:bg-green-700">
                                     Fazer Login
                                 </a>
                                 <a href="{{ route('register') }}" class="btn bg-gray-600 text-white hover:bg-gray-700">
                                     Criar Conta
                                 </a>
-
                             </div>
                         </div>
                     @endauth
@@ -167,4 +172,3 @@
     </div>
 </body>
 </html>
-
