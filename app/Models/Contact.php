@@ -18,6 +18,9 @@ class Contact extends Model
         'rua',
         'numero',
         'descricao',
+
+        // [NOVO] CAMPO DE STATUS
+        'status', 
     ];
 
     /**
