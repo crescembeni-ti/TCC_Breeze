@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sobre - Mapa de Árvores</title>
+    <title>Sobre - Árvores de Paracambi</title>
     
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -13,6 +13,8 @@
     <!-- CSS específico da página -->
     @vite('resources/css/about.css')
 
+     <!-- Ícone do site -->
+    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
 <body class="font-sans antialiased bg-gray-100"> 
     <div class="min-h-screen">
@@ -20,7 +22,13 @@
         <header class="site-header bg-green-700 shadow">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex justify-between items-center">
-                    <h1 class="text-3xl font-bold text-white">Sobre o Projeto</h1>
+                    <div class="flex items-center gap-12">
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-24 w-24 object-contain">
+                            <h1 class="text-5xl font-bold">
+                            <span class="text-[#358054]">Sobre o</span>
+                            <span class="text-[#a0c520]">Projeto</span>
+                            </h1>
+                    </div>       
                     <div class="flex gap-4">
                         <!-- ▼▼▼ BOTÕES ATUALIZADOS ▼▼▼ -->
                         <a href="{{ route('home') }}" class="btn bg-white text-green-700 hover:bg-gray-100">Voltar ao Mapa</a>
