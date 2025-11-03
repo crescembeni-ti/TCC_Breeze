@@ -26,14 +26,22 @@
 
                         <div class="mt-4 space-x-2"> 
                             
+                            <!-- Botão 1: Mapa -->
                             <a href="{{ route('admin.map') }}" 
                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 Acessar Mapa de Administração
                             </a>
                             
+                            <!-- Botão 2: Gerenciar Árvores -->
                             <a href="{{ route('admin.trees.index') }}" 
                                class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 Gerenciar Árvores Cadastradas
+                            </a>
+
+                            <!-- [NOVO] Botão 3: Ver Mensagens -->
+                            <a href="{{ route('admin.contacts.index') }}" 
+                               class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Ver Mensagens
                             </a>
                         </div>
 

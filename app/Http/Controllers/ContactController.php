@@ -33,7 +33,7 @@ class ContactController extends Controller
             'bairro' => 'required|string|max:255',
             'rua' => 'required|string|max:255',
             'numero' => 'required|string|max:10',
-            'descricao' => 'required|string',
+            'descricao' => 'required|string', // Validando 'descricao'
         ]);
         
         // 2. Combina os dados validados com os dados do usuário logado
@@ -41,11 +41,41 @@ class ContactController extends Controller
             'user_id' => $user->id, 
             'nome_solicitante' => $user->name, // Puxando o nome
             'email_solicitante' => $user->email, // Puxando o email
+            'status' => 'novo', // <-- [NOVO] Define o status padrão
         ]);
 
         // 3. Salva no banco de dados
         Contact::create($dataToSave);
 
         return redirect()->route('contact')->with('success', 'Sua solicitação foi enviada com sucesso! Entraremos em contato em breve.');
+    }
+
+    // --- MÉTODOS DE ADMIN ---
+
+    /**
+     * [NOVO MÉTODO]
+     * Mostra a lista de mensagens de contato para o admin.
+     */
+    public function adminContactList()
+    {
+        // Pega das mais novas para as mais antigas
+        $messages = Contact::latest()->get(); 
+        return view('admin.contacts.index', compact('messages'));
+    }
+
+    /**
+     * [NOVO MÉTODO]
+     * Atualiza o status de uma mensagem de contato.
+     * O Laravel injeta o $contact automaticamente pela Rota (Route Model Binding)
+     */
+    public function adminContactUpdateStatus(Request $request, Contact $contact)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:novo,visto,resolvendo,resolvido',
+        ]);
+
+        $contact->update($validated);
+
+        return redirect()->route('admin.contacts.index')->with('success', 'Status da mensagem atualizado.');
     }
 }
