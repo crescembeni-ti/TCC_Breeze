@@ -41,7 +41,7 @@ class ContactController extends Controller
             'user_id' => $user->id, 
             'nome_solicitante' => $user->name, // Puxando o nome
             'email_solicitante' => $user->email, // Puxando o email
-            'status' => 'novo', // <-- [NOVO] Define o status padrão
+            'status' => 'novo', // Define o status padrão
         ]);
 
         // 3. Salva no banco de dados
@@ -53,7 +53,6 @@ class ContactController extends Controller
     // --- MÉTODOS DE ADMIN ---
 
     /**
-     * [NOVO MÉTODO]
      * Mostra a lista de mensagens de contato para o admin.
      */
     public function adminContactList()
@@ -64,7 +63,6 @@ class ContactController extends Controller
     }
 
     /**
-     * [NOVO MÉTODO]
      * Atualiza o status de uma mensagem de contato.
      * O Laravel injeta o $contact automaticamente pela Rota (Route Model Binding)
      */

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User; // Importe o Model User
+use App\Models\User;
 
 class Contact extends Model
 {
@@ -19,7 +19,7 @@ class Contact extends Model
         'numero',
         'descricao',
 
-        // [NOVO] CAMPO DE STATUS
+        //CAMPO DE STATUS
         'status', 
     ];
 

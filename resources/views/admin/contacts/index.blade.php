@@ -32,11 +32,11 @@
                                 @forelse ($messages as $message)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">{{ $message->name }}</div>
-                                            <div class="text-sm text-gray-500">{{ $message->email }}</div>
+                                            <div class="text-sm font-medium text-gray-900">{{ $message->nome_solicitante }}</div>
+                                            <div class="text-sm text-gray-500">{{ $message->email_solicitante }}</div>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <div class="text-sm text-gray-900">{{ Str::limit($message->message, 100) }}</div>
+                                            <div class="text-sm text-gray-900">{{ Str::limit($message->descricao, 100) }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $message->created_at->format('d/m/Y H:i') }}
@@ -66,7 +66,7 @@
                                             Nenhuma mensagem recebida.
                                         </td>
                                     </tr>
-                                @endforelse
+                                @endForelse
                             </tbody>
                         </table>
                     </div>

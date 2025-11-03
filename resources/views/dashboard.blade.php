@@ -44,13 +44,9 @@
                     <i data-lucide="inbox" class="icon"></i>
                     <span>Mensagens</span>
                 </a>
-                <a href="#" class="sidebar-link">
-                    <i data-lucide="users" class="icon"></i>
-                    <span>Usuários</span>
-                </a>
-                <a href="#" class="sidebar-link">
-                    <i data-lucide="settings" class="icon"></i>
-                    <span>Configurações</span>
+                    <a href="{{ route('profile.edit') }}" class="sidebar-link">
+                    <i data-lucide="user" class="icon"></i>
+                    <span>Meu Perfil</span>
                 </a>
             </nav>
 
@@ -72,20 +68,21 @@
                 </p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                    <div class="card">
+                    <a href="{{ route('admin.trees.index') }}" class="card">
                         <h3>🌿 Árvores Cadastradas</h3>
                         <p>Gerencie as árvores exibidas no mapa.</p>
-                    </div>
+                    </a>
 
-                    <div class="card">
+                    <a href="{{ route('admin.contacts.index') }}" class="card">
                         <h3>💬 Mensagens</h3>
                         <p>Veja e responda denúncias e contatos.</p>
-                    </div>
+                        
+                    </a>
 
-                    <div class="card">
+                    <a href="{{ route('admin.map') }}" class="card">
                         <h3>🗺️ Mapa Interativo</h3>
-                        <p>Visualize dados e status diretamente no mapa.</p>
-                    </div>
+                        <p>Cadastre árvores diretamente no mapa.</p>
+                    </a>
                 </div>
             </div>
         </main>
