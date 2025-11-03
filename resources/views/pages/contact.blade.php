@@ -80,11 +80,6 @@
                             </p>
                         </div>
 
-                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-6">
-                            <p class="text-blue-800">
-                                <strong>Importante:</strong> Para enviar uma denúncia através do formulário ao lado, você precisa estar logado no sistema. Se ainda não tem uma conta, <a href="{{ route('register') }}" class="underline hover:text-blue-900">cadastre-se aqui</a>.
-                            </p>
-                        </div>
                     </div>
                 </div>
 

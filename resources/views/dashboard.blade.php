@@ -76,7 +76,6 @@
                     <a href="{{ route('admin.contacts.index') }}" class="card">
                         <h3>💬 Mensagens</h3>
                         <p>Veja e responda denúncias e contatos.</p>
-                        
                     </a>
 
                     <a href="{{ route('admin.map') }}" class="card">
