@@ -46,6 +46,9 @@ Route::middleware(['auth' ,'verified'])->group(function () {
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard/map', [TreeController::class, 'adminMap'])->name('admin.map');
     Route::post('/dashboard/map', [TreeController::class, 'storeTree'])->name('admin.map.store');
+    Route::get('/dashboard/trees', [TreeController::class, 'adminTreeList'])->name('admin.trees.index');
+    Route::get('/dashboard/trees/{tree}/edit', [TreeController::class, 'adminTreeEdit'])->name('admin.trees.edit');
+    Route::patch('/dashboard/trees/{tree}', [TreeController::class, 'adminTreeUpdate'])->name('admin.trees.update');
 });
 
 require __DIR__.'/auth.php';

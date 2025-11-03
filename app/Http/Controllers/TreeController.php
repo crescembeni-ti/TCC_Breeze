@@ -95,4 +95,49 @@ class TreeController extends Controller
 
         return redirect()->route('admin.map')->with('success', 'Árvore adicionada com sucesso!');
     }
+
+    /**
+     * [NOVO MÉTODO]
+     * Mostra uma lista de todas as árvores para o admin.
+     */
+    public function adminTreeList()
+    {
+        // Busca todas as árvores, com suas espécies, ordenadas das mais recentes
+        // O ->with('species') evita o problema de N+1 queries na sua view
+        $trees = Tree::with('species')->latest()->get(); 
+
+        // Retorna a view e passa a variável $trees para ela
+        return view('admin.trees.index', compact('trees'));
+    }
+
+    public function adminTreeEdit(Tree $tree)
+    {
+        // O Laravel magicamente encontra a $tree pelo ID na URL (Route Model Binding)
+        
+        // Buscamos todas as espécies para o <select> (dropdown)
+        $species = Species::all(); 
+        
+        // Carrega a view de edição e passa a árvore e as espécies
+        return view('admin.trees.edit', compact('tree', 'species'));
+    }
+
+    public function adminTreeUpdate(Request $request, Tree $tree)
+    {
+        // Validação (similar ao seu storeTree, mas agora usamos species_id)
+        $validated = $request->validate([
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'species_id' => 'required|integer|exists:species,id', // Agora é um ID de um <select>
+            'health_status' => 'required|in:good,fair,poor',
+            'planted_at' => 'required|date',
+            'trunk_diameter' => 'nullable|numeric|min:0',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        // Atualiza o modelo da $tree com os dados validados
+        $tree->update($validated);
+
+        // Redireciona de volta para a lista com uma mensagem de sucesso
+        return redirect()->route('admin.trees.index')->with('success', 'Árvore atualizada com sucesso!');
+    }
 }
