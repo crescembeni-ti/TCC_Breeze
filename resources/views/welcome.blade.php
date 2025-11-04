@@ -38,8 +38,8 @@
                         @auth
                             <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-500">Dashboard</a>
                         @else
-                            <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-500">Login</a>
-                            <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-500">Registrar</a>
+                            <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-500">Entrar</a>
+                            <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-500">Cadastrar</a>
                         @endauth
                     </div>
                 </div>
