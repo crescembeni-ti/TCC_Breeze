@@ -31,15 +31,19 @@ class SendVerificationCode extends Notification
 
     /**
      * Obtenha a representação por e-mail da notificação.
+     * (MÉTODO CORRIGIDO)
      */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
                     ->subject('Seu Código de Verificação')
                     ->line('Olá, ' . $notifiable->name . '!')
-                    ->line('Seu código de verificação é: ')
+                    ->line('Seu código de verificação é:')
                     ->line('')
-                    ->panel($this->code) // Mostra o código em destaque
+                    // --- CORREÇÃO AQUI ---
+                    // Trocamos ->panel() por ->line() com negrito
+                    ->line('**' . $this->code . '**')
+                    // --- FIM DA CORREÇÃO ---
                     ->line('')
                     ->line('Este código expira em 5 minutos.')
                     ->line('Se você não criou esta conta, nenhuma ação é necessária.');
