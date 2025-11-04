@@ -11,23 +11,38 @@
     
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite('resources/css/contact.css')
 <!-- Ícone do site -->
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <div class="min-h-screen">
         <!-- Header -->
-        <header class="bg-white shadow">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div class="flex justify-between items-center">
-                    <h1 class="text-3xl font-bold text-gray-900">Contato</h1>
-                    <div class="flex gap-4">
-                        <a href="{{ route('home') }}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Voltar ao Mapa</a>
-                        <a href="{{ route('about') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Sobre</a>
-                    </div>
-                </div>
+        <header class="site-header bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex justify-between items-center">
+            <!-- Logo e título -->
+            <div class="flex items-center gap-12">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-24 w-24 object-contain">
+                <h1 class="text-5xl font-bold">
+                    <span class="text-[#358054]">Árvores de</span>
+                    <span class="text-[#a0c520]"> Paracambi</span>
+                </h1>
             </div>
-        </header>
+
+            <!-- Botões de navegação -->
+            <div class="flex gap-4">
+                <a href="{{ route('home') }}" class="btn bg-green-700 text-white hover:bg-green-800 transition-colors">
+                    Voltar ao Mapa
+                </a>
+                <a href="{{ route('about') }}" class="btn bg-blue-700 text-white hover:bg-blue-800 transition-colors">
+                    Sobre
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
 
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
