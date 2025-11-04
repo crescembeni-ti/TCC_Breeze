@@ -72,11 +72,6 @@
                             </p>
                         </div>
 
-                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-6">
-                            <p class="text-blue-800">
-                                <strong>Importante:</strong> Este formulário é público e não requer login. Para denúncias que exigem acompanhamento, utilize o <a href="{{ route('contact') }}" class="underline hover:text-blue-900">formulário de denúncias</a> (requer login).
-                            </p>
-                        </div>
                     </div>
                 </div>
 
