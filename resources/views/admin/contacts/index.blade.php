@@ -1,6 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{-- Texto já estava em Português --}}
             {{ __('Mensagens de Contato') }}
         </h2>
     </x-slot>
@@ -22,47 +23,91 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
+                                    {{-- Textos já estavam em Português --}}
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">De</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mensagem</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitação</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse ($messages as $message)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">{{ $message->nome_solicitante }}</div>
-                                            <div class="text-sm text-gray-500">{{ $message->email_solicitante }}</div>
+                                            {{-- Usando a relação 'user' que carregamos no controller --}}
+                                            <div class="text-sm font-medium text-gray-900">{{ $message->user->name ?? $message->nome_solicitante }}</div>
+                                            <div class="text-sm text-gray-500">{{ $message->user->email ?? $message->email_solicitante }}</div>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <div class="text-sm text-gray-900">{{ Str::limit($message->descricao, 100) }}</div>
+                                            {{-- Mostra o endereço e a descrição --}}
+                                            <div class="text-sm font-medium text-gray-900">{{ $message->bairro }}, {{ $message->rua }}, {{ $message->numero }}</div>
+                                            <div class="text-sm text-gray-500">{{ Str::limit($message->descricao, 100) }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $message->created_at->format('d/m/Y H:i') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            
+                                            {{-- === FORMULÁRIO DE ATUALIZAÇÃO ADAPTADO === --}}
                                             <form action="{{ route('admin.contacts.updateStatus', $message) }}" method="POST">
                                                 @csrf
                                                 @method('PATCH')
-                                                <select name="status" 
-                                                        class="rounded-md border-gray-300 shadow-sm text-sm
-                                                        @if($message->status == 'novo') bg-red-100 text-red-800
-                                                        @elseif($message->status == 'visto') bg-yellow-100 text-yellow-800
-                                                        @elseif($message->status == 'resolvendo') bg-blue-100 text-blue-800
-                                                        @else bg-green-100 text-green-800 @endif
-                                                        "
-                                                        onchange="this.form.submit()"> <option value="novo" {{ $message->status == 'novo' ? 'selected' : '' }}>Novo</option>
-                                                    <option value="visto" {{ $message->status == 'visto' ? 'selected' : '' }}>Visto</to>
-                                                    <option value="resolvendo" {{ $message->status == 'resolvendo' ? 'selected' : '' }}>Resolvendo</option>
-                                                    <option value="resolvido" {{ $message->status == 'resolvido' ? 'selected' : '' }}>Resolvido</option>
-                                                </select>
+
+                                                <div>
+                                                    @php
+                                                        // Define a cor baseada no nome do status
+                                                        $statusName = $message->status->name ?? 'Indefinido';
+                                                        $colorClass = match($statusName) {
+                                                            'Em Análise' => 'bg-yellow-100 text-yellow-800',
+                                                            'Deferido' => 'bg-blue-100 text-blue-800',
+                                                            'Concluído' => 'bg-green-100 text-green-800',
+                                                            'Indeferido' => 'bg-red-100 text-red-800',
+                                                            default => 'bg-gray-100 text-gray-800', // Para 'Enviado' (se existir) ou Nulo
+                                                        };
+                                                    @endphp
+
+                                                    <label for="status-{{ $message->id }}" class="sr-only">Status</label>
+                                                    <select 
+                                                        name="status_id" {{-- Nome corrigido --}}
+                                                        id="status-{{ $message->id }}"
+                                                        class="rounded-md border-gray-300 shadow-sm text-sm {{ $colorClass }}"
+                                                    >
+                                                        {{-- Loop dinâmico com os status do BD --}}
+                                                        @foreach ($allStatuses as $status)
+                                                            <option value="{{ $status->id }}" @if($message->status_id == $status->id) selected @endif>
+                                                                {{ $status->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+
+                                                <div class="mt-2">
+                                                    <label for="justificativa-{{ $message->id }}" class="sr-only">Justificativa</label>
+                                                    <textarea 
+                                                        name="justificativa" 
+                                                        id="justificativa-{{ $message->id }}" 
+                                                        rows="2" 
+                                                        class="block w-full rounded-md shadow-sm border-gray-300 text-sm"
+                                                        placeholder="Justificativa (se indeferido)"
+                                                    >{{ old('justificativa', $message->justificativa) }}</textarea>
+                                                    {{-- Mostra erro de validação (ex: justificativa obrigatória) --}}
+                                                    @error('justificativa')
+                                                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+
+                                                <button type="submit" class="mt-2 px-3 py-1 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700">
+                                                    Atualizar
+                                                </button>
                                             </form>
+                                            {{-- === FIM DO FORMULÁRIO === --}}
+
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
                                         <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                            {{-- Texto já estava em Português --}}
                                             Nenhuma mensagem recebida.
                                         </td>
                                     </tr>

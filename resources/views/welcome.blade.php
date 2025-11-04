@@ -10,18 +10,13 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
-    <!-- 
-      ▼▼▼ MÁGICA AQUI ▼▼▼
-      Removemos o <style> gigante e chamamos os arquivos do Vite
-    -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @vite('resources/css/welcome.css')
      <!-- Ícone do site -->
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
-<body class="font-sans antialiased bg-gray-100"> <!-- Agora o bg-gray-100 vem do app.css! -->
+<body class="font-sans antialiased bg-gray-100">
     <div class="min-h-screen">
-        <!-- As classes do Header agora vêm do app.css e welcome.css -->
         <header class="site-header relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
         
@@ -37,46 +32,75 @@
         <!-- LADO DIREITO: LOGIN / REGISTRO + MENU HAMBÚRGUER -->
         <div class="flex items-center gap-4" x-data="{ open: false }">
             
-            <!-- Botões Login / Registrar -->
-            @guest
-                <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700">Entrar</a>
-                <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700">Cadastrar</a>
-            @endguest
-
+            <!-- Botões Desktop (Adaptado) -->
             @auth
-                <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700">Dashboard</a>
+                {{-- Se o usuário está LOGADO, mostra o link para o Painel --}}
+                <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Painel</a>
+            @else
+                {{-- Se o usuário é VISITANTE, mostra Entrar/Cadastrar --}}
+                <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Entrar</a>
+                <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
             @endauth
 
-            <!-- Botão do menu -->
-            <!-- Botão do menu -->
-        <button 
-            @click="open = !open"
-            class="menu-button focus:outline-none"
-            aria-label="Abrir menu"
-        >
-        <svg xmlns="http://www.w3.org/2000/svg" 
-         fill="none" viewBox="0 0 24 24" 
-         stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" 
-              d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        </button>
-
-            <!-- DROPDOWN DO MENU -->
-            <div 
-            x-show="open"
-            @click.away="open = false"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 transform scale-95"
-            x-transition:enter-end="opacity-100 transform scale-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100 transform scale-100"
-            x-transition:leave-end="opacity-0 transform scale-95"
-            class="menu-dropdown absolute right-0 top-[6rem] z-50"
+            <!-- Botão do menu (Hamburger) -->
+            <button 
+                @click="open = !open"
+                class="menu-button focus:outline-none"
+                aria-label="Abrir menu"
             >
-            <a href="{{ route('about') }}">Sobre</a>
-            <a href="{{ route('contact') }}">Contato</a>
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" viewBox="0 0 24 24" 
+                    stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" 
+                        d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+            <!-- DROPDOWN DO MENU (Adaptado) -->
+            <div 
+                x-show="open"
+                @click.away="open = false"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 transform scale-95"
+                x-transition:enter-end="opacity-100 transform scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 transform scale-100"
+                x-transition:leave-end="opacity-0 transform scale-95"
+                class="menu-dropdown absolute right-0 top-[6rem] z-50"
+                style="display: none;" {{-- Adicionado para garantir que o x-show controle --}}
+            >
+                <!-- Links Públicos (Para todos) -->
+                <a href="{{ route('about') }}">Sobre</a>
+
+                @auth
+                    <!-- ===== Links para Usuários Logados ===== -->
+                    
+                    {{-- Link para a página de fazer a solicitação --}}
+                    <a href="{{ route('contact') }}">Fazer Solicitação</a>
+                    
+                    {{-- Link para a página de acompanhar as solicitações --}}
+                    <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
+
+                    
+                    {{-- Divisor --}}
+                    <div class="menu-dropdown-divider"></div> 
+
+                    <!-- Formulário de Sair (Logout) -->
+                    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                        @csrf
+                        <a href="{{ route('logout') }}"
+                           class="menu-dropdown-logout-link" {{-- Classe para estilização opcional --}}
+                           onclick="event.preventDefault(); this.closest('form').submit();">
+                            Sair
+                        </a>
+                    </form>
+                @else
+                    <!-- ===== Links para Visitantes (Mobile) ===== -->
+                    <a href="{{ route('login') }}">Entrar</a>
+                    <a href="{{ route('register') }}">Cadastrar</a>
+                @endauth
             </div>
+            
         </div>
     </div>
 </header>

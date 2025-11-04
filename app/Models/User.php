@@ -6,14 +6,16 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Notifications\VerifyEmailWithCode;
+use App\Notifications\VerifyEmailWithCode; // Seu código de verificação
 use App\Models\Contact; // Importando o modelo Contact
 use App\Notifications\SendVerificationCode;
+use Laravel\Sanctum\HasApiTokens; // <-- 1. ADICIONADO PARA O SANCTUM
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    // 2. ADICIONADO "HasApiTokens"
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -25,8 +27,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'is_admin',
-        'email_verification_code', // <-- CORRIGIDO
-        'email_verification_code_expires_at', // <-- CORRIGIDO
+        'email_verification_code',
+        'email_verification_code_expires_at',
     ];
 
     /**
@@ -64,7 +66,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         // Certifique-se de que o nome da sua notificação está correto.
-        // Se você a chamou de SendVerificationCode, mude abaixo:
         $this->notify(new SendVerificationCode); 
     }
 

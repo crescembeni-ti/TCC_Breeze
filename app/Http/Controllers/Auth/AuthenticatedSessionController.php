@@ -8,11 +8,13 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Validation\ValidationException; // 1. IMPORTAR O ERRO DE VALIDAÇÃO
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Exibe a tela de login.
      */
     public function create(): View
     {
@@ -20,42 +22,41 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Lida com a requisição de autenticação.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // 1. Tenta autenticar (valida e-mail, senha e rate limit)
+        // 2. Tenta autenticar (valida e-mail, senha, etc.)
         $request->authenticate();
 
-        // 2. Se autenticou, pega o usuário
+        // 3. Pega o usuário que acabou de ser autenticado
         $user = $request->user();
 
-        // 3. [A CHECAGEM] O usuário está logando, mas AINDA não se verificou?
+        // 4. [A NOVA REGRA]
+        // O usuário é válido, MAS ele já verificou o e-mail?
         if (!$user->hasVerifiedEmail()) {
             
-            // Pega o e-mail para enviar à próxima tela
-            $email = $user->email;
-            
-            // 4. Desloga o usuário (ele não deve ter uma sessão)
+            // 5. Desloga o usuário (para garantir)
             Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-            // 5. Redireciona para a tela de INSERIR O CÓDIGO,
-            // enviando um erro para o campo 'email'.
-            return redirect()->route('verification.code.notice', ['email' => $email])
-                ->withErrors(['email' => 'Você precisa verificar seu e-mail antes de logar. Por favor, insira o código que enviamos.']);
+            // 6. [A MUDANÇA] Lança um erro de validação padrão.
+            // O usuário verá a mesma mensagem de "e-mail ou senha incorretos",
+            // fazendo parecer que a conta não existe.
+            throw ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
         }
 
-        // 6. Se passou, o usuário está verificado. Loga normalmente.
+        // 7. Se passou, o usuário ESTÁ verificado. Loga normalmente.
         $request->session()->regenerate();
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
-    // ... (o método 'destroy' continua o mesmo) ...
-
-
     /**
-     * Destroy an authenticated session.
+     * Destrói a sessão autenticada.
      */
     public function destroy(Request $request): RedirectResponse
     {
