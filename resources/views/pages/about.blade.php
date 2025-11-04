@@ -40,16 +40,16 @@
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="bg-white rounded-lg shadow-lg p-8 info-column"> 
-                <h2 class="text-3xl font-bold text-gray-900 mb-6">Mapa de Árvores de Paracambi-RJ</h2>
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">Árvores de Paracambi</h2>
                 
                 <div class="prose max-w-none">
                     <p>
-                        O Mapa de Árvores de Paracambi é uma iniciativa dedicada ao mapeamento e preservação do patrimônio arbóreo da cidade de Paracambi, localizada no estado do Rio de Janeiro. Este projeto tem como objetivo principal criar um inventário completo das árvores urbanas do município, permitindo que cidadãos, gestores públicos e pesquisadores acompanhem a saúde e o desenvolvimento da floresta urbana local.
+                        Árvores de Paracambi é uma iniciativa dedicada ao mapeamento e preservação do patrimônio arbóreo da cidade de Paracambi, localizada no estado do Rio de Janeiro. Este projeto tem como objetivo principal criar um inventário completo das árvores urbanas do município, permitindo que cidadãos, gestores públicos e pesquisadores acompanhem a saúde e o desenvolvimento da floresta urbana local.
                     </p>
 
                     <h3>Nossa Missão</h3>
                     <p>
-                        Nossa missão é promover a conscientização ambiental e facilitar a gestão sustentável das árvores urbanas de Paracambi. Através deste mapa interativo, buscamos engajar a comunidade local no cuidado e na preservação das árvores, reconhecendo sua importância fundamental para a qualidade de vida, o equilíbrio ecológico e o bem-estar da população.
+                        Nossa missão é promover a conscientização ambiental e facilitar a gestão sustentável das Árvores Urbanas de Paracambi. Através deste mapa interativo, buscamos engajar a comunidade local no cuidado e na preservação das árvores, reconhecendo sua importância fundamental para a qualidade de vida, o equilíbrio ecológico e o bem-estar da população.
                     </p>
 
                     <h3>Como Funciona</h3>
