@@ -3,44 +3,35 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Contato - Mapa de Árvores</title>
+    <title>Contato - Árvores de Paracambi</title>
     
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     
+    <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @vite('resources/css/welcome.css')
-    @vite('resources/css/contact.css')
-
+<!-- Ícone do site -->
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
-<body class="font-sans antialiased bg-gray-100">
+<body class="font-sans antialiased bg-gray-50">
     <div class="min-h-screen">
-
-        <!-- HEADER IGUAL AO WELCOME, COM ESTILO DO welcome.css -->
-        <header class="site-header">
+        <!-- Header -->
+        <header class="bg-white shadow">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex justify-between items-center">
-                    <!-- Logo e título -->
-                    <div class="flex items-center gap-12">
-                        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-24 w-24 object-contain">
-                        <h1 class="text-5xl font-bold">
-                            <span class="text-[#358054]">Árvores de</span>
-                            <span class="text-[#a0c520]"> Paracambi</span>
-                        </h1>
-                    </div>
-
-                    <!-- Botões -->
+                    <h1 class="text-3xl font-bold text-gray-900">Contato</h1>
                     <div class="flex gap-4">
-                        <a href="{{ route('home') }}" class="btn">Voltar ao Mapa</a>
-                        <a href="{{ route('about') }}" class="btn bg-blue-600 hover:bg-blue-700">Sobre</a>
+                        <a href="{{ route('home') }}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Voltar ao Mapa</a>
+                        <a href="{{ route('about') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Sobre</a>
                     </div>
                 </div>
             </div>
         </header>
-        <!-- FIM DO HEADER -->
 
+        <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Success Message -->
             @if(session('success'))
                 <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg" role="alert">
                     <p class="font-bold">Sucesso!</p>
@@ -49,7 +40,8 @@
             @endif
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white rounded-lg shadow-lg p-8 info-column">
+                <!-- Contact Information -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
                     
                     <div class="space-y-6">
@@ -80,90 +72,113 @@
                             </p>
                         </div>
 
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-6">
+                            <p class="text-blue-800">
+                                <strong>Importante:</strong> Este formulário é público e não requer login. Para denúncias que exigem acompanhamento, utilize o <a href="{{ route('contact') }}" class="underline hover:text-blue-900">formulário de denúncias</a> (requer login).
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow-lg p-8 info-column">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Formulário de Denúncia</h2>
+                <!-- Contact Form -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Formulário de Contato</h2>
                     
-                    @auth
-                        <form action="{{ route('report.store') }}" method="POST" class="space-y-6">
-                            @csrf
-                            
-                            <div>
-                                <label for="subject" class="block text-sm font-semibold text-gray-700 mb-2">Assunto</label>
-                                <input 
-                                    type="text" 
-                                    id="subject" 
-                                    name="subject" 
-                                    required
-                                    maxlength="255"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('subject') border-red-500 @enderror"
-                                    placeholder="Ex: Árvore danificada na Rua Principal"
-                                    value="{{ old('subject') }}"
-                                >
-                                @error('subject')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
+                    <form action="{{ route('contact.store') }}" method="POST" class="space-y-6">
+                        @csrf
+                        
 
-                            <div>
-                                <label for="message" class="block text-sm font-semibold text-gray-700 mb-2">Mensagem</label>
-                                <textarea 
-                                    id="message" 
-                                    name="message" 
-                                    rows="8"
-                                    required
-                                    maxlength="5000"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('message') border-red-500 @enderror"
-                                    placeholder="Descreva detalhadamente a sua denúncia, incluindo localização e outros detalhes relevantes..."
-                                >{{ old('message') }}</textarea>
-                                @error('message')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
-                                <p class="text-yellow-800 text-sm">
-                                    <strong>Atenção:</strong> Sua denúncia será registrada com seu nome de usuário ({{ auth()->user()->name }}) para que possamos entrar em contato caso necessário.
-                                </p>
-                            </div>
-
-                            <button 
-                                type="submit" 
-                                class="btn w-full bg-green-600 text-white hover:bg-green-700"
+                        <div>
+                            <label for="bairro" class="block text-sm font-semibold text-gray-700 mb-2">Bairro *</label>
+                            <input 
+                                type="text" 
+                                id="bairro" 
+                                name="bairro" 
+                                required
+                                maxlength="255"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('address') border-red-500 @enderror"
+                                placeholder="Ex: Centro"
+                                value="{{ old('bairro') }}"
                             >
-                                Enviar Denúncia
-                            </button>
-                        </form>
-                    @else
-                        <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                            </svg>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Login Necessário</h3>
-                            <p class="text-gray-600 mb-6">
-                                Para enviar uma denúncia, você precisa estar logado no sistema. Isso nos ajuda a manter um registro de todas as denúncias e entrar em contato caso necessário.
-                            </p>
-                            <div class="flex gap-4 justify-center">
-                                <a href="{{ route('login') }}" class="btn bg-green-600 text-white hover:bg-green-700">
-                                    Fazer Login
-                                </a>
-                                <a href="{{ route('register') }}" class="btn bg-gray-600 text-white hover:bg-gray-700">
-                                    Criar Conta
-                                </a>
-                            </div>
+                            @error('bairro')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
-                    @endauth
+
+                         <div>
+                            <label for="rua" class="block text-sm font-semibold text-gray-700 mb-2">Rua *</label>
+                            <input 
+                                type="text" 
+                                id="rua" 
+                                name="rua" 
+                                required
+                                maxlength="255"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('address') border-red-500 @enderror"
+                                placeholder="Ex: Rua das Flores"
+                                value="{{ old('rua') }}"
+                            >
+                            @error('rua')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="numero" class="block text-sm font-semibold text-gray-700 mb-2">Número *</label>
+                            <input 
+                                type="text" 
+                                id="numero" 
+                                name="numero" 
+                                required
+                                maxlength="255"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('address') border-red-500 @enderror"
+                                placeholder="Ex: 14"
+                                value="{{ old('rua') }}"
+                            >
+                            @error('numero')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="descricao" class="block text-sm font-semibold text-gray-700 mb-2">Descrição do Ocorrido *</label>
+                            <textarea 
+                                id="descricao" 
+                                name="descricao" 
+                                rows="6"
+                                required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('description') border-red-500 @enderror"
+                                placeholder="Descreva detalhadamente o ocorrido..."
+                            >{{ old('descricao') }}</textarea>
+                            @error('descricao')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                            <p class="text-yellow-800 text-sm">
+                                <strong>Atenção:</strong> Todos os campos marcados com * são obrigatórios. Suas informações serão utilizadas apenas para responder ao seu contato.
+                            </p>
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            class="w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-200 shadow-md hover:shadow-lg"
+                        >
+                            Enviar Mensagem
+                        </button>
+                    </form>
                 </div>
             </div>
         </main>
 
-        <footer class="bg-gray-800 shadow mt-12">
+        <!-- Footer -->
+        <footer class="bg-white shadow mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <p class="text-center text-gray-300">© {{ date('Y') }} Mapa de Árvores de Paracambi-RJ. Desenvolvido com Laravel e Leaflet.</p>
+                <p class="text-center text-gray-600">© {{ date('Y') }} Mapa de Árvores de Paracambi-RJ. Desenvolvido com Laravel e Leaflet.</p>
             </div>
         </footer>
     </div>
+
 </body>
 </html>
+

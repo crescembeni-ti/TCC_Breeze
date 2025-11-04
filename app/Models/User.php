@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\VerifyEmailWithCode;
 use App\Models\Contact; // Importando o modelo Contact
+use App\Notifications\SendVerificationCode;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -64,7 +65,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         // Certifique-se de que o nome da sua notificação está correto.
         // Se você a chamou de SendVerificationCode, mude abaixo:
-        $this->notify(new VerifyEmailWithCode); 
+        $this->notify(new SendVerificationCode); 
     }
 
     public function contacts()
