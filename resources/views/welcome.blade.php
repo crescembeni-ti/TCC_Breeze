@@ -22,29 +22,65 @@
 <body class="font-sans antialiased bg-gray-100"> <!-- Agora o bg-gray-100 vem do app.css! -->
     <div class="min-h-screen">
         <!-- As classes do Header agora vêm do app.css e welcome.css -->
-        <header class="site-header">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-12">
-                        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-24 w-24 object-contain">
-                            <h1 class="text-5xl font-bold">
-                            <span class="text-[#358054]">Árvores de</span>
-                            <span class="text-[#a0c520]"> Paracambi</span>
-                            </h1>
-                    </div>                    
-                    <div class="flex gap-4">
-                        <a href="{{ route('about') }}" class="btn bg-blue-600 hover:bg-blue-700">Sobre</a>
-                        <a href="{{ route('contact') }}" class="btn bg-purple-600 hover:bg-purple-700">Contato</a>
-                        @auth
-                            <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-500">Dashboard</a>
-                        @else
-                            <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-500">Entrar</a>
-                            <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-500">Cadastrar</a>
-                        @endauth
-                    </div>
-                </div>
+        <header class="site-header relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
+        
+        <!-- LOGO + TÍTULO -->
+        <div class="flex items-center gap-4">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
+            <h1 class="text-4xl font-bold">
+                <span class="text-[#358054]">Árvores de</span>
+                <span class="text-[#a0c520]"> Paracambi</span>
+            </h1>
+        </div>
+
+        <!-- LADO DIREITO: LOGIN / REGISTRO + MENU HAMBÚRGUER -->
+        <div class="flex items-center gap-4" x-data="{ open: false }">
+            
+            <!-- Botões Login / Registrar -->
+            @guest
+                <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700">Entrar</a>
+                <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700">Cadastrar</a>
+            @endguest
+
+            @auth
+                <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700">Dashboard</a>
+            @endauth
+
+            <!-- Botão do menu -->
+            <!-- Botão do menu -->
+        <button 
+            @click="open = !open"
+            class="menu-button focus:outline-none"
+            aria-label="Abrir menu"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" 
+         fill="none" viewBox="0 0 24 24" 
+         stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" 
+              d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+
+            <!-- DROPDOWN DO MENU -->
+            <div 
+            x-show="open"
+            @click.away="open = false"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 transform scale-95"
+            x-transition:enter-end="opacity-100 transform scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 transform scale-100"
+            x-transition:leave-end="opacity-0 transform scale-95"
+            class="menu-dropdown absolute right-0 top-[6rem] z-50"
+            >
+            <a href="{{ route('about') }}">Sobre</a>
+            <a href="{{ route('contact') }}">Contato</a>
             </div>
-        </header>
+        </div>
+    </div>
+</header>
+
 
         <!-- As classes de layout (grid, gap-6, etc.) agora vêm do app.css -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
