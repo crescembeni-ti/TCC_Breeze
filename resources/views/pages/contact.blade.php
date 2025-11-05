@@ -35,9 +35,10 @@
                 <a href="{{ route('home') }}" class="btn bg-green-700 text-white hover:bg-green-800 transition-colors">
                     Voltar ao Mapa
                 </a>
-                <a href="{{ route('about') }}" class="btn bg-blue-700 text-white hover:bg-blue-800 transition-colors">
-                    Sobre
-                </a>
+                <a href="{{ route('contact.myrequests') }}" 
+                class="btn bg-gray-700 text-white hover:bg-gray-800 transition-colors">
+                Minhas Solicitações
+            </a>
             </div>
         </div>
     </div>
@@ -48,11 +49,16 @@
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <!-- Success Message -->
             @if(session('success'))
-                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg" role="alert">
-                    <p class="font-bold">Sucesso!</p>
-                    <p>{{ session('success') }}</p>
-                </div>
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg" role="alert">
+        <p class="font-bold">✅ Sucesso!</p>
+        <p>{{ session('success') }}</p>
+        <a href="{{ route('contact.myrequests') }}" 
+            class="inline-block mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition">
+            Ver Minhas Solicitações
+        </a>
+        </div>
             @endif
+
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Contact Information -->
@@ -176,6 +182,8 @@
                         >
                             Enviar Mensagem
                         </button>
+
+
                     </form>
                 </div>
             </div>

@@ -87,7 +87,6 @@
                         @auth
                             <!-- ===== Links para Usuários Logados ===== -->
                             <a href="{{ route('contact') }}">Fazer Solicitação</a>
-                            <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
                             <a href="{{ route('profile.edit') }}">Meu Perfil</a>
                             
                             <div class="menu-dropdown-divider"></div> 
@@ -308,9 +307,15 @@
                                                     
                                                     {{-- Botão "Cancelar" (confirma e envia o form) --}}
                                                     <button type="submit" 
-                                                            class="btn bg-red-600 hover:bg-red-700 text-white">
+                                                        class="btn bg-red-600 hover:bg-red-700 text-white"
+                                                        @click.prevent="
+                                                        if (confirm('Tem certeza que deseja cancelar esta solicitação?')) {
+                                                       $el.closest('form').submit()
+                                                        }
+                                                        ">
                                                         Sim, cancelar
-                                                    </button>
+                                                        </button>
+
                                                 </div>
                                             </form>
                                         </div>
