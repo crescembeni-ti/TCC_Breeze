@@ -106,7 +106,7 @@ class ContactController extends Controller
         ];
 
         // 12. Se o status for mudado para algo que NÃO é "Indeferido",
-        //      limpa a justificativa (caso exista de uma rejeição anterior)
+        //     limpa a justificativa (caso exista de uma rejeição anterior)
         if ($validated['status_id'] != $statusIndeferidoId) {
             $dataToSave['justificativa'] = null;
         }
@@ -116,7 +116,7 @@ class ContactController extends Controller
         return redirect()->route('admin.contacts.index')->with('success', 'Status da mensagem atualizado.');
     }
 
-    // --- MÉTODO DO USUÁRIO (NOVO) ---
+    // --- MÉTODOS DO USUÁRIO ---
 
     /**
      * [USUÁRIO] Mostra a lista de solicitações do usuário logado.
@@ -131,5 +131,48 @@ class ContactController extends Controller
                         ->get();
 
         return view('pages.my-requests', compact('myRequests'));
+    }
+
+    /**
+     * [NOVO MÉTODO - ADAPTADO]
+     * Permite que um usuário cancele a própria solicitação.
+     */
+    public function cancelRequest(Request $request, Contact $contact)
+    {
+        // 1. Verificação de Segurança: O usuário logado é o dono desta solicitação?
+        if (Auth::id() !== $contact->user_id) {
+            abort(403); // Proibido
+        }
+
+        // 2. Busca os IDs dos status (usando cache para otimizar)
+        $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, function () {
+            return Status::where('name', 'Em Análise')->firstOrFail()->id;
+        });
+        
+        $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, function () {
+            // Certifique-se de ter rodado o seeder para "Cancelado"
+            return Status::where('name', 'Cancelado')->firstOrFail()->id;
+        });
+
+        // 3. Regra de Negócio: Só pode cancelar se estiver "Em Análise"
+        if ($contact->status_id !== $statusEmAnaliseId) {
+            return back()->withErrors(['cancel_error' => 'Esta solicitação não pode mais ser cancelada.']);
+        }
+
+        // 4. Valida o motivo (opcional)
+        $request->validate([
+            'justificativa_cancelamento' => 'nullable|string|max:500'
+        ]);
+
+        // 5. Atualiza a solicitação
+        $contact->update([
+            'status_id' => $statusCanceladoId,
+            // Reutilizamos o campo 'justificativa' para o motivo do cancelamento
+            'justificativa' => $request->justificativa_cancelamento 
+                                ? 'Cancelado pelo usuário: ' . $request->justificativa_cancelamento
+                                : 'Cancelado pelo usuário (sem motivo informado).'
+        ]);
+
+        return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada com sucesso.');
     }
 }
