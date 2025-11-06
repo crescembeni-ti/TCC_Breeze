@@ -6,6 +6,25 @@
  */
 
 /* Botões */
+
+/* resources/css/welcome.css */
+
+/* Adicione este novo bloco no topo do arquivo */
+/* ADICIONE ISTO NO TOPO do seu resources/css/welcome.css */
+
+body.welcome-page {
+    /* 1. O caminho da imagem (na pasta 'public/images/') */
+    background-image: url('/public/images/fotofabrica.jpg');
+
+    /* 2. Configurações para cobrir a tela */
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+/* O RESTO DO SEU WELCOME.CSS (se houver) VEM DEPOIS... */
+
 .btn {
     background-color: #358054;
     /* Verde principal */

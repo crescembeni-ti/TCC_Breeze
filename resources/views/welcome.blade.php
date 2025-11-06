@@ -15,7 +15,8 @@
      <!-- Ícone do site -->
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
-<body class="font-sans antialiased bg-gray-100">
+{{-- ADAPTAÇÃO AQUI: Removido 'bg-gray-100' e adicionado 'welcome-page' --}}
+<body class="font-sans antialiased welcome-page">
     <div class="min-h-screen">
         <header class="site-header relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
@@ -67,7 +68,7 @@
                 x-transition:leave-start="opacity-100 transform scale-100"
                 x-transition:leave-end="opacity-0 transform scale-95"
                 class="menu-dropdown absolute right-0 top-[6rem] z-50"
-                style="display: none;" {{-- Adicionado para garantir que o x-show controle --}}
+                style="display: none;" 
             >
                 <!-- Links Públicos (Para todos) -->
                 <a href="{{ route('about') }}">Sobre</a>
@@ -89,7 +90,7 @@
                     <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
                         @csrf
                         <a href="{{ route('logout') }}"
-                           class="menu-dropdown-logout-link" {{-- Classe para estilização opcional --}}
+                           class="menu-dropdown-logout-link" 
                            onclick="event.preventDefault(); this.closest('form').submit();">
                             Sair
                         </a>
