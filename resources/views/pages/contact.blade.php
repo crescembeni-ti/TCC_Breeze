@@ -5,23 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Contato - Árvores de Paracambi</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     
-    <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @vite('resources/css/contact.css')
-<!-- Ícone do site -->
-    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
+<link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <div class="min-h-screen">
-        <!-- Header -->
         <header class="site-header bg-white shadow">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex justify-between items-center">
-            <!-- Logo e título -->
             <div class="flex items-center gap-12">
                 <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-24 w-24 object-contain">
                 <h1 class="text-5xl font-bold">
@@ -30,7 +25,6 @@
                 </h1>
             </div>
 
-            <!-- Botões de navegação -->
             <div class="flex gap-4">
                 <a href="{{ route('home') }}" class="btn bg-green-700 text-white hover:bg-green-800 transition-colors">
                     Voltar ao Mapa
@@ -45,9 +39,7 @@
 </header>
 
 
-        <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <!-- Success Message -->
             @if(session('success'))
     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg" role="alert">
         <p class="font-bold">✅ Sucesso!</p>
@@ -56,12 +48,11 @@
             class="inline-block mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition">
             Ver Minhas Solicitações
         </a>
-        </div>
+    </div>
             @endif
 
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Contact Information -->
                 <div class="bg-white rounded-lg shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
                     
@@ -96,32 +87,39 @@
                     </div>
                 </div>
 
-                <!-- Contact Form -->
                 <div class="bg-white rounded-lg shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Formulário de Contato</h2>
                     
                     <form action="{{ route('contact.store') }}" method="POST" class="space-y-6">
                         @csrf
                         
-
                         <div>
                             <label for="bairro" class="block text-sm font-semibold text-gray-700 mb-2">Bairro *</label>
-                            <input 
-                                type="text" 
+                            
+                            <select 
                                 id="bairro" 
                                 name="bairro" 
                                 required
-                                maxlength="255"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('address') border-red-500 @enderror"
-                                placeholder="Ex: Centro"
-                                value="{{ old('bairro') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('bairro') border-red-500 @enderror"
                             >
+                                <option value="" disabled {{ old('bairro') ? '' : 'selected' }}>Escolha um bairro...</option>
+                                
+                                @foreach ($bairros as $bairro)
+                                    <option 
+                                        value="{{ $bairro->nome }}" 
+                                        {{ old('bairro') == $bairro->nome ? 'selected' : '' }}
+                                    >
+                                        {{ $bairro->nome }}
+                                    </option>
+                                @endforeach
+                                
+                            </select>
+
                             @error('bairro')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-
-                         <div>
+                        <div>
                             <label for="rua" class="block text-sm font-semibold text-gray-700 mb-2">Rua *</label>
                             <input 
                                 type="text" 
@@ -129,8 +127,7 @@
                                 name="rua" 
                                 required
                                 maxlength="255"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('address') border-red-500 @enderror"
-                                placeholder="Ex: Rua das Flores"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('rua') border-red-500 @enderror" placeholder="Ex: Rua das Flores"
                                 value="{{ old('rua') }}"
                             >
                             @error('rua')
@@ -146,10 +143,8 @@
                                 name="numero" 
                                 required
                                 maxlength="255"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('address') border-red-500 @enderror"
-                                placeholder="Ex: 14"
-                                value="{{ old('rua') }}"
-                            >
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('numero') border-red-500 @enderror" placeholder="Ex: 14"
+                                value="{{ old('numero') }}" >
                             @error('numero')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -162,8 +157,7 @@
                                 name="descricao" 
                                 rows="6"
                                 required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('description') border-red-500 @enderror"
-                                placeholder="Descreva detalhadamente o ocorrido..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('descricao') border-red-500 @enderror" placeholder="Descreva detalhadamente o ocorrido..."
                             >{{ old('descricao') }}</textarea>
                             @error('descricao')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -189,7 +183,6 @@
             </div>
         </main>
 
-        <!-- Footer -->
         <footer class="bg-white shadow mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <p class="text-center text-gray-600">© {{ date('Y') }} Mapa de Árvores de Paracambi-RJ. Desenvolvido com Laravel e Leaflet.</p>
@@ -199,4 +192,3 @@
 
 </body>
 </html>
-

@@ -48,6 +48,13 @@
                     <i data-lucide="user" class="icon"></i>
                     <span>Meu Perfil</span>
                 </a>
+            @can('manage-roles')  {{-- <-- A MÁGICA ACONTECE AQUI --}}
+    <div class="link-secao-admin">
+        <h3>Administração Avançada</h3>
+        <p>Gerencie os cargos e permissões de outros usuários.</p>
+        <a href="{{ route('admin.roles.index') }}">Ir para Gerenciamento de Cargos</a>
+    </div>
+@endcan
             </nav>
 
             <div class="mt-auto border-t border-green-400 pt-6">

@@ -10,12 +10,13 @@ use App\Notifications\VerifyEmailWithCode; // Seu código de verificação
 use App\Models\Contact; // Importando o modelo Contact
 use App\Notifications\SendVerificationCode;
 use Laravel\Sanctum\HasApiTokens; // <-- 1. ADICIONADO PARA O SANCTUM
+use Spatie\Permission\Traits\HasRoles; // <-- ADICIONADO PARA O SPATIE/PERMISSION
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     // 2. ADICIONADO "HasApiTokens"
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles; // <-- ADICIONADO PARA O SPATIE/PERMISSION
 
     /**
      * The attributes that are mass assignable.

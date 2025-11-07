@@ -15,6 +15,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // --- ATUALIZAÇÃO ---
+        // Chamar o Seeder de Bairros que acabamos de criar.
+        $this->call([
+            BairroSeeder::class,
+            // Se você tiver outros seeders (ex: StatusSeeder), adicione-os aqui.
+        ]);
+        // --- FIM DA ATUALIZAÇÃO ---
+
+
         // Criar usuário de teste
         $user = User::factory()->create([
             'name' => 'Test User',
@@ -95,4 +104,3 @@ class DatabaseSeeder extends Seeder
         }
     }
 }
-
