@@ -8,133 +8,134 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     
-    {{-- Carrega os CSS principais (app.css e welcome.css) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @vite('resources/css/welcome.css')
-     <!-- Ícone do site -->
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
-
-    {{-- Script do Alpine.js (necessário para o "Ver Detalhes" e o Modal) --}}
-    {{-- O @vite('resources/js/app.js') já deve incluir isso, mas garantimos --}}
+    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <style>
+        /* Estilo para os Tooltips (Legendas) */
+        .tooltip { position: relative; display: inline-flex; align-items: center; cursor: help; }
+        .tooltip .tooltiptext {
+            visibility: hidden; width: 240px; background-color: #333; color: #fff;
+            text-align: left; border-radius: 6px; padding: 8px 12px; position: absolute;
+            z-index: 10; bottom: 140%; left: 50%; margin-left: -120px;
+            opacity: 0; transition: opacity 0.3s; font-size: 0.875rem; 
+            font-weight: 400; line-height: 1.5; pointer-events: none;
+        }
+        .tooltip .tooltiptext::after {
+            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
+            border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent;
+        }
+        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+    </style>
 </head>
 <body class="font-sans antialiased bg-gray-100">
-    {{-- Garante que o rodapé fique no final, mesmo com pouco conteúdo --}}
     <div class="min-h-screen flex flex-col justify-between">
         
-        {{-- ====================================================== --}}
-        {{-- 1. CABEÇALHO (Layout da "welcome" colado aqui dentro) --}}
-        {{-- ====================================================== --}}
+        {{-- CABEÇALHO --}}
         <header class="site-header relative">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
-    
-    <!-- LOGO + TÍTULO -->
-    <div class="flex items-center gap-4">
-      <a href="{{ route('home') }}" class="flex items-center gap-4">
-        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
-        <h1 class="text-4xl font-bold">
-          <span class="text-[#358054]">Árvores de</span>
-          <span class="text-[#a0c520]"> Paracambi</span>
-        </h1>
-      </a>
-    </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <a href="{{ route('home') }}" class="flex items-center gap-4">
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
+                        <h1 class="text-4xl font-bold">
+                            <span class="text-[#358054]">Árvores de</span>
+                            <span class="text-[#a0c520]"> Paracambi</span>
+                        </h1>
+                    </a>
+                </div>
+                <div class="flex items-center gap-4" x-data="{ open: false }">
+                    <div class="hidden sm:flex items-center gap-4">
+                        @auth
+                            <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-green-700">Painel</a>
+                        @else
+                            <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700">Entrar</a>
+                            <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700">Cadastrar</a>
+                        @endauth
+                    </div>
+                    <button @click="open = !open" class="menu-button focus:outline-none" aria-label="Abrir menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    </button>
+                    <div x-show="open" @click.away="open = false" x-transition ... class="menu-dropdown absolute right-0 top-[6rem] z-50" style="display: none;">
+                        <a href="{{ route('about') }}">Sobre</a>
+                        @auth
+                            <a href="{{ route('contact') }}">Fazer Solicitação</a>
+                            <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
+                            <a href="{{ route('profile.edit') }}">Meu Perfil</a>
+                            <div class="menu-dropdown-divider"></div> 
+                            <form method="POST" action="{{ route('logout') }}" style="margin: 0;"> @csrf
+                                <a href="{{ route('logout') }}" class="menu-dropdown-logout-link" onclick="event.preventDefault(); this.closest('form').submit();"> Sair </a>
+                            </form>
+                        @else
+                            <a href="{{ route('login') }}">Entrar</a>
+                            <a href="{{ route('register') }}">Cadastrar</a>
+                        @endauth
+                    </div>
+                </div>
+            </div>
+        </header>
 
-    <!-- LADO DIREITO: LOGIN / REGISTRO + MENU HAMBÚRGUER -->
-    <div class="flex items-center gap-4">
-      
-      <!-- Botões Desktop (Para telas médias e grandes) -->
-      <div class="hidden sm:flex items-center gap-4">
-        @auth
-          <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-green-700">Painel</a>
-        @else
-          <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700">Entrar</a>
-          <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700">Cadastrar</a>
-        @endauth
-      </div>
-
-      <!-- Container relativo para alinhar o menu -->
-      <div class="relative" x-data="{ open: false }">
-        <!-- Botão do menu (Hamburger) -->
-        <button 
-          @click="open = !open"
-          class="menu-button focus:outline-none"
-          aria-label="Abrir menu"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" 
-              fill="none" viewBox="0 0 24 24" 
-              stroke-width="2" stroke="currentColor" 
-              class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" 
-                d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-
-        <!-- DROPDOWN DO MENU -->
-        <div 
-          x-show="open"
-          @click.away="open = false"
-          x-transition:enter="transition ease-out duration-200"
-          x-transition:enter-start="opacity-0 transform translate-y-2 scale-95"
-          x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
-          x-transition:leave="transition ease-in duration-150"
-          x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
-          x-transition:leave-end="opacity-0 transform translate-y-2 scale-95"
-          class="menu-dropdown absolute right-0 top-14 z-50"
-          style="display: none;"
-        >
-          <a href="{{ route('about') }}" @click="open = false">Sobre</a>
-
-          @auth
-            <a href="{{ route('contact') }}" @click="open = false">Fazer Solicitação</a>
-            <a href="{{ route('profile.edit') }}" @click="open = false">Meu Perfil</a>
-            
-            <div class="menu-dropdown-divider"></div>
-
-            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
-              @csrf
-              <a href="{{ route('logout') }}"
-                 class="menu-dropdown-logout-link"
-                 onclick="event.preventDefault(); this.closest('form').submit();">
-                Sair
-              </a>
-            </form>
-          @else
-            <a href="{{ route('login') }}" @click="open = false">Entrar</a>
-            <a href="{{ route('register') }}" @click="open = false">Cadastrar</a>
-          @endauth
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
-
-
-        {{-- ====================================================== --}}
-        <!-- 2. Conteúdo principal (O seu design interativo)         -->
-        {{-- ====================================================== --}}
+        {{-- CONTEÚDO PRINCIPAL --}}
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 md:p-8 text-gray-900">
                     
-                    <h2 class="text-3xl font-bold text-gray-900 mb-6">
-                        Minhas Solicitações
-                    </h2>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Minhas Solicitações</h2>
 
-                    {{-- Alerta de Sucesso (para quando cancelar) --}}
                     @if(session('success'))
-                        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
-                            {{ session('success') }}
-                        </div>
+                        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">{{ session('success') }}</div>
                     @endif
-                    {{-- Alerta de Erro (para quando tentar cancelar e não puder) --}}
                     @if($errors->has('cancel_error'))
-                        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
-                            {{ $errors->first('cancel_error') }}
-                        </div>
+                        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">{{ $errors->first('cancel_error') }}</div>
                     @endif
-
+                    
+                    {{-- LEGENDA DE STATUS --}}
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Legenda de Status</h4>
+                        <div class="flex flex-wrap gap-x-6 gap-y-3">
+                            {{-- Cada item agora é um 'flex' para garantir que o quadradinho fique ao lado do texto --}}
+                            <div class="tooltip flex items-center">
+                                <span class="w-4 h-4 rounded-sm mr-2 bg-gray-400 border border-gray-500"></span>
+                                <span class="text-sm text-gray-700">Em Análise</span>
+                                <span class="tooltiptext">O pedido foi enviado e será analisado pela secretaria.</span>
+                            </div>
+                            <div class="tooltip flex items-center">
+                                <span class="w-4 h-4 rounded-sm mr-2 bg-blue-700 border border-blue-800"></span>
+                                <span class="text-sm text-gray-700">Deferido</span>
+                                <span class="tooltiptext">O pedido foi visto e uma vistoria será feita no local.</span>
+                            </div>
+                            <div class="tooltip flex items-center">
+                                <span class="w-4 h-4 rounded-sm mr-2 bg-red-600 border border-red-700"></span>
+                                <span class="text-sm text-gray-700">Indeferido</span>
+                                <span class="tooltiptext">O pedido é inviável ou não compete ao meio ambiente.</span>
+                            </div>
+                            <div class="tooltip flex items-center">
+                                <span class="w-4 h-4 rounded-sm mr-2 border border-amber-900" style="background-color: #92400E;"></span>
+                                <span class="text-sm text-gray-700">Vistoriado</span>
+                                <span class="tooltiptext">Já foi feita uma vistoria no local pela secretaria.</span>
+                            </div>
+                            <div class="tooltip flex items-center">
+                                <span class="w-4 h-4 rounded-sm mr-2 bg-yellow-400 border border-yellow-500"></span>
+                                <span class="text-sm text-gray-700">Em Execução</span>
+                                <span class="tooltiptext">Foi constatada a necessidade de serviço e a equipe irá agir.</span>
+                            </div>
+                            <div class="tooltip flex items-center">
+                                <span class="w-4 h-4 rounded-sm mr-2 bg-orange-500 border border-orange-600"></span>
+                                <span class="text-sm text-gray-700">Sem Pendências</span>
+                                <span class="tooltiptext">Foi vistoriado e não foi constatada necessidade de serviço.</span>
+                            </div>
+                            <div class="tooltip flex items-center">
+                                <span class="w-4 h-4 rounded-sm mr-2 bg-green-600 border border-green-700"></span>
+                                <span class="text-sm text-gray-700">Concluído</span>
+                                <span class="tooltiptext">O serviço já foi executado.</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {{-- LISTA DE SOLICITAÇÕES --}}
                     @if($myRequests->isEmpty())
-                        {{-- Se não houver solicitações, mostra uma mensagem --}}
                         <div class="text-center py-12">
                             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -142,41 +143,41 @@
                             <h3 class="mt-2 text-lg font-medium text-gray-900">Nenhuma solicitação encontrada</h3>
                             <p class="mt-1 text-sm text-gray-500">Você ainda não fez nenhuma solicitação de intervenção.</p>
                             <div class="mt-6">
-                                <a href="{{ route('contact') }}" class="btn bg-green-600 hover:bg-green-700">
-                                    Fazer minha primeira solicitação
-                                </a>
+                                <a href="{{ route('contact') }}" class="btn bg-green-600 hover:bg-green-700">Fazer minha primeira solicitação</a>
                             </div>
                         </div>
                     @else
-                        {{-- Se houver solicitações, mostra a lista interativa --}}
                         <div class="space-y-4">
                             @foreach ($myRequests as $request)
-                                {{-- x-data controla o detalhe (open) E o modal (showCancelModal) --}}
                                 <div x-data="{ open: false, showCancelModal: false }" class="border rounded-lg shadow-sm transition-shadow hover:shadow-md bg-white">
                                     
-                                    {{-- PARTE SEMPRE VISÍVEL DO CARD --}}
                                     <div class="p-4 md:p-6">
                                         <div class="flex flex-col sm:flex-row justify-between sm:items-center">
-                                            {{-- Detalhes principais --}}
                                             <div>
-                                                <p class="text-lg font-semibold text-gray-900">
-                                                    Status da Solicitação
+                                                {{-- MUDANÇA AQUI: Título com Data ao lado --}}
+                                                <p class="text-lg font-semibold text-gray-900 flex items-center flex-wrap">
+                                                    Solicitação sobre: {{ $request->topico }}
+                                                    <span class="text-sm text-gray-500 font-normal ml-3">
+                                                        ({{ $request->created_at->format('d/m/Y') }})
+                                                    </span>
                                                 </p>
+                                                {{-- (O antigo "Protocolo #" foi removido daqui) --}}
                                             </div>
-                                            {{-- Status com caixinha colorida --}}
+                                            
                                             <div class="flex-shrink-0 mt-3 sm:mt-0 sm:ml-4">
-                                                
                                                 @php
                                                     $statusName = $request->status->name ?? 'Indefinido';
-                                                    $colorClass = '';
-                                                    switch ($statusName) {
-                                                        case 'Em Análise': $colorClass = 'bg-orange-100 text-orange-800'; break;
-                                                        case 'Deferido': $colorClass = 'bg-blue-100 text-blue-800'; break;
-                                                        case 'Concluído': $colorClass = 'bg-green-100 text-green-800'; break;
-                                                        case 'Indeferido': $colorClass = 'bg-red-100 text-red-800'; break;
-                                                        case 'Cancelado': $colorClass = 'bg-gray-200 text-gray-600'; break; // NOVO
-                                                        default: $colorClass = 'bg-gray-100 text-gray-800';
-                                                    }
+                                                    $colorClass = match($statusName) {
+                                                        'Em Análise' => 'bg-gray-200 text-gray-800',
+                                                        'Deferido' => 'bg-blue-100 text-blue-800',
+                                                        'Indeferido' => 'bg-red-100 text-red-800',
+                                                        'Vistoriado' => 'bg-amber-100 text-amber-800',
+                                                        'Em Execução' => 'bg-yellow-100 text-yellow-800',
+                                                        'Sem Pendências' => 'bg-orange-100 text-orange-800',
+                                                        'Concluído' => 'bg-green-100 text-green-800',
+                                                        'Cancelado' => 'bg-gray-300 text-gray-600 line-through',
+                                                        default => 'bg-gray-100 text-gray-800',
+                                                    };
                                                 @endphp
                                                 <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full {{ $colorClass }}">
                                                     {{ $statusName }}
@@ -184,9 +185,7 @@
                                             </div>
                                         </div>
 
-                                        {{-- Botões de Ação --}}
                                         <div class="mt-4 flex items-center gap-6">
-                                            {{-- Botão "Ver Detalhes" --}}
                                             <button @click="open = !open" class="text-sm font-medium text-green-600 hover:text-green-800 inline-flex items-center">
                                                 <span x-show="!open">Ver Detalhes</span>
                                                 <span x-show="open" style="display: none;">Ocultar Detalhes</span>
@@ -195,9 +194,7 @@
                                                 </svg>
                                             </button>
 
-                                            {{-- [NOVO] BOTÃO DE CANCELAR --}}
-                                            {{-- Só aparece se o status for "Em Análise" --}}
-                                            @if($request->status && $request->status->name == 'Em Análise')
+                                            @if($request->status && $request->status->name != 'Concluído' && $request->status->name != 'Cancelado')
                                                 <button @click="showCancelModal = true" class="text-sm font-medium text-red-600 hover:text-red-800">
                                                     Cancelar Solicitação
                                                 </button>
@@ -205,22 +202,13 @@
                                         </div>
                                     </div>
                                     
-                                    {{-- "ABINHA" DE DETALHES (só abre ao clicar) --}}
-                                    <div x-show="open" 
-                                         x-transition:enter="transition ease-out duration-200"
-                                         x-transition:enter-start="opacity-0 -translate-y-2"
-                                         x-transition:enter-end="opacity-100 translate-y-0"
-                                         x-transition:leave="transition ease-in duration-150"
-                                         x-transition:leave-start="opacity-100 translate-y-0"
-                                         x-transition:leave-end="opacity-0 -translate-y-2"
-                                         class="border-t border-gray-200 bg-gray-50 p-4 md:p-6"
-                                         style="display: none;"
-                                    >
-                                        <h4 class="text-md font-semibold text-gray-700 mb-3">Detalhes da Solicitação</h4>
+                                    {{-- ABINHA DE DETALHES --}}
+                                    <div x-show="open" x-transition class="border-t border-gray-200 bg-gray-50 p-4 md:p-6" style="display: none;">
+                                        <h4 class="text-md font-semibold text-gray-700 mb-3">Detalhes da Solicitação #{{ $request->id }}</h4>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                             <div>
-                                                <p class="font-medium text-gray-500">Data:</p>
-                                                {{-- A correção do fuso horário é aplicada aqui --}}
+                                                <p class="font-medium text-gray-500">Data e Hora:</p>
+                                                {{-- Mantida a data completa aqui --}}
                                                 <p class="text-gray-800">{{ $request->created_at->format('d/m/Y \à\s H:i') }}</p>
                                             </div>
                                             <div>
@@ -228,92 +216,40 @@
                                                 <p class="text-gray-800">{{ $request->bairro }}, {{ $request->rua }}, Nº {{ $request->numero }}</p>
                                             </div>
                                             <div class="col-span-1 md:col-span-2">
-                                                <p class="font-medium text-gray-500">O que solicitou:</p>
+                                                <p class="font-medium text-gray-500">Descrição:</p>
                                                 <p class="text-gray-800 whitespace-pre-wrap">{{ $request->descricao }}</p> 
                                             </div>
+                                            @if($request->foto_path)
+                                                <div class="col-span-1 md:col-span-2">
+                                                    <p class="font-medium text-gray-500">Foto Enviada:</p>
+                                                    <a href="{{ Storage::url($request->foto_path) }}" target="_blank">
+                                                        <img src="{{ Storage::url($request->foto_path) }}" alt="Foto da solicitação" class="mt-2 rounded-lg border shadow-sm max-w-xs max-h-64 object-cover">
+                                                    </a>
+                                                </div>
+                                            @endif
                                         </div>
-                                        
-                                        {{-- Mostra a justificativa, se for "Indeferido" --}}
                                         @if($request->status && $request->status->name == 'Indeferido' && $request->justificativa)
                                             <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
                                                 <p class="text-sm font-semibold text-red-800">Motivo do Indeferimento:</p>
-                                                <p class="text-sm text-red-700 mt-1 whitespace-pre-wrap">
-                                                    {{ $request->justificativa }}
-                                                </p>
-                                            </div>
-                                        @endif
-                                        
-                                        {{-- Mostra a justificativa, se for "Cancelado" --}}
-                                        @if($request->status && $request->status->name == 'Cancelado' && $request->justificativa)
-                                            <div class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                                <p class="text-sm font-semibold text-gray-800">Motivo do Cancelamento:</p>
-                                                <p class="text-sm text-gray-700 mt-1 whitespace-pre-wrap">
-                                                    {{ $request->justificativa }}
-                                                </p>
+                                                <p class="text-sm text-red-700 mt-1 whitespace-pre-wrap">{{ $request->justificativa }}</p>
                                             </div>
                                         @endif
                                     </div>
 
-                                    {{-- ====================================================== --}}
-                                    {{-- 4. O MODAL DE CANCELAMENTO (A "Caixinha")             --}}
-                                    {{-- ====================================================== --}}
-                                    <div x-show="showCancelModal"
-                                         x-transition:enter="ease-out duration-300"
-                                         x-transition:enter-start="opacity-0"
-                                         x-transition:enter-end="opacity-100"
-                                         x-transition:leave="ease-in duration-200"
-                                         x-transition:leave-start="opacity-100"
-                                         x-transition:leave-end="opacity-0"
-                                         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-                                         style="display: none;">
-                                        
-                                        {{-- O Card do Modal --}}
-                                        <div @click.away="showCancelModal = false" 
-                                             x-show="showCancelModal"
-                                             x-transition:enter="ease-out duration-300"
-                                             x-transition:enter-start="opacity-0 scale-90"
-                                             x-transition:enter-end="opacity-100 scale-100"
-                                             class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-                                             
-                                            {{-- O formulário que envia para a rota de cancelamento --}}
+                                    {{-- MODAL DE CANCELAMENTO --}}
+                                    <div x-show="showCancelModal" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" style="display: none;">
+                                        <div @click.away="showCancelModal = false" x-show="showCancelModal" x-transition class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
                                             <form method="POST" action="{{ route('contact.cancel', $request) }}">
-                                                @csrf
-                                                @method('PATCH')
-                                                
-                                                {{-- REQUISITO 5: Pergunta "Tem Certeza?" --}}
+                                                @csrf @method('PATCH')
                                                 <h3 class="text-xl font-semibold text-gray-900">Cancelar Solicitação</h3>
-                                                <p class="mt-2 text-sm text-gray-600">
-                                                    Tem certeza que deseja cancelar a solicitação do protocolo #{{ $request->id }}? Esta ação não pode ser desfeita.
-                                                </p>
-                                                
-                                                {{-- REQUISITO 2: Motivo Opcional --}}
+                                                <p class="mt-2 text-sm text-gray-600">Tem certeza que deseja cancelar a solicitação #{{ $request->id }}? Esta ação não pode ser desfeita.</p>
                                                 <div class="mt-4">
-                                                    <label for="justificativa_cancelamento-{{ $request->id }}" class="block text-sm font-medium text-gray-700">
-                                                        Motivo (opcional):
-                                                    </label>
-                                                    <textarea name="justificativa_cancelamento" id="justificativa_cancelamento-{{ $request->id }}" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"></textarea>
+                                                    <label for="justificativa-{{ $request->id }}" class="block text-sm font-medium text-gray-700">Motivo (opcional):</label>
+                                                    <textarea name="justificativa_cancelamento" id="justificativa-{{ $request->id }}" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"></textarea>
                                                 </div>
-                                                
-                                                {{-- REQUISITOS 3 e 4: Botões de Ação --}}
                                                 <div class="mt-6 flex justify-end space-x-4">
-                                                    {{-- Botão "Sair" (não cancela) --}}
-                                                    <button type="button" 
-                                                            @click="showCancelModal = false" 
-                                                            class="btn bg-gray-200 text-gray-700 hover:bg-gray-300">
-                                                        Manter Solicitação
-                                                    </button>
-                                                    
-                                                    {{-- Botão "Cancelar" (confirma e envia o form) --}}
-                                                    <button type="submit" 
-                                                        class="btn bg-red-600 hover:bg-red-700 text-white"
-                                                        @click.prevent="
-                                                        if (confirm('Tem certeza que deseja cancelar esta solicitação?')) {
-                                                       $el.closest('form').submit()
-                                                        }
-                                                        ">
-                                                        Sim, cancelar
-                                                        </button>
-
+                                                    <button type="button" @click="showCancelModal = false" class="btn bg-gray-200 text-gray-700 hover:bg-gray-300">Manter Solicitação</button>
+                                                    <button type="submit" class="btn bg-red-600 hover:bg-red-700 text-white">Sim, cancelar</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -326,15 +262,12 @@
             </div>
         </main>
 
-        {{-- ====================================================== --}}
-        {{-- 5. RODAPÉ (Layout da "welcome" colado aqui dentro)   --}}
-        {{-- ====================================================== --}}
+        {{-- RODAPÉ --}}
         <footer class="bg-gray-800 shadow mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <p class="text-center text-gray-300">© {{ date('Y') }} Mapa de Árvores. Desenvolvido com Laravel e Leaflet.</p>
             </div>
         </footer>
-        
     </div>
 </body>
 </html>
