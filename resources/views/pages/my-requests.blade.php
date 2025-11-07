@@ -26,90 +26,88 @@
         {{-- 1. CABEÇALHO (Layout da "welcome" colado aqui dentro) --}}
         {{-- ====================================================== --}}
         <header class="site-header relative">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
-                
-                <!-- LOGO + TÍTULO -->
-                <div class="flex items-center gap-4">
-                    <a href="{{ route('home') }}" class="flex items-center gap-4">
-                        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
-                        <h1 class="text-4xl font-bold">
-                            <span class="text-[#358054]">Árvores de</span>
-                            <span class="text-[#a0c520]"> Paracambi</span>
-                        </h1>
-                    </a>
-                </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
+    
+    <!-- LOGO + TÍTULO -->
+    <div class="flex items-center gap-4">
+      <a href="{{ route('home') }}" class="flex items-center gap-4">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
+        <h1 class="text-4xl font-bold">
+          <span class="text-[#358054]">Árvores de</span>
+          <span class="text-[#a0c520]"> Paracambi</span>
+        </h1>
+      </a>
+    </div>
 
-                <!-- LADO DIREITO: LOGIN / REGISTRO + MENU HAMBÚRGUER -->
-                <div class="flex items-center gap-4" x-data="{ open: false }">
-                    
-                    <!-- Botões Desktop (Para telas médias e grandes) -->
-                    <div class="hidden sm:flex items-center gap-4">
-                        @auth
-                            {{-- Se o usuário está LOGADO, mostra o link para o Painel/Home --}}
-                            <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-green-700">Painel</a>
-                        @else
-                            {{-- Se o usuário é VISITANTE, mostra Entrar/Cadastrar --}}
-                            <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700">Entrar</a>
-                            <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700">Cadastrar</a>
-                        @endauth
-                    </div>
+    <!-- LADO DIREITO: LOGIN / REGISTRO + MENU HAMBÚRGUER -->
+    <div class="flex items-center gap-4">
+      
+      <!-- Botões Desktop (Para telas médias e grandes) -->
+      <div class="hidden sm:flex items-center gap-4">
+        @auth
+          <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-green-700">Painel</a>
+        @else
+          <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700">Entrar</a>
+          <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700">Cadastrar</a>
+        @endauth
+      </div>
 
-                    <!-- Botão do menu (Hamburger) -->
-                    <button 
-                        @click="open = !open"
-                        class="menu-button focus:outline-none"
-                        aria-label="Abrir menu"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" 
-                            fill="none" viewBox="0 0 24 24" 
-                            stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" 
-                                d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
+      <!-- Container relativo para alinhar o menu -->
+      <div class="relative" x-data="{ open: false }">
+        <!-- Botão do menu (Hamburger) -->
+        <button 
+          @click="open = !open"
+          class="menu-button focus:outline-none"
+          aria-label="Abrir menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" 
+              fill="none" viewBox="0 0 24 24" 
+              stroke-width="2" stroke="currentColor" 
+              class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" 
+                d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
 
-                    <!-- DROPDOWN DO MENU (Mobile e Desktop) -->
-                    <div 
-                        x-show="open"
-                        @click.away="open = false"
-                        x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 transform scale-95"
-                        x-transition:enter-end="opacity-100 transform scale-100"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100 transform scale-100"
-                        x-transition:leave-end="opacity-0 transform scale-95"
-                        class="menu-dropdown absolute right-0 top-[6rem] z-50"
-                        style="display: none;"
-                    >
-                        <!-- Links Públicos (Para todos) -->
-                        <a href="{{ route('about') }}">Sobre</a>
+        <!-- DROPDOWN DO MENU -->
+        <div 
+          x-show="open"
+          @click.away="open = false"
+          x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="opacity-0 transform translate-y-2 scale-95"
+          x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
+          x-transition:leave="transition ease-in duration-150"
+          x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
+          x-transition:leave-end="opacity-0 transform translate-y-2 scale-95"
+          class="menu-dropdown absolute right-0 top-14 z-50"
+          style="display: none;"
+        >
+          <a href="{{ route('about') }}" @click="open = false">Sobre</a>
 
-                        @auth
-                            <!-- ===== Links para Usuários Logados ===== -->
-                            <a href="{{ route('contact') }}">Fazer Solicitação</a>
-                            <a href="{{ route('profile.edit') }}">Meu Perfil</a>
-                            
-                            <div class="menu-dropdown-divider"></div> 
+          @auth
+            <a href="{{ route('contact') }}" @click="open = false">Fazer Solicitação</a>
+            <a href="{{ route('profile.edit') }}" @click="open = false">Meu Perfil</a>
+            
+            <div class="menu-dropdown-divider"></div>
 
-                            <!-- Formulário de Sair (Logout) -->
-                            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
-                                @csrf
-                                <a href="{{ route('logout') }}"
-                                   class="menu-dropdown-logout-link"
-                                   onclick="event.preventDefault(); this.closest('form').submit();">
-                                    Sair
-                                </a>
-                            </form>
-                        @else
-                            <!-- ===== Links para Visitantes (Mobile) ===== -->
-                            <a href="{{ route('login') }}">Entrar</a>
-                            <a href="{{ route('register') }}">Cadastrar</a>
-                        @endauth
-                    </div>
-                    
-                </div>
-            </div>
-        </header>
+            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+              @csrf
+              <a href="{{ route('logout') }}"
+                 class="menu-dropdown-logout-link"
+                 onclick="event.preventDefault(); this.closest('form').submit();">
+                Sair
+              </a>
+            </form>
+          @else
+            <a href="{{ route('login') }}" @click="open = false">Entrar</a>
+            <a href="{{ route('register') }}" @click="open = false">Cadastrar</a>
+          @endauth
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
 
         {{-- ====================================================== --}}
         <!-- 2. Conteúdo principal (O seu design interativo)         -->

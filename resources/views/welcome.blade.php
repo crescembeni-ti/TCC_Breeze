@@ -18,93 +18,80 @@
 {{-- ADAPTAÇÃO AQUI: Removido 'bg-gray-100' e adicionado 'welcome-page' --}}
 <body class="font-sans antialiased welcome-page">
     <div class="min-h-screen">
-        <header class="site-header relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
-        
-        <!-- LOGO + TÍTULO -->
-        <div class="flex items-center gap-4">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
-            <h1 class="text-4xl font-bold">
-                <span class="text-[#358054]">Árvores de</span>
-                <span class="text-[#a0c520]"> Paracambi</span>
-            </h1>
-        </div>
+        <header class="site-header bg-[#b7f9b0] shadow relative">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
 
-        <!-- LADO DIREITO: LOGIN / REGISTRO + MENU HAMBÚRGUER -->
-        <div class="flex items-center gap-4" x-data="{ open: false }">
-            
-            <!-- Botões Desktop (Adaptado) -->
-            @auth
-                {{-- Se o usuário está LOGADO, mostra o link para o Painel --}}
-                <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Painel</a>
-            @else
-                {{-- Se o usuário é VISITANTE, mostra Entrar/Cadastrar --}}
-                <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Entrar</a>
-                <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
-            @endauth
-
-            <!-- Botão do menu (Hamburger) -->
-            <button 
-                @click="open = !open"
-                class="menu-button focus:outline-none"
-                aria-label="Abrir menu"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" viewBox="0 0 24 24" 
-                    stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" 
-                        d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-
-            <!-- DROPDOWN DO MENU (Adaptado) -->
-            <div 
-                x-show="open"
-                @click.away="open = false"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 transform scale-95"
-                x-transition:enter-end="opacity-100 transform scale-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 transform scale-100"
-                x-transition:leave-end="opacity-0 transform scale-95"
-                class="menu-dropdown absolute right-0 top-[6rem] z-50"
-                style="display: none;" 
-            >
-                <!-- Links Públicos (Para todos) -->
-                <a href="{{ route('about') }}">Sobre</a>
-
-                @auth
-                    <!-- ===== Links para Usuários Logados ===== -->
-                    
-                    {{-- Link para a página de fazer a solicitação --}}
-                    <a href="{{ route('contact') }}">Fazer Solicitação</a>
-                    
-                    {{-- Link para a página de acompanhar as solicitações --}}
-                    <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
-
-                    
-                    {{-- Divisor --}}
-                    <div class="menu-dropdown-divider"></div> 
-
-                    <!-- Formulário de Sair (Logout) -->
-                    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
-                        @csrf
-                        <a href="{{ route('logout') }}"
-                           class="menu-dropdown-logout-link" 
-                           onclick="event.preventDefault(); this.closest('form').submit();">
-                            Sair
-                        </a>
-                    </form>
-                @else
-                    <!-- ===== Links para Visitantes (Mobile) ===== -->
-                    <a href="{{ route('login') }}">Entrar</a>
-                    <a href="{{ route('register') }}">Cadastrar</a>
-                @endauth
-            </div>
-            
-        </div>
+    <!-- LOGO + TÍTULO -->
+    <div class="flex items-center gap-4">
+      <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
+      <h1 class="text-4xl font-bold">
+        <span class="text-[#358054]">Árvores de</span>
+        <span class="text-[#a0c520]"> Paracambi</span>
+      </h1>
     </div>
+
+    <!-- LADO DIREITO: LOGIN / REGISTRO + MENU HAMBÚRGUER -->
+    <div class="flex items-center gap-4" x-data="{ open: false }">
+      
+      <!-- Botões Desktop -->
+      @auth
+        <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Painel</a>
+      @else
+        <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Entrar</a>
+        <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
+      @endauth
+
+      <!-- Botão do menu -->
+      <div class="relative">
+        <button 
+          @click="open = !open"
+          class="menu-button focus:outline-none"
+          aria-label="Abrir menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+            stroke-width="2" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" 
+              d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        <!-- Dropdown -->
+        <div 
+          x-show="open"
+          @click.away="open = false"
+          x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="opacity-0 transform translate-y-2 scale-95"
+          x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
+          x-transition:leave="transition ease-in duration-150"
+          x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
+          x-transition:leave-end="opacity-0 transform translate-y-2 scale-95"
+          class="menu-dropdown absolute right-0 top-14 z-50"
+          style="display: none;"
+        >
+          <a href="{{ route('about') }}">Sobre</a>
+
+          @auth
+            <a href="{{ route('contact') }}">Fazer Solicitação</a>
+            <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
+            <div class="menu-dropdown-divider"></div>
+            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+              @csrf
+              <a href="{{ route('logout') }}" 
+                 class="menu-dropdown-logout-link"
+                 onclick="event.preventDefault(); this.closest('form').submit();">
+                Sair
+              </a>
+            </form>
+          @else
+            <a href="{{ route('login') }}">Entrar</a>
+            <a href="{{ route('register') }}">Cadastrar</a>
+          @endauth
+        </div>
+      </div>
+    </div>
+  </div>
 </header>
+
 
 
         <!-- As classes de layout (grid, gap-6, etc.) agora vêm do app.css -->
