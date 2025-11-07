@@ -22,6 +22,7 @@ class Contact extends Model
         'rua',
         'numero',
         'descricao',
+        'foto_path', // <-- ADICIONADO PARA PERMITIR O SALVAMENTO DA FOTO
 
         //CAMPOS DE STATUS (ATUALIZADOS)
         // 'status', // Removido, substituído por status_id
