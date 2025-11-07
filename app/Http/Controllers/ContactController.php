@@ -5,16 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Contact;
 use App\Models\Status;
-use App\Models\Bairro; // Importação está correta
+use App\Models\Bairro; 
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Validation\Rule; // Importação está correta
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage; // <-- 1. IMPORTAR O STORAGE
 
 class ContactController extends Controller
 {
     /**
      * Mostra o formulário de contato e carrega os bairros.
-     * (ESTE MÉTODO ESTÁ CORRETO)
      */
     public function index()
     {
@@ -27,33 +27,38 @@ class ContactController extends Controller
 
     /**
      * Salva a solicitação de contato.
-     * (AJUSTADO PARA VALIDAR O NOME DO BAIRRO)
+     * (AJUSTADO PARA VALIDAR E SALVAR A FOTO)
      */
     public function store(Request $request)
     {
         $user = Auth::user(); 
 
-        // --- INÍCIO DA ATUALIZAÇÃO ---
-        
-        // 1. Pega os NOMES válidos da tabela 'bairros'
         $nomesDeBairrosValidos = Bairro::pluck('nome')->toArray();
 
-        // 2. VALIDAÇÃO ATUALIZADA PARA 'bairro' (TEXTO)
+        // 2. VALIDAÇÃO ATUALIZADA (COM 'foto')
         $validated = $request->validate([
             'bairro' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::in($nomesDeBairrosValidos) // Garante que o nome exista na tabela bairros
+                Rule::in($nomesDeBairrosValidos) 
             ],
             'rua' => 'required|string|max:255',
             'numero' => 'required|string|max:10',
             'descricao' => 'required|string',
+            // Validação da foto: opcional, deve ser imagem, tipos, max 2MB
+            'foto' => 'nullable|image|mimes:jpg,png,jpeg|max:2048', // <-- 2. ADICIONADA VALIDAÇÃO DA FOTO
         ]);
         
-        // --- FIM DA ATUALIZAÇÃO ---
+        // --- 3. LÓGICA PARA PROCESSAR A FOTO ---
+        $fotoPath = null;
+        if ($request->hasFile('foto')) {
+            // Salva o arquivo em 'storage/app/public/solicitacoes'
+            // O 'public' indica o disco. A pasta 'solicitacoes' será criada.
+            $fotoPath = $request->file('foto')->store('solicitacoes', 'public');
+        }
+        // --- FIM DA LÓGICA DA FOTO ---
 
-        // 5. O CÓDIGO ABAIXO ESTAVA FORA DO MÉTODO, CAUSANDO O ParseError
         
         // Busca o ID do status "Em Análise"
         $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, function () {
@@ -61,13 +66,13 @@ class ContactController extends Controller
         });
 
         // Combina os dados para salvar
-        // $validated agora contém 'bairro' (o nome)
         $dataToSave = array_merge($validated, [
             'user_id' => $user->id, 
             'nome_solicitante' => $user->name, 
             'email_solicitante' => $user->email,
             'status_id' => $statusEmAnaliseId,
             'justificativa' => null, 
+            'foto_path' => $fotoPath, // <-- 4. ADICIONADO O CAMINHO DA FOTO
         ]);
 
         // Salva no banco de dados
@@ -78,9 +83,6 @@ class ContactController extends Controller
 
     // --- MÉTODOS DE ADMIN (Sem alterações) ---
 
-    /**
-     * [ADMIN] Mostra a lista de contatos para o admin.
-     */
     public function adminContactList()
     {
         $messages = Contact::with('status', 'user') 
@@ -92,9 +94,6 @@ class ContactController extends Controller
         return view('admin.contacts.index', compact('messages', 'allStatuses'));
     }
 
-    /**
-     * [ADMIN] Atualiza o status de uma solicitação.
-     */
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
         $statusIndeferidoId = Cache::remember('status_indeferido_id', 3600, function () {
@@ -126,9 +125,6 @@ class ContactController extends Controller
 
     // --- MÉTODOS DO USUÁRIO (Sem alterações) ---
 
-    /**
-     * [USUÁRIO] Mostra a lista de solicitações do usuário logado.
-     */
     public function userRequestList()
     {
         $myRequests = Auth::user()
@@ -140,9 +136,6 @@ class ContactController extends Controller
         return view('pages.my-requests', compact('myRequests'));
     }
 
-    /**
-     * [USUÁRIO] Permite que um usuário cancele a própria solicitação.
-     */
     public function cancelRequest(Request $request, Contact $contact)
     {
         if (Auth::id() !== $contact->user_id) {

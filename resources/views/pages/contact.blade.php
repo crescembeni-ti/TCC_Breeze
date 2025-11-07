@@ -38,7 +38,6 @@
     </div>
 </header>
 
-
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             @if(session('success'))
     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg" role="alert">
@@ -51,11 +50,9 @@
     </div>
             @endif
 
-
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-white rounded-lg shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
-                    
                     <div class="space-y-6">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Endereço</h3>
@@ -83,19 +80,17 @@
                                 Sábados, Domingos e Feriados: Fechado
                             </p>
                         </div>
-
                     </div>
                 </div>
 
                 <div class="bg-white rounded-lg shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Formulário de Contato</h2>
                     
-                    <form action="{{ route('contact.store') }}" method="POST" class="space-y-6">
+                    <form action="{{ route('contact.store') }}" method="POST" class="space-y-6" enctype="multipart/form-data">
                         @csrf
                         
                         <div>
                             <label for="bairro" class="block text-sm font-semibold text-gray-700 mb-2">Bairro *</label>
-                            
                             <select 
                                 id="bairro" 
                                 name="bairro" 
@@ -112,14 +107,13 @@
                                         {{ $bairro->nome }}
                                     </option>
                                 @endforeach
-                                
                             </select>
-
                             @error('bairro')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-                        <div>
+
+                         <div>
                             <label for="rua" class="block text-sm font-semibold text-gray-700 mb-2">Rua *</label>
                             <input 
                                 type="text" 
@@ -164,6 +158,20 @@
                             @enderror
                         </div>
 
+                        <div>
+                            <label for="foto" class="block text-sm font-semibold text-gray-700 mb-2">Anexar Foto (Opcional)</label>
+                            <input 
+                                type="file" 
+                                id="foto" 
+                                name="foto"
+                                accept="image/*" 
+                                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none @error('foto') border-red-500 @enderror"
+                            >
+                            <p class="mt-1 text-sm text-gray-500" id="file_input_help">Permitido: JPG, PNG, JPEG (Máx: 2MB).</p>
+                            @error('foto')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                         <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
                             <p class="text-yellow-800 text-sm">
                                 <strong>Atenção:</strong> Todos os campos marcados com * são obrigatórios. Suas informações serão utilizadas apenas para responder ao seu contato.
@@ -176,8 +184,6 @@
                         >
                             Enviar Mensagem
                         </button>
-
-
                     </form>
                 </div>
             </div>
@@ -189,6 +195,5 @@
             </div>
         </footer>
     </div>
-
 </body>
 </html>
