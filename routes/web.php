@@ -6,6 +6,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ContactController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController; // Correto!
 
 // 1. IMPORTAR O NOVO CONTROLLER (Já estava correto)
 use App\Http\Controllers\Auth\VerifyEmailCodeController; 
@@ -28,9 +29,10 @@ Route::middleware('auth')->group(function () {
 
 // --- GRUPO 2: AUTENTICADO E VERIFICADO ---
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    
+    // ▼▼▼ SUA ROTA DE DASHBOARD ATUALIZADA ▼▼▼
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // ▲▲▲ FIM DA ATUALIZAÇÃO ▲▲▲
 
     // Rotas para FAZER a solicitação
     Route::get('/contato', [ContactController::class, 'index'])->name('contact');
@@ -47,7 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // --- GRUPO 3: ROTAS DE ADMINISTRADOR ---
 Route::middleware(['auth', 'admin'])->group(function () {
-    // (O seu código de rotas de admin vem aqui)
+    // (O código de rotas de admin vem aqui)
     Route::get('/dashboard/map', [TreeController::class, 'adminMap'])->name('admin.map');
     Route::post('/dashboard/map', [TreeController::class, 'storeTree'])->name('admin.map.store');
     Route::get('/dashboard/trees', [TreeController::class, 'adminTreeList'])->name('admin.trees.index');
@@ -55,6 +57,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::patch('/dashboard/trees/{tree}', [TreeController::class, 'adminTreeUpdate'])->name('admin.trees.update');
     Route::get('/dashboard/contacts', [ContactController::class, 'adminContactList'])->name('admin.contacts.index');
     Route::patch('/dashboard/contacts/{contact}', [ContactController::class, 'adminContactUpdateStatus'])->name('admin.contacts.updateStatus');
+    Route::delete('/admin/trees/{tree}', [TreeController::class, 'adminTreeDestroy'])->name('admin.trees.destroy');
 });
 
 // 2. ROTAS DE VERIFICAÇÃO DE CÓDIGO (Já estavam corretas)
