@@ -5,18 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Contact;
 use App\Models\Status;
-use App\Models\Bairro; // Sua importação de Bairro
-use App\Models\Topico; // Sua importação de Tópico
+use App\Models\Bairro; 
+use App\Models\Topico; 
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Storage; // Sua importação de Storage
+use Illuminate\Support\Facades\Storage; 
 
 class ContactController extends Controller
 {
     /**
+     * [MÉTODO DO SITE - INTACTO]
      * Mostra o formulário de contato e carrega bairros e tópicos.
-     * (SEU MÉTODO ESTÁ CORRETO)
      */
     public function index()
     {
@@ -26,8 +26,8 @@ class ContactController extends Controller
     }
 
     /**
-     * Salva a solicitação de contato.
-     * (SEU MÉTODO ESTÁ CORRETO)
+     * [MÉTODO DO SITE - INTACTO]
+     * Salva a solicitação de contato vinda do SITE.
      */
     public function store(Request $request)
     {
@@ -74,13 +74,12 @@ class ContactController extends Controller
         return redirect()->route('contact')->with('success', 'Sua solicitação foi enviada com sucesso! Ela já está "Em Análise".');
     }
 
-    // --- MÉTODOS DE ADMIN (ESTÃO CORRETOS) ---
-
+    // --- MÉTODOS DE ADMIN (INTACTOS) ---
     public function adminContactList()
     {
         $messages = Contact::with('status', 'user') 
-                           ->latest()
-                           ->get(); 
+                            ->latest()
+                            ->get(); 
         $allStatuses = Status::all();
         return view('admin.contacts.index', compact('messages', 'allStatuses'));
     }
@@ -110,53 +109,32 @@ class ContactController extends Controller
         }
 
         $contact->update($dataToSave);
-
         return redirect()->route('admin.contacts.index')->with('success', 'Status da mensagem atualizado.');
     }
 
 
-    // --- MÉTODOS DO USUÁRIO ---
-
-    /**
-     * [USUÁRIO] Mostra a lista de solicitações do usuário logado.
-     * (ADAPTADO para "desaparecer" com os cancelados)
-     */
+    // --- MÉTODOS DO USUÁRIO (INTACTOS) ---
     public function userRequestList()
     {
-        // 1. Busca o ID do status "Cancelado"
         $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, function () {
-            // Certifique-se de ter rodado o Seeder com o status "Cancelado"
             return Status::where('name', 'Cancelado')->firstOrFail()->id;
         });
 
-        // 2. Busca as solicitações do usuário
         $myRequests = Auth::user()
-                        ->contacts()
-                        ->with('status') // Carrega o nome do status
-                        
-                        // --- ESTA É A SUA LÓGICA DE "DESAPARECER" ---
-                        // Onde o status_id NÃO SEJA o ID de "Cancelado"
-                        ->where('status_id', '!=', $statusCanceladoId) 
-                        // --- FIM DA LÓGICA ---
-
-                        ->latest()
-                        ->get();
-
+                            ->contacts()
+                            ->with('status') 
+                            ->where('status_id', '!=', $statusCanceladoId) 
+                            ->latest()
+                            ->get();
         return view('pages.my-requests', compact('myRequests'));
     }
 
-    /**
-     * [USUÁRIO] Permite que um usuário cancele a própria solicitação.
-     * (ADAPTADO para a sua regra: pode cancelar TUDO, exceto "Concluído")
-     */
     public function cancelRequest(Request $request, Contact $contact)
     {
-        // 1. Verificação de Segurança (Dono)
         if (Auth::id() !== $contact->user_id) {
             abort(403); 
         }
 
-        // 2. Busca os IDs dos status que BLOQUEIAM o cancelamento
         $statusConcluidoId = Cache::remember('status_concluido_id', 3600, function () {
             return Status::where('name', 'Concluído')->firstOrFail()->id;
         });
@@ -165,17 +143,14 @@ class ContactController extends Controller
             return Status::where('name', 'Cancelado')->firstOrFail()->id;
         });
 
-        // 3. [NOVA REGRA] Se o status for "Concluído" OU "Cancelado", bloqueia.
         if ($contact->status_id === $statusConcluidoId || $contact->status_id === $statusCanceladoId) {
             return back()->withErrors(['cancel_error' => 'Esta solicitação não pode mais ser cancelada.']);
         }
 
-        // 4. Valida o motivo (opcional)
         $request->validate([
             'justificativa_cancelamento' => 'nullable|string|max:500'
         ]);
 
-        // 5. Atualiza a solicitação para "Cancelado"
         $contact->update([
             'status_id' => $statusCanceladoId,
             'justificativa' => $request->justificativa_cancelamento 
@@ -183,8 +158,74 @@ class ContactController extends Controller
                                 : 'Cancelado pelo usuário (sem motivo informado).'
         ]);
 
-        // Redireciona de volta. A página vai recarregar, a mensagem de sucesso
-        // vai aparecer, e o item vai "desaparecer" (graças à lógica no userRequestList).
         return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada com sucesso.');
+    }
+
+    
+    // ===================================================================
+    // ===================================================================
+    //
+    //    ADICIONE ESTE NOVO MÉTODO NO FINAL DO SEU ARQUIVO
+    //
+    // ===================================================================
+    // ===================================================================
+
+    /**
+     * [NOVO MÉTODO - APENAS PARA API ANDROID]
+     * Salva a solicitação de contato vinda da API (Android).
+     */
+    public function storeApi(Request $request)
+    {
+        // 1. Pega o usuário autenticado pela API (via token)
+        $user = $request->user(); 
+
+        // 2. Validação (Valida os nomes que o ANDROID envia)
+        $validated = $request->validate([
+            'titulo' => 'required|string|max:255',    // Recebe 'titulo' do app
+            'descricao' => 'required|string',
+            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Recebe 'imagem' do app
+        ]);
+
+        $fotoPath = null; // O nome da sua coluna no BD é 'foto_path'
+
+        // 3. Processar e salvar a imagem (se ela foi enviada)
+        if ($request->hasFile('imagem')) { // O nome 'imagem' vem do Android
+            // Salva a imagem
+            $fotoPath = $request->file('imagem')->store('solicitacoes', 'public');
+        }
+
+        // 4. Busca o ID do status "Em Análise"
+        $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, function () {
+            return Status::where('name', 'Em Análise')->firstOrFail()->id;
+        });
+
+        // 5. COMBINA E "TRADUZ" OS DADOS para salvar no banco
+        $dataToSave = [
+            'user_id' => $user->id, 
+            'nome_solicitante' => $user->name,
+            'email_solicitante' => $user->email,
+            
+            // --- A "TRADUÇÃO" ---
+            'topico' => $validated['titulo'],     // Coluna 'topico' (BD) recebe 'titulo' (APP)
+            'descricao' => $validated['descricao'],
+            'foto_path' => $fotoPath,           // Coluna 'foto_path' (BD) recebe o $fotoPath
+            
+            'status_id' => $statusEmAnaliseId,
+            'justificativa' => null,
+
+            // Campos que o app não envia, mas o site sim (definidos como nulos)
+            'bairro' => null, 
+            'rua' => null,
+            'numero' => null,
+        ];
+        
+        // 6. Salva no banco de dados usando o Model 'Contact'
+        $contact = Contact::create($dataToSave); 
+
+        // 7. Retornar uma resposta de sucesso para o Android (JSON)
+        return response()->json([
+            'message' => 'Solicitação criada com sucesso!',
+            'data' => $contact 
+        ], 201); // 201 = "Created"
     }
 }
