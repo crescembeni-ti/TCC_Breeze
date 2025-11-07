@@ -69,6 +69,7 @@
           style="display: none;"
         >
           <a href="{{ route('about') }}">Sobre</a>
+          <a href="{{ route('contact') }}">Contato</a>
 
           @auth
             <a href="{{ route('contact') }}">Fazer Solicitação</a>
@@ -83,8 +84,7 @@
               </a>
             </form>
           @else
-            <a href="{{ route('login') }}">Entrar</a>
-            <a href="{{ route('register') }}">Cadastrar</a>
+            
           @endauth
         </div>
       </div>
