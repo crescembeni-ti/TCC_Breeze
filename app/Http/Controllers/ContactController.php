@@ -6,37 +6,49 @@ use Illuminate\Http\Request;
 use App\Models\Contact;
 use App\Models\Status;
 use App\Models\Bairro; 
+use App\Models\Topico; // <-- 1. IMPORTAR O NOVO MODEL 'TOPICO'
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Storage; // <-- 1. IMPORTAR O STORAGE
+use Illuminate\Support\Facades\Storage; 
 
 class ContactController extends Controller
 {
     /**
-     * Mostra o formulário de contato e carrega os bairros.
+     * Mostra o formulário de contato e carrega bairros e tópicos.
      */
     public function index()
     {
         // 2. BUSCA OS BAIRROS DO BANCO
         $bairros = Bairro::orderBy('nome', 'asc')->get();
+        
+        // 3. BUSCA OS TÓPICOS DO BANCO
+        $topicos = Topico::orderBy('nome', 'asc')->get();
 
-        // 3. ENVIA A VARIÁVEL $bairros PARA A VIEW
-        return view('pages.contact', compact('bairros'));
+        // 4. ENVIA AMBAS AS VARIÁVEIS PARA A VIEW
+        return view('pages.contact', compact('bairros', 'topicos'));
     }
 
     /**
      * Salva a solicitação de contato.
-     * (AJUSTADO PARA VALIDAR E SALVAR A FOTO)
+     * (AJUSTADO PARA VALIDAR TÓPICO, BAIRRO E FOTO)
      */
     public function store(Request $request)
     {
         $user = Auth::user(); 
 
+        // 5. PEGA OS NOMES VÁLIDOS DAS DUAS TABELAS
         $nomesDeBairrosValidos = Bairro::pluck('nome')->toArray();
+        $nomesDeTopicosValidos = Topico::pluck('nome')->toArray(); // <-- ADICIONADO
 
-        // 2. VALIDAÇÃO ATUALIZADA (COM 'foto')
+        // 6. VALIDAÇÃO ATUALIZADA (COM 'topico')
         $validated = $request->validate([
+            'topico' => [ // <-- CAMPO DE TÓPICO ADICIONADO
+                'required',
+                'string',
+                'max:255',
+                Rule::in($nomesDeTopicosValidos) // Garante que o tópico exista na tabela topicos
+            ],
             'bairro' => [
                 'required',
                 'string',
@@ -46,19 +58,15 @@ class ContactController extends Controller
             'rua' => 'required|string|max:255',
             'numero' => 'required|string|max:10',
             'descricao' => 'required|string',
-            // Validação da foto: opcional, deve ser imagem, tipos, max 2MB
-            'foto' => 'nullable|image|mimes:jpg,png,jpeg|max:2048', // <-- 2. ADICIONADA VALIDAÇÃO DA FOTO
+            'foto' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
         ]);
         
-        // --- 3. LÓGICA PARA PROCESSAR A FOTO ---
+        // --- LÓGICA PARA PROCESSAR A FOTO ---
         $fotoPath = null;
         if ($request->hasFile('foto')) {
-            // Salva o arquivo em 'storage/app/public/solicitacoes'
-            // O 'public' indica o disco. A pasta 'solicitacoes' será criada.
             $fotoPath = $request->file('foto')->store('solicitacoes', 'public');
         }
         // --- FIM DA LÓGICA DA FOTO ---
-
         
         // Busca o ID do status "Em Análise"
         $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, function () {
@@ -66,13 +74,14 @@ class ContactController extends Controller
         });
 
         // Combina os dados para salvar
+        // $validated agora contém 'topico', 'bairro', etc.
         $dataToSave = array_merge($validated, [
             'user_id' => $user->id, 
             'nome_solicitante' => $user->name, 
             'email_solicitante' => $user->email,
             'status_id' => $statusEmAnaliseId,
             'justificativa' => null, 
-            'foto_path' => $fotoPath, // <-- 4. ADICIONADO O CAMINHO DA FOTO
+            'foto_path' => $fotoPath,
         ]);
 
         // Salva no banco de dados

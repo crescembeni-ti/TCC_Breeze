@@ -9,7 +9,7 @@ use App\Models\Status; // Importa o novo modelo de Status
 
 class Contact extends Model
 {
-    use HasFactory; // Adicionado (padrão do Laravel)
+    use HasFactory; 
 
     protected $fillable = [
         // CAMPOS DO USUÁRIO
@@ -18,16 +18,16 @@ class Contact extends Model
         'email_solicitante',
         
         // CAMPOS DO FORMULÁRIO
+        'topico', // <-- 1. ADICIONADO O NOVO TÓPICO
         'bairro',  
         'rua',
         'numero',
         'descricao',
-        'foto_path', // <-- ADICIONADO PARA PERMITIR O SALVAMENTO DA FOTO
+        'foto_path', 
 
         //CAMPOS DE STATUS (ATUALIZADOS)
-        // 'status', // Removido, substituído por status_id
-        'status_id',     // <-- ADICIONADO
-        'justificativa', // <-- ADICIONADO
+        'status_id',
+        'justificativa',
     ];
 
     /**
@@ -39,12 +39,10 @@ class Contact extends Model
     }
 
     /**
-     * [NOVO]
      * Define o relacionamento: Uma Solicitação pertence a um Status.
      */
     public function status()
     {
-        // O Laravel vai procurar 'status_id' automaticamente
         return $this->belongsTo(Status::class);
     }
 }
