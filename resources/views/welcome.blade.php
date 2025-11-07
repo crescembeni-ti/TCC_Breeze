@@ -152,16 +152,15 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-    // Criação do mapa e camadas (mantém igual ao teu atual)
     const map = L.map('map').setView([-22.6111, -43.7089], 14);
 
     const satelliteLayer = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         { attribution: 'Tiles © Esri' }
     ).addTo(map);
 
     const labelsLayer = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', 
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png',
         { subdomains: 'abcd', maxZoom: 20 }
     ).addTo(map);
 
@@ -175,46 +174,51 @@
     map.setMaxZoom(17);
 
     let allTrees = [];
+    let filteredTrees = [];
     let markersLayer = L.layerGroup().addTo(map);
+    let treeMarkers = {};
 
-    // === BOTÃO FLUTUANTE ===
+    // === Botão e painel ===
     const toggleBtn = L.DomUtil.create('button', 'map-filter-toggle');
-    toggleBtn.innerHTML = '<i>▼</i> 🌿 Filtros';
+    toggleBtn.innerHTML = '🌿 Filtros';
     map.getContainer().appendChild(toggleBtn);
 
-    // === PAINEL DE FILTRO ===
     const panel = L.DomUtil.create('div', 'map-filter-panel');
     panel.innerHTML = `
+        <label for="search">🔎 Pesquisar árvore</label>
+        <div style="position: relative;">
+            <input type="text" id="search" placeholder="Ex: ipê, pau-brasil...">
+            <div id="autocomplete" class="autocomplete-list"></div>
+        </div>
+
         <label for="bairro">Bairro</label>
         <select id="bairro"><option value="">Todos</option></select>
 
         <label for="especie">Espécie</label>
         <select id="especie"><option value="">Todas</option></select>
 
-        <button id="filtrar">Aplicar Filtro</button>
+        <button id="aplicarFiltro">Filtrar</button>
     `;
     map.getContainer().appendChild(panel);
 
-    // Evita conflito de clique
     L.DomEvent.disableClickPropagation(panel);
     L.DomEvent.disableScrollPropagation(panel);
 
-    // Animação do botão + painel
     toggleBtn.addEventListener('click', () => {
         panel.classList.toggle('open');
-        toggleBtn.classList.toggle('open');
     });
 
-    // === CARREGA AS ÁRVORES ===
+    // === Carrega árvores ===
     fetch('{{ route('trees.data') }}')
         .then(response => response.json())
         .then(trees => {
             allTrees = trees;
             popularFiltros(trees);
-            exibirArvores(trees);
+            aplicarFiltro();
         })
         .catch(error => console.error('Erro ao carregar árvores:', error));
 
+    // === Popula filtros ===
     function popularFiltros(trees) {
         const bairros = [...new Set(trees.map(t => t.neighborhood).filter(Boolean))].sort();
         const especies = [...new Set(trees.map(t => t.species_name).filter(Boolean))].sort();
@@ -237,10 +241,13 @@
         });
     }
 
+    // === Exibir árvores ===
     function exibirArvores(trees) {
         markersLayer.clearLayers();
+        treeMarkers = {};
+        filteredTrees = trees;
 
-        trees.forEach(tree => {
+        trees.forEach((tree, index) => {
             const radius = Math.max(5, tree.trunk_diameter / 5);
             const marker = L.circleMarker([tree.latitude, tree.longitude], {
                 radius,
@@ -249,39 +256,124 @@
                 weight: 2,
                 opacity: 0.9,
                 fillOpacity: 0.8
-            });
+            }).addTo(markersLayer);
 
-            marker.bindPopup(`
-                <div style="padding: 0.5rem;">
-                    <h3 style="font-weight:700; font-size:1.125rem;">${tree.species_name}</h3>
-                    <p><strong>Bairro:</strong> ${tree.neighborhood}</p>
-                    <p><strong>Diâmetro:</strong> ${tree.trunk_diameter} cm</p>
-                    <a href="/trees/${tree.id}" style="color:#16a34a;text-decoration:underline;">Ver detalhes</a>
-                </div>
-            `);
-
-            markersLayer.addLayer(marker);
+            marker.bindPopup(criarPopup(tree, index));
+            treeMarkers[tree.id] = marker;
         });
     }
 
-    // === FILTRAR ===
-    document.addEventListener('click', e => {
-        if (e.target.id === 'filtrar') {
-            const bairro = document.getElementById('bairro').value;
-            const especie = document.getElementById('especie').value;
+    // === Popup com setas ===
+    function criarPopup(tree, index) {
+        const anterior = index > 0 ? `<button onclick="mudarArvore(${index - 1})">⬅️</button>` : '';
+        const proximo = index < filteredTrees.length - 1 ? `<button onclick="mudarArvore(${index + 1})">➡️</button>` : '';
 
-            const filtradas = allTrees.filter(tree => {
-                const matchBairro = bairro ? tree.neighborhood === bairro : true;
-                const matchEspecie = especie ? tree.species_name === especie : true;
-                return matchBairro && matchEspecie;
-            });
+        return `
+            <div style="padding: 0.5rem; text-align:center;">
+                <h3 style="font-weight:700; font-size:1.125rem;">${tree.species_name}</h3>
+                <p><strong>Bairro:</strong> ${tree.neighborhood}</p>
+                <p><strong>Endereço:</strong> ${tree.address}</p>
+                <p><strong>Diâmetro:</strong> ${tree.trunk_diameter} cm</p>
+                <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                    ${anterior}
+                    <a href="/trees/${tree.id}" style="color:#16a34a; text-decoration:underline;">Ver detalhes</a>
+                    ${proximo}
+                </div>
+            </div>
+        `;
+    }
 
-            exibirArvores(filtradas);
-            panel.classList.remove('open');
-            toggleBtn.classList.remove('open');
+    // === Navegação entre árvores ===
+    window.mudarArvore = function (index) {
+        const tree = filteredTrees[index];
+        const marker = treeMarkers[tree.id];
+        map.setView([tree.latitude, tree.longitude], 17);
+        marker.bindPopup(criarPopup(tree, index)).openPopup();
+    };
+
+    // === Filtro dinâmico ===
+    const bairroSelect = document.getElementById('bairro');
+    const especieSelect = document.getElementById('especie');
+    const searchInput = document.getElementById('search');
+    const autocompleteBox = document.getElementById('autocomplete');
+    const aplicarBtn = document.getElementById('aplicarFiltro');
+
+    function aplicarFiltro(foco = false) {
+        const bairro = bairroSelect.value.toLowerCase();
+        const especie = especieSelect.value.toLowerCase();
+        const busca = searchInput.value.toLowerCase();
+
+        const filtradas = allTrees.filter(tree => {
+            const matchBairro = bairro ? tree.neighborhood?.toLowerCase() === bairro : true;
+            const matchEspecie = especie ? tree.species_name?.toLowerCase() === especie : true;
+            const matchBusca = busca ? tree.species_name?.toLowerCase().includes(busca) : true;
+            return matchBairro && matchEspecie && matchBusca;
+        });
+
+        exibirArvores(filtradas);
+
+        // === Foca na árvore após o filtro ===
+        if (foco && filtradas.length > 0) {
+            const alvo = filtradas[0]; // primeira árvore
+            map.setView([alvo.latitude, alvo.longitude], 17);
+            treeMarkers[alvo.id].openPopup();
         }
+
+        if (filtradas.length === 0 && foco) {
+            alert('Nenhuma árvore encontrada para o filtro selecionado.');
+        }
+    }
+
+    // === Filtros automáticos ===
+    bairroSelect.addEventListener('change', () => aplicarFiltro());
+    especieSelect.addEventListener('change', () => aplicarFiltro());
+
+    // === Botão "Filtrar" com foco + loading ===
+    aplicarBtn.addEventListener('click', () => {
+        aplicarBtn.classList.add('loading');
+        aplicarBtn.textContent = 'Filtrando...';
+        setTimeout(() => {
+            aplicarFiltro(true);
+            aplicarBtn.classList.remove('loading');
+            aplicarBtn.textContent = 'Filtrar';
+        }, 600);
+    });
+
+    // === Autocomplete ===
+    searchInput.addEventListener('input', () => {
+        const val = searchInput.value.toLowerCase();
+        autocompleteBox.innerHTML = '';
+        if (!val) {
+            autocompleteBox.style.display = 'none';
+            return;
+        }
+
+        const especiesUnicas = [...new Set(allTrees.map(t => t.species_name))];
+        const filtradas = especiesUnicas.filter(e => e.toLowerCase().includes(val)).slice(0, 8);
+
+        filtradas.forEach(e => {
+            const item = document.createElement('div');
+            item.textContent = e;
+            item.addEventListener('click', () => {
+                searchInput.value = e;
+                autocompleteBox.style.display = 'none';
+                aplicarFiltro(true);
+            });
+            autocompleteBox.appendChild(item);
+        });
+
+        autocompleteBox.style.display = filtradas.length ? 'block' : 'none';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!panel.contains(e.target)) autocompleteBox.style.display = 'none';
     });
 </script>
+
+
+
+
+
 
 
 </body>

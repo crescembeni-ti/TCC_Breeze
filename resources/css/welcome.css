@@ -112,7 +112,7 @@ main {
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
 }
 
-/* ==== BOTÃO FLUTUANTE ==== */
+/* ======== ESTILOS DO FILTRO ======== */
 .map-filter-toggle {
     position: absolute;
     top: 12px;
@@ -126,9 +126,6 @@ main {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
     cursor: pointer;
     z-index: 1000;
-    display: flex;
-    align-items: center;
-    gap: 6px;
     transition: background 0.25s ease, transform 0.25s ease;
 }
 
@@ -137,25 +134,16 @@ main {
     transform: scale(1.05);
 }
 
-/* Ícone do botão gira ao abrir */
-.map-filter-toggle.open i {
-    transform: rotate(180deg);
-}
-
-.map-filter-toggle i {
-    transition: transform 0.3s ease;
-}
-
-/* ==== PAINEL DESLIZANTE ==== */
 .map-filter-panel {
     position: absolute;
     top: 60px;
     right: 12px;
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(6px);
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     padding: 16px;
-    width: 240px;
+    width: 260px;
     z-index: 999;
     opacity: 0;
     transform: translateY(-20px) scale(0.98);
@@ -163,14 +151,13 @@ main {
     transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Estado ativo com animação */
 .map-filter-panel.open {
     opacity: 1;
     transform: translateY(0) scale(1);
     pointer-events: all;
 }
 
-/* Campos do painel */
+/* ======== CAMPOS ======== */
 .map-filter-panel label {
     display: block;
     font-size: 0.9rem;
@@ -179,6 +166,7 @@ main {
     color: #333;
 }
 
+.map-filter-panel input,
 .map-filter-panel select {
     width: 100%;
     border: 1px solid #ccc;
@@ -187,14 +175,39 @@ main {
     font-size: 0.85rem;
     background: #f9f9f9;
     margin-bottom: 10px;
-    transition: all 0.2s;
+    transition: border-color 0.2s;
 }
 
+.map-filter-panel input:focus,
 .map-filter-panel select:hover {
     border-color: #16a34a;
 }
 
-/* Botão de aplicar filtro */
+/* ======== AUTOCOMPLETE ======== */
+.autocomplete-list {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    margin-top: -8px;
+    position: absolute;
+    width: 228px;
+    max-height: 180px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.autocomplete-list div {
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.autocomplete-list div:hover {
+    background-color: #e6f4ea;
+}
+
 .map-filter-panel button {
     width: 100%;
     background-color: #16a34a;
@@ -212,21 +225,29 @@ main {
     transform: scale(1.03);
 }
 
-/* Animação leve de entrada individual nos elementos */
-.map-filter-panel.open select,
-.map-filter-panel.open label,
-.map-filter-panel.open button {
-    animation: fadeSlideIn 0.4s ease forwards;
+/* ===== BOTÃO "FILTRAR" COM SPINNER ===== */
+.map-filter-panel button.loading {
+    pointer-events: none;
+    background-color: #16a34a;
+    opacity: 0.8;
+    position: relative;
 }
 
-@keyframes fadeSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.map-filter-panel button.loading::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    transform: translateY(-50%);
 }
 
+@keyframes spin {
+    0% { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
+}
