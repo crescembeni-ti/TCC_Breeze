@@ -152,67 +152,137 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Configurações Iniciais do Mapa
-        const PARACAMBI_CENTER = [-22.6063, -43.7086];
-        const map = L.map('map').setView([-22.6111, -43.7089], 14);
+    // Criação do mapa e camadas (mantém igual ao teu atual)
+    const map = L.map('map').setView([-22.6111, -43.7089], 14);
 
-        // --- CAMADA 1: IMAGEM DE SATÉLITE (ESRI) ---
-        // Esta camada mostra a "foto real" (área verde)
-        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-        }).addTo(map);
+    const satelliteLayer = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
+        { attribution: 'Tiles © Esri' }
+    ).addTo(map);
 
-        // --- CAMADA 2: ETIQUETAS DE RUAS (TRANSPARENTE) ---
-        // Esta camada coloca os nomes das ruas POR CIMA do satélite, para ficar legível.
-        // Usamos o estilo 'CartoDB.VoyagerOnlyLabels' que é limpo e bonito.
-        const labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 20
-        }).addTo(map);
+    const labelsLayer = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', 
+        { subdomains: 'abcd', maxZoom: 20 }
+    ).addTo(map);
 
-        // Restrições do Mapa (mantidas iguais)
-        var bounds = [
-            [-22.71, -43.85], // sudoeste (lat, lng)
-            [-22.51, -43.58]  // nordeste (lat, lng)
-        ];
-        map.setMaxBounds(bounds);
-        map.on('drag', function () {
-            map.panInsideBounds(bounds, { animate: false });
+    const bounds = [
+        [-22.71, -43.85],
+        [-22.51, -43.58]
+    ];
+    map.setMaxBounds(bounds);
+    map.on('drag', () => map.panInsideBounds(bounds, { animate: false }));
+    map.setMinZoom(13);
+    map.setMaxZoom(17);
+
+    let allTrees = [];
+    let markersLayer = L.layerGroup().addTo(map);
+
+    // === BOTÃO FLUTUANTE ===
+    const toggleBtn = L.DomUtil.create('button', 'map-filter-toggle');
+    toggleBtn.innerHTML = '<i>▼</i> 🌿 Filtros';
+    map.getContainer().appendChild(toggleBtn);
+
+    // === PAINEL DE FILTRO ===
+    const panel = L.DomUtil.create('div', 'map-filter-panel');
+    panel.innerHTML = `
+        <label for="bairro">Bairro</label>
+        <select id="bairro"><option value="">Todos</option></select>
+
+        <label for="especie">Espécie</label>
+        <select id="especie"><option value="">Todas</option></select>
+
+        <button id="filtrar">Aplicar Filtro</button>
+    `;
+    map.getContainer().appendChild(panel);
+
+    // Evita conflito de clique
+    L.DomEvent.disableClickPropagation(panel);
+    L.DomEvent.disableScrollPropagation(panel);
+
+    // Animação do botão + painel
+    toggleBtn.addEventListener('click', () => {
+        panel.classList.toggle('open');
+        toggleBtn.classList.toggle('open');
+    });
+
+    // === CARREGA AS ÁRVORES ===
+    fetch('{{ route('trees.data') }}')
+        .then(response => response.json())
+        .then(trees => {
+            allTrees = trees;
+            popularFiltros(trees);
+            exibirArvores(trees);
+        })
+        .catch(error => console.error('Erro ao carregar árvores:', error));
+
+    function popularFiltros(trees) {
+        const bairros = [...new Set(trees.map(t => t.neighborhood).filter(Boolean))].sort();
+        const especies = [...new Set(trees.map(t => t.species_name).filter(Boolean))].sort();
+
+        const bairroSelect = document.getElementById('bairro');
+        const especieSelect = document.getElementById('especie');
+
+        bairros.forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b;
+            opt.textContent = b;
+            bairroSelect.appendChild(opt);
         });
-        map.setMinZoom(13);
-        map.setMaxZoom(17);
 
-        // Carregamento das Árvores (mantido igual)
-        fetch('{{ route('trees.data') }}')
-            .then(response => response.json())
-            .then(trees => {
-                trees.forEach(tree => {
-                    const radius = Math.max(5, tree.trunk_diameter / 5);
-                    
-                    // Para o mapa de satélite (escuro), mudamos a borda do círculo para BRANCO (#FFF)
-                    // para dar mais contraste.
-                    const marker = L.circleMarker([tree.latitude, tree.longitude], {
-                        radius: radius,
-                        fillColor: tree.color_code,
-                        color: '#FFF', // Borda branca para contraste no satélite
-                        weight: 2,     // Borda um pouco mais grossa
-                        opacity: 0.9,
-                        fillOpacity: 0.8
-                    }).addTo(map);
+        especies.forEach(e => {
+            const opt = document.createElement('option');
+            opt.value = e;
+            opt.textContent = e;
+            especieSelect.appendChild(opt);
+        });
+    }
 
-                    marker.bindPopup(`
-                        <div style="padding: 0.5rem;">
-                            <h3 style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem;">${tree.species_name}</h3>
-                            <p><strong>Endereço:</strong> ${tree.address}</p>
-                            <p><strong>Diâmetro do Tronco:</strong> ${tree.trunk_diameter} cm</p>
-                            <p><strong>Status:</strong> ${tree.health_status}</p>
-                            <a href="/trees/${tree.id}" style="color: #16a34a; text-decoration: underline; margin-top: 0.5rem; display: inline-block;">Ver detalhes</a>
-                        </div>
-                    `);
-                });
-            })
-            .catch(error => console.error('Erro ao carregar árvores:', error));
-    </script>
+    function exibirArvores(trees) {
+        markersLayer.clearLayers();
+
+        trees.forEach(tree => {
+            const radius = Math.max(5, tree.trunk_diameter / 5);
+            const marker = L.circleMarker([tree.latitude, tree.longitude], {
+                radius,
+                fillColor: tree.color_code,
+                color: '#FFF',
+                weight: 2,
+                opacity: 0.9,
+                fillOpacity: 0.8
+            });
+
+            marker.bindPopup(`
+                <div style="padding: 0.5rem;">
+                    <h3 style="font-weight:700; font-size:1.125rem;">${tree.species_name}</h3>
+                    <p><strong>Bairro:</strong> ${tree.neighborhood}</p>
+                    <p><strong>Diâmetro:</strong> ${tree.trunk_diameter} cm</p>
+                    <a href="/trees/${tree.id}" style="color:#16a34a;text-decoration:underline;">Ver detalhes</a>
+                </div>
+            `);
+
+            markersLayer.addLayer(marker);
+        });
+    }
+
+    // === FILTRAR ===
+    document.addEventListener('click', e => {
+        if (e.target.id === 'filtrar') {
+            const bairro = document.getElementById('bairro').value;
+            const especie = document.getElementById('especie').value;
+
+            const filtradas = allTrees.filter(tree => {
+                const matchBairro = bairro ? tree.neighborhood === bairro : true;
+                const matchEspecie = especie ? tree.species_name === especie : true;
+                return matchBairro && matchEspecie;
+            });
+
+            exibirArvores(filtradas);
+            panel.classList.remove('open');
+            toggleBtn.classList.remove('open');
+        }
+    });
+</script>
+
+
 </body>
 </html>
