@@ -33,7 +33,7 @@
                     <div class="flex gap-4">
                         <!-- ▼▼▼ BOTÕES ATUALIZADOS ▼▼▼ -->
                         <a href="{{ route('home') }}" class="btn bg-white text-green-700 hover:bg-gray-100">Voltar ao Mapa</a>
-                        <a href="{{ route('contact') }}" class="btn bg-white text-blue-700 hover:bg-gray-100">Contato</a>
+                        <a href="{{ route('contact') }}" class="btn bg-white text-blue-700 hover:bg-gray-100">Fazer solicitação</a>
                     </div>
                 </div>
             </div>
@@ -84,7 +84,7 @@
 
                     <div class="bg-green-50 border-l-4 border-green-500 p-6 mt-8">
                         <p class="text-green-800 font-semibold">
-                            Para mais informações ou para reportar problemas, entre em contato conosco através da <a href="{{ route('contact') }}" class="underline hover:text-green-900">página de contato</a>.
+                            Para mais informações ou para reportar problemas, entre em contato conosco através da <a href="{{ route('contact') }}" class="underline hover:text-green-900">página de solicitações</a>.
                         </p>
                     </div>
                 </div>
