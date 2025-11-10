@@ -7,12 +7,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SendVerificationCode extends Notification
+class ProfileController extends Controller
 {
     use Queueable;
 
     protected $code;
-
     /**
      * Crie uma nova instância da notificação.
      */

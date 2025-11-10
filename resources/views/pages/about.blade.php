@@ -23,6 +23,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-12">
+                         <a href="{{ route('home') }}" class="flex items-center gap-4">
                         <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-24 w-24 object-contain">
                             <h1 class="text-5xl font-bold">
                             <span class="text-[#358054]">Sobre o</span>
@@ -92,7 +93,7 @@
         
         <footer class="bg-gray-800 shadow mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <p class="text-center text-gray-300">© {{ date('Y') }} Mapa de Árvores de Paracambi-RJ. Desenvolvido com Laravel e Leaflet.</p>
+                <p class="text-center text-gray-300">© {{ date('Y') }} Mapa de Árvores de Paracambi-RJ.</p>
             </div>
         </footer>
     </div>

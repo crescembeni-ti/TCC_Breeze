@@ -21,6 +21,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
         
         <div class="flex items-center gap-4">
+             <a href="{{ route('home') }}" class="flex items-center gap-4">
             <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
             <h1 class="text-4xl font-bold">
                 <span class="text-[#358054]">Árvores de</span>
@@ -40,17 +41,32 @@
                 <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
             @endauth
 
+            
+
             <button 
-                @click="open = !open"
-                class="menu-button focus:outline-none"
-                aria-label="Abrir menu"
+            @click="open = !open"
+            class="menu-button relative focus:outline-none"
+            aria-label="Menu"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" viewBox="0 0 24 24" 
-                    stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" 
-                        d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+               <!-- Ícone hambúrguer -->
+    <svg xmlns="http://www.w3.org/2000/svg" 
+        fill="none" viewBox="0 0 24 24" 
+        stroke-width="2" stroke="currentColor"
+        class="icon-hamburger absolute inset-0 m-auto transition-all duration-300"
+        :class="{ 'opacity-0 rotate-90 scale-75': open }">
+        <path stroke-linecap="round" stroke-linejoin="round" 
+            d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+
+    <!-- Ícone X -->
+    <svg xmlns="http://www.w3.org/2000/svg"
+        fill="none" viewBox="0 0 24 24"
+        stroke-width="2" stroke="currentColor"
+        class="icon-close absolute inset-0 m-auto transition-all duration-300 opacity-0 scale-75 rotate-90"
+        :class="{ 'opacity-100 rotate-0 scale-100': open }">
+        <path stroke-linecap="round" stroke-linejoin="round" 
+            d="M6 18L18 6M6 6l12 12" />
+    </svg>
             </button>
 
             <div 
@@ -144,7 +160,7 @@
 
         <footer class="bg-gray-800 shadow mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <p class="text-center text-gray-300">© {{ date('Y') }} Mapa de Árvores. Desenvolvido com Laravel e Leaflet.</p>
+                <p class="text-center text-gray-300">© {{ date('Y') }} Mapa de Árvores.</p>
             </div>
         </footer>
     </div>
@@ -185,20 +201,24 @@
 
     const panel = L.DomUtil.create('div', 'map-filter-panel');
     panel.innerHTML = `
-        <label for="search">🔎 Pesquisar árvore</label>
-        <div style="position: relative;">
-            <input type="text" id="search" placeholder="Ex: ipê, pau-brasil...">
-            <div id="autocomplete" class="autocomplete-list"></div>
-        </div>
+    <label for="search">🔎 Pesquisar árvore</label>
+    <div style="position: relative;">
+        <input type="text" id="search" placeholder="Ex: ipê, pau-brasil...">
+        <div id="autocomplete" class="autocomplete-list"></div>
+    </div>
 
-        <label for="bairro">Bairro</label>
-        <select id="bairro"><option value="">Todos</option></select>
+    <label for="bairro">Bairro</label>
+    <select id="bairro"><option value="">Todos</option></select>
 
-        <label for="especie">Espécie</label>
-        <select id="especie"><option value="">Todas</option></select>
+    <label for="especie">Espécie</label>
+    <select id="especie"><option value="">Todas</option></select>
 
-        <button id="aplicarFiltro">Filtrar</button>
-    `;
+    <div class="flex gap-2 mt-2">
+        <button id="aplicarFiltro" class="w-1/2">Filtrar</button>
+        <button id="limparFiltro" class="w-1/2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition">🧹 Limpar</button>
+    </div>
+`;
+
     map.getContainer().appendChild(panel);
 
     L.DomEvent.disableClickPropagation(panel);
@@ -209,14 +229,25 @@
     });
 
     // === Carrega árvores ===
-    fetch('{{ route('trees.data') }}')
-        .then(response => response.json())
-        .then(trees => {
-            allTrees = trees;
-            popularFiltros(trees);
-            aplicarFiltro();
-        })
-        .catch(error => console.error('Erro ao carregar árvores:', error));
+  fetch('{{ route('bairros.data') }}')
+    .then(response => response.json())
+    .then(bairros => {
+        popularBairros(bairros);
+    })
+    .catch(error => console.error('Erro ao carregar bairros:', error));
+
+function popularBairros(bairros) {
+    const bairroSelect = document.getElementById('bairro');
+    bairroSelect.innerHTML = '<option value="">Todos</option>';
+    bairros.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b;
+        bairroSelect.appendChild(opt);
+    });
+}
+
+
 
     // === Popula filtros ===
     function popularFiltros(trees) {
@@ -263,33 +294,52 @@
         });
     }
 
-    // === Popup com setas ===
-    function criarPopup(tree, index) {
-        const anterior = index > 0 ? `<button onclick="mudarArvore(${index - 1})">⬅️</button>` : '';
-        const proximo = index < filteredTrees.length - 1 ? `<button onclick="mudarArvore(${index + 1})">➡️</button>` : '';
+    // === Popup com setas modernas e suaves ===
+function criarPopup(tree, index) {
+    const anterior = index > 0
+        ? `<button onclick="mudarArvore(${index - 1})" class="popup-nav-btn" title="Árvore anterior">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+             </svg>
+           </button>`
+        : '<span></span>';
 
-        return `
-            <div style="padding: 0.5rem; text-align:center;">
-                <h3 style="font-weight:700; font-size:1.125rem;">${tree.species_name}</h3>
-                <p><strong>Bairro:</strong> ${tree.neighborhood}</p>
-                <p><strong>Endereço:</strong> ${tree.address}</p>
-                <p><strong>Diâmetro:</strong> ${tree.trunk_diameter} cm</p>
-                <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                    ${anterior}
-                    <a href="/trees/${tree.id}" style="color:#16a34a; text-decoration:underline;">Ver detalhes</a>
-                    ${proximo}
-                </div>
+    const proximo = index < filteredTrees.length - 1
+        ? `<button onclick="mudarArvore(${index + 1})" class="popup-nav-btn" title="Próxima árvore">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+             </svg>
+           </button>`
+        : '<span></span>';
+
+    return `
+        <div style="padding: 0.5rem; text-align:center;">
+            <h3 style="font-weight:700; font-size:1.125rem;">${tree.species_name}</h3>
+            <p><strong>Bairro:</strong> ${tree.neighborhood}</p>
+            <p><strong>Endereço:</strong> ${tree.address}</p>
+            <p><strong>Diâmetro:</strong> ${tree.trunk_diameter} cm</p>
+            <div class="popup-nav">
+                ${anterior}
+                <a href="/trees/${tree.id}" class="popup-link">Ver detalhes</a>
+                ${proximo}
             </div>
-        `;
-    }
+        </div>
+    `;
+}
 
-    // === Navegação entre árvores ===
-    window.mudarArvore = function (index) {
-        const tree = filteredTrees[index];
-        const marker = treeMarkers[tree.id];
-        map.setView([tree.latitude, tree.longitude], 17);
+// === Navegação entre árvores com pan suave ===
+window.mudarArvore = function (index) {
+    const tree = filteredTrees[index];
+    const marker = treeMarkers[tree.id];
+    
+    // Pan suave até a nova árvore
+    map.flyTo([tree.latitude, tree.longitude], 17, { duration: 1.0 });
+
+    // Abre o novo popup com pequeno atraso (pra suavizar a transição)
+    setTimeout(() => {
         marker.bindPopup(criarPopup(tree, index)).openPopup();
-    };
+    }, 600);
+};
 
     // === Filtro dinâmico ===
     const bairroSelect = document.getElementById('bairro');
@@ -297,8 +347,10 @@
     const searchInput = document.getElementById('search');
     const autocompleteBox = document.getElementById('autocomplete');
     const aplicarBtn = document.getElementById('aplicarFiltro');
+    const limparBtn = document.getElementById('limparFiltro');
 
-    function aplicarFiltro(foco = false) {
+
+        function aplicarFiltro(foco = false) {
         const bairro = bairroSelect.value.toLowerCase();
         const especie = especieSelect.value.toLowerCase();
         const busca = searchInput.value.toLowerCase();
@@ -312,23 +364,40 @@
 
         exibirArvores(filtradas);
 
-        // === Foca na árvore após o filtro ===
-        if (foco && filtradas.length > 0) {
-            const alvo = filtradas[0]; // primeira árvore
-            map.setView([alvo.latitude, alvo.longitude], 17);
-            treeMarkers[alvo.id].openPopup();
+        // remove mensagens antigas antes de mostrar nova
+        const mensagemAntiga = document.querySelector('.map-filter-message');
+        if (mensagemAntiga) mensagemAntiga.remove();
+
+        const msg = document.createElement('div');
+        msg.classList.add('map-filter-message');
+
+        if (filtradas.length > 0) {
+            msg.innerHTML = `✅ <strong>${filtradas.length}</strong> árvore(s) encontrada(s)!`;
+            msg.classList.add('success');
+
+            if (foco) {
+                const alvo = filtradas[0];
+                map.setView([alvo.latitude, alvo.longitude], 17);
+                treeMarkers[alvo.id].openPopup();
+            }
+        } else {
+            msg.innerHTML = `⚠️ Nenhuma árvore encontrada com esses filtros.`;
+            msg.classList.add('warning');
         }
 
-        if (filtradas.length === 0 && foco) {
-            alert('Nenhuma árvore encontrada para o filtro selecionado.');
-        }
+        // adiciona a mensagem ao painel
+        panel.appendChild(msg);
+
+        // fade-out suave após 4 segundos
+        setTimeout(() => {
+            msg.classList.add('fade-out');
+            setTimeout(() => msg.remove(), 800);
+        }, 4000);
     }
 
-    // === Filtros automáticos ===
     bairroSelect.addEventListener('change', () => aplicarFiltro());
     especieSelect.addEventListener('change', () => aplicarFiltro());
 
-    // === Botão "Filtrar" com foco + loading ===
     aplicarBtn.addEventListener('click', () => {
         aplicarBtn.classList.add('loading');
         aplicarBtn.textContent = 'Filtrando...';
@@ -339,41 +408,25 @@
         }, 600);
     });
 
-    // === Autocomplete ===
-    searchInput.addEventListener('input', () => {
-        const val = searchInput.value.toLowerCase();
-        autocompleteBox.innerHTML = '';
-        if (!val) {
-            autocompleteBox.style.display = 'none';
-            return;
-        }
+    limparBtn.addEventListener('click', () => {
+    bairroSelect.value = '';
+    especieSelect.value = '';
+    searchInput.value = '';
+    exibirArvores(allTrees);
 
-        const especiesUnicas = [...new Set(allTrees.map(t => t.species_name))];
-        const filtradas = especiesUnicas.filter(e => e.toLowerCase().includes(val)).slice(0, 8);
+    const msg = document.createElement('div');
+    msg.classList.add('map-filter-message', 'success');
+    msg.innerHTML = '🧹 Filtros limpos! Todas as árvores foram exibidas.';
+    panel.appendChild(msg);
 
-        filtradas.forEach(e => {
-            const item = document.createElement('div');
-            item.textContent = e;
-            item.addEventListener('click', () => {
-                searchInput.value = e;
-                autocompleteBox.style.display = 'none';
-                aplicarFiltro(true);
-            });
-            autocompleteBox.appendChild(item);
-        });
+    setTimeout(() => {
+        msg.classList.add('fade-out');
+        setTimeout(() => msg.remove(), 800);
+    }, 3000);
+});
 
-        autocompleteBox.style.display = filtradas.length ? 'block' : 'none';
-    });
 
-    document.addEventListener('click', (e) => {
-        if (!panel.contains(e.target)) autocompleteBox.style.display = 'none';
-    });
 </script>
-
-
-
-
-
 
 
 </body>
