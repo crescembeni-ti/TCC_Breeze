@@ -25,8 +25,8 @@
             <a href="{{ route('home') }}" class="flex items-center gap-4">
                 <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
                 <h1 class="text-3xl sm:text-4xl font-bold leading-tight text-white drop-shadow-md">
-                    <span class="text-[#a0c520]">Árvores de</span>
-                    <span class="text-white"> Paracambi</span>
+                    <span class="text-[#358054]">Árvores de</span>
+                    <span class="text-[#a0c520]"> Paracambi</span>
                 </h1>
             </a>
         </div>
