@@ -251,3 +251,32 @@ main {
     0% { transform: translateY(-50%) rotate(0deg); }
     100% { transform: translateY(-50%) rotate(360deg); }
 }
+
+/* ======== AVISO DE RESULTADOS DO FILTRO ======== */
+.map-filter-message {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.map-filter-message.success {
+    background-color: #e6f9ec;
+    color: #15803d;
+    border: 1px solid #16a34a;
+}
+
+.map-filter-message.warning {
+    background-color: #fff8e1;
+    color: #b45309;
+    border: 1px solid #fbbf24;
+}
+
+.map-filter-message.fade-out {
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
+}

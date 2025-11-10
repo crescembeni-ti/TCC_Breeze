@@ -298,7 +298,7 @@
     const autocompleteBox = document.getElementById('autocomplete');
     const aplicarBtn = document.getElementById('aplicarFiltro');
 
-    function aplicarFiltro(foco = false) {
+        function aplicarFiltro(foco = false) {
         const bairro = bairroSelect.value.toLowerCase();
         const especie = especieSelect.value.toLowerCase();
         const busca = searchInput.value.toLowerCase();
@@ -312,23 +312,40 @@
 
         exibirArvores(filtradas);
 
-        // === Foca na árvore após o filtro ===
-        if (foco && filtradas.length > 0) {
-            const alvo = filtradas[0]; // primeira árvore
-            map.setView([alvo.latitude, alvo.longitude], 17);
-            treeMarkers[alvo.id].openPopup();
+        // remove mensagens antigas antes de mostrar nova
+        const mensagemAntiga = document.querySelector('.map-filter-message');
+        if (mensagemAntiga) mensagemAntiga.remove();
+
+        const msg = document.createElement('div');
+        msg.classList.add('map-filter-message');
+
+        if (filtradas.length > 0) {
+            msg.innerHTML = `✅ <strong>${filtradas.length}</strong> árvore(s) encontrada(s)!`;
+            msg.classList.add('success');
+
+            if (foco) {
+                const alvo = filtradas[0];
+                map.setView([alvo.latitude, alvo.longitude], 17);
+                treeMarkers[alvo.id].openPopup();
+            }
+        } else {
+            msg.innerHTML = `⚠️ Nenhuma árvore encontrada com esses filtros.`;
+            msg.classList.add('warning');
         }
 
-        if (filtradas.length === 0 && foco) {
-            alert('Nenhuma árvore encontrada para o filtro selecionado.');
-        }
+        // adiciona a mensagem ao painel
+        panel.appendChild(msg);
+
+        // fade-out suave após 4 segundos
+        setTimeout(() => {
+            msg.classList.add('fade-out');
+            setTimeout(() => msg.remove(), 800);
+        }, 4000);
     }
 
-    // === Filtros automáticos ===
     bairroSelect.addEventListener('change', () => aplicarFiltro());
     especieSelect.addEventListener('change', () => aplicarFiltro());
 
-    // === Botão "Filtrar" com foco + loading ===
     aplicarBtn.addEventListener('click', () => {
         aplicarBtn.classList.add('loading');
         aplicarBtn.textContent = 'Filtrando...';
@@ -339,41 +356,7 @@
         }, 600);
     });
 
-    // === Autocomplete ===
-    searchInput.addEventListener('input', () => {
-        const val = searchInput.value.toLowerCase();
-        autocompleteBox.innerHTML = '';
-        if (!val) {
-            autocompleteBox.style.display = 'none';
-            return;
-        }
-
-        const especiesUnicas = [...new Set(allTrees.map(t => t.species_name))];
-        const filtradas = especiesUnicas.filter(e => e.toLowerCase().includes(val)).slice(0, 8);
-
-        filtradas.forEach(e => {
-            const item = document.createElement('div');
-            item.textContent = e;
-            item.addEventListener('click', () => {
-                searchInput.value = e;
-                autocompleteBox.style.display = 'none';
-                aplicarFiltro(true);
-            });
-            autocompleteBox.appendChild(item);
-        });
-
-        autocompleteBox.style.display = filtradas.length ? 'block' : 'none';
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!panel.contains(e.target)) autocompleteBox.style.display = 'none';
-    });
 </script>
-
-
-
-
-
 
 
 </body>
