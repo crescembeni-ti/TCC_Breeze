@@ -200,20 +200,24 @@
 
     const panel = L.DomUtil.create('div', 'map-filter-panel');
     panel.innerHTML = `
-        <label for="search">🔎 Pesquisar árvore</label>
-        <div style="position: relative;">
-            <input type="text" id="search" placeholder="Ex: ipê, pau-brasil...">
-            <div id="autocomplete" class="autocomplete-list"></div>
-        </div>
+    <label for="search">🔎 Pesquisar árvore</label>
+    <div style="position: relative;">
+        <input type="text" id="search" placeholder="Ex: ipê, pau-brasil...">
+        <div id="autocomplete" class="autocomplete-list"></div>
+    </div>
 
-        <label for="bairro">Bairro</label>
-        <select id="bairro"><option value="">Todos</option></select>
+    <label for="bairro">Bairro</label>
+    <select id="bairro"><option value="">Todos</option></select>
 
-        <label for="especie">Espécie</label>
-        <select id="especie"><option value="">Todas</option></select>
+    <label for="especie">Espécie</label>
+    <select id="especie"><option value="">Todas</option></select>
 
-        <button id="aplicarFiltro">Filtrar</button>
-    `;
+    <div class="flex gap-2 mt-2">
+        <button id="aplicarFiltro" class="w-1/2">Filtrar</button>
+        <button id="limparFiltro" class="w-1/2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition">🧹 Limpar</button>
+    </div>
+`;
+
     map.getContainer().appendChild(panel);
 
     L.DomEvent.disableClickPropagation(panel);
@@ -331,6 +335,8 @@ window.mudarArvore = function (index) {
     const searchInput = document.getElementById('search');
     const autocompleteBox = document.getElementById('autocomplete');
     const aplicarBtn = document.getElementById('aplicarFiltro');
+    const limparBtn = document.getElementById('limparFiltro');
+
 
         function aplicarFiltro(foco = false) {
         const bairro = bairroSelect.value.toLowerCase();
@@ -389,6 +395,24 @@ window.mudarArvore = function (index) {
             aplicarBtn.textContent = 'Filtrar';
         }, 600);
     });
+
+    limparBtn.addEventListener('click', () => {
+    bairroSelect.value = '';
+    especieSelect.value = '';
+    searchInput.value = '';
+    exibirArvores(allTrees);
+
+    const msg = document.createElement('div');
+    msg.classList.add('map-filter-message', 'success');
+    msg.innerHTML = '🧹 Filtros limpos! Todas as árvores foram exibidas.';
+    panel.appendChild(msg);
+
+    setTimeout(() => {
+        msg.classList.add('fade-out');
+        setTimeout(() => msg.remove(), 800);
+    }, 3000);
+});
+
 
 </script>
 

@@ -328,4 +328,15 @@ main {
     color: #0f5132;
 }
 
+#limparFiltro.loading::after {
+    content: "🌀";
+    margin-left: 6px;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 
