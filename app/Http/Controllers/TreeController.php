@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use App\Models\Tree;
 use App\Models\Species;
 use App\Models\Activity;
@@ -11,6 +11,17 @@ use Illuminate\Support\Facades\Auth; // <-- 2. IMPORTAR O AUTH PARA PEGAR O ADMI
 
 class TreeController extends Controller
 {
+    
+public function getBairros()
+{
+    // busca todos os nomes da tabela "bairros"
+    $bairros = DB::table('bairros')
+        ->select('nome') // 👈 troque aqui se a coluna tiver outro nome
+        ->orderBy('nome')
+        ->pluck('nome');
+
+    return response()->json($bairros);
+}
     public function index()
     {
         $stats = [
@@ -171,3 +182,4 @@ class TreeController extends Controller
         return redirect()->route('admin.trees.index')->with('success', 'Árvore deletada com sucesso!');
     }
 }
+

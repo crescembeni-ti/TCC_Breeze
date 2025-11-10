@@ -144,7 +144,7 @@
 
         <footer class="bg-gray-800 shadow mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <p class="text-center text-gray-300">© {{ date('Y') }} Mapa de Árvores. Desenvolvido com Laravel e Leaflet.</p>
+                <p class="text-center text-gray-300">© {{ date('Y') }} Mapa de Árvores.</p>
             </div>
         </footer>
     </div>
@@ -209,14 +209,25 @@
     });
 
     // === Carrega árvores ===
-    fetch('{{ route('trees.data') }}')
-        .then(response => response.json())
-        .then(trees => {
-            allTrees = trees;
-            popularFiltros(trees);
-            aplicarFiltro();
-        })
-        .catch(error => console.error('Erro ao carregar árvores:', error));
+  fetch('{{ route('bairros.data') }}')
+    .then(response => response.json())
+    .then(bairros => {
+        popularBairros(bairros);
+    })
+    .catch(error => console.error('Erro ao carregar bairros:', error));
+
+function popularBairros(bairros) {
+    const bairroSelect = document.getElementById('bairro');
+    bairroSelect.innerHTML = '<option value="">Todos</option>';
+    bairros.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b;
+        bairroSelect.appendChild(opt);
+    });
+}
+
+
 
     // === Popula filtros ===
     function popularFiltros(trees) {

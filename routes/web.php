@@ -27,6 +27,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+//Rota de pesquisa dos bairros no mapa 
+Route::get('/bairros', [TreeController::class, 'getBairros'])->name('bairros.data');
+
 // --- GRUPO 2: AUTENTICADO E VERIFICADO ---
 Route::middleware(['auth', 'verified'])->group(function () {
     
