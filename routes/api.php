@@ -20,8 +20,16 @@ Route::post('/register', [AuthController::class, 'register']);
 // Rotas Protegidas:
 Route::middleware('auth:sanctum')->group(function () {
     
-    // Rota para o App enviar a solicitação com anexo
+    // Rota para o App ENVIAR a solicitação com anexo
     Route::post('/contato_com_anexo', [ContactController::class, 'storeApi']);
+    
+    // =======================================================
+    //  ROTA ADICIONADA: Para o App BUSCAR as solicitações
+    // =======================================================
+    Route::get('/minhas-solicitacoes', [ContactController::class, 'userRequestListApi']);
+    
+    // Rota para o Admin BUSCAR TODAS as solicitações
+    Route::get('/admin/solicitacoes', [ContactController::class, 'adminRequestListApi']);
     
     // Rota bônus para o App pegar os dados do usuário logado (Correto)
     Route::get('/user', function (Request $request) {

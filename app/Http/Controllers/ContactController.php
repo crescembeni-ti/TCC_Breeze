@@ -161,25 +161,22 @@ class ContactController extends Controller
 
     
     // ===================================================================
-    // MÉTODO storeApi ATUALIZADO
+    // ================== MÉTODOS DA API (ANDROID) =======================
     // ===================================================================
 
     /**
-     * [NOVO MÉTODO - APENAS PARA API ANDROID]
-     * Salva a solicitação de contato vinda da API (Android).
+     * [API] Salva a solicitação de contato vinda da API (Android).
      */
     public function storeApi(Request $request)
     {
         $user = $request->user(); 
 
-        // 1. Validação (Valida TODOS os campos que o ANDROID envia)
-        // (Validação de bairro/tópico é opcional aqui, mas recomendada se o app enviar texto livre)
         $validated = $request->validate([
             'titulo' => 'required|string|max:255',
             'descricao' => 'required|string',
-            'bairro' => 'required|string|max:255', // <-- ADICIONADO
-            'rua' => 'required|string|max:255',    // <-- ADICIONADO
-            'numero' => 'required|string|max:20',  // <-- ADICIONADO
+            'bairro' => 'required|string|max:255',
+            'rua' => 'required|string|max:255',
+            'numero' => 'required|string|max:20',
             'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
@@ -192,23 +189,16 @@ class ContactController extends Controller
             return Status::where('name', 'Em Análise')->firstOrFail()->id;
         });
 
-        // 2. COMBINA E "TRADUZ" OS DADOS
         $dataToSave = [
             'user_id' => $user->id, 
             'nome_solicitante' => $user->name,
             'email_solicitante' => $user->email,
-            
-            // --- A "TRADUÇÃO" ---
-            'topico' => $validated['titulo'],     // Coluna 'topico' (BD) recebe 'titulo' (APP)
+            'topico' => $validated['titulo'],
             'descricao' => $validated['descricao'],
-            'foto_path' => $fotoPath,           // Coluna 'foto_path' (BD) recebe o $fotoPath
-            
-            // --- CAMPOS ADICIONADOS (Nomes batem, sem tradução) ---
+            'foto_path' => $fotoPath,
             'bairro' => $validated['bairro'],
             'rua' => $validated['rua'],
             'numero' => $validated['numero'],
-            // --------------------------------------------------
-
             'status_id' => $statusEmAnaliseId,
             'justificativa' => null,
         ];
@@ -220,4 +210,55 @@ class ContactController extends Controller
             'data' => $contact 
         ], 201);
     }
-}
+
+    /**
+     * [API] Retorna a lista de solicitações do usuário logado.
+     */
+    public function userRequestListApi(Request $request)
+    {
+        // 1. Pega o usuário autenticado pelo token
+        $user = $request->user();
+
+        // 2. Busca o ID do status "Cancelado" (de forma segura)
+        $statusCancelado = Status::where('name', 'Cancelado')->first();
+
+        // 3. Prepara a busca no banco de dados
+        $query = $user->contacts()
+                      ->with('status') // Puxa o nome do status (ex: "Em Análise")
+                      ->latest();      // Ordena pelos mais recentes
+
+        // 4. SE o status "Cancelado" existir no banco, esconde os cancelados
+        if ($statusCancelado) {
+            $query->where('status_id', '!=', $statusCancelado->id);
+        }
+        
+        // 5. Executa a busca
+        $myRequests = $query->get();
+
+        // 6. Retorna os dados como JSON
+        return response()->json($myRequests);
+    }
+    
+    // ===================================================================
+    //  MÉTODO MOVIDO PARA DENTRO DA CLASSE
+    // ===================================================================
+    /**
+     * [API ADMIN] Retorna TODAS as solicitações para o Admin.
+     */
+    public function adminRequestListApi(Request $request)
+    {
+        // OPCIONAL, MAS RECOMENDADO: Verifique se o usuário é admin
+        // if (! $request->user()->isAdmin) {
+        //     return response()->json(['message' => 'Não autorizado'], 403);
+        // }
+
+        // Busca todas as solicitações, com status e usuário
+        $solicitacoes = Contact::with('status', 'user') 
+                            ->latest()
+                            ->get();
+
+        // Retorna os dados como JSON
+        return response()->json($solicitacoes);
+    }
+
+} // <-- ESTA É A CHAVE FINAL DA CLASSE
