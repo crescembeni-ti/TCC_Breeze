@@ -21,6 +21,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
         
         <div class="flex items-center gap-4">
+             <a href="{{ route('home') }}" class="flex items-center gap-4">
             <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
             <h1 class="text-4xl font-bold">
                 <span class="text-[#358054]">Árvores de</span>
