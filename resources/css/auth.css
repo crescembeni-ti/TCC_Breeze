@@ -157,3 +157,27 @@ a:hover>svg {
     font-size: 0.95rem;
   }
 }
+
+.relative {
+  position: relative;
+}
+
+.pr-10 {
+  padding-right: 2.5rem !important;
+}
+
+button[aria-label="Mostrar ou ocultar senha"] {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+button[aria-label="Mostrar ou ocultar senha"]:hover {
+  color: #38c224;
+  transform: scale(1.1);
+}
+
+button[aria-label="Mostrar ou ocultar senha"] svg {
+  pointer-events: none;
+}
