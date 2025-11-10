@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Http\Controllers;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class ProfileController extends Controller
 {
@@ -13,34 +12,60 @@ class ProfileController extends Controller
 
     protected $code;
     /**
-     * Crie uma nova instância da notificação.
+     * Exibe o formulário de edição do perfil.
      */
-    public function __construct($code)
+    public function edit(Request $request)
     {
-        $this->code = $code;
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
     }
 
     /**
-     * Obtenha os canais de entrega da notificação.
+     * Atualiza as informações do perfil.
      */
-    public function via(object $notifiable): array
+    public function update(Request $request)
     {
-        return ['mail'];
+        $user = $request->user();
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+        ]);
+
+        $user->update($request->only('name', 'email'));
+
+        return Redirect::route('profile.edit')
+            ->with('status', 'Perfil atualizado com sucesso!');
     }
 
     /**
-     * Obtenha a representação por e-mail da notificação.
+     * Exclui a conta do usuário autenticado.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function destroy(Request $request)
     {
-        return (new MailMessage)
-                    ->subject('Seu Código de Verificação')
-                    ->line('Olá, ' . $notifiable->name . '!')
-                    ->line('Seu código de verificação é: ')
-                    ->line('')
-                    ->panel($this->code) // Mostra o código em destaque
-                    ->line('')
-                    ->line('Este código expira em 5 minutos.')
-                    ->line('Se você não criou esta conta, nenhuma ação é necessária.');
+        $request->validate([
+            'password' => ['required'],
+        ]);
+
+        $user = $request->user();
+
+        if (!Auth::attempt([
+            'email' => $user->email,
+            'password' => $request->password,
+        ])) {
+            return back()->withErrors([
+                'password' => 'A senha informada está incorreta.',
+            ]);
+        }
+
+        Auth::logout();
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect('/')
+            ->with('status', 'Conta excluída com sucesso.');
     }
 }

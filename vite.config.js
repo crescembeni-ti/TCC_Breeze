@@ -6,13 +6,14 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
+                'resources/css/about.css',
+                'resources/css/contact.css',
+                'resources/css/welcome.css',
+                'resources/css/auth.css',
+                'resources/css/perfil.css', // ✅ adicionado
                 'resources/js/app.js',
-                'resources/css/about.css',    // CSS da página Sobre
-                'resources/css/contact.css',  // CSS da página Contato
-                'resources/css/welcome.css'   // CSS da página Principal
             ],
             refresh: true,
         }),
     ],
 });
-
