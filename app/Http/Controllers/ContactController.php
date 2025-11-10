@@ -16,7 +16,6 @@ class ContactController extends Controller
 {
     /**
      * [MÉTODO DO SITE - INTACTO]
-     * Mostra o formulário de contato e carrega bairros e tópicos.
      */
     public function index()
     {
@@ -27,7 +26,6 @@ class ContactController extends Controller
 
     /**
      * [MÉTODO DO SITE - INTACTO]
-     * Salva a solicitação de contato vinda do SITE.
      */
     public function store(Request $request)
     {
@@ -163,11 +161,7 @@ class ContactController extends Controller
 
     
     // ===================================================================
-    // ===================================================================
-    //
-    //    ADICIONE ESTE NOVO MÉTODO NO FINAL DO SEU ARQUIVO
-    //
-    // ===================================================================
+    // MÉTODO storeApi ATUALIZADO
     // ===================================================================
 
     /**
@@ -176,30 +170,29 @@ class ContactController extends Controller
      */
     public function storeApi(Request $request)
     {
-        // 1. Pega o usuário autenticado pela API (via token)
         $user = $request->user(); 
 
-        // 2. Validação (Valida os nomes que o ANDROID envia)
+        // 1. Validação (Valida TODOS os campos que o ANDROID envia)
+        // (Validação de bairro/tópico é opcional aqui, mas recomendada se o app enviar texto livre)
         $validated = $request->validate([
-            'titulo' => 'required|string|max:255',    // Recebe 'titulo' do app
+            'titulo' => 'required|string|max:255',
             'descricao' => 'required|string',
-            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Recebe 'imagem' do app
+            'bairro' => 'required|string|max:255', // <-- ADICIONADO
+            'rua' => 'required|string|max:255',    // <-- ADICIONADO
+            'numero' => 'required|string|max:20',  // <-- ADICIONADO
+            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        $fotoPath = null; // O nome da sua coluna no BD é 'foto_path'
-
-        // 3. Processar e salvar a imagem (se ela foi enviada)
-        if ($request->hasFile('imagem')) { // O nome 'imagem' vem do Android
-            // Salva a imagem
+        $fotoPath = null;
+        if ($request->hasFile('imagem')) {
             $fotoPath = $request->file('imagem')->store('solicitacoes', 'public');
         }
 
-        // 4. Busca o ID do status "Em Análise"
         $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, function () {
             return Status::where('name', 'Em Análise')->firstOrFail()->id;
         });
 
-        // 5. COMBINA E "TRADUZ" OS DADOS para salvar no banco
+        // 2. COMBINA E "TRADUZ" OS DADOS
         $dataToSave = [
             'user_id' => $user->id, 
             'nome_solicitante' => $user->name,
@@ -210,22 +203,21 @@ class ContactController extends Controller
             'descricao' => $validated['descricao'],
             'foto_path' => $fotoPath,           // Coluna 'foto_path' (BD) recebe o $fotoPath
             
+            // --- CAMPOS ADICIONADOS (Nomes batem, sem tradução) ---
+            'bairro' => $validated['bairro'],
+            'rua' => $validated['rua'],
+            'numero' => $validated['numero'],
+            // --------------------------------------------------
+
             'status_id' => $statusEmAnaliseId,
             'justificativa' => null,
-
-            // Campos que o app não envia, mas o site sim (definidos como nulos)
-            'bairro' => null, 
-            'rua' => null,
-            'numero' => null,
         ];
         
-        // 6. Salva no banco de dados usando o Model 'Contact'
         $contact = Contact::create($dataToSave); 
 
-        // 7. Retornar uma resposta de sucesso para o Android (JSON)
         return response()->json([
             'message' => 'Solicitação criada com sucesso!',
             'data' => $contact 
-        ], 201); // 201 = "Created"
+        ], 201);
     }
 }
