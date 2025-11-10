@@ -11,7 +11,7 @@
         <link href="https://fonts.bunny.net/css?family=poppins:400,500,600&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @vite('resources/css/auth.css')
+        
         <!-- Ícone do site -->
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     </head>
