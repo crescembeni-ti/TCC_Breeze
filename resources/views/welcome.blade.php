@@ -21,6 +21,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
         
         <div class="flex items-center gap-4">
+             <a href="{{ route('home') }}" class="flex items-center gap-4">
             <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
             <h1 class="text-4xl font-bold">
                 <span class="text-[#358054]">Árvores de</span>
@@ -40,17 +41,32 @@
                 <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
             @endauth
 
+            
+
             <button 
-                @click="open = !open"
-                class="menu-button focus:outline-none"
-                aria-label="Abrir menu"
+            @click="open = !open"
+            class="menu-button relative focus:outline-none"
+            aria-label="Menu"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" viewBox="0 0 24 24" 
-                    stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" 
-                        d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+               <!-- Ícone hambúrguer -->
+    <svg xmlns="http://www.w3.org/2000/svg" 
+        fill="none" viewBox="0 0 24 24" 
+        stroke-width="2" stroke="currentColor"
+        class="icon-hamburger absolute inset-0 m-auto transition-all duration-300"
+        :class="{ 'opacity-0 rotate-90 scale-75': open }">
+        <path stroke-linecap="round" stroke-linejoin="round" 
+            d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+
+    <!-- Ícone X -->
+    <svg xmlns="http://www.w3.org/2000/svg"
+        fill="none" viewBox="0 0 24 24"
+        stroke-width="2" stroke="currentColor"
+        class="icon-close absolute inset-0 m-auto transition-all duration-300 opacity-0 scale-75 rotate-90"
+        :class="{ 'opacity-100 rotate-0 scale-100': open }">
+        <path stroke-linecap="round" stroke-linejoin="round" 
+            d="M6 18L18 6M6 6l12 12" />
+    </svg>
             </button>
 
             <div 
@@ -185,20 +201,24 @@
 
     const panel = L.DomUtil.create('div', 'map-filter-panel');
     panel.innerHTML = `
-        <label for="search">🔎 Pesquisar árvore</label>
-        <div style="position: relative;">
-            <input type="text" id="search" placeholder="Ex: ipê, pau-brasil...">
-            <div id="autocomplete" class="autocomplete-list"></div>
-        </div>
+    <label for="search">🔎 Pesquisar árvore</label>
+    <div style="position: relative;">
+        <input type="text" id="search" placeholder="Ex: ipê, pau-brasil...">
+        <div id="autocomplete" class="autocomplete-list"></div>
+    </div>
 
-        <label for="bairro">Bairro</label>
-        <select id="bairro"><option value="">Todos</option></select>
+    <label for="bairro">Bairro</label>
+    <select id="bairro"><option value="">Todos</option></select>
 
-        <label for="especie">Espécie</label>
-        <select id="especie"><option value="">Todas</option></select>
+    <label for="especie">Espécie</label>
+    <select id="especie"><option value="">Todas</option></select>
 
-        <button id="aplicarFiltro">Filtrar</button>
-    `;
+    <div class="flex gap-2 mt-2">
+        <button id="aplicarFiltro" class="w-1/2">Filtrar</button>
+        <button id="limparFiltro" class="w-1/2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition">🧹 Limpar</button>
+    </div>
+`;
+
     map.getContainer().appendChild(panel);
 
     L.DomEvent.disableClickPropagation(panel);
@@ -327,6 +347,8 @@ window.mudarArvore = function (index) {
     const searchInput = document.getElementById('search');
     const autocompleteBox = document.getElementById('autocomplete');
     const aplicarBtn = document.getElementById('aplicarFiltro');
+    const limparBtn = document.getElementById('limparFiltro');
+
 
         function aplicarFiltro(foco = false) {
         const bairro = bairroSelect.value.toLowerCase();
@@ -385,6 +407,24 @@ window.mudarArvore = function (index) {
             aplicarBtn.textContent = 'Filtrar';
         }, 600);
     });
+
+    limparBtn.addEventListener('click', () => {
+    bairroSelect.value = '';
+    especieSelect.value = '';
+    searchInput.value = '';
+    exibirArvores(allTrees);
+
+    const msg = document.createElement('div');
+    msg.classList.add('map-filter-message', 'success');
+    msg.innerHTML = '🧹 Filtros limpos! Todas as árvores foram exibidas.';
+    panel.appendChild(msg);
+
+    setTimeout(() => {
+        msg.classList.add('fade-out');
+        setTimeout(() => msg.remove(), 800);
+    }, 3000);
+});
+
 
 </script>
 
