@@ -339,4 +339,60 @@ main {
     to { transform: rotate(360deg); }
 }
 
+/* Ajustes específicos para o header e menu mobile */
+@media (max-width: 768px) {
+  header.site-header {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .site-header h1 {
+    font-size: 1.75rem;
+    text-align: center;
+  }
+
+  .menu-button {
+    width: 52px;
+    height: 52px;
+  }
+
+  .menu-dropdown {
+    top: 72px;
+    right: 50%;
+    transform: translateX(50%);
+    width: 90%;
+    max-width: 320px;
+    border-radius: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .menu-dropdown a {
+    font-size: 1.05rem;
+    padding: 1rem;
+  }
+
+  .menu-dropdown-divider {
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 0.5rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .menu-button {
+    width: 46px;
+    height: 46px;
+  }
+
+  .menu-dropdown {
+    top: 65px;
+    width: 95%;
+  }
+}
+
+
 

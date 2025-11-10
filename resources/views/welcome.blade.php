@@ -18,57 +18,57 @@
 <body class="font-sans antialiased welcome-page">
     <div class="min-h-screen">
         <header class="site-header relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
-        
-        <div class="flex items-center gap-4">
-             <a href="{{ route('home') }}" class="flex items-center gap-4">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
-            <h1 class="text-4xl font-bold">
-                <span class="text-[#358054]">Árvores de</span>
-                <span class="text-[#a0c520]"> Paracambi</span>
-            </h1>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
+
+        <!-- Logo + Título -->
+        <div class="flex items-center gap-4 flex-shrink-0">
+            <a href="{{ route('home') }}" class="flex items-center gap-4">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
+                <h1 class="text-3xl sm:text-4xl font-bold leading-tight text-white drop-shadow-md">
+                    <span class="text-[#a0c520]">Árvores de</span>
+                    <span class="text-white"> Paracambi</span>
+                </h1>
+            </a>
         </div>
 
-        <div class="flex items-center gap-4" x-data="{ open: false }">
-            
+        <!-- Botões e Menu -->
+        <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">
+
             @auth
-                {{-- Se o usuário está LOGADO, mostra o link para o Painel --}}
                 <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Painel</a>
             @else
-                {{-- Se o usuário é VISITANTE, mostra Entrar/Cadastrar --}}
                 <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Entrar</a>
-                {{-- TRADUÇÃO AQUI: De 'Register' para 'Cadastrar' --}}
                 <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
             @endauth
 
-            
-
+            <!-- Botão Menu Hambúrguer -->
             <button 
-            @click="open = !open"
-            class="menu-button relative focus:outline-none"
-            aria-label="Menu"
+                @click="open = !open"
+                class="menu-button focus:outline-none sm:ml-2"
+                aria-label="Abrir menu"
             >
-               <!-- Ícone hambúrguer -->
-    <svg xmlns="http://www.w3.org/2000/svg" 
-        fill="none" viewBox="0 0 24 24" 
-        stroke-width="2" stroke="currentColor"
-        class="icon-hamburger absolute inset-0 m-auto transition-all duration-300"
-        :class="{ 'opacity-0 rotate-90 scale-75': open }">
-        <path stroke-linecap="round" stroke-linejoin="round" 
-            d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
+                <!-- Ícone hambúrguer -->
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    fill="none" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor"
+                    class="icon-hamburger absolute inset-0 m-auto transition-all duration-300"
+                    :class="{ 'opacity-0 rotate-90 scale-75': open }">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
 
-    <!-- Ícone X -->
-    <svg xmlns="http://www.w3.org/2000/svg"
-        fill="none" viewBox="0 0 24 24"
-        stroke-width="2" stroke="currentColor"
-        class="icon-close absolute inset-0 m-auto transition-all duration-300 opacity-0 scale-75 rotate-90"
-        :class="{ 'opacity-100 rotate-0 scale-100': open }">
-        <path stroke-linecap="round" stroke-linejoin="round" 
-            d="M6 18L18 6M6 6l12 12" />
-    </svg>
+                <!-- Ícone X -->
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    fill="none" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor"
+                    class="icon-close absolute inset-0 m-auto transition-all duration-300 opacity-0 scale-75 rotate-90"
+                    :class="{ 'opacity-100 rotate-0 scale-100': open }">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M6 18L18 6M6 6l12 12" />
+                </svg>
             </button>
 
+            <!-- Dropdown -->
             <div 
                 x-show="open"
                 @click.away="open = false"
@@ -78,49 +78,38 @@
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100 transform scale-100"
                 x-transition:leave-end="opacity-0 transform scale-95"
-                class="menu-dropdown absolute right-0 top-[6rem] z-50"
-                style="display: none;" 
+                class="menu-dropdown absolute right-0 top-[5rem] z-50 sm:w-48 w-[90vw] mx-auto sm:mx-0 text-center sm:text-left"
+                style="display: none;"
             >
-
-                <a href="{{ route('contact') }}">Fazer Solicitação</a>
-                    <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
-                <a href="{{ route('about') }}">Sobre</a>
-
-    
-
-
-                
-
-
-                @auth
-                    {{-- Link para a página de fazer a solicitação --}}
+                <!-- Visitante -->
+                @guest
                     <a href="{{ route('contact') }}">Fazer Solicitação</a>
-                    
-                    {{-- Link para a página de acompanhar as solicitações --}}
                     <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
+                    <a href="{{ route('about') }}">Sobre</a>
+                @endguest
 
-                    {{-- Link para o perfil do usuário (mudar nome/senha) --}}
+                <!-- Usuário autenticado -->
+                @auth
+                    <a href="{{ route('contact') }}">Fazer Solicitação</a>
+                    <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
                     <a href="{{ route('profile.edit') }}">Meu Perfil</a>
-                    
-                    {{-- Divisor --}}
-                    <div class="menu-dropdown-divider"></div> 
 
-                    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                    <div class="menu-dropdown-divider"></div>
+
+                    <form method="POST" action="{{ route('logout') }}" class="m-0">
                         @csrf
                         <a href="{{ route('logout') }}"
-                           class="menu-dropdown-logout-link" 
-                           onclick="event.preventDefault(); this.closest('form').submit();">
+                            class="menu-dropdown-logout-link"
+                            onclick="event.preventDefault(); this.closest('form').submit();">
                             Sair
                         </a>
                     </form>
-                @else
-                   
                 @endauth
             </div>
-            
         </div>
     </div>
 </header>
+
 
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -252,7 +241,20 @@ function popularBairros(bairros) {
         opt.value = b;
         opt.textContent = b;
         bairroSelect.appendChild(opt);
+    
     });
+
+    // === Carrega árvores ===
+    fetch('{{ route('trees.data') }}')
+  .then(response => response.json())
+  .then(data => {
+      allTrees = data;
+      exibirArvores(allTrees);
+      popularFiltros(allTrees);
+  })
+  .catch(error => console.error('Erro ao carregar árvores:', error));
+
+
 }
 
 
