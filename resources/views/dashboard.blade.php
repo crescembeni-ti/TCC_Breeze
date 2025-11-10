@@ -10,6 +10,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @vite('resources/css/dashboard.css')
+    @vite('resources/css/perfil.css')
 
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -32,14 +33,12 @@
         <!-- SIDEBAR -->
         <aside class="sidebar w-64 bg-[#358054] text-white flex flex-col py-8 px-4">
             <nav class="space-y-4">
-                
-                <!-- Link comum a todos -->
+
                 <a href="{{ route('admin.map') }}" class="sidebar-link">
                     <i data-lucide="map" class="icon"></i>
                     <span>Mapa</span>
                 </a>
 
-                <!-- Se for ADMIN -->
                 @if(auth()->user()->is_admin)
                     <a href="{{ route('admin.trees.index') }}" class="sidebar-link">
                         <i data-lucide="tree-pine" class="icon"></i>
@@ -59,7 +58,6 @@
                         </div>
                     @endcan
 
-                <!-- Se for USUÁRIO COMUM -->
                 @else
                     <a href="{{ route('contact') }}" class="sidebar-link">
                         <i data-lucide="plus-circle" class="icon"></i>
@@ -72,7 +70,6 @@
                     </a>
                 @endif
 
-                <!-- Perfil (comum a todos) -->
                 <a href="{{ route('profile.edit') }}" class="sidebar-link">
                     <i data-lucide="user" class="icon"></i>
                     <span>Meu Perfil</span>
@@ -89,17 +86,24 @@
 
         <!-- CONTEÚDO PRINCIPAL -->
         <main class="flex-1 p-10">
-            <div class="bg-white shadow-sm rounded-lg p-8">
 
-                {{-- TÍTULO --}}
-                @if(auth()->user()->is_admin)
+            {{-- ✅ ÁREA DINÂMICA — onde o conteúdo das páginas internas será renderizado --}}
+            @yield('content')
+
+            {{-- ✅ IMPORTANTE:
+                 Todo conteúdo original continua aqui EMBAIXO,
+                 assim o dashboard funciona normalmente. --}}
+
+            @if(auth()->user()->is_admin)
+                <div class="bg-white shadow-sm rounded-lg p-8 mt-10">
+                    {{-- TÍTULO --}}
                     <h2 class="text-3xl font-bold text-[#358054] mb-4">Painel Administrativo</h2>
                     <p class="text-gray-700 text-lg mb-4">
                         Bem-vindo, {{ auth()->user()->name }} 🌳  
                         Use o menu à esquerda para gerenciar árvores, mensagens e usuários.
                     </p>
 
-                    {{-- Estatísticas do admin --}}
+                    {{-- Estatísticas --}}
                     @if(isset($stats))
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-6">
                             <div class="p-4 bg-green-100 rounded shadow">
@@ -116,50 +120,9 @@
                             </div>
                         </div>
                     @endif
-
-                @else
-                    <h2 class="text-3xl font-bold text-[#a0c520] mb-4">Painel do Usuário</h2>
-                    <p class="text-gray-700 text-lg">
-                        Bem-vindo, {{ auth()->user()->name }} 🌱  
-                        Aqui você pode visualizar o mapa, enviar e acompanhar solicitações.
-                    </p>
-                @endif
-
-                {{-- CARDS --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-
-                    <a href="{{ route('admin.map') }}" class="card">
-                        <h3>🗺️ Mapa Interativo</h3>
-                        <p>Veja as árvores cadastradas em Paracambi.</p>
-                    </a>
-
-                    {{-- Cards diferentes por tipo --}}
-                    @if(auth()->user()->is_admin)
-                        <a href="{{ route('admin.trees.index') }}" class="card">
-                            <h3>🌿 Árvores Cadastradas</h3>
-                            <p>Gerencie as árvores exibidas no mapa.</p>
-                        </a>
-
-                        <a href="{{ route('admin.contato.index') }}" class="card">
-                            <h3>💬 Mensagens</h3>
-                            <p>Veja e responda contatos e denúncias.</p>
-                        </a>
-                    @else
-                        <a href="{{ route('contact') }}" class="card">
-                            <h3>📤 Nova Solicitação</h3>
-                            <p>Solicite o plantio de uma nova árvore.</p>
-                        </a>
-
-                        <a href="{{ route('contact.myrequests') }}" class="card">
-                            <h3>📋 Minhas Solicitações</h3>
-                            <p>Acompanhe o status das suas solicitações.</p>
-                        </a>
-                    @endif
                 </div>
-            </div>
 
-            {{-- Logs de admin --}}
-            @if(auth()->user()->is_admin)
+                {{-- Logs --}}
                 <div class="bg-white rounded-lg shadow p-6 mt-6">
                     <h2 class="text-2xl font-bold text-gray-900 mb-4">Atividade Recente do Painel</h2>
 
@@ -178,7 +141,28 @@
                         @endforelse
                     </div>
                 </div>
+            @else
+                <div class="bg-white shadow-sm rounded-lg p-8 mt-10">
+                    <h2 class="text-3xl font-bold text-[#a0c520] mb-4">Painel do Usuário</h2>
+                    <p class="text-gray-700 text-lg">
+                        Bem-vindo, {{ auth()->user()->name }} 🌱  
+                        Aqui você pode visualizar o mapa, enviar e acompanhar solicitações.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                        <a href="{{ route('contact') }}" class="card">
+                            <h3>📤 Nova Solicitação</h3>
+                            <p>Solicite o plantio de uma nova árvore.</p>
+                        </a>
+
+                        <a href="{{ route('contact.myrequests') }}" class="card">
+                            <h3>📋 Minhas Solicitações</h3>
+                            <p>Acompanhe o status das suas solicitações.</p>
+                        </a>
+                    </div>
+                </div>
             @endif
+
         </main>
     </div>
 

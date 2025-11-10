@@ -8,9 +8,8 @@ use Illuminate\Support\Facades\Redirect;
 
 class ProfileController extends Controller
 {
-    use Queueable;
-
     protected $code;
+
     /**
      * Exibe o formulário de edição do perfil.
      */
@@ -29,7 +28,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name'  => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
         ]);
 
@@ -51,7 +50,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         if (!Auth::attempt([
-            'email' => $user->email,
+            'email'    => $user->email,
             'password' => $request->password,
         ])) {
             return back()->withErrors([
