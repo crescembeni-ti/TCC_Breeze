@@ -20,7 +20,7 @@
   }
 
   h1, h2, h3 {
-    color: #064e3b; /* verde escuro do tema */
+    color: #358054; /* verde escuro do tema */
   }
 
   @keyframes fadeIn {
@@ -52,7 +52,7 @@
 
   /* Header global (caso use .site-header no <header>) */
   .site-header {
-    background: linear-gradient(90deg, #065f46, #047857, #059669);
+    background: #358054;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     border-bottom: 2px solid #064e3b;
   }

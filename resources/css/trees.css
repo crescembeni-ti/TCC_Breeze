@@ -1,0 +1,79 @@
+/* resources/css/trees.css */
+
+body.tree-page {
+    background-image: url('/public/images/fotofabrica.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+#tree-map {
+    height: 400px;
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 2px solid #358054;
+    box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.15),
+                0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tree-card {
+    border-radius: 0.75rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 1px solid #358054;
+}
+
+.tree-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: #38c224;
+}
+
+.btn-back {
+    background-color: #358054;
+    color: white;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s ease;
+}
+
+.btn-back:hover {
+    background-color: #2f6f46;
+    transform: scale(1.05);
+}
+
+footer {
+    background: #beffb4;
+    border-top: 2px solid #358054;
+    box-shadow: 0 -4px 10px rgba(53, 128, 84, 0.3);
+}
+
+.activity-item {
+    border-left: 4px solid #358054;
+    padding-left: 1rem;
+    transition: all 0.25s ease;
+}
+
+.activity-item:hover {
+    transform: translateX(6px);
+    background-color: #f9fafb;
+}
+
+/* Fade-in animado */
+.fade-in {
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
