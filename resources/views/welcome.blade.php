@@ -40,17 +40,32 @@
                 <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
             @endauth
 
+            
+
             <button 
-                @click="open = !open"
-                class="menu-button focus:outline-none"
-                aria-label="Abrir menu"
+            @click="open = !open"
+            class="menu-button relative focus:outline-none"
+            aria-label="Menu"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" viewBox="0 0 24 24" 
-                    stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" 
-                        d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+               <!-- Ícone hambúrguer -->
+    <svg xmlns="http://www.w3.org/2000/svg" 
+        fill="none" viewBox="0 0 24 24" 
+        stroke-width="2" stroke="currentColor"
+        class="icon-hamburger absolute inset-0 m-auto transition-all duration-300"
+        :class="{ 'opacity-0 rotate-90 scale-75': open }">
+        <path stroke-linecap="round" stroke-linejoin="round" 
+            d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+
+    <!-- Ícone X -->
+    <svg xmlns="http://www.w3.org/2000/svg"
+        fill="none" viewBox="0 0 24 24"
+        stroke-width="2" stroke="currentColor"
+        class="icon-close absolute inset-0 m-auto transition-all duration-300 opacity-0 scale-75 rotate-90"
+        :class="{ 'opacity-100 rotate-0 scale-100': open }">
+        <path stroke-linecap="round" stroke-linejoin="round" 
+            d="M6 18L18 6M6 6l12 12" />
+    </svg>
             </button>
 
             <div 
