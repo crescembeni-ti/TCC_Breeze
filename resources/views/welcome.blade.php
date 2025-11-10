@@ -81,7 +81,14 @@
                 class="menu-dropdown absolute right-0 top-[6rem] z-50"
                 style="display: none;" 
             >
+                <a href="{{ route('contact') }}">Fazer Solicitação</a>
                 <a href="{{ route('about') }}">Sobre</a>
+
+    
+
+
+                
+
 
                 @auth
                     {{-- Link para a página de fazer a solicitação --}}
@@ -105,8 +112,7 @@
                         </a>
                     </form>
                 @else
-                    <a href="{{ route('login') }}">Entrar</a>
-                    <a href="{{ route('register') }}">Cadastrar</a>
+                   
                 @endauth
             </div>
             
