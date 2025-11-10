@@ -8,6 +8,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\VerifyEmailCodeController;
+use App\Models\Bairro;
 
 // ==============================
 // 🌍 ROTAS PÚBLICAS
@@ -21,7 +22,9 @@ Route::get('/sobre', [PageController::class, 'about'])->name('about');
 Route::post('/contato/denuncia', [ReportController::class, 'store'])
     ->middleware('auth')
     ->name('report.store');
-
+Route::get('/bairros/data', function () {
+    return response()->json(Bairro::all());
+})->name('bairros.data');
 // ==============================
 // 👤 ROTAS DE USUÁRIO LOGADO (perfil, etc.)
 // ==============================
