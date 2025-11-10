@@ -263,33 +263,52 @@
         });
     }
 
-    // === Popup com setas ===
-    function criarPopup(tree, index) {
-        const anterior = index > 0 ? `<button onclick="mudarArvore(${index - 1})">⬅️</button>` : '';
-        const proximo = index < filteredTrees.length - 1 ? `<button onclick="mudarArvore(${index + 1})">➡️</button>` : '';
+    // === Popup com setas modernas e suaves ===
+function criarPopup(tree, index) {
+    const anterior = index > 0
+        ? `<button onclick="mudarArvore(${index - 1})" class="popup-nav-btn" title="Árvore anterior">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+             </svg>
+           </button>`
+        : '<span></span>';
 
-        return `
-            <div style="padding: 0.5rem; text-align:center;">
-                <h3 style="font-weight:700; font-size:1.125rem;">${tree.species_name}</h3>
-                <p><strong>Bairro:</strong> ${tree.neighborhood}</p>
-                <p><strong>Endereço:</strong> ${tree.address}</p>
-                <p><strong>Diâmetro:</strong> ${tree.trunk_diameter} cm</p>
-                <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                    ${anterior}
-                    <a href="/trees/${tree.id}" style="color:#16a34a; text-decoration:underline;">Ver detalhes</a>
-                    ${proximo}
-                </div>
+    const proximo = index < filteredTrees.length - 1
+        ? `<button onclick="mudarArvore(${index + 1})" class="popup-nav-btn" title="Próxima árvore">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+             </svg>
+           </button>`
+        : '<span></span>';
+
+    return `
+        <div style="padding: 0.5rem; text-align:center;">
+            <h3 style="font-weight:700; font-size:1.125rem;">${tree.species_name}</h3>
+            <p><strong>Bairro:</strong> ${tree.neighborhood}</p>
+            <p><strong>Endereço:</strong> ${tree.address}</p>
+            <p><strong>Diâmetro:</strong> ${tree.trunk_diameter} cm</p>
+            <div class="popup-nav">
+                ${anterior}
+                <a href="/trees/${tree.id}" class="popup-link">Ver detalhes</a>
+                ${proximo}
             </div>
-        `;
-    }
+        </div>
+    `;
+}
 
-    // === Navegação entre árvores ===
-    window.mudarArvore = function (index) {
-        const tree = filteredTrees[index];
-        const marker = treeMarkers[tree.id];
-        map.setView([tree.latitude, tree.longitude], 17);
+// === Navegação entre árvores com pan suave ===
+window.mudarArvore = function (index) {
+    const tree = filteredTrees[index];
+    const marker = treeMarkers[tree.id];
+    
+    // Pan suave até a nova árvore
+    map.flyTo([tree.latitude, tree.longitude], 17, { duration: 1.0 });
+
+    // Abre o novo popup com pequeno atraso (pra suavizar a transição)
+    setTimeout(() => {
         marker.bindPopup(criarPopup(tree, index)).openPopup();
-    };
+    }, 600);
+};
 
     // === Filtro dinâmico ===
     const bairroSelect = document.getElementById('bairro');
