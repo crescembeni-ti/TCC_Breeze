@@ -394,5 +394,30 @@ main {
   }
 }
 
+.site-header {
+  background-color: #b6fbb7;
+  border-bottom: 2px solid #3fa45b;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.site-header .btn {
+  border-radius: 0.5rem;
+  transition: all 0.25s ease;
+  font-weight: 600;
+}
+
+.site-header .btn:hover {
+  transform: scale(1.05);
+}
+
+.menu-dropdown a {
+  transition: all 0.2s ease-in-out;
+}
+
+.menu-dropdown a:hover {
+  transform: translateX(4px);
+}
+
+
 
 

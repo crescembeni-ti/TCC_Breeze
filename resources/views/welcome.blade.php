@@ -36,6 +36,7 @@
 
             @auth
                 <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Painel</a>
+                <a href="{{ route('about') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Sobre</a>
             @else
                 <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Entrar</a>
                 <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
@@ -93,6 +94,7 @@
                     <a href="{{ route('contact') }}">Fazer Solicitação</a>
                     <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
                     <a href="{{ route('profile.edit') }}">Meu Perfil</a>
+                    
 
                     <div class="menu-dropdown-divider"></div>
 
