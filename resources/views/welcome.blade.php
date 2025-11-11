@@ -93,7 +93,6 @@
     @auth
         <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Fazer Solicitação</a>
         <a href="{{ route('contact.myrequests') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Minhas Solicitações</a>
-        <a href="{{ route('about') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Sobre</a>
         <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Meu Perfil</a>
 
         <div class="border-t border-gray-200 my-2"></div>
