@@ -300,7 +300,10 @@
                                                     <textarea name="justificativa_cancelamento" id="justificativa-{{ $request->id }}" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"></textarea>
                                                 </div>
                                                 <div class="mt-6 flex justify-end space-x-4">
-                                                    <button type="button" @click="showCancelModal = false" class="btn bg-gray-200 text-gray-700 hover:bg-gray-300">Manter Solicitação</button>
+                                                    <button type="button" @click="showCancelModal = false"
+                                                        class="btn bg-[#a0c520] text-white hover:bg-[#8eb61d] font-medium shadow-sm">
+                                                        Manter Solicitação
+                                                    </button>
                                                     <button type="submit" class="btn bg-red-600 hover:bg-red-700 text-white">Sim, cancelar</button>
                                                 </div>
                                             </form>
