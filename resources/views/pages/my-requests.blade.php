@@ -52,46 +52,95 @@
         
         {{-- CABEÇALHO --}}
         <header class="site-header relative">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <a href="{{ route('home') }}" class="flex items-center gap-4">
-                        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
-                        <h1 class="text-4xl font-bold">
-                            <span class="text-[#358054]">Árvores de</span>
-                            <span class="text-[#a0c520]"> Paracambi</span>
-                        </h1>
-                    </a>
-                </div>
-                <div class="flex items-center gap-4" x-data="{ open: false }">
-                    <div class="hidden sm:flex items-center gap-4">
-                        @auth
-                            <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-green-700">Painel</a>
-                        @else
-                            <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700">Entrar</a>
-                            <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700">Cadastrar</a>
-                        @endauth
-                    </div>
-                    <button @click="open = !open" class="menu-button focus:outline-none" aria-label="Abrir menu">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    </button>
-                    <div x-show="open" @click.away="open = false" x-transition class="menu-dropdown absolute right-0 top-[6rem] z-50" style="display: none;">
-                        <a href="{{ route('about') }}">Sobre</a>
-                        @auth
-                            <a href="{{ route('contact') }}">Fazer Solicitação</a>
-                            <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
-                            <a href="{{ route('profile.edit') }}">Meu Perfil</a>
-                            <div class="menu-dropdown-divider"></div> 
-                            <form method="POST" action="{{ route('logout') }}" style="margin: 0;"> @csrf
-                                <a href="{{ route('logout') }}" class="menu-dropdown-logout-link" onclick="event.preventDefault(); this.closest('form').submit();"> Sair </a>
-                            </form>
-                        @else
-                            <a href="{{ route('login') }}">Entrar</a>
-                            <a href="{{ route('register') }}">Cadastrar</a>
-                        @endauth
-                    </div>
-                </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
+
+        <!-- Logo -->
+        <div class="flex items-center gap-4 flex-shrink-0">
+            <a href="{{ route('home') }}" class="flex items-center gap-4">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
+                <h1 class="text-3xl sm:text-4xl font-bold leading-tight">
+                    <span class="text-[#358054]">Árvores de</span>
+                    <span class="text-[#a0c520]"> Paracambi</span>
+                </h1>
+            </a>
+        </div>
+
+        <!-- Menu com botão hambúrguer -->
+        <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">
+
+            @auth
+                <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Painel</a>
+                <a href="{{ route('about') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Sobre</a>
+            @else
+                <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Entrar</a>
+                <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
+            @endauth
+
+            <!-- Botão hamburguer animado -->
+            <button 
+                @click="open = !open"
+                class="menu-button focus:outline-none sm:ml-2 relative w-8 h-8"
+                aria-label="Abrir menu"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     fill="none" viewBox="0 0 24 24"
+                     stroke-width="2" stroke="currentColor"
+                     class="icon-hamburger absolute inset-0 m-auto transition-all duration-300"
+                     :class="{ 'opacity-0 rotate-90 scale-75': open }">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     fill="none" viewBox="0 0 24 24"
+                     stroke-width="2" stroke="currentColor"
+                     class="icon-close absolute inset-0 m-auto transition-all duration-300 opacity-0 scale-75 rotate-90"
+                     :class="{ 'opacity-100 rotate-0 scale-100': open }">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Dropdown -->
+            <div 
+                x-show="open"
+                @click.away="open = false"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 transform translate-y-2"
+                x-transition:enter-end="opacity-100 transform translate-y-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 transform translate-y-0"
+                x-transition:leave-end="opacity-0 transform translate-y-2"
+                class="menu-dropdown absolute right-0 top-[5rem] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl sm:w-48 w-[90vw] py-2 text-center sm:text-left z-50"
+                style="display: none;"
+            >
+                @guest
+                    <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Fazer Solicitação</a>
+                    <a href="{{ route('contact.myrequests') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Minhas Solicitações</a>
+                    <a href="{{ route('about') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Sobre</a>
+                @endguest
+
+                @auth
+                    <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Fazer Solicitação</a>
+                    
+                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Meu Perfil</a>
+
+                    <div class="border-t border-gray-200 my-2"></div>
+
+                    <form method="POST" action="{{ route('logout') }}" class="m-0">
+                        @csrf
+                        <a href="{{ route('logout') }}"
+                           class="block px-4 py-2 text-red-600 hover:bg-red-100 hover:text-red-800 font-medium transition"
+                           onclick="event.preventDefault(); this.closest('form').submit();">
+                           Sair
+                        </a>
+                    </form>
+                @endauth
             </div>
-        </header>
+        </div>
+    </div>
+</header>
+
 
         {{-- CONTEÚDO PRINCIPAL --}}
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
