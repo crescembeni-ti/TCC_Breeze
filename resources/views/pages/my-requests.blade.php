@@ -35,8 +35,10 @@
     <div class="min-h-screen flex flex-col justify-between">
         
         {{-- CABEÇALHO --}}
-        <header class="site-header bg-[#b6fbb7] border-b-2 border-[#3fa45b] shadow-md relative">
+        <header class="site-header relative bg-[#b6fbb7] border-b-2 border-[#3fa45b] shadow-md">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
+
+    <!-- Logo + Título -->
     <a href="{{ route('home') }}" class="flex items-center gap-4">
       <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
       <h1 class="text-4xl font-bold">
@@ -45,51 +47,86 @@
       </h1>
     </a>
 
-    <div class="flex items-center gap-4" x-data="{ open: false }">
-      <!-- Botões Desktop -->
-      <div class="hidden sm:flex items-center gap-4">
-        @auth
-          <a href="{{ route('home') }}" class="btn bg-green-700 hover:bg-green-800 text-white shadow-md">Painel</a>
-        @else
-          <a href="{{ route('login') }}" class="btn bg-green-700 hover:bg-green-800 text-white shadow-md">Entrar</a>
-          <a href="{{ route('register') }}" class="btn bg-gray-700 hover:bg-gray-800 text-white shadow-md">Cadastrar</a>
-        @endauth
-      </div>
+    <!-- Painel + Menu -->
+    <div class="flex items-center gap-4 relative" x-data="{ open: false }">
 
-      <!-- Hamburguer -->
-      <button @click="open = !open" class="menu-button focus:outline-none bg-[#358054] w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-all" aria-label="Abrir menu">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      @auth
+        <!-- Botão Painel -->
+        <a href="{{ route('dashboard') }}" class="btn bg-green-700 hover:bg-green-800 text-white shadow-md">
+          Painel
+        </a>
+      @else
+        <!-- Visitante: Entrar / Cadastrar -->
+        <a href="{{ route('login') }}" class="btn bg-green-700 hover:bg-green-800 text-white shadow-md">Entrar</a>
+        <a href="{{ route('register') }}" class="btn bg-gray-700 hover:bg-gray-800 text-white shadow-md">Cadastrar</a>
+      @endauth
+
+      <!-- Botão Hamburguer -->
+      <button @click="open = !open"
+              class="menu-button focus:outline-none bg-[#358054] w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-all"
+              aria-label="Abrir menu">
+        <!-- Ícone hambúrguer -->
+        <svg xmlns="http://www.w3.org/2000/svg"
+             fill="none" viewBox="0 0 24 24"
+             stroke-width="2" stroke="currentColor"
+             class="w-6 h-6 text-white transition-all"
+             :class="{ 'opacity-0 scale-75 rotate-90': open }">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+
+        <!-- Ícone X -->
+        <svg xmlns="http://www.w3.org/2000/svg"
+             fill="none" viewBox="0 0 24 24"
+             stroke-width="2" stroke="currentColor"
+             class="w-6 h-6 text-white absolute transition-all opacity-0 scale-75 rotate-90"
+             :class="{ 'opacity-100 rotate-0 scale-100': open }">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
       <!-- Dropdown -->
-      <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-200"
+      <div x-show="open"
+           @click.away="open = false"
+           x-transition:enter="transition ease-out duration-200"
            x-transition:enter-start="opacity-0 transform translate-y-2"
            x-transition:enter-end="opacity-100 transform translate-y-0"
            x-transition:leave="transition ease-in duration-150"
            x-transition:leave-start="opacity-100 transform translate-y-0"
            x-transition:leave-end="opacity-0 transform translate-y-2"
-           class="menu-dropdown absolute right-0 top-[6rem] bg-white border border-gray-200 rounded-lg shadow-xl w-48 py-2 z-50 text-center sm:text-left"
+           class="menu-dropdown absolute right-0 top-[5rem] bg-white border border-gray-200 rounded-xl shadow-xl w-52 py-2 z-50"
            style="display: none;">
-        <a href="{{ route('about') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Sobre</a>
 
+        <!-- Visitante -->
+        @guest
+          <a href="{{ route('login') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Entrar</a>
+          <a href="{{ route('register') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Cadastrar</a>
+          <a href="{{ route('about') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Sobre</a>
+        @endguest
+
+        <!-- Usuário logado -->
         @auth
-          <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700">Fazer Solicitação</a>
-          <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700">Meu Perfil</a>
+          <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Fazer Solicitação</a>
+          <a href="{{ route('about') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Sobre</a>
+          <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Meu Perfil</a>
+
           <div class="border-t border-gray-200 my-2"></div>
+
           <form method="POST" action="{{ route('logout') }}" class="m-0">
             @csrf
-            <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="block px-4 py-2 text-red-600 hover:bg-red-100 hover:text-red-800 font-medium">Sair</a>
+            <a href="{{ route('logout') }}"
+               class="block px-4 py-2 text-red-600 hover:bg-red-100 hover:text-red-800 font-medium transition"
+               onclick="event.preventDefault(); this.closest('form').submit();">
+              Sair
+            </a>
           </form>
-        @else
-          <a href="{{ route('login') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700">Entrar</a>
-          <a href="{{ route('register') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700">Cadastrar</a>
         @endauth
       </div>
     </div>
   </div>
 </header>
+
 
 
         {{-- CONTEÚDO PRINCIPAL --}}

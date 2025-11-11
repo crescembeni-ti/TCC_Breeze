@@ -70,44 +70,45 @@
             </button>
 
             <!-- Dropdown -->
-            <div 
-                x-show="open"
-                @click.away="open = false"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 transform scale-95"
-                x-transition:enter-end="opacity-100 transform scale-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 transform scale-100"
-                x-transition:leave-end="opacity-0 transform scale-95"
-                class="menu-dropdown absolute right-0 top-[5rem] z-50 sm:w-48 w-[90vw] mx-auto sm:mx-0 text-center sm:text-left"
-                style="display: none;"
-            >
-                <!-- Visitante -->
-                @guest
-                    <a href="{{ route('contact') }}">Fazer Solicitação</a>
-                    <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
-                    <a href="{{ route('about') }}">Sobre</a>
-                @endguest
+<div 
+    x-show="open"
+    @click.away="open = false"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 transform translate-y-2"
+    x-transition:enter-end="opacity-100 transform translate-y-0"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100 transform translate-y-0"
+    x-transition:leave-end="opacity-0 transform translate-y-2"
+    class="menu-dropdown absolute right-0 top-[5rem] bg-white border border-gray-200 rounded-xl shadow-xl sm:w-48 w-[90vw] py-2 text-center sm:text-left z-50"
+    style="display: none;"
+>
+    <!-- Visitante -->
+    @guest
+        <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Fazer Solicitação</a>
+        <a href="{{ route('contact.myrequests') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Minhas Solicitações</a>
+        <a href="{{ route('about') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Sobre</a>
+    @endguest
 
-                <!-- Usuário autenticado -->
-                @auth
-                    <a href="{{ route('contact') }}">Fazer Solicitação</a>
-                    <a href="{{ route('contact.myrequests') }}">Minhas Solicitações</a>
-                    <a href="{{ route('profile.edit') }}">Meu Perfil</a>
-                    
+    <!-- Usuário autenticado -->
+    @auth
+        <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Fazer Solicitação</a>
+        <a href="{{ route('contact.myrequests') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Minhas Solicitações</a>
+        <a href="{{ route('about') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Sobre</a>
+        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Meu Perfil</a>
 
-                    <div class="menu-dropdown-divider"></div>
+        <div class="border-t border-gray-200 my-2"></div>
 
-                    <form method="POST" action="{{ route('logout') }}" class="m-0">
-                        @csrf
-                        <a href="{{ route('logout') }}"
-                            class="menu-dropdown-logout-link"
-                            onclick="event.preventDefault(); this.closest('form').submit();">
-                            Sair
-                        </a>
-                    </form>
-                @endauth
-            </div>
+        <form method="POST" action="{{ route('logout') }}" class="m-0">
+            @csrf
+            <a href="{{ route('logout') }}"
+               class="block px-4 py-2 text-red-600 hover:bg-red-100 hover:text-red-800 font-medium transition"
+               onclick="event.preventDefault(); this.closest('form').submit();">
+               Sair
+            </a>
+        </form>
+    @endauth
+</div>
+
         </div>
     </div>
 </header>
