@@ -5,71 +5,88 @@ use App\Http\Controllers\TreeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController; // Correto!
+use App\Http\Controllers\Auth\VerifyEmailCodeController;
+use App\Models\Bairro;
 
-// 1. IMPORTAR O NOVO CONTROLLER (Já estava correto)
-use App\Http\Controllers\Auth\VerifyEmailCodeController; 
-
-// --- ROTAS PÚBLICAS ---
+// ==============================
+// 🌍 ROTAS PÚBLICAS
+// ==============================
 Route::get('/', [TreeController::class, 'index'])->name('home');
 Route::get('/api/trees', [TreeController::class, 'getTreesData'])->name('trees.data');
 Route::get('/trees/{id}', [TreeController::class, 'show'])->name('trees.show');
 Route::get('/sobre', [PageController::class, 'about'])->name('about');
 
-// Rota de Denúncia/Reporte (já estava protegida, mantido)
-Route::post('/contato/denuncia', [ReportController::class, 'store'])->middleware('auth')->name('report.store');
-
-// --- GRUPO 1: AUTENTICADO (Apenas login) ---
+// 📣 Envio de denúncia/reporte (somente autenticado)
+Route::post('/contato/denuncia', [ReportController::class, 'store'])
+    ->middleware('auth')
+    ->name('report.store');
+Route::get('/bairros/data', function () {
+    return response()->json(Bairro::all());
+})->name('bairros.data');
+// ==============================
+// 👤 ROTAS DE USUÁRIO LOGADO (perfil, etc.)
+// ==============================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-//Rota de pesquisa dos bairros no mapa 
-Route::get('/bairros', [TreeController::class, 'getBairros'])->name('bairros.data');
+// ==============================
+// 🔐 ROTAS PROTEGIDAS (autenticado e verificado)
+// ==============================
 
-// --- GRUPO 2: AUTENTICADO E VERIFICADO ---
 Route::middleware(['auth', 'verified'])->group(function () {
-    
-    // ▼▼▼ SUA ROTA DE DASHBOARD ATUALIZADA ▼▼▼
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    // ▲▲▲ FIM DA ATUALIZAÇÃO ▲▲▲
 
-    // Rotas para FAZER a solicitação
+    // 🧭 DASHBOARD UNIFICADO
+    // (exibe painel do admin ou do usuário conforme o campo is_admin)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // ✉️ FAZER SOLICITAÇÃO
     Route::get('/contato', [ContactController::class, 'index'])->name('contact');
     Route::post('/contato', [ContactController::class, 'store'])->name('contact.store');
 
-    // Rota para VER as solicitações
+    // 📋 MINHAS SOLICITAÇÕES
     Route::get('/minhas-solicitacoes', [ContactController::class, 'userRequestList'])
-         ->name('contact.myrequests');
-         
-    // --- ADAPTAÇÃO 1: ADICIONADA A ROTA DE CANCELAMENTO ---
+        ->name('contact.myrequests');
+
+    // ❌ CANCELAR SOLICITAÇÃO
     Route::patch('/minhas-solicitacoes/{contact}/cancelar', [ContactController::class, 'cancelRequest'])
-         ->name('contact.cancel');
+        ->name('contact.cancel');
 });
 
-// --- GRUPO 3: ROTAS DE ADMINISTRADOR ---
+// ==============================
+// 🛠️ ROTAS DE ADMINISTRADOR
+// ==============================
 Route::middleware(['auth', 'admin'])->group(function () {
-    // (O código de rotas de admin vem aqui)
+
+    // 🌍 Mapa administrativo
     Route::get('/dashboard/map', [TreeController::class, 'adminMap'])->name('admin.map');
     Route::post('/dashboard/map', [TreeController::class, 'storeTree'])->name('admin.map.store');
+
+    // 🌲 Árvores
     Route::get('/dashboard/trees', [TreeController::class, 'adminTreeList'])->name('admin.trees.index');
     Route::get('/dashboard/trees/{tree}/edit', [TreeController::class, 'adminTreeEdit'])->name('admin.trees.edit');
     Route::patch('/dashboard/trees/{tree}', [TreeController::class, 'adminTreeUpdate'])->name('admin.trees.update');
-    Route::get('/dashboard/contacts', [ContactController::class, 'adminContactList'])->name('admin.contacts.index');
-    Route::patch('/dashboard/contacts/{contact}', [ContactController::class, 'adminContactUpdateStatus'])->name('admin.contacts.updateStatus');
     Route::delete('/admin/trees/{tree}', [TreeController::class, 'adminTreeDestroy'])->name('admin.trees.destroy');
+
+    // 💬 Mensagens / Contatos
+    Route::get('/dashboard/contacts', [ContactController::class, 'adminContactList'])
+    ->name('admin.contato.index');
+
+    Route::patch('/dashboard/contacts/{contact}', [ContactController::class, 'adminContactUpdateStatus'])->name('admin.contacts.updateStatus');
 });
 
-// 2. ROTAS DE VERIFICAÇÃO DE CÓDIGO (Já estavam corretas)
+// ==============================
+// 📧 VERIFICAÇÃO DE CÓDIGO (EMAIL 2FA)
+// ==============================
 Route::get('/verify-code', [VerifyEmailCodeController::class, 'show'])->name('verification.code.notice');
 Route::post('/verify-code', [VerifyEmailCodeController::class, 'verify'])->name('verification.code.verify');
 Route::post('/resend-code', [VerifyEmailCodeController::class, 'resend'])->name('verification.code.resend');
 
-// --- ADAPTAÇÃO 2: REMOVIDA A LINHA DE AGENDAMENTO DAQUI ---
-// A linha abaixo (Schedule::command...) deve ficar no seu arquivo 'routes/console.php'
-
-// Arquivo de rotas de autenticação do Breeze (login, registro, etc.)
-require __DIR__.'/auth.php';
+// ==============================
+// 🔑 ROTAS DE AUTENTICAÇÃO DO BREEZE
+// ==============================
+require __DIR__ . '/auth.php';

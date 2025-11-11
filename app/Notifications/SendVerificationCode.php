@@ -7,22 +7,32 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SendVerificationCode extends Notification
+class SendVerificationCode extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $code;
+    /**
+     * Código de verificação temporário.
+     *
+     * @var string
+     */
+    protected string $code;
 
     /**
-     * Crie uma nova instância da notificação.
+     * Cria uma nova instância da notificação.
+     *
+     * @param string $code
      */
-    public function __construct($code)
+    public function __construct(string $code)
     {
         $this->code = $code;
     }
 
     /**
-     * Obtenha os canais de entrega da notificação.
+     * Define os canais pelos quais a notificação será enviada.
+     *
+     * @param  mixed  $notifiable
+     * @return array
      */
     public function via(object $notifiable): array
     {
@@ -30,22 +40,21 @@ class SendVerificationCode extends Notification
     }
 
     /**
-     * Obtenha a representação por e-mail da notificação.
-     * (MÉTODO CORRIGIDO)
+     * Constrói o e-mail da notificação.
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('Seu Código de Verificação')
-                    ->line('Olá, ' . $notifiable->name . '!')
-                    ->line('Seu código de verificação é:')
-                    ->line('')
-                    // --- CORREÇÃO AQUI ---
-                    // Trocamos ->panel() por ->line() com negrito
-                    ->line('**' . $this->code . '**')
-                    // --- FIM DA CORREÇÃO ---
-                    ->line('')
-                    ->line('Este código expira em 5 minutos.')
-                    ->line('Se você não criou esta conta, nenhuma ação é necessária.');
+            ->subject('Seu Código de Verificação')
+            ->greeting('Olá, ' . ucfirst($notifiable->name) . ' 🌱')
+            ->line('Aqui está o seu código de verificação:')
+            ->line('')
+            ->line('🔒 **' . $this->code . '**')
+            ->line('')
+            ->line('Este código expira em 5 minutos.')
+            ->line('Se você não solicitou este código, nenhuma ação é necessária.');
     }
 }

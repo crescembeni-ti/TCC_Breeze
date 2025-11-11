@@ -11,13 +11,20 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <!-- Ícone do site -->
-    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
+        <!-- Vite Assets -->
+        @vite([
+            'resources/css/app.css',
+            'resources/js/app.js',
+            'resources/css/perfil.css'
+        ])
+
+        <!-- Ícone -->
+        <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     </head>
+
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
+            
             @include('layouts.navigation')
 
             <!-- Page Heading -->
@@ -33,6 +40,7 @@
             <main>
                 {{ $slot }}
             </main>
+
         </div>
     </body>
 </html>

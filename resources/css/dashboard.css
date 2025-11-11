@@ -72,3 +72,32 @@ main {
     color: #358054;
     margin-bottom: 0.5rem;
 }
+
+.input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #96cfa8;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #fff;
+    transition: 0.2s;
+}
+
+.input:focus {
+    border-color: #358054;
+    box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.25);
+    outline: none;
+}
+
+.form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #22543d;
+    margin-bottom: 4px;
+}
+
+.hint {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 4px;
+}

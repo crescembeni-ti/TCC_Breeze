@@ -1,0 +1,93 @@
+/* ============================
+   PERFIL - ESTILO PAINEL VERDE
+   ============================ */
+
+.perfil-container {
+  padding: 40px;
+}
+
+/* CARD */
+.perfil-box {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 25px 30px;
+  margin-bottom: 25px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.perfil-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* INPUTS */
+.perfil-box input,
+.perfil-box select,
+.perfil-box textarea {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  font-size: 0.95rem;
+  width: 100%;
+  transition: 0.3s;
+}
+
+.perfil-box input:focus,
+.perfil-box textarea:focus,
+.perfil-box select:focus {
+  border-color: #358054; /* Verde escuro */
+  box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.25);
+  outline: none;
+  background-color: #fff;
+}
+
+/* LABELS */
+.perfil-box label {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* BOTÕES PRINCIPAIS */
+.perfil-box button {
+  background-color: #358054; /* Verde escuro principal */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(53, 128, 84, 0.3);
+}
+
+.perfil-box button:hover {
+  background-color: #3f9a5e; /* Verde mais vibrante */
+  box-shadow: 0 4px 10px rgba(53, 128, 84, 0.4);
+  transform: translateY(-1px);
+}
+
+.perfil-box button:active {
+  background-color: #2c6b47;
+  transform: translateY(0);
+}
+
+/* BOTÃO PERIGOSO (DELETAR CONTA) */
+.perfil-box button.btn-danger {
+  background-color: #d9534f;
+  box-shadow: 0 2px 5px rgba(217, 83, 79, 0.3);
+}
+
+.perfil-box button.btn-danger:hover {
+  background-color: #b52b27;
+  box-shadow: 0 4px 10px rgba(217, 83, 79, 0.4);
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+  .perfil-container {
+    padding: 20px;
+  }
+}
