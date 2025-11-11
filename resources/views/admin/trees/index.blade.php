@@ -12,6 +12,18 @@
                     
                     <h3 class="text-lg font-semibold mb-4">Árvores Cadastradas</h3>
 
+<div class="mb-6">
+    <a href="{{ route('dashboard') }}"
+       class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 transition">
+        <!-- Ícone Heroicon: seta para a esquerda -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Voltar para o Painel
+    </a>
+</div>
+
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">

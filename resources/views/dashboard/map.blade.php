@@ -36,6 +36,12 @@
                 <input type="text" name="name" class="input" required>
             </div>
 
+            {{-- Endereço --}}
+            <div class="flex flex-col">
+                <label class="form-label">Endereço</label>
+                <input type="text" name="address" class="input">
+            </div>
+ 
             {{-- Espécie --}}
             <div class="flex flex-col">
                 <label class="form-label">Espécie *</label>
@@ -78,9 +84,150 @@
                 <input type="number" step="0.01" name="trunk_diameter" class="input">
             </div>
 
-            {{-- Endereço --}}
+            
+            {{-- Nome vulgar/gola --}}
             <div class="flex flex-col">
-                <label class="form-label">Endereço</label>
+                <label class="form-label">Vulgar/Gola</label>
+                <input type="text" name="address" class="input">
+            </div>
+
+            {{-- Nome cientifico --}}
+            <div class="flex flex-col">
+                <label class="form-label">Nome científico</label>
+                <input type="text" name="address" class="input">
+            </div>
+            
+            
+            {{-- Circunferencia na altura do peito --}}
+            <div class="flex flex-col">
+                <label class="form-label">CAP(cm)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+    
+            {{-- Altura--}}
+            <div class="flex flex-col">
+                <label class="form-label">Altura(m)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+    
+            {{-- Altura de copa --}}
+            <div class="flex flex-col">
+                <label class="form-label">Altura de copa(m)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+
+               {{-- Diâmetro da Copa Longitudinal (ou da Gola) (m) --}}
+            <div class="flex flex-col">
+                <label class="form-label">Diâmetro de copa Longitudinal(m)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+
+             {{--Diâmetro da Copa Perpendicular (ou da Gola) (m)--}}
+            <div class="flex flex-col">
+                <label class="form-label">Diâmetro de copa Perpendicular(m)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+
+             {{-- Tipo de Bifurcação --}}
+            <div class="flex flex-col">
+                <label class="form-label">Tipo de Bifurcação *</label>
+                <select name="health_status" class="input" required>
+                    <option value="good">Ausente</option>
+                    <option value="fair">U</option>
+                    <option value="poor">V</option>
+                </select>
+            </div>
+
+                 {{-- Equilíbrio Fuste (Inclinação) --}}
+            <div class="flex flex-col">
+                <label class="form-label">Equilíbrio Fuste (Inclinação) *</label>
+                <select name="health_status" class="input" required>
+                    <option value="good">Ausente</option>
+                    <option value="fair">Maior que 45°</option>
+                    <option value="poor">Menor que 45°</option>
+                </select>
+            </div>
+
+      {{-- Equilibrio da copa --}}
+            <div class="flex flex-col">
+                <label class="form-label">Equilibrio da copa *</label>
+                <select name="health_status" class="input" required>
+                    <option value="good">Equilibrada </option>
+                    <option value="fair">Muito desequilibrada </option>
+                    <option value="poor">Medianamente desequilibrada</option>
+                     <option value="poor">Desequilibrada</option>
+                </select>
+            </div>
+
+              {{--Organismos xilófagos e/ou patogênicos --}}
+            <div class="flex flex-col">
+                <label class="form-label">Organismos xilófagos e/ou patogênicos*</label>
+                <select name="health_status" class="input" required>
+                    <option value="good">Infertação Inicial </option>
+                    <option value="fair">Ausente</option>
+                    
+                </select>
+            </div>
+
+            {{-- Alvo--}}
+            <div class="flex flex-col">
+                <label class="form-label">Alvo</label>
+                <input type="text" name="address" class="input">
+            </div>
+
+               {{-- Injúrias mecânicas e cavidades --}}
+            <div class="flex flex-col">
+                <label class="form-label">Injúrias mecânicas e cavidades</label>
+                <input type="text" name="address" class="input">
+            </div>
+
+      {{--Estado de Fiação --}}
+            <div class="flex flex-col">
+                <label class="form-label">Estado da fiação*</label>
+                <select name="health_status" class="input" required>
+                    <option value="good">Pode Interferir </option>
+                    <option value="fair">Interfere</option>
+                     <option value="fair">Não Interfere</option>
+                    
+                </select>
+            </div>
+
+                     {{-- Largura total (Muro a Muro) (m) --}}
+            <div class="flex flex-col">
+                <label class="form-label">Largura total (Muro a Muro) (m)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+
+            
+                     {{-- Largura rua (Sarjeta a Sarjeta) (m) --}}
+            <div class="flex flex-col">
+                <label class="form-label">Largura rua (Sarjeta a Sarjeta) (m)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+
+                 
+                     {{-- Altura da gola (m)--}}
+            <div class="flex flex-col">
+                <label class="form-label">Altura da gola (m)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+
+                     
+                     {{-- Largura da gola (m)--}}
+            <div class="flex flex-col">
+                <label class="form-label">Largura da gola (m)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+
+       {{-- Comprimento da gola (m)--}}
+            <div class="flex flex-col">
+                <label class="form-label">Comprimento da gola (m)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+
+            {{-- Caso não tenha Espécie --}}
+            <div class="flex flex-col">
+                <label class="form-label">Caso não tenha espécie </label>
                 <input type="text" name="address" class="input">
             </div>
 

@@ -70,7 +70,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard/trees', [TreeController::class, 'adminTreeList'])->name('admin.trees.index');
     Route::get('/dashboard/trees/{tree}/edit', [TreeController::class, 'adminTreeEdit'])->name('admin.trees.edit');
     Route::patch('/dashboard/trees/{tree}', [TreeController::class, 'adminTreeUpdate'])->name('admin.trees.update');
-    Route::delete('/admin/trees/{tree}', [TreeController::class, 'adminTreeDestroy'])->name('admin.trees.destroy');
+    Route::delete('/dashboard/trees/{tree}', [TreeController::class, 'adminTreeDestroy'])->name('admin.trees.destroy');
+;
 
     // 💬 Mensagens / Contatos
     Route::get('/dashboard/contacts', [ContactController::class, 'adminContactList'])

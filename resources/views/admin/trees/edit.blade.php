@@ -77,6 +77,17 @@
                             <a href="{{ route('admin.trees.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300">
                                 Cancelar
                             </a>
+
+    <div class="flex space-x-4">
+        <form action="{{ url('/admin/trees/' . $tree->id) }}" method="POST"  onsubmit="return confirm('Tem certeza que deseja excluir esta árvore? Esta ação não poderá ser desfeita.');">
+            @csrf
+            @method('DELETE')
+            <button type="submit"
+                class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700">
+                Excluir
+            </button>
+        </form>
+
                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700">
                                 Salvar Alterações
                             </button>
