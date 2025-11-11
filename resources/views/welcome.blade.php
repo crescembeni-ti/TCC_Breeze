@@ -20,7 +20,6 @@
         <header class="site-header relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
 
-        <!-- Logo + Título -->
         <div class="flex items-center gap-4 flex-shrink-0">
             <a href="{{ route('home') }}" class="flex items-center gap-4">
                 <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
@@ -31,7 +30,6 @@
             </a>
         </div>
 
-        <!-- Botões e Menu -->
         <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">
 
             @auth
@@ -42,35 +40,31 @@
                 <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
             @endauth
 
-            <!-- Botão Menu Hambúrguer -->
             <button 
                 @click="open = !open"
                 class="menu-button focus:outline-none sm:ml-2"
                 aria-label="Abrir menu"
             >
-                <!-- Ícone hambúrguer -->
                 <svg xmlns="http://www.w3.org/2000/svg"
-                    fill="none" viewBox="0 0 24 24"
-                    stroke-width="2" stroke="currentColor"
-                    class="icon-hamburger absolute inset-0 m-auto transition-all duration-300"
-                    :class="{ 'opacity-0 rotate-90 scale-75': open }">
+                     fill="none" viewBox="0 0 24 24"
+                     stroke-width="2" stroke="currentColor"
+                     class="icon-hamburger absolute inset-0 m-auto transition-all duration-300"
+                     :class="{ 'opacity-0 rotate-90 scale-75': open }">
                     <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M4 6h16M4 12h16M4 18h16" />
+                          d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
 
-                <!-- Ícone X -->
                 <svg xmlns="http://www.w3.org/2000/svg"
-                    fill="none" viewBox="0 0 24 24"
-                    stroke-width="2" stroke="currentColor"
-                    class="icon-close absolute inset-0 m-auto transition-all duration-300 opacity-0 scale-75 rotate-90"
-                    :class="{ 'opacity-100 rotate-0 scale-100': open }">
+                     fill="none" viewBox="0 0 24 24"
+                     stroke-width="2" stroke="currentColor"
+                     class="icon-close absolute inset-0 m-auto transition-all duration-300 opacity-0 scale-75 rotate-90"
+                     :class="{ 'opacity-100 rotate-0 scale-100': open }">
                     <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M6 18L18 6M6 6l12 12" />
+                          d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
 
-            <!-- Dropdown -->
-<div 
+            <div 
     x-show="open"
     @click.away="open = false"
     x-transition:enter="transition ease-out duration-200"
@@ -82,14 +76,12 @@
     class="menu-dropdown absolute right-0 top-[5rem] bg-white border border-gray-200 rounded-xl shadow-xl sm:w-48 w-[90vw] py-2 text-center sm:text-left z-50"
     style="display: none;"
 >
-    <!-- Visitante -->
     @guest
         <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Fazer Solicitação</a>
         <a href="{{ route('contact.myrequests') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Minhas Solicitações</a>
         <a href="{{ route('about') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Sobre</a>
     @endguest
 
-    <!-- Usuário autenticado -->
     @auth
         <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Fazer Solicitação</a>
         <a href="{{ route('contact.myrequests') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Minhas Solicitações</a>
@@ -167,6 +159,9 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
+    // 1. Injeta os bairros carregados pelo TreeController
+    const allBairros = @json($bairros);
+
     const map = L.map('map').setView([-22.6111, -43.7089], 14);
 
     const satelliteLayer = L.tileLayer(
@@ -193,7 +188,7 @@
     let markersLayer = L.layerGroup().addTo(map);
     let treeMarkers = {};
 
-    // === Botão e painel ===
+    // === Botão e painel (Sem alteração) ===
     const toggleBtn = L.DomUtil.create('button', 'map-filter-toggle');
     toggleBtn.innerHTML = '🌿 Filtros';
     map.getContainer().appendChild(toggleBtn);
@@ -227,54 +222,39 @@
         panel.classList.toggle('open');
     });
 
-    // === Carrega árvores ===
-  fetch('{{ route('bairros.data') }}')
-    .then(response => response.json())
-    .then(bairros => {
-        popularBairros(bairros);
-    })
-    .catch(error => console.error('Erro ao carregar bairros:', error));
+    // 2. Removido o 'fetch' para 'bairros.data' que estava quebrado.
 
-function popularBairros(bairros) {
-    const bairroSelect = document.getElementById('bairro');
-    bairroSelect.innerHTML = '<option value="">Todos</option>';
-    bairros.forEach(b => {
-        const opt = document.createElement('option');
-        opt.value = b;
-        opt.textContent = b;
-        bairroSelect.appendChild(opt);
-    
-    });
+    // 3. Removida a função 'popularBairros' que causava o erro [Object Object].
 
     // === Carrega árvores ===
     fetch('{{ route('trees.data') }}')
-  .then(response => response.json())
-  .then(data => {
+    .then(response => response.json())
+    .then(data => {
       allTrees = data;
       exibirArvores(allTrees);
-      popularFiltros(allTrees);
-  })
-  .catch(error => console.error('Erro ao carregar árvores:', error));
+      // 4. Chama a função 'popularFiltros' e passa as árvores E os bairros
+      popularFiltros(allTrees, allBairros); 
+    })
+    .catch(error => console.error('Erro ao carregar árvores:', error));
 
 
-}
-
-
-
-    // === Popula filtros ===
-    function popularFiltros(trees) {
-        const bairros = [...new Set(trees.map(t => t.neighborhood).filter(Boolean))].sort();
+    // === 5. Popula filtros (ATUALIZADO) ===
+    function popularFiltros(trees, bairros) {
+        // Pega as espécies da lista de árvores
         const especies = [...new Set(trees.map(t => t.species_name).filter(Boolean))].sort();
 
         const bairroSelect = document.getElementById('bairro');
         const especieSelect = document.getElementById('especie');
-
+        
+        // --- CORREÇÃO DO [Object Object] ---
+        // Popula o select de Bairros usando a lista 'allBairros'
         bairros.forEach(b => {
             const opt = document.createElement('option');
-            opt.value = b;
-            opt.textContent = b;
+            opt.value = b.nome; // Usa o NOME (ex: "Centro")
+            opt.textContent = b.nome; // E mostra o NOME
             bairroSelect.appendChild(opt);
         });
+        // --- FIM DA CORREÇÃO ---
 
         especies.forEach(e => {
             const opt = document.createElement('option');
@@ -284,7 +264,7 @@ function popularBairros(bairros) {
         });
     }
 
-    // === Exibir árvores ===
+    // === Exibir árvores (Sem alteração) ===
     function exibirArvores(trees) {
         markersLayer.clearLayers();
         treeMarkers = {};
@@ -306,7 +286,7 @@ function popularBairros(bairros) {
         });
     }
 
-    // === Popup com setas modernas e suaves ===
+// === Popup (ATUALIZADO) ===
 function criarPopup(tree, index) {
     const anterior = index > 0
         ? `<button onclick="mudarArvore(${index - 1})" class="popup-nav-btn" title="Árvore anterior">
@@ -327,8 +307,9 @@ function criarPopup(tree, index) {
     return `
         <div style="padding: 0.5rem; text-align:center;">
             <h3 style="font-weight:700; font-size:1.125rem;">${tree.species_name}</h3>
-            <p><strong>Bairro:</strong> ${tree.neighborhood}</p>
+            
             <p><strong>Endereço:</strong> ${tree.address}</p>
+            
             <p><strong>Diâmetro:</strong> ${tree.trunk_diameter} cm</p>
             <div class="popup-nav">
                 ${anterior}
@@ -339,21 +320,19 @@ function criarPopup(tree, index) {
     `;
 }
 
-// === Navegação entre árvores com pan suave ===
+// === Navegação entre árvores (Sem alteração) ===
 window.mudarArvore = function (index) {
     const tree = filteredTrees[index];
     const marker = treeMarkers[tree.id];
     
-    // Pan suave até a nova árvore
     map.flyTo([tree.latitude, tree.longitude], 17, { duration: 1.0 });
 
-    // Abre o novo popup com pequeno atraso (pra suavizar a transição)
     setTimeout(() => {
         marker.bindPopup(criarPopup(tree, index)).openPopup();
     }, 600);
 };
 
-    // === Filtro dinâmico ===
+    // === Filtro dinâmico (ATUALIZADO) ===
     const bairroSelect = document.getElementById('bairro');
     const especieSelect = document.getElementById('especie');
     const searchInput = document.getElementById('search');
@@ -363,20 +342,22 @@ window.mudarArvore = function (index) {
 
 
         function aplicarFiltro(foco = false) {
-        const bairro = bairroSelect.value.toLowerCase();
-        const especie = especieSelect.value.toLowerCase();
+        const bairro = bairroSelect.value; // Pega o nome, ex: "Centro"
+        const especie = especieSelect.value;
         const busca = searchInput.value.toLowerCase();
 
         const filtradas = allTrees.filter(tree => {
-            const matchBairro = bairro ? tree.neighborhood?.toLowerCase() === bairro : true;
-            const matchEspecie = especie ? tree.species_name?.toLowerCase() === especie : true;
+            // 7. CORREÇÃO DA LÓGICA DO FILTRO:
+            // Compara se o 'address' da árvore CONTÉM o nome do bairro selecionado
+            const matchBairro = bairro ? tree.address?.toLowerCase().includes(bairro.toLowerCase()) : true;
+            const matchEspecie = especie ? tree.species_name?.toLowerCase() === especie.toLowerCase() : true;
             const matchBusca = busca ? tree.species_name?.toLowerCase().includes(busca) : true;
             return matchBairro && matchEspecie && matchBusca;
         });
 
         exibirArvores(filtradas);
 
-        // remove mensagens antigas antes de mostrar nova
+        // ... (o resto da sua função de mensagem está correta) ...
         const mensagemAntiga = document.querySelector('.map-filter-message');
         if (mensagemAntiga) mensagemAntiga.remove();
 
@@ -396,11 +377,7 @@ window.mudarArvore = function (index) {
             msg.innerHTML = `⚠️ Nenhuma árvore encontrada com esses filtros.`;
             msg.classList.add('warning');
         }
-
-        // adiciona a mensagem ao painel
         panel.appendChild(msg);
-
-        // fade-out suave após 4 segundos
         setTimeout(() => {
             msg.classList.add('fade-out');
             setTimeout(() => msg.remove(), 800);
@@ -436,10 +413,6 @@ window.mudarArvore = function (index) {
         setTimeout(() => msg.remove(), 800);
     }, 3000);
 });
-
-
 </script>
-
-
 </body>
 </html>

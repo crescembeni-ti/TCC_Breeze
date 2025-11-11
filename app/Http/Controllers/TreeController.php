@@ -6,22 +6,21 @@ use App\Models\Tree;
 use App\Models\Species;
 use App\Models\Activity;
 use Illuminate\Http\Request;
-use App\Models\AdminLog; // <-- 1. IMPORTAR O MODEL DE LOG
-use Illuminate\Support\Facades\Auth; // <-- 2. IMPORTAR O AUTH PARA PEGAR O ADMIN LOGADO
+use App\Models\AdminLog;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Bairro; // Importação já estava correta
 
 class TreeController extends Controller
 {
     
-public function getBairros()
-{
-    // busca todos os nomes da tabela "bairros"
-    $bairros = DB::table('bairros')
-        ->select('nome') // 👈 troque aqui se a coluna tiver outro nome
-        ->orderBy('nome')
-        ->pluck('nome');
+    // 1. MÉTODO getBairros() REMOVIDO
+    //    Não precisamos mais dele, pois vamos carregar os
+    //    bairros direto no método index() abaixo.
 
-    return response()->json($bairros);
-}
+    /**
+     * Mostra a página principal (welcome) com estatísticas,
+     * atividades recentes e a lista de bairros para o filtro.
+     */
     public function index()
     {
         $stats = [
@@ -35,11 +34,17 @@ public function getBairros()
             ->take(5)
             ->get();
 
-        return view('welcome', compact('stats', 'recentActivities'));
+        // 2. BUSCA A LISTA DE BAIRROS DO BANCO
+        //    Usar o Model 'Bairro' é mais limpo que 'DB::table'
+        $bairros = Bairro::orderBy('nome', 'asc')->get();
+
+        // 3. ENVIA A NOVA VARIÁVEL '$bairros' PARA A VIEW
+        return view('welcome', compact('stats', 'recentActivities', 'bairros'));
     }
 
     public function getTreesData()
     {
+        // ... (Este método está correto, sem alterações)
         $trees = Tree::with('species')->get()->map(function ($tree) {
             return [
                 'id' => $tree->id,
@@ -58,6 +63,7 @@ public function getBairros()
 
     public function show($id)
     {
+        // ... (Sem alterações)
         $tree = Tree::with(['species', 'user', 'activities.user'])->findOrFail($id);
         
         return view('trees.show', compact('tree'));
@@ -65,6 +71,7 @@ public function getBairros()
 
     public function adminMap()
     {
+        // ... (Sem alterações)
         $species = Species::all();
         $trees = Tree::with('species')->get();
         
@@ -73,6 +80,7 @@ public function getBairros()
 
     public function storeTree(Request $request)
     {
+        // ... (Sem alterações, seu log de admin está correto)
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'latitude' => 'required|numeric|between:-90,90',
@@ -84,7 +92,6 @@ public function getBairros()
             'address' => 'nullable|string|max:255',
         ]);
 
-        // Buscar ou criar a espécie
         $species = Species::firstOrCreate(
             ['name' => $validated['species_name']],
             [
@@ -94,7 +101,6 @@ public function getBairros()
             ]
         );
 
-        // Criar a árvore
         $tree = Tree::create([
             'species_id' => $species->id,
             'user_id' => auth()->id(),
@@ -106,35 +112,32 @@ public function getBairros()
             'address' => $validated['address'] ?? $validated['name'],
         ]);
 
-        // --- 3. ADICIONADO LOG DE CRIAÇÃO ---
         AdminLog::create([
-            'user_id' => Auth::id(), // Pega o ID do admin logado
+            'user_id' => Auth::id(),
             'action' => 'create_tree',
             'description' => 'O admin ' . Auth::user()->name . ' cadastrou a nova árvore: ' . $species->name . ' (ID: ' . $tree->id . ').'
         ]);
-        // --- FIM DO LOG ---
 
         return redirect()->route('admin.map')->with('success', 'Árvore adicionada com sucesso!');
     }
 
-    /**
-     * [NOVO MÉTODO]
-     * Mostra uma lista de todas as árvores para o admin.
-     */
     public function adminTreeList()
     {
+        // ... (Sem alterações)
         $trees = Tree::with('species')->latest()->get(); 
         return view('admin.trees.index', compact('trees'));
     }
 
     public function adminTreeEdit(Tree $tree)
     {
+        // ... (Sem alterações)
         $species = Species::all(); 
         return view('admin.trees.edit', compact('tree', 'species'));
     }
 
     public function adminTreeUpdate(Request $request, Tree $tree)
     {
+        // ... (Sem alterações, seu log de admin está correto)
         $validated = $request->validate([
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
@@ -147,32 +150,21 @@ public function getBairros()
 
         $tree->update($validated);
 
-        // --- 4. ADICIONADO LOG DE EDIÇÃO ---
         AdminLog::create([
             'user_id' => Auth::id(),
             'action' => 'update_tree',
             'description' => 'O admin ' . Auth::user()->name . ' atualizou a árvore ' . $tree->species->name . ' (ID: ' . $tree->id . ').'
         ]);
-        // --- FIM DO LOG ---
 
         return redirect()->route('admin.trees.index')->with('success', 'Árvore atualizada com sucesso!');
     }
 
-    // --- 5. ADICIONADO MÉTODO DE DELETAR (E LOGAR) ---
-    /**
-     * [NOVO MÉTODO]
-     * Remove uma árvore do banco de dados.
-     */
     public function adminTreeDestroy(Tree $tree)
     {
-        // Pega o nome da espécie ANTES de deletar, para usar no log
+        // ... (Sem alterações, seu log de admin está correto)
         $speciesName = $tree->species->name;
         $treeId = $tree->id;
-
-        // Deleta a árvore
         $tree->delete();
-
-        // Cria o log da ação
         AdminLog::create([
             'user_id' => Auth::id(),
             'action' => 'delete_tree',
@@ -182,4 +174,3 @@ public function getBairros()
         return redirect()->route('admin.trees.index')->with('success', 'Árvore deletada com sucesso!');
     }
 }
-
