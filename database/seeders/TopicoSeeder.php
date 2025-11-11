@@ -15,13 +15,9 @@ class TopicoSeeder extends Seeder
     {
         // Lista de tópicos/solicitações frequentes
         $topicos = [
-            'Poda de árvore',
-            'Remoção de galho caído',
-            'Avaliação de risco de queda',
-            'Solicitação de nova muda',
-            'Árvore com praga ou doença',
-            'Árvore interferindo na fiação elétrica',
-            'Outro motivo',
+            'Solicitação de Plantio',
+            'Solicitação de Poda',
+            'Solicitação de Remoção',
         ];
 
         // Loop para inserir cada um
