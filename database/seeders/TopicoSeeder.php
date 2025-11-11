@@ -18,6 +18,7 @@ class TopicoSeeder extends Seeder
             'Solicitação de Plantio',
             'Solicitação de Poda',
             'Solicitação de Remoção',
+            'Outro'
         ];
 
         // Loop para inserir cada um
