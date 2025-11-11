@@ -12,11 +12,14 @@ use App\Notifications\SendVerificationCode;
 use Laravel\Sanctum\HasApiTokens; // <-- 1. ADICIONADO PARA O SANCTUM
 use Spatie\Permission\Traits\HasRoles; // <-- ADICIONADO PARA O SPATIE/PERMISSION
 
+// --- IMPORTS ADICIONADOS PARA A FOTO DE PERFIL ---
+use Illuminate\Database\Eloquent\Casts\Attribute; 
+use Illuminate\Support\Facades\Storage; 
+
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    // 2. ADICIONADO "HasApiTokens"
-    use HasApiTokens, HasFactory, Notifiable, HasRoles; // <-- ADICIONADO PARA O SPATIE/PERMISSION
+    use HasApiTokens, HasFactory, Notifiable, HasRoles; 
 
     /**
      * The attributes that are mass assignable.
@@ -30,6 +33,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_admin',
         'email_verification_code',
         'email_verification_code_expires_at',
+        'profile_photo_path', // <-- 1. ADICIONADO AQUI
     ];
 
     /**
@@ -66,12 +70,29 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendEmailVerificationNotification()
     {
-        // Certifique-se de que o nome da sua notificação está correto.
         $this->notify(new SendVerificationCode); 
     }
 
     public function contacts()
     {
         return $this->hasMany(Contact::class);
+    }
+
+    // =======================================================
+    //  2. MÉTODO ADICIONADO (ACCESSOR PARA A URL DA FOTO)
+    // =======================================================
+    /**
+     * Retorna a URL completa da foto de perfil.
+     * O app Android vai ler isso como 'profile_photo_url'
+     */
+    protected function profilePhotoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value, $attributes) => $attributes['profile_photo_path']
+                // Se a foto existir no banco, retorna a URL completa
+                ? Storage::url($attributes['profile_photo_path'])
+                // Senão, retorna null
+                : null,
+        );
     }
 }
