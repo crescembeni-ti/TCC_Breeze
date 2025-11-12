@@ -14,6 +14,12 @@ use Illuminate\Validation\Rules;
 // --- IMPORT ADICIONADO PARA A FOTO ---
 use Illuminate\Support\Facades\Storage;
 
+// --- IMPORTS ADICIONADOS PARA REDEFINIÇÃO DE SENHA ---
+use App\Mail\PasswordResetCodeMail; // O E-mail que criamos
+use Illuminate\Support\Facades\Mail; // Para enviar o e-mail
+use Illuminate\Support\Facades\DB;   // Para a transação
+use Carbon\Carbon; // Para o tempo de expiração
+
 class AuthController extends Controller
 {
     /**
@@ -88,9 +94,6 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logout realizado com sucesso']);
     }
 
-    // =======================================================
-    //  MÉTODO ADICIONADO (Para o upload da foto de perfil)
-    // =======================================================
     /**
      * Atualiza a foto de perfil do usuário.
      */
@@ -109,7 +112,6 @@ class AuthController extends Controller
         }
 
         // 3. Salva a nova foto (ex: em 'storage/app/public/avatars')
-        // (O nome 'photo' bate com o 'MultipartBody.Part' do Android)
         $path = $request->file('photo')->store('avatars', 'public');
 
         // 4. Salva o caminho no banco de dados
@@ -121,5 +123,72 @@ class AuthController extends Controller
             'message' => 'Foto atualizada com sucesso',
             'path' => Storage::url($path) // Retorna a nova URL
         ]);
+    }
+
+    // =======================================================
+    //  NOVO MÉTODO 1: Pedir o código
+    // =======================================================
+    public function forgotPassword(Request $request)
+    {
+        // 1. Valida o e-mail
+        $request->validate(['email' => 'required|email|exists:users,email']);
+
+        // 2. Encontra o usuário
+        $user = User::where('email', $request->email)->first();
+
+        // 3. Gera um código de 6 dígitos
+        $code = random_int(100000, 999999);
+
+        // 4. Salva o código (hashed) e a expiração no banco
+        $user->update([
+            'email_verification_code' => Hash::make($code),
+            'email_verification_code_expires_at' => Carbon::now()->addMinutes(10)
+        ]);
+
+        // 5. Envia o e-mail
+        try {
+            Mail::to($user->email)->send(new PasswordResetCodeMail($code));
+        } catch (\Exception $e) {
+            // Se o envio de e-mail falhar
+            return response()->json(['message' => 'Erro ao enviar e-mail. Verifique sua configuração.'], 500);
+        }
+
+        return response()->json(['message' => 'Código de redefinição enviado para seu e-mail.']);
+    }
+
+    // =======================================================
+    //  NOVO MÉTODO 2: Redefinir a senha
+    // =======================================================
+    public function resetPassword(Request $request)
+    {
+        // 1. Valida todos os campos
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'code' => 'required|string|min:6|max:6',
+            'password' => ['required', 'confirmed', Rules\Password::min(6)],
+        ]);
+
+        // 2. Encontra o usuário
+        $user = User::where('email', $request->email)->first();
+
+        // 3. Verifica o código e a expiração
+        if (!$user || 
+            !$user->email_verification_code_expires_at ||
+            Carbon::now()->isAfter($user->email_verification_code_expires_at) ||
+            !Hash::check($request->code, $user->email_verification_code)) 
+        {
+            return response()->json(['message' => 'Código inválido ou expirado.'], 401);
+        }
+
+        // 4. Se tudo estiver OK, atualiza a senha
+        DB::transaction(function () use ($user, $request) {
+            $user->update([
+                'password' => Hash::make($request->password),
+                'email_verification_code' => null, // Limpa o código
+                'email_verification_code_expires_at' => null // Limpa a expiração
+            ]);
+        });
+
+        return response()->json(['message' => 'Senha redefinida com sucesso.']);
     }
 }

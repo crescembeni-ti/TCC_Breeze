@@ -226,7 +226,7 @@ class ContactController extends Controller
     }
     
     /**
-     * [API ADMIN] Retorna TODAS as solicitações para o Admin.
+     * [API ADMIN] Retorna TODAS as solicitações para o Admin (Método antigo, ok manter)
      */
     public function adminRequestListApi(Request $request)
     {
@@ -236,20 +236,15 @@ class ContactController extends Controller
         return response()->json($solicitacoes);
     }
 
-    // ===================================================================
-    //  MÉTODO ADICIONADO (Para o Admin salvar o Status via API)
-    // ===================================================================
     /**
      * [API ADMIN] Atualiza o status de uma solicitação.
      */
     public function adminUpdateStatusApi(Request $request, Contact $contact)
     {
-        // 1. Busca o ID do status "Indeferido" (para a validação condicional)
         $statusIndeferidoId = Cache::remember('status_indeferido_id', 3600, function () {
             return Status::where('name', 'Indeferido')->firstOrFail()->id;
         });
 
-        // 2. Valida os dados (status_id é obrigatório, justificativa é opcional)
         $validated = $request->validate([
             'status_id' => 'required|integer|exists:statuses,id',
             'justificativa' => [
@@ -259,26 +254,45 @@ class ContactController extends Controller
             ],
         ]);
 
-        // 3. Prepara os dados para salvar
         $dataToSave = [
             'status_id' => $validated['status_id'],
             'justificativa' => $validated['justificativa'],
         ];
 
-        // 4. Se o status for mudado para algo que NÃO é "Indeferido",
-        //    limpa a justificativa (caso exista de uma rejeição anterior)
         if ($validated['status_id'] != $statusIndeferidoId) {
             $dataToSave['justificativa'] = null;
         }
 
-        // 5. Atualiza o banco
         $contact->update($dataToSave);
 
-        // 6. Retorna uma resposta JSON (em vez de redirect)
         return response()->json([
             'message' => 'Status atualizado com sucesso!',
-            'data' => $contact->load('status') // Recarrega o contato com o novo status
+            'data' => $contact->load('status')
         ]);
     }
 
+    // ===================================================================
+    //  NOVO MÉTODO ADICIONADO (Para as Abas do Admin)
+    // ===================================================================
+    /**
+     * [API ADMIN] Retorna solicitações filtradas por nome do status.
+     */
+    public function adminRequestListByStatusApi(Request $request, $statusName)
+    {
+        // 1. Encontra o Status pelo nome (ex: "Em Análise")
+        $status = Status::where('name', $statusName)->first();
+
+        // 2. Se o status não for encontrado, retorna uma lista vazia
+        if (!$status) {
+            return response()->json([]);
+        }
+
+        // 3. Busca os contatos com esse status_id
+        $solicitacoes = Contact::where('status_id', $status->id)
+                            ->with('status', 'user') // Carrega as relações
+                            ->latest()
+                            ->get();
+
+        return response()->json($solicitacoes);
+    }
 }
