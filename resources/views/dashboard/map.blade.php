@@ -41,7 +41,7 @@
                 <label class="form-label">Endereço</label>
                 <input type="text" name="address" class="input">
             </div>
- 
+
             {{-- Espécie --}}
             <div class="flex flex-col">
                 <label class="form-label">Espécie *</label>
@@ -78,157 +78,155 @@
                 <input type="date" name="planted_at" class="input" required>
             </div>
 
-            {{-- Tronco --}}
+            {{-- Diâmetro do Tronco --}}
             <div class="flex flex-col">
-                <label class="form-label">Diâmetro (cm)</label>
+                <label class="form-label">Diâmetro do Tronco (cm)</label>
                 <input type="number" step="0.01" name="trunk_diameter" class="input">
             </div>
 
-            
-            {{-- Nome vulgar/gola --}}
+            {{-- Nome vulgar / Gola --}}
             <div class="flex flex-col">
-                <label class="form-label">Vulgar/Gola</label>
-                <input type="text" name="address" class="input">
+                <label class="form-label">Nome vulgar / Gola</label>
+                <input type="text" name="vulgar_name" class="input">
             </div>
 
-            {{-- Nome cientifico --}}
+            {{-- Nome científico --}}
             <div class="flex flex-col">
                 <label class="form-label">Nome científico</label>
-                <input type="text" name="address" class="input">
+                <input type="text" name="scientific_name" class="input">
             </div>
-            
-            
-            {{-- Circunferencia na altura do peito --}}
+
+            {{-- Circunferência na altura do peito (CAP) --}}
             <div class="flex flex-col">
-                <label class="form-label">CAP(cm)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <label class="form-label">CAP (cm)</label>
+                <input type="number" step="0.01" name="cap" class="input">
             </div>
-    
-            {{-- Altura--}}
+
+            {{-- Altura --}}
             <div class="flex flex-col">
-                <label class="form-label">Altura(m)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <label class="form-label">Altura (m)</label>
+                <input type="number" step="0.01" name="height" class="input">
             </div>
-    
+
             {{-- Altura de copa --}}
             <div class="flex flex-col">
-                <label class="form-label">Altura de copa(m)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <label class="form-label">Altura de copa (m)</label>
+                <input type="number" step="0.01" name="crown_height" class="input">
             </div>
 
-               {{-- Diâmetro da Copa Longitudinal (ou da Gola) (m) --}}
+            {{-- Diâmetro de copa longitudinal --}}
             <div class="flex flex-col">
-                <label class="form-label">Diâmetro de copa Longitudinal(m)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <label class="form-label">Diâmetro de copa longitudinal (m)</label>
+                <input type="number" step="0.01" name="crown_diameter_longitudinal" class="input">
             </div>
 
-             {{--Diâmetro da Copa Perpendicular (ou da Gola) (m)--}}
+            {{-- Diâmetro de copa perpendicular --}}
             <div class="flex flex-col">
-                <label class="form-label">Diâmetro de copa Perpendicular(m)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <label class="form-label">Diâmetro de copa perpendicular (m)</label>
+                <input type="number" step="0.01" name="crown_diameter_perpendicular" class="input">
             </div>
 
-             {{-- Tipo de Bifurcação --}}
+            {{-- Tipo de Bifurcação --}}
             <div class="flex flex-col">
-                <label class="form-label">Tipo de Bifurcação *</label>
-                <select name="health_status" class="input" required>
-                    <option value="good">Ausente</option>
-                    <option value="fair">U</option>
-                    <option value="poor">V</option>
+                <label class="form-label">Tipo de Bifurcação</label>
+                <select name="bifurcation_type" class="input">
+                    <option value="">Selecione</option>
+                    <option value="ausente">Ausente</option>
+                    <option value="U">U</option>
+                    <option value="V">V</option>
                 </select>
             </div>
 
-                 {{-- Equilíbrio Fuste (Inclinação) --}}
+            {{-- Equilíbrio Fuste (Inclinação) --}}
             <div class="flex flex-col">
-                <label class="form-label">Equilíbrio Fuste (Inclinação) *</label>
-                <select name="health_status" class="input" required>
-                    <option value="good">Ausente</option>
-                    <option value="fair">Maior que 45°</option>
-                    <option value="poor">Menor que 45°</option>
+                <label class="form-label">Equilíbrio Fuste (Inclinação)</label>
+                <select name="stem_balance" class="input">
+                    <option value="">Selecione</option>
+                    <option value="ausente">Ausente</option>
+                    <option value="maior_45">Maior que 45°</option>
+                    <option value="menor_45">Menor que 45°</option>
                 </select>
             </div>
 
-      {{-- Equilibrio da copa --}}
+            {{-- Equilíbrio da copa --}}
             <div class="flex flex-col">
-                <label class="form-label">Equilibrio da copa *</label>
-                <select name="health_status" class="input" required>
-                    <option value="good">Equilibrada </option>
-                    <option value="fair">Muito desequilibrada </option>
-                    <option value="poor">Medianamente desequilibrada</option>
-                     <option value="poor">Desequilibrada</option>
+                <label class="form-label">Equilíbrio da copa</label>
+                <select name="crown_balance" class="input">
+                    <option value="">Selecione</option>
+                    <option value="equilibrada">Equilibrada</option>
+                    <option value="medianamente_desequilibrada">Medianamente desequilibrada</option>
+                    <option value="desequilibrada">Desequilibrada</option>
+                    <option value="muito_desequilibrada">Muito desequilibrada</option>
                 </select>
             </div>
 
-              {{--Organismos xilófagos e/ou patogênicos --}}
+            {{-- Organismos xilófagos e/ou patogênicos --}}
             <div class="flex flex-col">
-                <label class="form-label">Organismos xilófagos e/ou patogênicos*</label>
-                <select name="health_status" class="input" required>
-                    <option value="good">Infertação Inicial </option>
-                    <option value="fair">Ausente</option>
-                    
+                <label class="form-label">Organismos xilófagos e/ou patogênicos</label>
+                <select name="organisms" class="input">
+                    <option value="">Selecione</option>
+                    <option value="ausente">Ausente</option>
+                    <option value="infestacao_inicial">Infestação Inicial</option>
                 </select>
             </div>
 
-            {{-- Alvo--}}
+            {{-- Alvo --}}
             <div class="flex flex-col">
                 <label class="form-label">Alvo</label>
-                <input type="text" name="address" class="input">
+                <input type="text" name="target" class="input">
             </div>
 
-               {{-- Injúrias mecânicas e cavidades --}}
+            {{-- Injúrias mecânicas e cavidades --}}
             <div class="flex flex-col">
                 <label class="form-label">Injúrias mecânicas e cavidades</label>
-                <input type="text" name="address" class="input">
+                <input type="text" name="injuries" class="input">
             </div>
 
-      {{--Estado de Fiação --}}
+            {{-- Estado da fiação --}}
             <div class="flex flex-col">
-                <label class="form-label">Estado da fiação*</label>
-                <select name="health_status" class="input" required>
-                    <option value="good">Pode Interferir </option>
-                    <option value="fair">Interfere</option>
-                     <option value="fair">Não Interfere</option>
-                    
+                <label class="form-label">Estado da fiação</label>
+                <select name="wiring_status" class="input">
+                    <option value="">Selecione</option>
+                    <option value="pode_interferir">Pode interferir</option>
+                    <option value="interfere">Interfere</option>
+                    <option value="nao_interfere">Não interfere</option>
                 </select>
             </div>
 
-                     {{-- Largura total (Muro a Muro) (m) --}}
+            {{-- Largura total (muro a muro) --}}
             <div class="flex flex-col">
                 <label class="form-label">Largura total (Muro a Muro) (m)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <input type="number" step="0.01" name="total_width" class="input">
             </div>
 
-            
-                     {{-- Largura rua (Sarjeta a Sarjeta) (m) --}}
+            {{-- Largura da rua (sarjeta a sarjeta) --}}
             <div class="flex flex-col">
-                <label class="form-label">Largura rua (Sarjeta a Sarjeta) (m)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <label class="form-label">Largura da rua (Sarjeta a Sarjeta) (m)</label>
+                <input type="number" step="0.01" name="street_width" class="input">
             </div>
 
-                 
-                     {{-- Altura da gola (m)--}}
+            {{-- Altura da gola --}}
             <div class="flex flex-col">
                 <label class="form-label">Altura da gola (m)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <input type="number" step="0.01" name="gutter_height" class="input">
             </div>
 
-                     
-                     {{-- Largura da gola (m)--}}
+            {{-- Largura da gola --}}
             <div class="flex flex-col">
                 <label class="form-label">Largura da gola (m)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <input type="number" step="0.01" name="gutter_width" class="input">
             </div>
 
-       {{-- Comprimento da gola (m)--}}
+            {{-- Comprimento da gola --}}
             <div class="flex flex-col">
                 <label class="form-label">Comprimento da gola (m)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <input type="number" step="0.01" name="gutter_length" class="input">
             </div>
 
-            {{-- Caso não tenha Espécie --}}
+            {{-- Caso não tenha espécie --}}
             <div class="flex flex-col">
-                <label class="form-label">Caso não tenha espécie </label>
-                <input type="text" name="address" class="input">
+                <label class="form-label">Caso não tenha espécie</label>
+                <input type="text" name="no_species_case" class="input">
             </div>
 
         </div>
@@ -242,13 +240,9 @@
 
 {{-- MAPA --}}
 <div class="bg-white shadow-sm rounded-lg p-6 tree-card">
-    
     <h3 class="text-xl font-semibold mb-4">Mapa de Árvores</h3>
-
     <p class="text-sm text-gray-600 mb-3">Clique no mapa para definir coordenadas.</p>
-
     <div id="map" class="w-full rounded-lg shadow-md" style="height: 500px;"></div>
-
 </div>
 
 @endsection

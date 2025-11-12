@@ -81,16 +81,39 @@ class TreeController extends Controller
     public function storeTree(Request $request)
     {
         // ... (Sem alterações, seu log de admin está correto)
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
-            'species_name' => 'required|string|max:255',
-            'health_status' => 'required|in:good,fair,poor',
-            'planted_at' => 'required|date',
-            'trunk_diameter' => 'nullable|numeric|min:0',
-            'address' => 'nullable|string|max:255',
-        ]);
+       $validated = $request->validate([
+    'name' => 'required|string|max:255',
+    'latitude' => 'required|numeric|between:-90,90',
+    'longitude' => 'required|numeric|between:-180,180',
+    'species_name' => 'required|string|max:255',
+    'health_status' => 'required|in:good,fair,poor',
+    'planted_at' => 'required|date',
+    'trunk_diameter' => 'nullable|numeric|min:0',
+    'address' => 'nullable|string|max:255',
+
+    // novos campos
+    'vulgar_name' => 'nullable|string|max:255',
+    'scientific_name' => 'nullable|string|max:255',
+    'cap' => 'nullable|numeric|min:0',
+    'height' => 'nullable|numeric|min:0',
+    'crown_height' => 'nullable|numeric|min:0',
+    'crown_diameter_longitudinal' => 'nullable|numeric|min:0',
+    'crown_diameter_perpendicular' => 'nullable|numeric|min:0',
+    'bifurcation_type' => 'nullable|string|max:100',
+    'stem_balance' => 'nullable|string|max:100',
+    'crown_balance' => 'nullable|string|max:100',
+    'organisms' => 'nullable|string|max:255',
+    'target' => 'nullable|string|max:255',
+    'injuries' => 'nullable|string|max:255',
+    'wiring_status' => 'nullable|string|max:100',
+    'total_width' => 'nullable|numeric|min:0',
+    'street_width' => 'nullable|numeric|min:0',
+    'gutter_height' => 'nullable|numeric|min:0',
+    'gutter_width' => 'nullable|numeric|min:0',
+    'gutter_length' => 'nullable|numeric|min:0',
+    'no_species_case' => 'nullable|string|max:255',
+]);
+
 
         $species = Species::firstOrCreate(
             ['name' => $validated['species_name']],
@@ -100,7 +123,6 @@ class TreeController extends Controller
                 'color_code' => '#' . substr(md5($validated['species_name']), 0, 6),
             ]
         );
-
         $tree = Tree::create([
             'species_id' => $species->id,
             'user_id' => auth()->id(),
@@ -110,7 +132,30 @@ class TreeController extends Controller
             'health_status' => $validated['health_status'],
             'planted_at' => $validated['planted_at'],
             'address' => $validated['address'] ?? $validated['name'],
+
+            // novos campos
+            'vulgar_name' => $validated['vulgar_name'] ?? null,
+            'scientific_name' => $validated['scientific_name'] ?? null,
+            'cap' => $validated['cap'] ?? null,
+            'height' => $validated['height'] ?? null,
+            'crown_height' => $validated['crown_height'] ?? null,
+            'crown_diameter_longitudinal' => $validated['crown_diameter_longitudinal'] ?? null,
+            'crown_diameter_perpendicular' => $validated['crown_diameter_perpendicular'] ?? null,
+            'bifurcation_type' => $validated['bifurcation_type'] ?? null,
+            'stem_balance' => $validated['stem_balance'] ?? null,
+            'crown_balance' => $validated['crown_balance'] ?? null,
+            'organisms' => $validated['organisms'] ?? null,
+            'target' => $validated['target'] ?? null,
+            'injuries' => $validated['injuries'] ?? null,
+            'wiring_status' => $validated['wiring_status'] ?? null,
+            'total_width' => $validated['total_width'] ?? null,
+            'street_width' => $validated['street_width'] ?? null,
+            'gutter_height' => $validated['gutter_height'] ?? null,
+            'gutter_width' => $validated['gutter_width'] ?? null,
+            'gutter_length' => $validated['gutter_length'] ?? null,
+            'no_species_case' => $validated['no_species_case'] ?? null,
         ]);
+
 
         AdminLog::create([
             'user_id' => Auth::id(),

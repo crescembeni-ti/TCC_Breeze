@@ -9,16 +9,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Tree extends Model
 {
     protected $fillable = [
-        'species_id',
-        'latitude',
-        'longitude',
-        'trunk_diameter',
-        'health_status',
-        'planted_at',
-        'user_id',
-        'address',
-        'photo',
-    ];
+    'species_id', 'latitude', 'longitude', 'trunk_diameter', 'health_status',
+    'planted_at', 'user_id', 'address', 'photo',
+    'vulgar_name', 'scientific_name', 'cap', 'height', 'crown_height',
+    'crown_diameter_longitudinal', 'crown_diameter_perpendicular',
+    'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms',
+    'target', 'injuries', 'wiring_status', 'total_width', 'street_width',
+    'gutter_height', 'gutter_width', 'gutter_length', 'no_species_case',
+];
 
     protected $casts = [
         'planted_at' => 'datetime',
