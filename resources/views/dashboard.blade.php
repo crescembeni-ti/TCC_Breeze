@@ -167,7 +167,7 @@
     </div>
 
     <footer class="bg-gray-800 text-gray-300 text-center py-4 text-sm border-t border-[#358054]">
-        © {{ date('Y') }} Mapa de Árvores de Paracambi-RJ.
+        © {{ date('Y') }} - Árvores de Paracambi
     </footer>
 
     <script>
