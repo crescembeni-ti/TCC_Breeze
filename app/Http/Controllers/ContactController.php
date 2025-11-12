@@ -54,7 +54,6 @@ class ContactController extends Controller
             $fotoPath = $request->file('foto')->store('solicitacoes', 'public');
         }
         
-        // Esta é a versão antiga que pode quebrar
         $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, function () {
             return Status::where('name', 'Em Análise')->firstOrFail()->id;
         });
@@ -73,10 +72,9 @@ class ContactController extends Controller
         return redirect()->route('contact')->with('success', 'Sua solicitação foi enviada com sucesso! Ela já está "Em Análise".');
     }
 
-    // --- MÉTODOS DE ADMIN (INTACTOS) ---
+    // --- MÉTODOS DE ADMIN (SITE) ---
     public function adminContactList()
     {
-        // ... (seu código aqui) ...
         $messages = Contact::with('status', 'user') 
                             ->latest()
                             ->get(); 
@@ -86,7 +84,6 @@ class ContactController extends Controller
 
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
-        // ... (seu código aqui) ...
         $statusIndeferidoId = Cache::remember('status_indeferido_id', 3600, function () {
             return Status::where('name', 'Indeferido')->firstOrFail()->id;
         });
@@ -114,10 +111,9 @@ class ContactController extends Controller
     }
 
 
-    // --- MÉTODOS DO USUÁRIO (INTACTOS) ---
+    // --- MÉTODOS DO USUÁRIO (SITE) ---
     public function userRequestList()
     {
-        // ... (seu código aqui) ...
         $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, function () {
             return Status::where('name', 'Cancelado')->firstOrFail()->id;
         });
@@ -133,7 +129,6 @@ class ContactController extends Controller
 
     public function cancelRequest(Request $request, Contact $contact)
     {
-        // ... (seu código aqui) ...
         if (Auth::id() !== $contact->user_id) {
             abort(403); 
         }
@@ -190,17 +185,8 @@ class ContactController extends Controller
             $fotoPath = $request->file('imagem')->store('solicitacoes', 'public');
         }
 
-        // =======================================================
-        //  CORREÇÃO APLICADA AQUI (CÓDIGO MAIS SEGURO)
-        // =======================================================
-        // Busca o status "Em Análise" de forma segura
-        // Se não encontrar, ele usará '1' como padrão (ou o ID que você definir)
         $statusEmAnalise = Status::where('name', 'Em Análise')->first();
-        
-        // Se o status "Em Análise" não existir no banco, usa 1 como ID padrão.
-        // Garanta que o ID 1 exista na sua tabela 'statuses' (geralmente é o primeiro)
-        $statusEmAnaliseId = $statusEmAnalise ? $statusEmAnalise->id : 1; 
-        // =======================================================
+        $statusEmAnaliseId = $statusEmAnalise ? $statusEmAnalise->id : 1; // Padrão 1 se não achar
 
         $dataToSave = [
             'user_id' => $user->id, 
@@ -230,18 +216,12 @@ class ContactController extends Controller
     public function userRequestListApi(Request $request)
     {
         $user = $request->user();
-
-        // Código "à prova de falhas" (correto)
         $statusCancelado = Status::where('name', 'Cancelado')->first();
-
         $query = $user->contacts()->with('status')->latest();
-
         if ($statusCancelado) {
             $query->where('status_id', '!=', $statusCancelado->id);
         }
-        
         $myRequests = $query->get();
-
         return response()->json($myRequests);
     }
     
@@ -250,13 +230,55 @@ class ContactController extends Controller
      */
     public function adminRequestListApi(Request $request)
     {
-        // Busca todas as solicitações, com status e usuário
         $solicitacoes = Contact::with('status', 'user') 
                             ->latest()
                             ->get();
-
-        // Retorna os dados como JSON
         return response()->json($solicitacoes);
+    }
+
+    // ===================================================================
+    //  MÉTODO ADICIONADO (Para o Admin salvar o Status via API)
+    // ===================================================================
+    /**
+     * [API ADMIN] Atualiza o status de uma solicitação.
+     */
+    public function adminUpdateStatusApi(Request $request, Contact $contact)
+    {
+        // 1. Busca o ID do status "Indeferido" (para a validação condicional)
+        $statusIndeferidoId = Cache::remember('status_indeferido_id', 3600, function () {
+            return Status::where('name', 'Indeferido')->firstOrFail()->id;
+        });
+
+        // 2. Valida os dados (status_id é obrigatório, justificativa é opcional)
+        $validated = $request->validate([
+            'status_id' => 'required|integer|exists:statuses,id',
+            'justificativa' => [
+                'nullable',
+                'string',
+                Rule::requiredIf($request->status_id == $statusIndeferidoId)
+            ],
+        ]);
+
+        // 3. Prepara os dados para salvar
+        $dataToSave = [
+            'status_id' => $validated['status_id'],
+            'justificativa' => $validated['justificativa'],
+        ];
+
+        // 4. Se o status for mudado para algo que NÃO é "Indeferido",
+        //    limpa a justificativa (caso exista de uma rejeição anterior)
+        if ($validated['status_id'] != $statusIndeferidoId) {
+            $dataToSave['justificativa'] = null;
+        }
+
+        // 5. Atualiza o banco
+        $contact->update($dataToSave);
+
+        // 6. Retorna uma resposta JSON (em vez de redirect)
+        return response()->json([
+            'message' => 'Status atualizado com sucesso!',
+            'data' => $contact->load('status') // Recarrega o contato com o novo status
+        ]);
     }
 
 }
