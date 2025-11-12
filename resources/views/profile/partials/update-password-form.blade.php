@@ -1,48 +1,26 @@
-<section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Atualizar Senha') }}
-        </h2>
+@php
+    $isAdmin = auth('admin')->check();
+    $updateRoute = $isAdmin ? route('admin.profile.update') : route('profile.update');
+@endphp
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Para garantir a segurança da sua conta, utilize uma senha longa e aleatória..') }}
-        </p>
-    </header>
+<form method="POST" action="{{ $updateRoute }}">
+    @csrf
+    @method('PATCH')
 
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
-        @csrf
-        @method('put')
+    <div class="mb-4">
+        <label class="block text-gray-700 font-semibold mb-2">Nova Senha</label>
+        <input type="password" name="password"
+               class="w-full border rounded-lg p-2 focus:ring-[#358054] focus:border-[#358054]">
+    </div>
 
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Senha Atual')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
-        </div>
+    <div class="mb-4">
+        <label class="block text-gray-700 font-semibold mb-2">Confirmar Senha</label>
+        <input type="password" name="password_confirmation"
+               class="w-full border rounded-lg p-2 focus:ring-[#358054] focus:border-[#358054]">
+    </div>
 
-        <div>
-            <x-input-label for="update_password_password" :value="__('Nova Senha')" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
-        </div>
-
-        <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirmar Senha')" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Salvar') }}</x-primary-button>
-
-            @if (session('status') === 'password-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Salvo.') }}</p>
-            @endif
-        </div>
-    </form>
-</section>
+    <button type="submit"
+            class="bg-[#358054] text-white px-6 py-2 rounded-lg shadow hover:bg-[#2f6f47] transition">
+        Atualizar Senha
+    </button>
+</form>

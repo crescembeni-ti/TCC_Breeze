@@ -40,6 +40,15 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // --- ADICIONADO ---
+        // Este é o novo "Porteiro" (Guarda) para a sua área de admin.
+        // Ele usa a lista de convidados (provider) 'admins'.
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
+        // --- FIM DA ADIÇÃO ---
     ],
 
     /*
@@ -64,6 +73,15 @@ return [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
+
+        // --- ADICIONADO ---
+        // Esta é a "lista de convidados" (Provider).
+        // Diz ao Laravel que 'admins' usa o Model App\Models\Admin.php
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
+        ],
+        // --- FIM DA ADIÇÃO ---
 
         // 'users' => [
         //     'driver' => 'database',

@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Meu Perfil - Admin')
+@section('title', 'Meu Perfil')
 
 @section('content')
 <h2 class="text-3xl font-bold text-[#358054] mb-6">Meu Perfil</h2>
