@@ -1,171 +1,184 @@
 /*
- * Estilo refinado para a página de Contato
- * Modernizado com labels flutuantes e estética clean.
+ * resources/css/contact.css
+ *
+ * Estilos refinados para a página "Contato".
  */
 
-/* HEADER */
-header.site-header {
-    background: #beffb4;
-    border-bottom: 2px solid #358054;
-    box-shadow: 0 6px 12px rgba(53, 128, 84, 0.3);
-    animation: fadeInDown 0.6s ease;
+.min-h-screen {
+    background-image: url('/images/bosque.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
-header.site-header h1 {
-    font-family: 'Instrument Sans', sans-serif;
-    letter-spacing: -0.03em;
+
+/* HEADER: gradiente igual ao padrão */
+body > .min-h-screen > header {
+    background: #beffb4;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Título com sombra */
+header h1.text-3xl {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Inputs em foco */
+#subject:focus,
+#message:focus {
+    border-color: #3b82f6;
+    --tw-ring-color: #3b82f6;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+/* Transição dos inputs */
+#subject, #message {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Coluna de informações */
+.info-column {
+    background: #fdfdfd;
+    border-left: 4px solid #3b82f6;
+}
+
+.info-column h3 {
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+/* Caixa "Login necessário" */
+main .bg-gray-50.border-dashed {
+    border-color: #059669;
+    background-color: #f8fdfb;
+}
+
+/* Botão "Criar conta" */
+main .bg-gray-50 a.bg-gray-600 {
+    background-color: transparent;
+    border: 2px solid #065f46;
+    color: #065f46;
+}
+
+main .bg-gray-50 a.bg-gray-600:hover {
+    background-color: #065f46;
+    color: white;
 }
 
 /* BOTÕES PRINCIPAIS */
-header .btn {
-    background-color: #358054;
-    color: #fff;
-    font-weight: 600;
-    padding: 0.6rem 1.25rem;
-    border-radius: 0.5rem;
-    transition: all 0.25s ease-in-out;
+main a.btn,
+main button.btn {
+    background-color: #059669;
+    color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+main a.btn:hover,
+main button.btn:hover {
+    background-color: #047857;
+    transform: scale(1.05);
+}
+
+/* ===== BOTÕES DO HEADER ===== */
+header .btn {
+    background-color: #059669; /* Verde do tema */
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 header .btn:hover {
-    transform: scale(1.05) translateY(-2px);
-    background-color: #2d6d46;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    background-color: #047857; /* Verde mais escuro no hover */
+    transform: scale(1.05);
+    filter: brightness(1.05);
 }
 
-/* ANIMAÇÕES */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
+
+.card, .bg-white.shadow-lg {
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  transform: translateY(0);
+  transition: all 0.3s ease;
 }
 
-/* CARDS */
+.card:hover, .bg-white.shadow-lg:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+}
+
+/* ===== LAYOUT MODERNO ===== */
+main {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.grid {
+  gap: 2rem; /* espaçamento entre colunas */
+}
+
 .bg-white.rounded-lg.shadow-lg {
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease-in-out;
 }
+
 .bg-white.rounded-lg.shadow-lg:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
 }
 
-/* FORMULÁRIO */
-form {
-    animation: fadeIn 0.8s ease;
+/* ===== FORMULÁRIO ===== */
+form input,
+form textarea {
+  transition: all 0.2s ease-in-out;
 }
 
-/* GRUPO DE INPUTS */
-.form-group {
-    position: relative;
-    margin-bottom: 1.75rem;
+form input:focus,
+form textarea:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
-/* INPUTS E TEXTAREA */
-.form-group input,
-.form-group textarea {
-    width: 100%;
-    background: #f9fafb;
-    border: 1px solid #d1d5db;
-    border-radius: 0.75rem;
-    padding: 1rem 1rem 0.75rem 1rem;
-    font-size: 1rem;
-    color: #374151;
-    transition: all 0.25s ease;
-}
-.form-group input:focus,
-.form-group textarea:focus {
-    background-color: #fff;
-    border-color: #358054;
-    box-shadow: 0 0 10px rgba(53, 128, 84, 0.2);
-    outline: none;
+/* ===== BOTÃO DO FORM ===== */
+form .btn {
+  background-color: #059669;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
 }
 
-/* LABEL FLUTUANTE */
-.form-group label {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    color: #6b7280;
-    font-size: 1rem;
-    pointer-events: none;
-    transition: all 0.2s ease-in-out;
-    background: transparent;
+form .btn:hover {
+  background-color: #047857;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-/* Quando input estiver focado ou preenchido */
-.form-group input:focus + label,
-.form-group input:not(:placeholder-shown) + label,
-.form-group textarea:focus + label,
-.form-group textarea:not(:placeholder-shown) + label {
-    top: -0.6rem;
-    left: 0.85rem;
-    font-size: 0.85rem;
-    color: #358054;
-    background-color: #fff;
-    padding: 0 0.3rem;
-    border-radius: 0.25rem;
+/* ===== INFO COLUMN ===== */
+.info-column {
+  border-left: 4px solid #059669;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(245,255,248,0.9));
 }
 
-/* Placeholder invisível (para o label flutuante funcionar) */
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-    color: transparent;
+.info-column h3 {
+  color: #047857;
+  font-weight: 600;
 }
 
-/* BOTÃO DE ENVIO */
-button[type="submit"] {
-    background: linear-gradient(90deg, #358054, #2d6d46);
-    border: none;
-    border-radius: 0.75rem;
-    color: #ffffff;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(53, 128, 84, 0.3);
-    padding: 1rem;
-}
-button[type="submit"]:hover {
-    transform: scale(1.05) translateY(-2px);
-    filter: brightness(1.1);
-    background: linear-gradient(90deg, #2d6d46, #256d3b);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+.info-column a {
+  color: #065f46;
+  text-decoration: underline;
+  transition: color 0.2s ease;
 }
 
-/* ALERTAS */
-.bg-green-100 {
-    background-color: #e6f4ea;
-}
-.border-green-500 {
-    border-color: #358054;
-}
-.text-green-700 {
-    color: #2d6d46;
+.info-column a:hover {
+  color: #047857;
 }
 
-/* FOOTER */
-footer {
-    background: #ffffff;
-    border-top: 2px solid #358054;
-    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
-    animation: fadeInUp 0.6s ease;
-}
-footer p {
-    color: #4b5563;
-    font-size: 0.95rem;
-}
-
-/* RESPONSIVO */
-@media (max-width: 768px) {
-    header.site-header h1 { font-size: 2rem; }
-    .grid { grid-template-columns: 1fr; }
-    .btn { font-size: 0.9rem; padding: 0.5rem 1rem; }
+/* Fade suave de entrada */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
