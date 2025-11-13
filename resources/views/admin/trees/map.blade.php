@@ -40,7 +40,7 @@
             <div class="flex flex-col">
                 <label class="form-label">Endereço</label>
                 <input type="text" name="address" class="input">
-            </div>
+     </div>
 
             {{-- Espécie --}}
             <div class="flex flex-col">
@@ -228,9 +228,7 @@
                 <label class="form-label">Caso não tenha espécie</label>
                 <input type="text" name="no_species_case" class="input">
             </div>
-
-        </div>
-
+          
         <button class="btn bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow">
             Adicionar Árvore
         </button>
@@ -240,6 +238,7 @@
 
 {{-- MAPA --}}
 <div class="bg-white shadow-sm rounded-lg p-6 tree-card">
+
     <h3 class="text-xl font-semibold mb-4">Mapa de Árvores</h3>
     <p class="text-sm text-gray-600 mb-3">Clique no mapa para definir coordenadas.</p>
     <div id="map" class="w-full rounded-lg shadow-md" style="height: 500px;"></div>
