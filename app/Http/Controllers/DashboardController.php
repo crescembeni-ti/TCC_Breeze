@@ -3,31 +3,46 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View; // Importe a View
-
-// Não precisamos mais de AdminLog, Tree, Activity, ou Species aqui.
-// Essa lógica agora pertence aos seus controllers de admin (ex: TreeController).
+use Illuminate\View\View;
+use App\Models\Tree;
+use App\Models\Activity;
+use App\Models\Species;
+use App\Models\Bairro;
+use Illuminate\Http\RedirectResponse;
 
 class DashboardController extends Controller
 {
     /**
-     * Exibe o dashboard APENAS para usuários normais.
-     * A lógica de admin foi movida para o grupo de rotas 'pbi-admin'.
+     * Exibe o dashboard apenas para usuários autenticados.
      */
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
-        // 1. Pega o usuário 'web' (normal) que está logado.
+        // Verifica se há usuário logado
+        if (!Auth::check()) {
+            // Se não estiver logado, redireciona para o login
+            return redirect()->route('login');
+        }
+
+        // Obtém o usuário autenticado
         $user = Auth::user();
 
-        // 2. MUDANÇA: Removemos toda a verificação 'is_admin'
-        // e a busca por 'AdminLog' e 'stats'.
-        // Este controller não é mais responsável por isso.
-        
-        // 3. Retorna a view 'dashboard' apenas com os dados do usuário.
-        // Você precisará editar seu 'dashboard.blade.php' para
-        // remover qualquer menção a '$adminLogs' e '$stats'.
-        return view('dashboard', [
-            'user' => $user,
-        ]);
+        // Estatísticas
+        $stats = [
+            'total_trees' => Tree::count(),
+            'total_activities' => Activity::count(),
+            'total_species' => Species::count(),
+        ];
+
+        // Atividades recentes
+        $recentActivities = Activity::with(['tree.species', 'user'])
+            ->orderBy('activity_date', 'desc')
+            ->take(5)
+            ->get();
+
+        // Bairros
+        $bairros = Bairro::orderBy('nome', 'asc')->get();
+
+        // Retorna a view
+        return view('dashboard', compact('user', 'stats', 'recentActivities', 'bairros'));
     }
 }

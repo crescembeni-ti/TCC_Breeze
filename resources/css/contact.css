@@ -4,15 +4,6 @@
  * Estilos refinados para a página "Contato".
  */
 
-.min-h-screen {
-    background-image: url('/images/bosque.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}
-
-
 /* HEADER: gradiente igual ao padrão */
 body > .min-h-screen > header {
     background: #beffb4;

@@ -11,21 +11,23 @@
         Aqui você pode visualizar o mapa, enviar e acompanhar solicitações.
     </p>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-        <a href="{{ route('contact') }}" class="p-6 bg-gray-50 rounded-lg shadow hover:bg-gray-100 transition">
-            <h3>📤 Nova Solicitação</h3>
-            <p>Solicite o plantio de uma nova árvore.</p>
-        </a>
-
-        <a href="{{ route('contact.myrequests') }}" class="p-6 bg-gray-50 rounded-lg shadow hover:bg-gray-100 transition">
-            <h3>📋 Minhas Solicitações</h3>
-            <p>Acompanhe o status das suas solicitações.</p>
-        </a>
-        
-        <a href="{{ route('profile.edit') }}" class="p-6 bg-gray-50 rounded-lg shadow hover:bg-gray-100 transition">
-            <h3>👤 Meu Perfil</h3>
-            <p>Atualize seus dados e senha.</p>
-        </a>
+    {{-- Estatísticas --}}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+    <div class="card text-center">
+        <h3>🌳 Total de Árvores</h3>
+        <p class="text-4xl font-bold text-green-700">{{ $stats['total_trees']}}</p>
     </div>
+
+    <div class="card text-center">
+        <h3>🪵 Atividades Registradas</h3>
+        <p class="text-4xl font-bold text-blue-700">{{ $stats['total_activities']}}</p>
+    </div>
+
+    <div class="card text-center">
+        <h3>🌱 Espécies no Mapa</h3>
+        <p class="text-4xl font-bold text-purple-700">{{ $stats['total_species']}}</p>
+    </div>
+</div>
+
 </div>
 @endsection

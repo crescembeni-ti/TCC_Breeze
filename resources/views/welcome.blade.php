@@ -171,22 +171,6 @@
     {{-- ========================================================= --}}
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        {{-- Estatísticas --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow p-6 stats-card">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Total de Árvores</h3>
-                <p class="text-4xl font-bold text-green-600">{{ $stats['total_trees'] }}</p>
-            </div>
-            <div class="bg-white rounded-lg shadow p-6 stats-card">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Atividades Registradas</h3>
-                <p class="text-4xl font-bold text-blue-600">{{ $stats['total_activities'] }}</p>
-            </div>
-            <div class="bg-white rounded-lg shadow p-6 stats-card">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Espécies no Mapa</h3>
-                <p class="text-4xl font-bold text-purple-600">{{ $stats['total_species'] }}</p>
-            </div>
-        </div>
-
         {{-- Mapa --}}
         <div class="bg-white rounded-lg shadow p-6 mb-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-4">Mapa Interativo</h2>

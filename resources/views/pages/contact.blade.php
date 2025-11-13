@@ -12,7 +12,7 @@
     @vite('resources/css/contact.css')
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
-<body class="font-sans antialiased bg-gray-50">
+<body class="font-sans antialiased">
     <div class="min-h-screen">
 
         <!-- HEADER -->
