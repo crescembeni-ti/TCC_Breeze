@@ -4,13 +4,9 @@
 
 /* ====== FUNDO TOTAL ====== */
 body {
-  background: #358054;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Poppins', sans-serif;
+ background: transparent !important;
 }
+
 
 /* ====== CONTAINER CENTRAL ====== */
 .min-h-screen {
@@ -181,3 +177,4 @@ button[aria-label="Mostrar ou ocultar senha"]:hover {
 button[aria-label="Mostrar ou ocultar senha"] svg {
   pointer-events: none;
 }
+
