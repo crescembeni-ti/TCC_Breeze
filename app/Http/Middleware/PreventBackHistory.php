@@ -10,27 +10,55 @@ class PreventBackHistory
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
+        // 🔥 LISTA DE ROTAS QUE NÃO PODEM SER BLOQUEADAS
+        // (rotas acessíveis mesmo quando deslogado)
+        $rotasLiberadas = [
+            'login',
+            'register',
+            'forgot-password',
+            'reset-password/*',
 
-        // Impede que páginas protegidas fiquem armazenadas no cache
-        $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-        $response->header('Pragma', 'no-cache');
-        $response->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
+            // Rotas de verificação por código
+            'verify-email-code',
+            'verify-email-code/*',
+            'verify-code',
+            'verify-code/*',
+        ];
 
-        // VERIFICA SE O USUÁRIO VOLTOU NA SETINHA APÓS LOGOUT
-        if ($this->isBackNavigationAfterLogout($request)) {
-
-            // ➤ SE O ADMIN estava logado → redirecionar para login admin
-            if (!auth('admin')->check() && $request->is('pbi-admin/*')) {
-                return redirect()->route('admin.login');
-            }
-
-            // ➤ SE O USUÁRIO comum estava logado → redirecionar para login comum
-            if (!auth()->check() && !$request->is('pbi-admin/*')) {
-                return redirect()->route('login');
+        // 🔥 Se a rota for liberada → não aplica nenhuma verificação de logout
+        foreach ($rotasLiberadas as $rota) {
+            if ($request->is($rota)) {
+                $response = $next($request);
+                return $this->noCache($response);
             }
         }
 
+        // Executa a requisição
+        $response = $next($request);
+
+        // Impede cache em páginas protegidas
+        $this->noCache($response);
+
+        // 🔥 Verifica tentativa de voltar após logout
+        if ($this->isBackNavigationAfterLogout($request)) {
+
+            // Se era admin → login admin
+            if ($request->is('pbi-admin/*')) {
+                return redirect()->route('admin.login');
+            }
+
+            // Se era usuário comum → login normal
+            return redirect()->route('login');
+        }
+
+        return $response;
+    }
+
+    private function noCache($response)
+    {
+        $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        $response->header('Pragma', 'no-cache');
+        $response->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
         return $response;
     }
 

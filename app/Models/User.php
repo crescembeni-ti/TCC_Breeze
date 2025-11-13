@@ -16,7 +16,7 @@ use Spatie\Permission\Traits\HasRoles; // <-- ADICIONADO PARA O SPATIE/PERMISSIO
 use Illuminate\Database\Eloquent\Casts\Attribute; 
 use Illuminate\Support\Facades\Storage; 
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable 
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles; 
