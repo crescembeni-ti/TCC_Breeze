@@ -56,7 +56,7 @@ class AuthController extends Controller
     /**
      * Lida com a tentativa de registro da API
      */
-    public function register(Request $request)
+    public unction register(Request $request)
     {
         // 1. Validação (bate com os campos do seu app)
         $request->validate([
@@ -125,9 +125,9 @@ class AuthController extends Controller
         ]);
     }
 
-    // =======================================================
-    //  NOVO MÉTODO 1: Pedir o código
-    // =======================================================
+    /**
+     * NOVO MÉTODO 1: Pedir o código
+     */
     public function forgotPassword(Request $request)
     {
         // 1. Valida o e-mail
@@ -156,9 +156,9 @@ class AuthController extends Controller
         return response()->json(['message' => 'Código de redefinição enviado para seu e-mail.']);
     }
 
-    // =======================================================
-    //  NOVO MÉTODO 2: Redefinir a senha
-    // =======================================================
+    /**
+     * NOVO MÉTODO 2: Redefinir a senha
+     */
     public function resetPassword(Request $request)
     {
         // 1. Valida todos os campos
@@ -190,5 +190,25 @@ class AuthController extends Controller
         });
 
         return response()->json(['message' => 'Senha redefinida com sucesso.']);
+    }
+
+    // =======================================================
+    //  MÉTODO ADICIONADO (Para salvar o token FCM)
+    // =======================================================
+    /**
+     * Salva o token FCM (Firebase) do dispositivo do usuário.
+     */
+    public function updateFcmToken(Request $request)
+    {
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        $user = $request->user(); // Pega o usuário logado
+        $user->update([
+            'fcm_token' => $request->fcm_token,
+        ]);
+
+        return response()->json(['message' => 'Token FCM salvo com sucesso.']);
     }
 }

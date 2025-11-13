@@ -9,8 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use App\Notifications\VerifyEmailWithCode; // Seu código de verificação
 use App\Models\Contact; // Importando o modelo Contact
 use App\Notifications\SendVerificationCode;
-use Laravel\Sanctum\HasApiTokens; // <-- 1. ADICIONADO PARA O SANCTUM
-use Spatie\Permission\Traits\HasRoles; // <-- ADICIONADO PARA O SPATIE/PERMISSION
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 // --- IMPORTS ADICIONADOS PARA A FOTO DE PERFIL ---
 use Illuminate\Database\Eloquent\Casts\Attribute; 
@@ -33,7 +33,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_admin',
         'email_verification_code',
         'email_verification_code_expires_at',
-        'profile_photo_path', // <-- 1. ADICIONADO AQUI
+        'profile_photo_path',
+        
+        // =======================================================
+        //  ADICIONE A COLUNA DO TOKEN FCM
+        // =======================================================
+        'fcm_token',
     ];
 
     /**
@@ -44,6 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'fcm_token', // Opcional: mas bom para segurança, para não enviar o token a todos
     ];
 
     /**
@@ -78,12 +84,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Contact::class);
     }
 
-    // =======================================================
-    //  2. MÉTODO ADICIONADO (ACCESSOR PARA A URL DA FOTO)
-    // =======================================================
     /**
      * Retorna a URL completa da foto de perfil.
-     * O app Android vai ler isso como 'profile_photo_url'
      */
     protected function profilePhotoUrl(): Attribute
     {

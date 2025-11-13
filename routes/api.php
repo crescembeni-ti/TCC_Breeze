@@ -16,6 +16,8 @@ use App\Models\Noticia;
 // --- Rotas Públicas ---
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::get('/statuses', function () {
     return response()->json(Status::all());
@@ -24,12 +26,6 @@ Route::get('/statuses', function () {
 Route::get('/noticias', function () {
     return response()->json(Noticia::latest()->get()); // Retorna todas, mais novas primeiro
 });
-
-// =======================================================
-//  ROTAS ADICIONADAS: Para redefinição de senha
-// =======================================================
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 
 // --- Rotas Protegidas (Exigem Token) ---
@@ -49,4 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/user/photo', [AuthController::class, 'updatePhoto']);
+
+    // =======================================================
+    //  ROTA ADICIONADA: Para o App salvar o token FCM
+    // =======================================================
+    Route::post('/fcm-token', [AuthController::class, 'updateFcmToken']);
 });
