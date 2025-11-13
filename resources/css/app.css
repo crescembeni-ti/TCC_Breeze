@@ -249,4 +249,46 @@
 .icon-close {
   transform-origin: center;
 }
+  
+
+@layer utilities {
+
+    /* ===== FUNDO DO LOGIN ===== */
+    body.login-bg {
+        background-image: url('/images/bosque.jpeg');
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        position: relative;
+        overflow: hidden; /* Evita vazamento do blur */
+    }
+
+    /* ===== BLUR IGUAL AO WELCOME ===== */
+    body.login-bg::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        
+        /* Copia o fundo */
+        background-image: inherit;
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+
+        /* O BLUR */
+        filter: blur(3px);
+
+        /* Escurecimento opcional (fica bonito com verde) */
+        background-color: rgba(0, 0, 0, 0.25);
+
+        /* Faz ficar atrás do conteúdo */
+        z-index: -1;
+    }
+}
+
 

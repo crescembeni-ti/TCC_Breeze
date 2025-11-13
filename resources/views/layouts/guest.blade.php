@@ -16,15 +16,16 @@
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     </head>
 
-    <body class="font-sans antialiased">
-        <div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-800 via-green-700 to-green-600">
-            
-            
+    <body class="font-sans antialiased login-bg" style="background-image: url('{{ asset('images/bosque.jpeg') }}'); background-size:cover;">
 
-            {{-- Card principal --}}
-            <div class="w-full sm:max-w-md px-8 py-6 bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl animate-fadeInUp">
-                {{ $slot }}
-            </div>
+    <div class="min-h-screen flex flex-col items-center justify-center">
+
+        {{-- Card principal --}}
+        <div class="w-full sm:max-w-md px-8 py-6 bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl animate-fadeInUp">
+            {{ $slot }}
         </div>
-    </body>
+
+    </div>
+</body>
+</html>
 </html>
