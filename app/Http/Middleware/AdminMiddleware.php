@@ -9,16 +9,14 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminMiddleware
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Middleware para rotas do painel administrativo
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Verifica se o usuário está autenticado e é administrador
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            // Redireciona para a página inicial se não for admin
-            return redirect('/')->with('error', 'Acesso negado. Você não tem permissão para acessar esta página.');
+        // Se NÃO estiver logado como ADMIN
+        if (!auth('admin')->check()) {
+            return redirect()->route('admin.login')
+                ->with('error', 'Acesso restrito ao painel administrativo.');
         }
 
         return $next($request);

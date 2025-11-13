@@ -45,10 +45,6 @@
                     </a>
                     <form method="POST" action="{{ route('admin.logout') }}">
                         @csrf
-                        <button type="submit" class="btn bg-red-600 hover:bg-red-700 hidden sm:block">
-                            Sair
-                        </button>
-                    </form>
 
                 {{-- USUÁRIO LOGADO --}}
                 @elseif(auth()->check())
@@ -57,11 +53,7 @@
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="btn bg-red-600 hover:bg-red-700 hidden sm:block">
-                            Sair
-                        </button>
-                    </form>
-
+                        
                 {{-- VISITANTE (NÃO LOGADO) --}}
                 @else
                     <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">

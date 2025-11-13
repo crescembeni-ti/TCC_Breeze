@@ -33,7 +33,12 @@
                     <div class="flex gap-4">
                         <!-- ▼▼▼ BOTÕES ATUALIZADOS ▼▼▼ -->
                         <a href="{{ route('home') }}" class="btn bg-white text-green-700 hover:bg-gray-100">Voltar ao Mapa</a>
-                        <a href="{{ route('contact') }}" class="btn bg-white text-blue-700 hover:bg-gray-100">Fazer solicitação</a>
+                        @if(!auth('admin')->check())
+                            <a href="{{ route('contact') }}" class="btn bg-green-600 hover:bg-green-700">
+                                Fazer Solicitação
+                            </a>
+@endif
+
                     </div>
                 </div>
             </div>

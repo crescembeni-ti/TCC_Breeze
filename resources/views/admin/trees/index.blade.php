@@ -34,7 +34,7 @@
             <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <h2 class="text-3xl font-bold text-[#358054]">Gerenciar Árvores 🌳</h2>
 
-                <a href="{{ route('dashboard') }}"
+                <a href="{{ route('admin.dashboard') }}"
                    class="inline-flex items-center px-4 py-2 bg-[#358054] text-white rounded-lg text-sm font-semibold hover:bg-[#2d6947] transition">
                     <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
                     Voltar ao Painel

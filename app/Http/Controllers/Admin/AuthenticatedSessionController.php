@@ -11,8 +11,7 @@ use Illuminate\View\View;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * 🟩 Exibe a tela de login do administrador.
-     * A view usada é: resources/views/admin/auth/login.blade.php
+     * Tela de login do admin.
      */
     public function create(): View
     {
@@ -20,51 +19,45 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * 🟩 Faz a autenticação do ADMIN.
-     * Usa o "guard" admin (tabela `admins` no banco).
+     * Autenticação do admin.
      */
     public function store(Request $request): RedirectResponse
     {
-        // 🔹 1. Validação simples dos campos de login
+        // Validação
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        // 🔹 2. Garante que, se o user comum estiver logado, será deslogado
+        // Se usuário comum estiver logado → desloga
         Auth::guard('web')->logout();
 
-        // 🔹 3. Tenta autenticar usando o guard ADMIN
+        // Login via guard admin
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
-            // Regenera sessão por segurança
+
             $request->session()->regenerate();
 
-            // Redireciona para o painel do admin
-            return redirect()->intended(route('admin.dashboard'));
+            // 🔥 ADMIN TAMBÉM VAI PARA O MAPA (welcome)
+            return redirect()->intended(route('home'));
         }
 
-        // 🔹 4. Caso as credenciais estejam erradas
+        // Erro nas credenciais
         return back()->withErrors([
-            'email' => __('auth.failed'), // Mensagem padrão: "Essas credenciais não correspondem aos nossos registros."
+            'email' => __('auth.failed'),
         ])->onlyInput('email');
     }
 
     /**
-     * 🟥 Faz logout do administrador.
-     * Encerra apenas a sessão do guard "admin".
+     * Logout do admin.
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // Desloga o admin
         Auth::guard('admin')->logout();
 
-        // Invalida a sessão atual
         $request->session()->invalidate();
-
-        // Gera novo token CSRF
         $request->session()->regenerateToken();
 
-        // Redireciona de volta para o login do admin
+        // Após logout → login admin
         return redirect(route('admin.login'));
     }
 }
