@@ -71,41 +71,96 @@
                         Cadastrar
                     </a>
 
-                    {{-- MENU HAMBÚRGUER (verde) --}}
-                    <div class="relative inline-block">
-                        <button id="guestMenuBtn"
-                                class="ml-3 btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg">
-                            ☰ Menu
-                        </button>
+                    {{-- MENU HAMBÚRGUER (ATUALIZADO E ANIMADO) --}}
+<div class="relative inline-block">
 
-                        <div id="guestMenu"
-                             class="hidden absolute right-0 mt-2 w-56 bg-white border border-[#358054]/30 rounded-xl shadow-lg z-50">
-                            <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">
-                                Fazer Solicitação
-                            </a>
-                            <a href="{{ route('contact.myrequests') }}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">
-                                Minhas Solicitações
-                            </a>
-                            <a href="{{ route('about') }}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">
-                                Sobre o Site
-                            </a>
-                        </div>
-                    </div>
+    <!-- Botão animado -->
+    <button id="guestMenuBtn"
+        class="ml-3 btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-2 transition-all duration-200">
 
-                    <script>
-                        (function(){
+        <!-- Ícone animado -->
+        <svg id="iconMenu" class="w-6 h-6 transition-all duration-200"
+            fill="none" stroke="currentColor" stroke-width="2"
+            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h16" />
+            <path d="M4 12h16" />
+            <path d="M4 18h16" />
+        </svg>
+
+        <!-- Texto mantém igual -->
+        Menu
+    </button>
+
+    <!-- DROPDOWN novo no tom do seu site -->
+    <div id="guestMenu"
+         class="hidden absolute right-0 mt-2 w-56 bg-[#e8ffe6] border border-[#358054]/40 rounded-xl shadow-lg z-50">
+
+        <a href="{{ route('contact') }}"
+   class="block px-4 py-2 font-semibold text-black !text-black opacity-100 !opacity-100 hover:bg-[#d9f5d6]">
+    Fazer Solicitação
+</a>
+
+<a href="{{ route('contact.myrequests') }}"
+   class="block px-4 py-2 font-semibold text-black !text-black opacity-100 !opacity-100 hover:bg-[#d9f5d6]">
+    Minhas Solicitações
+</a>
+
+<a href="{{ route('about') }}"
+   class="block px-4 py-2 font-semibold text-black !text-black opacity-100 !opacity-100 hover:bg-[#d9f5d6]">
+    Sobre o Site
+</a>
+
+
+    </div>
+</div>
+
+
+<script>
+                 (function(){
                             const btn = document.getElementById('guestMenuBtn');
                             const menu = document.getElementById('guestMenu');
+                            const icon = document.getElementById('iconMenu');
+
+                            let aberto = false;
+
                             if (!btn || !menu) return;
+
                             btn.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                menu.classList.toggle('hidden');
+                            e.stopPropagation();
+                            menu.classList.toggle('hidden');
+                            aberto = !aberto;
+
+                            if (aberto) {
+                            // ÍCONE VIRA X
+                            icon.innerHTML = `
+                            <path d="M6 6l12 12" />
+                            <path d="M6 18L18 6" />
+                            `;
+                            } else {
+                            // VOLTA HAMBÚRGUER
+                            icon.innerHTML = `
+                            <path d="M4 6h16" />
+                            <path d="M4 12h16" />
+                            <path d="M4 18h16" />
+                            `;
+                            }
                             });
-                            window.addEventListener('click', () => {
-                                if (!menu.classList.contains('hidden')) menu.classList.add('hidden');
-                            });
-                        })();
-                    </script>
+
+    // Fecha ao clicar fora
+    window.addEventListener('click', () => {
+        if (!menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
+            icon.innerHTML = `
+                <path d="M4 6h16" />
+                <path d="M4 12h16" />
+                <path d="M4 18h16" />
+            `;
+            aberto = false;
+            }
+            });
+            })();
+            </script>
+
                 @endif
             </div>
         </div>
