@@ -257,11 +257,12 @@
                                                 </svg>
                                             </button>
 
-                                            @if($request->status && $request->status->name != 'Concluído' && $request->status->name != 'Cancelado')
+                                            @if($request->status && in_array($request->status->name, ['Em Análise', 'Deferido']))
                                                 <button @click="showCancelModal = true" class="text-sm font-medium text-red-600 hover:text-red-800">
                                                     Cancelar Solicitação
                                                 </button>
                                             @endif
+
                                         </div>
                                     </div>
                                     
