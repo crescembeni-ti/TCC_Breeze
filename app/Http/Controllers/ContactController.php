@@ -191,35 +191,48 @@ class ContactController extends Controller
     }
 
     public function cancelRequest(Request $request, Contact $contact)
-    {
-        if (Auth::id() !== $contact->user_id) {
-            abort(403);
-        }
-
-        $statusConcluidoId = Cache::remember('status_concluido_id', 3600, function () {
-            return Status::where('name', 'Concluído')->firstOrFail()->id;
-        });
-        $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, function () {
-            return Status::where('name', 'Cancelado')->firstOrFail()->id;
-        });
-
-        if ($contact->status_id === $statusConcluidoId || $contact->status_id === $statusCanceladoId) {
-            return back()->withErrors(['cancel_error' => 'Esta solicitação não pode mais ser cancelada.']);
-        }
-
-        $request->validate([
-            'justificativa_cancelamento' => 'nullable|string|max:500'
-        ]);
-
-        $contact->update([
-            'status_id' => $statusCanceladoId,
-            'justificativa' => $request->justificativa_cancelamento
-                ? 'Cancelado pelo usuário: ' . $request->justificativa_cancelamento
-                : 'Cancelado pelo usuário (sem motivo informado).'
-        ]);
-
-        return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada com sucesso.');
+{
+    // garantir que só o dono pode cancelar
+    if (Auth::id() !== $contact->user_id) {
+        abort(403);
     }
+
+    // buscar IDs dos status
+    $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, fn() =>
+        Status::where('name', 'Em Análise')->firstOrFail()->id
+    );
+
+    $statusDeferidoId = Cache::remember('status_deferido_id', 3600, fn() =>
+        Status::where('name', 'Deferido')->firstOrFail()->id
+    );
+
+    $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, fn() =>
+        Status::where('name', 'Cancelado')->firstOrFail()->id
+    );
+
+    // VERIFICA SE O STATUS ATUAL PERMITE CANCELAMENTO
+    if (!in_array($contact->status_id, [$statusEmAnaliseId, $statusDeferidoId])) {
+        return back()->withErrors([
+            'cancel_error' => 'Esta solicitação não pode mais ser cancelada.'
+        ]);
+    }
+
+    // validar motivo opcional
+    $request->validate([
+        'justificativa_cancelamento' => 'nullable|string|max:500'
+    ]);
+
+    // realizar cancelamento
+    $contact->update([
+        'status_id' => $statusCanceladoId,
+        'justificativa' => $request->justificativa_cancelamento
+            ? 'Cancelado pelo usuário: ' . $request->justificativa_cancelamento
+            : 'Cancelado pelo usuário (sem motivo informado).'
+    ]);
+
+    return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada com sucesso.');
+}
+
 
     
     // ===================================================================
