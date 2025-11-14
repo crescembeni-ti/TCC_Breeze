@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 use App\Models\User; // (Já deve existir, mas garanta)
+use Illuminate\Support\Facades\Log; // <-- ADICIONADO PARA LOG DE ERRO
 
 class ContactController extends Controller
 {
@@ -204,7 +205,7 @@ class ContactController extends Controller
     }
 
     // ===================================================================
-    //  MÉTODO 'adminUpdateStatusApi' ATUALIZADO COM NOTIFICAÇÃO
+    //  MÉTODO 'adminUpdateStatusApi' ATUALIZADO COM "DEEP LINKING"
     // ===================================================================
     /**
      * [API ADMIN] Atualiza o status de uma solicitação e envia notificação.
@@ -240,7 +241,7 @@ class ContactController extends Controller
         $contact->update($dataToSave);
         
         // =======================================================
-        //  5. (NOVO) ENVIAR NOTIFICAÇÃO PUSH
+        //  5. (ATUALIZADO) ENVIAR NOTIFICAÇÃO PUSH COM DADOS
         // =======================================================
         try {
             // Recarrega o 'contact' para pegar o nome do novo status
@@ -262,7 +263,27 @@ class ContactController extends Controller
 
                 // Cria a mensagem para o token específico
                 $message = CloudMessage::withTarget('token', $fcmToken)
-                    ->withNotification($notification);
+                    ->withNotification($notification)
+                    
+                    // --- MUDANÇA AQUI: Adiciona os dados extras ---
+                    ->withData([
+                        'click_action' => 'OPEN_SOLICITACAO_DETALHES', // Diz ao app o que fazer
+                        'solicitacao_id' => (string)$contact->id, // O ID da solicitação
+                        
+                        // Também enviamos os dados para a tela de detalhes
+                        // (Nota: o nome do 'EXTRA' deve bater com o adapter)
+                        'EXTRA_ADMIN_ID' => (string)$contact->id, // ID
+                        'EXTRA_ADMIN_TITULO' => $contact->topico,
+                        'EXTRA_ADMIN_DATA' => $contact->created_at->toIso8601String(), // Envia data em formato ISO
+                        'EXTRA_ADMIN_STATUS' => $contact->status->name,
+                        'EXTRA_ADMIN_USUARIO' => $contact->user->name,
+                        'EXTRA_ADMIN_IMAGE_URI' => $contact->foto_path, // Apenas o caminho
+                        'EXTRA_ADMIN_DESCRICAO' => $contact->descricao,
+                        'EXTRA_ADMIN_BAIRRO' => $contact->bairro,
+                        'EXTRA_ADMIN_RUA' => $contact->rua,
+                        'EXTRA_ADMIN_NUMERO' => $contact->numero
+                    ]);
+                // --------------------------------------------------
 
                 // Envia
                 $messaging->send($message);
