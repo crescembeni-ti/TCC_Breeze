@@ -11,18 +11,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage; 
-
-// =======================================================
-//  IMPORTS ADICIONADOS (Para o Firebase)
-// =======================================================
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
-use App\Models\User; // (Já deve existir, mas garanta)
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class ContactController extends Controller
 {
-    // ... (index, store, adminContactList, etc. - Sem alteração) ...
-    
     public function index()
     {
         $bairros = Bairro::orderBy('nome', 'asc')->get();
@@ -32,56 +27,101 @@ class ContactController extends Controller
 
     public function store(Request $request)
     {
-        $user = Auth::user(); 
+        $user = Auth::user();
         $nomesDeBairrosValidos = Bairro::pluck('nome')->toArray();
-        $nomesDeTopicosValidos = Topico::pluck('nome')->toArray(); 
+        $nomesDeTopicosValidos = Topico::pluck('nome')->toArray();
+
         $validated = $request->validate([
-            'topico' => [ 
+            'topico' => [
                 'required', 'string', 'max:255',
-                Rule::in($nomesDeTopicosValidos) 
+                Rule::in($nomesDeTopicosValidos)
             ],
             'bairro' => [
                 'required', 'string', 'max:255',
-                Rule::in($nomesDeBairrosValidos) 
+                Rule::in($nomesDeBairrosValidos)
             ],
             'rua' => 'required|string|max:255',
             'numero' => 'required|string|max:10',
             'descricao' => 'required|string',
             'foto' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
         ]);
+
         $fotoPath = null;
         if ($request->hasFile('foto')) {
             $fotoPath = $request->file('foto')->store('solicitacoes', 'public');
         }
+
         $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, function () {
             return Status::where('name', 'Em Análise')->firstOrFail()->id;
         });
+
         $dataToSave = array_merge($validated, [
-            'user_id' => $user->id, 
-            'nome_solicitante' => $user->name, 
+            'user_id' => $user->id,
+            'nome_solicitante' => $user->name,
             'email_solicitante' => $user->email,
             'status_id' => $statusEmAnaliseId,
-            'justificativa' => null, 
+            'justificativa' => null,
             'foto_path' => $fotoPath,
         ]);
+
         Contact::create($dataToSave);
+
         return redirect()->route('contact')->with('success', 'Sua solicitação foi enviada com sucesso! Ela já está "Em Análise".');
     }
 
-    public function adminContactList()
+    /**
+     * PÁGINA ADMIN: lista com filtro e agrupamento
+     */
+    public function adminContactList(Request $request)
     {
-        $messages = Contact::with('status', 'user') 
-                            ->latest()
-                            ->get(); 
-        $allStatuses = Status::all();
-        return view('admin.contacts.index', compact('messages', 'allStatuses'));
+        // filtro: todas | pendentes | resolvidas
+        $filtro = $request->query('filtro', 'todas');
+
+        // grupos de status (nomes)
+        $pendentes = ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'];
+        $resolvidas = ['Concluído', 'Indeferido', 'Sem Pendências'];
+
+        if ($filtro === 'pendentes') {
+            $messages = Contact::with('status', 'user')
+                ->whereHas('status', fn($q) => $q->whereIn('name', $pendentes))
+                ->latest()
+                ->get();
+        } elseif ($filtro === 'resolvidas') {
+            $messages = Contact::with('status', 'user')
+                ->whereHas('status', fn($q) => $q->whereIn('name', $resolvidas))
+                ->latest()
+                ->get();
+        } else {
+            $messages = Contact::with('status', 'user')->latest()->get();
+        }
+
+        // pego todos os statuses exceto 'Cancelado' (admin não pode cancelar)
+        $allStatuses = Status::where('name', '!=', 'Cancelado')->get();
+
+        return view('admin.contacts.index', compact('messages', 'allStatuses', 'filtro'));
     }
 
+    /**
+     * Atualiza status (rota usada pelo admin).
+     * Aceita requisição AJAX (retorna JSON) ou normal (redirect).
+     */
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
-        $statusIndeferidoId = Cache::remember('status_indeferido_id', 3600, function () {
-            return Status::where('name', 'Indeferido')->firstOrFail()->id;
+        $statusCancelado = Cache::remember('status_cancelado_id', 3600, function () {
+            return Status::where('name', 'Cancelado')->first()->id ?? null;
         });
+
+        $statusIndeferidoId = Cache::remember('status_indeferido_id', 3600, function () {
+            return Status::where('name', 'Indeferido')->first()->id;
+        });
+
+        // NÃO PERMITIR admin setar 'Cancelado'
+        if ($request->status_id == $statusCancelado) {
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Administrador não pode cancelar solicitações.'], 403)
+                : back()->withErrors(['error' => 'Administrador não pode cancelar solicitações.']);
+        }
+
         $validated = $request->validate([
             'status_id' => 'required|integer|exists:statuses,id',
             'justificativa' => [
@@ -90,15 +130,48 @@ class ContactController extends Controller
                 Rule::requiredIf($request->status_id == $statusIndeferidoId)
             ],
         ]);
+
         $dataToSave = [
             'status_id' => $validated['status_id'],
-            'justificativa' => $validated['justificativa'],
+            'justificativa' => $validated['justificativa'] ?? null,
         ];
+
+        // só mantem justificativa quando indeferido
         if ($validated['status_id'] != $statusIndeferidoId) {
             $dataToSave['justificativa'] = null;
         }
+
         $contact->update($dataToSave);
-        return redirect()->route('admin.contacts.index')->with('success', 'Status da mensagem atualizado.');
+        $contact->load('status', 'user');
+
+        // try enviar push (se tiver FCM token) — não quebra se falhar
+        try {
+            $user = $contact->user;
+            $fcmToken = $user->fcm_token ?? null;
+            if ($fcmToken) {
+                $messaging = app('firebase.messaging');
+                $notification = Notification::create(
+                    'Sua solicitação foi atualizada!',
+                    'O status da sua solicitação "' . ($contact->topico ?? 'solicitação') . '" agora é: ' . $contact->status->name
+                );
+                $message = CloudMessage::withTarget('token', $fcmToken)
+                    ->withNotification($notification);
+
+                $messaging->send($message);
+            }
+        } catch (\Exception $e) {
+            Log::error('Falha ao enviar notificação FCM: ' . $e->getMessage());
+        }
+
+        // resposta JSON para AJAX
+        if ($request->wantsJson() || $request->isJson()) {
+            return response()->json([
+                'message' => 'Status atualizado com sucesso!',
+                'contact' => $contact,
+            ]);
+        }
+
+        return back()->with('success', 'Status da mensagem atualizado.');
     }
 
     public function userRequestList()
@@ -106,38 +179,45 @@ class ContactController extends Controller
         $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, function () {
             return Status::where('name', 'Cancelado')->firstOrFail()->id;
         });
+
         $myRequests = Auth::user()
-                            ->contacts()
-                            ->with('status') 
-                            ->where('status_id', '!=', $statusCanceladoId) 
-                            ->latest()
-                            ->get();
+            ->contacts()
+            ->with('status')
+            ->where('status_id', '!=', $statusCanceladoId)
+            ->latest()
+            ->get();
+
         return view('pages.my-requests', compact('myRequests'));
     }
 
     public function cancelRequest(Request $request, Contact $contact)
     {
         if (Auth::id() !== $contact->user_id) {
-            abort(403); 
+            abort(403);
         }
+
         $statusConcluidoId = Cache::remember('status_concluido_id', 3600, function () {
             return Status::where('name', 'Concluído')->firstOrFail()->id;
         });
         $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, function () {
             return Status::where('name', 'Cancelado')->firstOrFail()->id;
         });
+
         if ($contact->status_id === $statusConcluidoId || $contact->status_id === $statusCanceladoId) {
             return back()->withErrors(['cancel_error' => 'Esta solicitação não pode mais ser cancelada.']);
         }
+
         $request->validate([
             'justificativa_cancelamento' => 'nullable|string|max:500'
         ]);
+
         $contact->update([
             'status_id' => $statusCanceladoId,
-            'justificativa' => $request->justificativa_cancelamento 
-                                ? 'Cancelado pelo usuário: ' . $request->justificativa_cancelamento
-                                : 'Cancelado pelo usuário (sem motivo informado).'
+            'justificativa' => $request->justificativa_cancelamento
+                ? 'Cancelado pelo usuário: ' . $request->justificativa_cancelamento
+                : 'Cancelado pelo usuário (sem motivo informado).'
         ]);
+
         return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada com sucesso.');
     }
 

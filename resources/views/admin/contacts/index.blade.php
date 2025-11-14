@@ -13,6 +13,8 @@
 
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen">
@@ -28,11 +30,8 @@
         </div>
     </header>
 
-    <!-- CONTEÚDO -->
     <main class="flex-1 p-10">
         <div class="bg-white shadow-sm rounded-lg p-8">
-
-            <!-- Título + Voltar -->
             <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <h2 class="text-3xl font-bold text-[#358054]">Mensagens de Contato 📬</h2>
 
@@ -49,85 +48,57 @@
                 </div>
             @endif
 
+            <!-- FILTROS -->
+            <div class="flex items-center gap-3 mb-4">
+                <a href="{{ route('admin.contato.index') }}?filtro=todas"
+                   class="px-3 py-2 rounded {{ $filtro === 'todas' ? 'bg-gray-800 text-white' : 'bg-gray-100' }}">Todas</a>
 
-            <!-- Tabela -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">De</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Solicitação</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Data</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Ações</th>
-                        </tr>
-                    </thead>
+                <a href="{{ route('admin.contato.index') }}?filtro=pendentes"
+                   class="px-3 py-2 rounded {{ $filtro === 'pendentes' ? 'bg-yellow-500 text-white' : 'bg-gray-100' }}">Pendentes</a>
 
-                    <tbody class="bg-white divide-y divide-gray-200">
+                <a href="{{ route('admin.contato.index') }}?filtro=resolvidas"
+                   class="px-3 py-2 rounded {{ $filtro === 'resolvidas' ? 'bg-green-600 text-white' : 'bg-gray-100' }}">Resolvidas</a>
 
-                        @foreach ($messages as $message)
-                        <tr>
-                            <!-- Remetente -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">
-                                    {{ $message->user->name ?? $message->nome_solicitante }}
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    {{ $message->user->email ?? $message->email_solicitante }}
-                                </div>
-                            </td>
-
-                            <!-- Solicitação -->
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-gray-900">
-                                    {{ $message->bairro }}, {{ $message->rua }}, {{ $message->numero }}
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    {{ Str::limit($message->descricao, 100) }}
-                                </div>
-                            </td>
-
-                            <!-- Data -->
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $message->created_at->format('d/m/Y H:i') }}
-                            </td>
-
-                            <!-- Ações -->
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
-
-                                <!-- Ver Mensagem -->
-                                <button 
-                                    onclick="openViewModal({{ $message->id }})"
-                                    class="inline-flex items-center px-3 py-1.5 bg-[#358054] text-white rounded-md text-xs font-semibold hover:bg-[#2d6947] transition">
-                                    <i data-lucide="eye" class="w-4 h-4 mr-1"></i>
-                                    Ver
-                                </button>
-
-                                <!-- Editar Status -->
-                                <button 
-                                    onclick="openStatusModal({{ $message->id }})"
-                                    class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-md text-xs font-semibold hover:bg-blue-700 transition">
-                                    <i data-lucide="pencil" class="w-4 h-4 mr-1"></i>
-                                    Atualizar
-                                </button>
-
-                            </td>
-                        </tr>
-                        @endforeach
-
-                    </tbody>
-                </table>
+                <div class="ml-auto text-sm text-gray-600">Total: {{ $messages->count() }}</div>
             </div>
 
+            <!-- LISTAGEM / AGRUPAMENTO -->
+            @php
+                $groupsPendentes = ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'];
+                $groupsResolvidas = ['Concluído', 'Indeferido', 'Sem Pendências'];
+            @endphp
+
+            @if($filtro === 'pendentes')
+                @foreach($groupsPendentes as $group)
+                    <h3 class="mt-6 text-xl font-semibold text-blue-600">{{ $group }}</h3>
+                    @php $subset = $messages->where('status.name', $group); @endphp
+                    <div class="lista-placeholder" data-ids="{{ $messages->where('status.name', $group)->pluck('id')->toJson() }}"></div>
+
+                @endforeach
+            @elseif($filtro === 'resolvidas')
+                @foreach($groupsResolvidas as $group)
+                    <h3 class="mt-6 text-xl font-semibold text-green-600">{{ $group }}</h3>
+                    @php $subset = $messages->where('status.name', $group); @endphp
+                    <div class="lista-placeholder" data-ids="{{ $messages->where('status.name', $group)->pluck('id')->toJson() }}"></div>
+
+                @endforeach
+            @else
+                <h3 class="mt-4 text-lg font-semibold">Todas as solicitações</h3>
+               <div class="lista-placeholder" data-all="true"></div>
+
+            @endif
         </div>
     </main>
 
-    <!-- FOOTER -->
     <footer class="bg-gray-800 text-gray-300 text-center py-4 text-sm border-t border-[#358054] mt-auto">
         © {{ date('Y') }} - Árvores de Paracambi
     </footer>
 
+    {{-- Partial de lista (inline para facilitar) --}}
+    @push('partials')
+    @endpush
 
-    <!-- MODAL VISUALIZAR -->
+    {{-- Modal View (igual) --}}
     <div id="modal-view" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
             <button onclick="closeViewModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
@@ -155,8 +126,7 @@
         </div>
     </div>
 
-
-    <!-- MODAL STATUS -->
+    {{-- Modal Status (AJAX) --}}
     <div id="modal-status" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
             <button onclick="closeStatusModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
@@ -165,7 +135,7 @@
 
             <h2 class="text-2xl font-bold text-blue-700 mb-4">✏️ Atualizar Status</h2>
 
-            <form id="status-form" method="POST" class="space-y-3">
+            <form id="status-form" method="POST" class="space-y-3" onsubmit="return submitStatusForm(event)">
                 @csrf
                 @method('PATCH')
 
@@ -176,26 +146,119 @@
                     @endforeach
                 </select>
 
-                <label class="font-semibold">Justificativa</label>
-                <textarea name="justificativa" id="status-justificativa"
-                          class="w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea>
+                <div id="just-box">
+                    <label class="font-semibold">Justificativa</label>
+                    <textarea name="justificativa" id="status-justificativa"
+                              class="w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea>
+                </div>
 
-                <button class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                <button id="status-save-btn" class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
                     Salvar
                 </button>
             </form>
         </div>
     </div>
 
+    {{-- hidden template partial used inline to render table rows --}}
+    @php
+    // create a small function to render rows (blade)
+    @endphp
 
-    <!-- SCRIPT -->
+    {{-- Lista partial file (render inline) --}}
+    @once
+    @push('partials')
+    @endpush
+    @endonce
+
+    {{-- a tabela de cada bloco: partial renderizado inline --}}
+    @if(false) {{-- placeholder para evitar erro de blade ao colar --}}
+        @include('admin.contacts._lista')
+    @endif
+
+    {{-- SCRIPT --}}
     <script>
+        // mensagens vindas do backend
         const messages = @json($messages->keyBy('id'));
+
+        // RENDER partial (JS) - monta uma tabela HTML a partir de uma coleção
+        function renderTable(itens) {
+            if (!itens || itens.length === 0) {
+                return `<p class="text-gray-400 mt-2">Nenhuma solicitação aqui.</p>`;
+            }
+
+            let rows = itens.map(m => {
+                const nome = (m.user && m.user.name) ? m.user.name : (m.nome_solicitante ?? '');
+                const email = (m.user && m.user.email) ? m.user.email : (m.email_solicitante ?? '');
+                const statusName = m.status ? m.status.name : '';
+                const created = new Date(m.created_at).toLocaleString();
+
+                return `
+                <tr class="border-t">
+                    <td class="px-6 py-4 align-top">
+                        <div class="text-sm font-medium text-gray-900">${escapeHtml(nome)}</div>
+                        <div class="text-sm text-gray-500">${escapeHtml(email)}</div>
+                    </td>
+                    <td class="px-6 py-4 align-top">
+                        <div class="text-sm font-medium text-gray-900">${escapeHtml(m.bairro)}, ${escapeHtml(m.rua)}, ${escapeHtml(m.numero)}</div>
+                        <div class="text-sm text-gray-500">${escapeHtml(m.descricao.substring(0, 120))}</div>
+                    </td>
+                    <td class="px-6 py-4 align-top text-sm text-gray-500">${escapeHtml(created)}</td>
+                    <td class="px-6 py-4 align-top text-right text-sm space-x-2">
+                        <button onclick="openViewModal(${m.id})" class="inline-flex items-center px-3 py-1.5 bg-[#358054] text-white rounded-md text-xs font-semibold hover:bg-[#2d6947] transition">
+                            Ver
+                        </button>
+                        <button onclick="openStatusModal(${m.id})" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-md text-xs font-semibold hover:bg-blue-700 transition">
+                            Atualizar
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+
+            return `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">De</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Solicitação</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Data</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Ações</th>
+                </tr>
+            </thead><tbody class="bg-white">${rows}</tbody></table></div>`;
+        }
+
+        // utility
+        function escapeHtml(unsafe) {
+            if (unsafe === null || unsafe === undefined) return '';
+            return String(unsafe)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // monta os blocos já renderizados do blade — substitui include
+        document.addEventListener('DOMContentLoaded', function () {
+            // para cada grupo presente na página (h3 + placeholder), vamos renderizar dinamicamente
+            document.querySelectorAll('h3').forEach(function(h) {
+                const next = h.nextElementSibling;
+                if (next && next.classList.contains('lista-placeholder')) {
+                    // já vem do blade com data-group contendo os ids
+                    const ids = JSON.parse(next.getAttribute('data-ids') || '[]');
+                    const itens = ids.map(i => messages[i]).filter(Boolean);
+                    next.innerHTML = renderTable(itens);
+                }
+            });
+
+            // para o bloco "todas", se existir um placeholder com data-all="true"
+            const allPlaceholder = document.querySelector('[data-all="true"]');
+            if (allPlaceholder) {
+                allPlaceholder.innerHTML = renderTable(Object.values(messages));
+            }
+        });
 
         // VIEW MODAL
         function openViewModal(id) {
             let m = messages[id];
-
             document.getElementById('view-nome').textContent = m.user?.name ?? m.nome_solicitante;
             document.getElementById('view-email').textContent = m.user?.email ?? m.email_solicitante;
             document.getElementById('view-endereco').textContent = `${m.bairro}, ${m.rua}, ${m.numero}`;
@@ -204,22 +267,23 @@
             document.getElementById('modal-view').classList.remove('hidden');
             document.getElementById('modal-view').classList.add('flex');
         }
-
         function closeViewModal() {
             document.getElementById('modal-view').classList.add('hidden');
             document.getElementById('modal-view').classList.remove('flex');
         }
 
-
-        // STATUS MODAL
+        // STATUS MODAL: abre e preenche
+        let currentEditingId = null;
         function openStatusModal(id) {
-            let m = messages[id];
+            currentEditingId = id;
+            const m = messages[id];
 
-            document.getElementById('status-form').action =
-                `/admin/contacts/${id}/update-status`;
+            // preenche select e justificativa
+            document.getElementById('status-select').value = m.status_id ?? '';
+            document.getElementById('status-justificativa').value = m.justificativa ?? '';
 
-            document.getElementById('status-select').value = m.status_id;
-            document.getElementById('status-justificativa').value = m.justificativa ?? "";
+            // esconder justificativa por padrão e só mostrar para Indef/ Sem Pendencias
+            toggleJustificativaVisibility();
 
             document.getElementById('modal-status').classList.remove('hidden');
             document.getElementById('modal-status').classList.add('flex');
@@ -228,10 +292,106 @@
         function closeStatusModal() {
             document.getElementById('modal-status').classList.add('hidden');
             document.getElementById('modal-status').classList.remove('flex');
+            currentEditingId = null;
+        }
+
+        // quando change no select
+        document.getElementById('status-select').addEventListener('change', toggleJustificativaVisibility);
+        function toggleJustificativaVisibility() {
+            const select = document.getElementById('status-select');
+            const justBox = document.getElementById('just-box');
+            const chosen = select.options[select.selectedIndex].text;
+            if (chosen === 'Indeferido' || chosen === 'Sem Pendências') {
+                justBox.style.display = 'block';
+            } else {
+                justBox.style.display = 'none';
+                document.getElementById('status-justificativa').value = '';
+            }
+        }
+
+        // submit do form: envia via AJAX PATCH para /pbi-admin/contacts/{id}
+        async function submitStatusForm(e) {
+            e.preventDefault();
+            if (!currentEditingId) return;
+
+            const url = `/pbi-admin/contacts/${currentEditingId}`; // sua rota PATCH
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            const form = document.getElementById('status-form');
+            const fd = new FormData(form);
+            // _method = PATCH (laravel)
+            fd.append('_method', 'PATCH');
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST', // usamos POST + _method=PATCH para compatibilidade
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json'
+                    },
+                    body: fd
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => null);
+                    alert(err?.message || 'Erro ao atualizar status.');
+                    return;
+                }
+
+                const data = await res.json();
+                // atualiza a mensagem localmente
+                messages[data.contact.id] = data.contact;
+
+                // fecha modal e atualiza apenas a linha (melhor opção é recarregar o bloco)
+                closeStatusModal();
+
+                // atualiza a interface: aqui simplificamos recarregando a página
+                // mas se preferir atualizar sem reload, podemos re-renderizar os blocos.
+                // Vou re-renderizar parcialmente: for simplicity, reload page to reflect grouping.
+                // Se preferir evitar reload, substitua por lógica para atualizar dom.
+                location.reload();
+
+            } catch (err) {
+                console.error(err);
+                alert('Erro de rede ao atualizar status.');
+            }
+            return false;
         }
 
         lucide.createIcons();
     </script>
 
+    {{-- placeholders preenchidos pelo blade com data (facilita render JS) --}}
+    <script>
+        // Criando placeholders no DOM com os ids de cada grupo para a renderTable JS ler
+        (function insertPlaceholders(){
+            @if($filtro === 'pendentes')
+                @php
+                    foreach($groupsPendentes as $group){
+                        $ids = $messages->filter(fn($m)=> $m->status && $m->status->name === $group)->pluck('id');
+                        $jsonIds = $ids->values()->toJson();
+                        echo "document.write('<h3 class=\"mt-6 text-xl font-semibold text-blue-600\">{$group}</h3>');";
+                        echo "document.write('<div class=\"lista-placeholder\" data-ids=\"".htmlspecialchars($jsonIds, ENT_QUOTES)."'></div>');";
+                    }
+                @endphp
+            @elseif($filtro === 'resolvidas')
+                @php
+                    foreach($groupsResolvidas as $group){
+                        $ids = $messages->filter(fn($m)=> $m->status && $m->status->name === $group)->pluck('id');
+                        $jsonIds = $ids->values()->toJson();
+                        echo "document.write('<h3 class=\"mt-6 text-xl font-semibold text-green-600\">{$group}</h3>');";
+                        echo "document.write('<div class=\"lista-placeholder\" data-ids=\"".htmlspecialchars($jsonIds, ENT_QUOTES)."'></div>');";
+                    }
+                @endphp
+            @else
+                // todas
+                echoPlaceholder = true;
+                @php
+                    $allIds = $messages->pluck('id')->values()->toJson();
+                    echo "document.write('<div data-all=\"true\"></div>');";
+                @endphp
+            @endif
+        })();
+    </script>
 </body>
 </html>
