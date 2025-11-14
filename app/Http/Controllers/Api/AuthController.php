@@ -24,6 +24,7 @@ class AuthController extends Controller
 {
     /**
      * Lida com a tentativa de login da API
+     * (CORRIGIDO PARA USAR HASH::CHECK)
      */
     public function login(Request $request)
     {
@@ -32,15 +33,20 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        // 1. Tenta logar
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        // =======================================================
+        //  CORREÇÃO APLICADA (Substitui Auth::attempt)
+        // =======================================================
+        
+        // 1. Tenta encontrar o usuário pelo e-mail
+        $user = User::where('email', $request->email)->first();
+
+        // 2. Verifica se o usuário existe E se a senha está correta
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            // Se o usuário não existir OU a senha estiver errada
             throw ValidationException::withMessages([
                 'email' => ['As credenciais estão incorretas.'],
             ]);
         }
-
-        // 2. Pega o usuário
-        $user = User::where('email', $request->email)->first();
         
         // 3. Cria o Token (a "chave" de acesso)
         $token = $user->createToken('auth_token_do_app')->plainTextToken;
@@ -55,8 +61,9 @@ class AuthController extends Controller
 
     /**
      * Lida com a tentativa de registro da API
+     * (CORRIGIDO O ERRO 'unction')
      */
-    public unction register(Request $request)
+    public function register(Request $request) // <-- CORRIGIDO AQUI
     {
         // 1. Validação (bate com os campos do seu app)
         $request->validate([
@@ -192,9 +199,6 @@ class AuthController extends Controller
         return response()->json(['message' => 'Senha redefinida com sucesso.']);
     }
 
-    // =======================================================
-    //  MÉTODO ADICIONADO (Para salvar o token FCM)
-    // =======================================================
     /**
      * Salva o token FCM (Firebase) do dispositivo do usuário.
      */
