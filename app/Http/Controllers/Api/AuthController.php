@@ -24,7 +24,7 @@ class AuthController extends Controller
 {
     /**
      * Lida com a tentativa de login da API
-     * (CORRIGIDO PARA USAR HASH::CHECK)
+     * (CORRIGIDO PARA USAR HASH::CHECK - Corrige o "Falha no login")
      */
     public function login(Request $request)
     {
@@ -134,6 +134,7 @@ class AuthController extends Controller
 
     /**
      * NOVO MÉTODO 1: Pedir o código
+     * (CORRIGIDO PARA REMOVER HASH E USAR FILA - Corrige o "Timeout")
      */
     public function forgotPassword(Request $request)
     {
@@ -146,15 +147,15 @@ class AuthController extends Controller
         // 3. Gera um código de 6 dígitos
         $code = random_int(100000, 999999);
 
-        // 4. Salva o código (hashed) e a expiração no banco
+        // 4. Salva o código PURO e a expiração no banco
         $user->update([
-            'email_verification_code' => Hash::make($code),
+            'email_verification_code' => $code, // <-- MUDANÇA (Removemos o Hash::make)
             'email_verification_code_expires_at' => Carbon::now()->addMinutes(10)
         ]);
 
-        // 5. Envia o e-mail
+        // 5. Envia o e-mail (usando a fila)
         try {
-            Mail::to($user->email)->send(new PasswordResetCodeMail($code));
+            Mail::to($user->email)->queue(new PasswordResetCodeMail($code)); // <-- MUDANÇA (->queue)
         } catch (\Exception $e) {
             // Se o envio de e-mail falhar
             return response()->json(['message' => 'Erro ao enviar e-mail. Verifique sua configuração.'], 500);
@@ -165,6 +166,7 @@ class AuthController extends Controller
 
     /**
      * NOVO MÉTODO 2: Redefinir a senha
+     * (CORRIGIDO PARA CHECAR O CÓDIGO PURO)
      */
     public function resetPassword(Request $request)
     {
@@ -182,7 +184,8 @@ class AuthController extends Controller
         if (!$user || 
             !$user->email_verification_code_expires_at ||
             Carbon::now()->isAfter($user->email_verification_code_expires_at) ||
-            !Hash::check($request->code, $user->email_verification_code)) 
+            // --- MUDANÇA (Compara texto puro, não o hash) ---
+            $request->code != $user->email_verification_code) 
         {
             return response()->json(['message' => 'Código inválido ou expirado.'], 401);
         }
@@ -190,9 +193,9 @@ class AuthController extends Controller
         // 4. Se tudo estiver OK, atualiza a senha
         DB::transaction(function () use ($user, $request) {
             $user->update([
-                'password' => Hash::make($request->password),
-                'email_verification_code' => null, // Limpa o código
-                'email_verification_code_expires_at' => null // Limpa a expiração
+                'password' => Hash::make($request->password), // A nova senha AINDA é criptografada
+                'email_verification_code' => null,
+                'email_verification_code_expires_at' => null
             ]);
         });
 
