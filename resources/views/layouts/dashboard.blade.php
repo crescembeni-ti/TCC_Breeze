@@ -18,6 +18,10 @@
 
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- 🔥 SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen">
@@ -39,9 +43,6 @@
         <aside class="sidebar w-64 bg-[#358054] text-white flex flex-col py-8 px-4">
             <nav class="space-y-4">
 
-                {{-- ========================================================= --}}
-                {{-- =============== MENU DO ADMINISTRADOR ================== --}}
-                {{-- ========================================================= --}}
                 @if(auth('admin')->check())
 
                     <a href="{{ route('admin.dashboard') }}" class="sidebar-link">
@@ -69,15 +70,11 @@
                         <span>Meu Perfil</span>
                     </a>
 
-                    {{-- NOVO: SOBRE O SITE --}}
                     <a href="{{ route('about') }}" class="sidebar-link">
                         <i data-lucide="info" class="icon"></i>
                         <span>Sobre o Site</span>
                     </a>
 
-                {{-- ========================================================= --}}
-                {{-- ==================== MENU DO USUÁRIO ==================== --}}
-                {{-- ========================================================= --}}
                 @else
                     <a href="{{ route('dashboard') }}" class="sidebar-link">
                         <i data-lucide="layout-dashboard" class="icon"></i>
@@ -99,7 +96,6 @@
                         <span>Meu Perfil</span>
                     </a>
 
-                    {{-- NOVO: SOBRE O SITE --}}
                     <a href="{{ route('about') }}" class="sidebar-link">
                         <i data-lucide="info" class="icon"></i>
                         <span>Sobre o Site</span>
@@ -107,24 +103,17 @@
                 @endif
             </nav>
 
-            {{-- ========================================================= --}}
-            {{-- ==================== RODAPÉ DO MENU ====================== --}}
-            {{-- ========================================================= --}}
             <div class="mt-auto border-t border-green-400 pt-6">
 
-                <!-- 🔙 VOLTAR AO MAPA (home pública) -->
                 <a href="{{ route('home') }}" class="sidebar-link text-sm opacity-80 hover:opacity-100">
                     <i data-lucide="arrow-left-circle" class="icon"></i>
                     Voltar ao Mapa
                 </a>
 
-                <!-- 🚪 LOGOUT PARA ADMIN OU USUÁRIO -->
                 @if(auth('admin')->check())
                     <form method="POST" action="{{ route('admin.logout') }}" class="mt-2">
                         @csrf
-                        <a href="{{ route('admin.logout') }}"
-                           onclick="event.preventDefault(); this.closest('form').submit();"
-                           class="sidebar-link text-sm opacity-80 hover:opacity-100">
+                        <a href="#" class="sidebar-link text-sm opacity-80 hover:opacity-100 logout-btn">
                             <i data-lucide="log-out" class="icon"></i>
                             Sair
                         </a>
@@ -132,9 +121,7 @@
                 @else
                     <form method="POST" action="{{ route('logout') }}" class="mt-2">
                         @csrf
-                        <a href="{{ route('logout') }}"
-                           onclick="event.preventDefault(); this.closest('form').submit();"
-                           class="sidebar-link text-sm opacity-80 hover:opacity-100">
+                        <a href="#" class="sidebar-link text-sm opacity-80 hover:opacity-100 logout-btn">
                             <i data-lucide="log-out" class="icon"></i>
                             Sair
                         </a>
@@ -143,7 +130,6 @@
             </div>
         </aside>
 
-        <!-- CONTEÚDO PRINCIPAL -->
         <main class="flex-1 p-10 bg-white overflow-y-auto">
             @yield('content')
         </main>
@@ -175,6 +161,33 @@
             height: 18px;
         }
     </style>
+
+    <!-- 🔥 Modal de confirmação SWEETALERT -->
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".logout-btn").forEach(btn => {
+            btn.addEventListener("click", function(e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: "Tem certeza que quer sair?",
+                    text: "Você precisará fazer login novamente🌳.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#358054",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Sim, sair",
+                    cancelButtonText: "Cancelar",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.closest("form").submit();
+                    }
+                });
+            });
+        });
+    });
+    </script>
+
     @stack('scripts')
 
 </body>
