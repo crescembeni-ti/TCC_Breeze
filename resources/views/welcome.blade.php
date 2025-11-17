@@ -260,7 +260,7 @@
 
     toggleBtn.addEventListener('click', () => panel.classList.toggle('open'));
 
-    fetch('{{ route('trees.data') }}')
+    fetch('/api/trees')
     .then(response => response.json())
     .then(data => {
       allTrees = data;
@@ -296,7 +296,9 @@
         filteredTrees = trees;
 
         trees.forEach((tree, index) => {
-            const radius = Math.max(5, tree.trunk_diameter / 5);
+           const trunk = parseFloat(tree.trunk_diameter) || 5;
+           const radius = Math.max(5, trunk / 5);
+
             const marker = L.circleMarker([tree.latitude, tree.longitude], {
                 radius,
                 fillColor: tree.color_code,

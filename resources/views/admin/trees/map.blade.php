@@ -36,8 +36,8 @@
             </div>
 
             <div>
-                <label class="form-label">Endereço</label>
-                <input type="text" name="address" class="input">
+                <label class="form-label">Endereço *</label>
+                <input type="text" name="address" class="input" required>
             </div>
 
             <div>
@@ -68,52 +68,55 @@
 
             <div>
                 <label class="form-label">Data de Plantio *</label>
-                <input type="date" name="planted_at" class="input" required>
+                <input type="date" name="planted_at"
+                    class="input"
+                    max="{{ now()->format('Y-m-d') }}"
+                    required>
             </div>
 
             <div>
-                <label class="form-label">Diâmetro do Tronco (cm)</label>
-                <input type="number" step="0.01" name="trunk_diameter" class="input">
+                <label class="form-label">Diâmetro do Tronco (cm) *</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Nome vulgar / Gola</label>
-                <input type="text" name="vulgar_name" class="input">
+                <label class="form-label">Nome vulgar *</label>
+                <input type="text" name="vulgar_name" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Nome científico</label>
-                <input type="text" name="scientific_name" class="input">
+                <label class="form-label">Nome científico *</label>
+                <input type="text" name="scientific_name" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">CAP (cm)</label>
-                <input type="number" step="0.01" name="cap" class="input">
+                <label class="form-label">CAP (cm) *</label>
+                <input type="number" step="0.01" name="cap" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Altura (m)</label>
-                <input type="number" step="0.01" name="height" class="input">
+                <label class="form-label">Altura (m) *</label>
+                <input type="number" step="0.01" name="height" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Altura de copa (m)</label>
-                <input type="number" step="0.01" name="crown_height" class="input">
+                <label class="form-label">Altura de copa (m) *</label>
+                <input type="number" step="0.01" name="crown_height" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Diâmetro de copa longitudinal (m)</label>
-                <input type="number" step="0.01" name="crown_diameter_longitudinal" class="input">
+                <label class="form-label">Diâmetro de copa longitudinal (m) *</label>
+                <input type="number" step="0.01" name="crown_diameter_longitudinal" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Diâmetro de copa perpendicular (m)</label>
-                <input type="number" step="0.01" name="crown_diameter_perpendicular" class="input">
+                <label class="form-label">Diâmetro de copa perpendicular (m) *</label>
+                <input type="number" step="0.01" name="crown_diameter_perpendicular" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Tipo de Bifurcação</label>
-                <select name="bifurcation_type" class="input">
+                <label class="form-label">Tipo de Bifurcação *</label>
+                <select name="bifurcation_type" class="input" required>
                     <option value="">Selecione</option>
                     <option value="ausente">Ausente</option>
                     <option value="U">U</option>
@@ -122,8 +125,8 @@
             </div>
 
             <div>
-                <label class="form-label">Equilíbrio Fuste (Inclinação)</label>
-                <select name="stem_balance" class="input">
+                <label class="form-label">Equilíbrio Fuste *</label>
+                <select name="stem_balance" class="input" required>
                     <option value="">Selecione</option>
                     <option value="ausente">Ausente</option>
                     <option value="maior_45">Maior que 45°</option>
@@ -132,8 +135,8 @@
             </div>
 
             <div>
-                <label class="form-label">Equilíbrio da copa</label>
-                <select name="crown_balance" class="input">
+                <label class="form-label">Equilíbrio da copa *</label>
+                <select name="crown_balance" class="input" required>
                     <option value="">Selecione</option>
                     <option value="equilibrada">Equilibrada</option>
                     <option value="medianamente_desequilibrada">Medianamente Desequilibrada</option>
@@ -143,8 +146,8 @@
             </div>
 
             <div>
-                <label class="form-label">Organismos</label>
-                <select name="organisms" class="input">
+                <label class="form-label">Organismos *</label>
+                <select name="organisms" class="input" required>
                     <option value="">Selecione</option>
                     <option value="ausente">Ausente</option>
                     <option value="infestacao_inicial">Infestação Inicial</option>
@@ -152,18 +155,18 @@
             </div>
 
             <div>
-                <label class="form-label">Alvo</label>
-                <input type="text" name="target" class="input">
+                <label class="form-label">Alvo *</label>
+                <input type="text" name="target" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Injúrias mecânicas</label>
-                <input type="text" name="injuries" class="input">
+                <label class="form-label">Injúrias mecânicas *</label>
+                <input type="text" name="injuries" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Estado da fiação</label>
-                <select name="wiring_status" class="input">
+                <label class="form-label">Estado da fiação *</label>
+                <select name="wiring_status" class="input" required>
                     <option value="">Selecione</option>
                     <option value="pode_interferir">Pode interferir</option>
                     <option value="interfere">Interfere</option>
@@ -172,28 +175,28 @@
             </div>
 
             <div>
-                <label class="form-label">Largura total (m)</label>
-                <input type="number" step="0.01" name="total_width" class="input">
+                <label class="form-label">Largura total (m) *</label>
+                <input type="number" step="0.01" name="total_width" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Largura da rua (m)</label>
-                <input type="number" step="0.01" name="street_width" class="input">
+                <label class="form-label">Largura da rua (m) *</label>
+                <input type="number" step="0.01" name="street_width" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Altura da gola (m)</label>
-                <input type="number" step="0.01" name="gutter_height" class="input">
+                <label class="form-label">Altura da gola (m) *</label>
+                <input type="number" step="0.01" name="gutter_height" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Largura da gola (m)</label>
-                <input type="number" step="0.01" name="gutter_width" class="input">
+                <label class="form-label">Largura da gola (m) *</label>
+                <input type="number" step="0.01" name="gutter_width" class="input" required>
             </div>
 
             <div>
-                <label class="form-label">Comprimento da gola (m)</label>
-                <input type="number" step="0.01" name="gutter_length" class="input">
+                <label class="form-label">Comprimento da gola (m) *</label>
+                <input type="number" step="0.01" name="gutter_length" class="input" required>
             </div>
 
             <div>
@@ -202,6 +205,7 @@
             </div>
 
         </div>
+
 
         <button class="btn bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow">
             Adicionar Árvore

@@ -7,33 +7,37 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Corrige a tabela admin_logs existente
      */
     public function up(): void
     {
-        Schema::create('admin_logs', function (Blueprint $table) {
-            $table->id();
+        Schema::table('admin_logs', function (Blueprint $table) {
 
-            // Agora salva o ID do admin, NÃO mais user_id
-            $table->foreignId('admin_id')
-                ->constrained('admins') // tabela correta
-                ->onDelete('cascade');
+            // Se tiver user_id errado, renomeie para admin_id
+            if (Schema::hasColumn('admin_logs', 'user_id')) {
+                $table->renameColumn('user_id', 'admin_id');
+            }
 
-            // Ação executada
-            $table->string('action');
-
-            // Descrição da ação
-            $table->string('description');
-
-            $table->timestamps();
+            // Garanta que a coluna existe
+            if (!Schema::hasColumn('admin_logs', 'admin_id')) {
+                $table->foreignId('admin_id')
+                      ->nullable()
+                      ->after('id')
+                      ->constrained('admins')
+                      ->nullOnDelete();
+            }
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Reversão
      */
     public function down(): void
     {
-        Schema::dropIfExists('admin_logs');
+        Schema::table('admin_logs', function (Blueprint $table) {
+            if (Schema::hasColumn('admin_logs', 'admin_id')) {
+                $table->dropColumn('admin_id');
+            }
+        });
     }
 };

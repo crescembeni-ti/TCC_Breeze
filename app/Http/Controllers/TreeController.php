@@ -37,19 +37,22 @@ class TreeController extends Controller
      * API PÚBLICA DO MAPA
      * ============================================================ */
     public function getTreesData()
-    {
-        return Tree::with('species')->get()->map(function ($tree) {
-            return [
-                'id' => $tree->id,
-                'latitude' => floatval($tree->latitude),
-                'longitude' => floatval($tree->longitude),
-                'species_name' => $tree->species->name,
-                'color_code' => $tree->species->color_code,
-                'address' => $tree->address,
-                'health_status' => $tree->health_status,
-            ];
-        });
-    }
+{
+    $trees = Tree::with('species')->get()->map(function ($tree) {
+        return [
+            'id' => $tree->id,
+            'latitude' => (float) $tree->latitude,
+            'longitude' => (float) $tree->longitude,
+            'species_name' => $tree->species->name,
+            'color_code' => $tree->species->color_code,
+            'address' => $tree->address,
+            'health_status' => $tree->health_status,
+        ];
+    });
+
+    return response()->json($trees);
+}
+
 
 
     /* ============================================================
@@ -57,7 +60,7 @@ class TreeController extends Controller
      * ============================================================ */
     public function show($id)
     {
-        $tree = Tree::with(['species', 'user', 'activities.user'])->findOrFail($id);
+        $tree = Tree::with(['species', 'activities.user'])->findOrFail($id);
         return view('trees.show', compact('tree'));
     }
 
@@ -102,32 +105,34 @@ class TreeController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
             'species_name' => 'required|string|max:255',
             'health_status' => 'required|in:good,fair,poor',
-            'planted_at' => 'required|date',
-            'trunk_diameter' => 'nullable|numeric|min:0',
-            'address' => 'nullable|string|max:255',
+            'planted_at' => 'required|date|before_or_equal:today',
+            'trunk_diameter' => 'required|numeric|min:0',
+            'address' => 'required|string|max:255',
 
-            // Novos campos completos
-            'vulgar_name' => 'nullable|string|max:255',
-            'scientific_name' => 'nullable|string|max:255',
-            'cap' => 'nullable|numeric|min:0',
-            'height' => 'nullable|numeric|min:0',
-            'crown_height' => 'nullable|numeric|min:0',
-            'crown_diameter_longitudinal' => 'nullable|numeric|min:0',
-            'crown_diameter_perpendicular' => 'nullable|numeric|min:0',
-            'bifurcation_type' => 'nullable|string|max:100',
-            'stem_balance' => 'nullable|string|max:100',
-            'crown_balance' => 'nullable|string|max:100',
-            'organisms' => 'nullable|string|max:255',
-            'target' => 'nullable|string|max:255',
-            'injuries' => 'nullable|string|max:255',
-            'wiring_status' => 'nullable|string|max:100',
-            'total_width' => 'nullable|numeric|min:0',
-            'street_width' => 'nullable|numeric|min:0',
-            'gutter_height' => 'nullable|numeric|min:0',
-            'gutter_width' => 'nullable|numeric|min:0',
-            'gutter_length' => 'nullable|numeric|min:0',
+            'vulgar_name' => 'required|string|max:255',
+            'scientific_name' => 'required|string|max:255',
+            'cap' => 'required|numeric|min:0',
+            'height' => 'required|numeric|min:0',
+            'crown_height' => 'required|numeric|min:0',
+            'crown_diameter_longitudinal' => 'required|numeric|min:0',
+            'crown_diameter_perpendicular' => 'required|numeric|min:0',
+            'bifurcation_type' => 'required|string|max:100',
+            'stem_balance' => 'required|string|max:100',
+            'crown_balance' => 'required|string|max:100',
+            'organisms' => 'required|string|max:255',
+            'target' => 'required|string|max:255',
+            'injuries' => 'required|string|max:255',
+            'wiring_status' => 'required|string|max:100',
+            'total_width' => 'required|numeric|min:0',
+            'street_width' => 'required|numeric|min:0',
+            'gutter_height' => 'required|numeric|min:0',
+            'gutter_width' => 'required|numeric|min:0',
+            'gutter_length' => 'required|numeric|min:0',
+
+            // único opcional
             'no_species_case' => 'nullable|string|max:255',
-        ]);
+    ]);
+
 
         // Verifica espécie
         $species = Species::firstOrCreate(
@@ -141,7 +146,6 @@ class TreeController extends Controller
         // Cria árvore
         $tree = Tree::create(array_merge($validated, [
             'species_id' => $species->id,
-            'user_id' => auth('web')->check() ? auth('web')->id() : null,
             'address' => $validated['address'] ?? $validated['name']
         ]));
 
@@ -183,14 +187,37 @@ class TreeController extends Controller
     public function adminTreeUpdate(Request $request, Tree $tree)
     {
         $validated = $request->validate([
+            'species_id' => 'required|exists:species,id',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'species_id' => 'required|exists:species,id',
             'health_status' => 'required|in:good,fair,poor',
-            'planted_at' => 'required|date',
-            'address' => 'nullable|string|max:255',
-            'trunk_diameter' => 'nullable|numeric|min:0',
-        ]);
+            'planted_at' => 'required|date|before_or_equal:today',
+            'trunk_diameter' => 'required|numeric|min:0',
+            'address' => 'required|string|max:255',
+
+            'vulgar_name' => 'required|string|max:255',
+            'scientific_name' => 'required|string|max:255',
+            'cap' => 'required|numeric|min:0',
+            'height' => 'required|numeric|min:0',
+            'crown_height' => 'required|numeric|min:0',
+            'crown_diameter_longitudinal' => 'required|numeric|min:0',
+            'crown_diameter_perpendicular' => 'required|numeric|min:0',
+            'bifurcation_type' => 'required|string|max:100',
+            'stem_balance' => 'required|string|max:100',
+            'crown_balance' => 'required|string|max:100',
+            'organisms' => 'required|string|max:255',
+            'target' => 'required|string|max:255',
+            'injuries' => 'required|string|max:255',
+            'wiring_status' => 'required|string|max:100',
+            'total_width' => 'required|numeric|min:0',
+            'street_width' => 'required|numeric|min:0',
+            'gutter_height' => 'required|numeric|min:0',
+            'gutter_width' => 'required|numeric|min:0',
+            'gutter_length' => 'required|numeric|min:0',
+
+            'no_species_case' => 'nullable|string|max:255',
+    ]);
+
 
         $tree->update($validated);
 

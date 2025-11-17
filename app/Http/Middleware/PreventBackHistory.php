@@ -10,22 +10,34 @@ class PreventBackHistory
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // 🔥 LISTA DE ROTAS QUE NÃO PODEM SER BLOQUEADAS
-        // (rotas acessíveis mesmo quando deslogado)
+        /**
+         * 🔓 ROTAS SEM RESTRIÇÃO
+         * Essas rotas NÃO podem sofrer redirecionamento
+         * e NÃO devem ser verificadas pelo preventBack.
+         */
         $rotasLiberadas = [
             'login',
             'register',
             'forgot-password',
             'reset-password/*',
 
-            // Rotas de verificação por código
+            // Verificação por código
             'verify-email-code',
             'verify-email-code/*',
             'verify-code',
             'verify-code/*',
+
+            // 🔥 API pública usada pelo mapa
+            'api/*',
+            'api',
+
+
+            // 🔥 Página pública do mapa
+            '/',
+            'home',
         ];
 
-        // 🔥 Se a rota for liberada → não aplica nenhuma verificação de logout
+        // Se a rota estiver liberada → processa normal sem bloqueios
         foreach ($rotasLiberadas as $rota) {
             if ($request->is($rota)) {
                 $response = $next($request);
@@ -33,35 +45,43 @@ class PreventBackHistory
             }
         }
 
-        // Executa a requisição
+        // Executa a requisição normal
         $response = $next($request);
 
-        // Impede cache em páginas protegidas
+        // Remove cache de páginas protegidas
         $this->noCache($response);
 
-        // 🔥 Verifica tentativa de voltar após logout
+        /**
+         * 🚫 Tentativa de voltar após logout
+         * Se o usuário NÃO está logado e a página exige login
+         */
         if ($this->isBackNavigationAfterLogout($request)) {
 
-            // Se era admin → login admin
+            // Se for área administrativa
             if ($request->is('pbi-admin/*')) {
                 return redirect()->route('admin.login');
             }
 
-            // Se era usuário comum → login normal
+            // Senão, área do usuário normal
             return redirect()->route('login');
         }
 
         return $response;
     }
 
+    /**
+     * Remove cache da página
+     */
     private function noCache($response)
     {
-        $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-        $response->header('Pragma', 'no-cache');
-        $response->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
-        return $response;
+        return $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                        ->header('Pragma', 'no-cache')
+                        ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
     }
 
+    /**
+     * Detecta "voltar" após logout
+     */
     private function isBackNavigationAfterLogout(Request $request): bool
     {
         return in_array($request->method(), ['GET', 'POST'])
