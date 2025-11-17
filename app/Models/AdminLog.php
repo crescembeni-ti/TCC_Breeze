@@ -22,8 +22,9 @@ class AdminLog extends Model
     /**
      * Define o relacionamento: Um Log pertence a um Usuário (Admin).
      */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    public function admin()
+{
+    return $this->belongsTo(Admin::class, 'admin_id');
+}
+
 }

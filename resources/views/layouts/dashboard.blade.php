@@ -175,5 +175,7 @@
             height: 18px;
         }
     </style>
+    @stack('scripts')
+
 </body>
 </html>
