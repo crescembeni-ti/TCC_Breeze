@@ -45,6 +45,158 @@
                             </select>
                         </div>
 
+                          {{-- Diâmetro do Tronco --}}
+            <div class="flex flex-col">
+                <label class="form-label">Diâmetro do Tronco (cm)</label>
+                <input type="number" step="0.01" name="trunk_diameter" class="input">
+            </div>
+
+            {{-- Nome vulgar / Gola --}}
+            <div class="flex flex-col">
+                <label class="form-label">Nome vulgar / Gola</label>
+                <input type="text" name="vulgar_name" class="input">
+            </div>
+
+            {{-- Nome científico --}}
+            <div class="flex flex-col">
+                <label class="form-label">Nome científico</label>
+                <input type="text" name="scientific_name" class="input">
+            </div>
+
+            {{-- Circunferência na altura do peito (CAP) --}}
+            <div class="flex flex-col">
+                <label class="form-label">CAP (cm)</label>
+                <input type="number" step="0.01" name="cap" class="input">
+            </div>
+
+            {{-- Altura --}}
+            <div class="flex flex-col">
+                <label class="form-label">Altura (m)</label>
+                <input type="number" step="0.01" name="height" class="input">
+            </div>
+
+            {{-- Altura de copa --}}
+            <div class="flex flex-col">
+                <label class="form-label">Altura de copa (m)</label>
+                <input type="number" step="0.01" name="crown_height" class="input">
+            </div>
+
+            {{-- Diâmetro de copa longitudinal --}}
+            <div class="flex flex-col">
+                <label class="form-label">Diâmetro de copa longitudinal (m)</label>
+                <input type="number" step="0.01" name="crown_diameter_longitudinal" class="input">
+            </div>
+
+            {{-- Diâmetro de copa perpendicular --}}
+            <div class="flex flex-col">
+                <label class="form-label">Diâmetro de copa perpendicular (m)</label>
+                <input type="number" step="0.01" name="crown_diameter_perpendicular" class="input">
+            </div>
+
+            {{-- Tipo de Bifurcação --}}
+            <div class="flex flex-col">
+                <label class="form-label">Tipo de Bifurcação</label>
+                <select name="bifurcation_type" class="input">
+                    <option value="">Selecione</option>
+                    <option value="ausente">Ausente</option>
+                    <option value="U">U</option>
+                    <option value="V">V</option>
+                </select>
+            </div>
+
+            {{-- Equilíbrio Fuste (Inclinação) --}}
+            <div class="flex flex-col">
+                <label class="form-label">Equilíbrio Fuste (Inclinação)</label>
+                <select name="stem_balance" class="input">
+                    <option value="">Selecione</option>
+                    <option value="ausente">Ausente</option>
+                    <option value="maior_45">Maior que 45°</option>
+                    <option value="menor_45">Menor que 45°</option>
+                </select>
+            </div>
+
+            {{-- Equilíbrio da copa --}}
+            <div class="flex flex-col">
+                <label class="form-label">Equilíbrio da copa</label>
+                <select name="crown_balance" class="input">
+                    <option value="">Selecione</option>
+                    <option value="equilibrada">Equilibrada</option>
+                    <option value="medianamente_desequilibrada">Medianamente desequilibrada</option>
+                    <option value="desequilibrada">Desequilibrada</option>
+                    <option value="muito_desequilibrada">Muito desequilibrada</option>
+                </select>
+            </div>
+
+            {{-- Organismos xilófagos e/ou patogênicos --}}
+            <div class="flex flex-col">
+                <label class="form-label">Organismos xilófagos e/ou patogênicos</label>
+                <select name="organisms" class="input">
+                    <option value="">Selecione</option>
+                    <option value="ausente">Ausente</option>
+                    <option value="infestacao_inicial">Infestação Inicial</option>
+                </select>
+            </div>
+
+            {{-- Alvo --}}
+            <div class="flex flex-col">
+                <label class="form-label">Alvo</label>
+                <input type="text" name="target" class="input">
+            </div>
+
+            {{-- Injúrias mecânicas e cavidades --}}
+            <div class="flex flex-col">
+                <label class="form-label">Injúrias mecânicas e cavidades</label>
+                <input type="text" name="injuries" class="input">
+            </div>
+
+            {{-- Estado da fiação --}}
+            <div class="flex flex-col">
+                <label class="form-label">Estado da fiação</label>
+                <select name="wiring_status" class="input">
+                    <option value="">Selecione</option>
+                    <option value="pode_interferir">Pode interferir</option>
+                    <option value="interfere">Interfere</option>
+                    <option value="nao_interfere">Não interfere</option>
+                </select>
+            </div>
+
+            {{-- Largura total (muro a muro) --}}
+            <div class="flex flex-col">
+                <label class="form-label">Largura total (Muro a Muro) (m)</label>
+                <input type="number" step="0.01" name="total_width" class="input">
+            </div>
+
+            {{-- Largura da rua (sarjeta a sarjeta) --}}
+            <div class="flex flex-col">
+                <label class="form-label">Largura da rua (Sarjeta a Sarjeta) (m)</label>
+                <input type="number" step="0.01" name="street_width" class="input">
+            </div>
+
+            {{-- Altura da gola --}}
+            <div class="flex flex-col">
+                <label class="form-label">Altura da gola (m)</label>
+                <input type="number" step="0.01" name="gutter_height" class="input">
+            </div>
+
+            {{-- Largura da gola --}}
+            <div class="flex flex-col">
+                <label class="form-label">Largura da gola (m)</label>
+                <input type="number" step="0.01" name="gutter_width" class="input">
+            </div>
+
+            {{-- Comprimento da gola --}}
+            <div class="flex flex-col">
+                <label class="form-label">Comprimento da gola (m)</label>
+                <input type="number" step="0.01" name="gutter_length" class="input">
+            </div>
+
+            {{-- Caso não tenha espécie --}}
+            <div class="flex flex-col">
+                <label class="form-label">Caso não tenha espécie</label>
+                <input type="text" name="no_species_case" class="input">
+            </div>
+          
+
                         {{-- ENDEREÇO --}}
                         <div>
                             <label class="block font-medium">Endereço</label>
