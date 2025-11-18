@@ -34,7 +34,7 @@ class TreeController extends Controller
 
 
     /* ============================================================
-     * API PÚBLICA DO MAPA
+     * BOLINHAS NO MAPA
      * ============================================================ */
     public function getTreesData()
 {
@@ -47,6 +47,7 @@ class TreeController extends Controller
             'color_code' => $tree->species->color_code,
             'address' => $tree->address,
             'health_status' => $tree->health_status,
+            'trunk_diameter' => $tree->trunk_diameter,
         ];
     });
 
