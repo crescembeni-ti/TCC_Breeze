@@ -31,16 +31,86 @@
         </div>
     </header>
 
-    <main class="flex-1 p-10">
-        <div class="bg-white shadow-sm rounded-lg p-8">
-            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-                <h2 class="text-3xl font-bold text-[#358054] mt-6 mb-6">Mensagens de Contato</h2>
+    <div class="flex flex-1">
 
-                <a href="{{ route('admin.dashboard') }}"
-                   class="inline-flex items-center px-4 py-2 bg-[#358054] text-white rounded-lg text-sm font-semibold hover:bg-[#2d6947] transition">
-                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                    Voltar ao Painel
+        <!-- SIDEBAR LATERAL -->
+        <aside class="sidebar w-64 bg-[#358054] text-white flex flex-col py-8 px-4">
+            <nav class="space-y-4">
+
+                @if(auth('admin')->check())
+
+                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link">
+                        <i data-lucide="layout-dashboard" class="icon"></i>
+                        <span>Painel</span>
+                    </a>
+
+                    <a href="{{ route('admin.map') }}" class="sidebar-link">
+                        <i data-lucide="map-pin" class="icon"></i>
+                        <span>Cadastrar Árvores</span>
+                    </a>
+
+                    <a href="{{ route('admin.trees.index') }}" class="sidebar-link">
+                        <i data-lucide="edit-3" class="icon"></i>
+                        <span>Editar Árvores</span>
+                    </a>
+
+                    <a href="{{ route('admin.contato.index') }}" class="sidebar-link">
+                        <i data-lucide="inbox" class="icon"></i>
+                        <span>Solicitações</span>
+                    </a>
+
+                    <a href="{{ route('admin.profile.edit') }}" class="sidebar-link">
+                        <i data-lucide="user" class="icon"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+
+                    <a href="{{ route('about') }}" class="sidebar-link">
+                        <i data-lucide="info" class="icon"></i>
+                        <span>Sobre o Site</span>
+                    </a>
+
+                @else
+                    <a href="{{ route('dashboard') }}" class="sidebar-link">
+                        <i data-lucide="layout-dashboard" class="icon"></i>
+                        <span>Painel</span>
+                    </a>
+
+                    <a href="{{ route('contact') }}" class="sidebar-link">
+                        <i data-lucide="send" class="icon"></i>
+                        <span>Nova Solicitação</span>
+                    </a>
+
+                    <a href="{{ route('contact.myrequests') }}" class="sidebar-link">
+                        <i data-lucide="clipboard-list" class="icon"></i>
+                        <span>Minhas Solicitações</span>
+                    </a>
+
+                    <a href="{{ route('profile.edit') }}" class="sidebar-link">
+                        <i data-lucide="user" class="icon"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+
+                    <a href="{{ route('about') }}" class="sidebar-link">
+                        <i data-lucide="info" class="icon"></i>
+                        <span>Sobre o Site</span>
+                    </a>
+                @endif
+            </nav>
+
+            <div class="mt-auto border-t border-green-400 pt-6">
+
+                <a href="{{ route('home') }}" class="sidebar-link text-sm opacity-80 hover:opacity-100">
+                    <i data-lucide="arrow-left-circle" class="icon"></i>
+                    Voltar ao Mapa
                 </a>
+            </div>
+        </aside> 
+
+        <main class="flex-1 p-10 ">
+            <div class="bg-white shadow-sm rounded-lg p-8">
+            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+                <h2 class="text-3xl font-bold text-[#358054] text-center">Mensagens de Contato</h2>
+
             </div>
 
             @if(session('success'))
@@ -88,8 +158,9 @@
                <div class="lista-placeholder" data-all="true"></div>
 
             @endif
-        </div>
-    </main>
+            </div>
+        </main>
+    </div>
 
     <footer class="bg-gray-800 text-gray-300 text-center py-4 text-sm border-t border-[#358054] mt-auto">
         © {{ date('Y') }} - Árvores de Paracambi
@@ -106,7 +177,7 @@
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
 
-            <h2 class="text-2xl font-bold text-[#358054] mb-4">📬 Detalhes da Mensagem</h2>
+            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Detalhes da Mensagem</h2>
 
             <div class="space-y-3">
                 <p><strong>Nome:</strong> <span id="view-nome"></span></p>
@@ -118,12 +189,6 @@
                     <p id="view-descricao" class="p-3 bg-gray-100 rounded-md text-sm"></p>
                 </div>
             </div>
-
-            <div class="mt-6 text-right">
-                <button onclick="closeViewModal()" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 transition">
-                    Fechar
-                </button>
-            </div>
         </div>
     </div>
 
@@ -134,7 +199,7 @@
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
 
-            <h2 class="text-2xl font-bold text-blue-700 mb-4">✏️ Atualizar Status</h2>
+            <h2 class="text-2xl font-bold text-blue-700 mb-4">Atualizar Status</h2>
 
             <form id="status-form" method="POST" class="space-y-3" onsubmit="return submitStatusForm(event)">
                 @csrf
@@ -195,32 +260,28 @@
 
                 return `
                 <tr class="border-t">
-                    <td class="px-6 py-4 align-top">
-                        <div class="text-sm font-medium text-gray-900">${escapeHtml(nome)}</div>
-                        <div class="text-sm text-gray-500">${escapeHtml(email)}</div>
-                    </td>
+                    <td class="px-6 py-4 align-top text-sm text-gray-500">${escapeHtml(created)}</td>
                     <td class="px-6 py-4 align-top">
                         <div class="text-sm font-medium text-gray-900">${escapeHtml(m.bairro)}, ${escapeHtml(m.rua)}, ${escapeHtml(m.numero)}</div>
                         <div class="text-sm text-gray-500">${escapeHtml(m.descricao.substring(0, 120))}</div>
                     </td>
-                    <td class="px-6 py-4 align-top text-sm text-gray-500">${escapeHtml(created)}</td>
                     <td class="px-6 py-4 align-top text-right text-sm space-x-2">
                         <button onclick="openViewModal(${m.id})" class="inline-flex items-center px-3 py-1.5 bg-[#358054] text-white rounded-md text-xs font-semibold hover:bg-[#2d6947] transition">
                             Ver
                         </button>
-                        <button onclick="openStatusModal(${m.id})" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-md text-xs font-semibold hover:bg-blue-700 transition">
+                        <button onclick="openStatusModal(${m.id})" class="inline-flex items-center px-3 py-1.5 bg-blue-700 text-white rounded-md text-xs font-semibold hover:bg-blue-600 transition-colors">
                             Atualizar
                         </button>
+
                     </td>
                 </tr>
                 `;
             }).join('');
 
             return `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">De</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Solicitação</th>
+                <tr>                    
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Data</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Solicitação</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Ações</th>
                 </tr>
             </thead><tbody class="bg-white">${rows}</tbody></table></div>`;

@@ -7,6 +7,21 @@ header.site-header {
     box-shadow: 0 6px 12px rgba(53, 128, 84, 0.25);
 }
 
+.btn {
+    background-color: #358054;
+    /* Verde principal */
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(56, 194, 36, 0.2);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    background-color: #38c224;
+    transform: scale(1.05) translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
 /* SIDEBAR */
 .sidebar {
     min-height: calc(100vh - 6rem);
@@ -100,4 +115,21 @@ main {
     font-size: 0.75rem;
     color: #666;
     margin-top: 4px;
+}
+
+/* Animação para o efeito de desvanecer e aparecer */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Classe para aplicar a animação aos elementos */
+.group-transition {
+  animation: fadeIn 0.5s ease-out forwards;
 }
