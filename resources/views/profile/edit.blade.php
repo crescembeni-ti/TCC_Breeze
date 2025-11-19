@@ -6,10 +6,6 @@
 <h2 class="text-3xl font-bold text-[#358054] mb-6">Meu Perfil</h2>
 
 <div class="perfil-box mb-6">
-    @include('profile.partials.update-profile-information-form')
-</div>
-
-<div class="perfil-box mb-6">
     @include('profile.partials.update-password-form')
 </div>
 
