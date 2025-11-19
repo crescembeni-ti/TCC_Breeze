@@ -218,4 +218,39 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Token FCM salvo com sucesso.']);
     }
+public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        // 1. Validação
+        $request->validate([
+            'name' => 'required|string|max:255',
+            // A senha atual é obrigatória APENAS se o usuário tentar mudar a senha
+            'current_password' => 'nullable|required_with:password|string',
+            'password' => ['nullable', 'confirmed', Rules\Password::min(6)],
+        ]);
+
+        // 2. Se o usuário enviou uma nova senha, verifica a atual
+        if ($request->filled('current_password')) {
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'message' => 'A senha atual está incorreta.',
+                    'errors' => ['current_password' => ['Senha incorreta']]
+                ], 422);
+            }
+            
+            // Atualiza a senha
+            $user->password = Hash::make($request->password);
+        }
+
+        // 3. Atualiza o nome
+        $user->name = $request->name;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Perfil atualizado com sucesso!',
+            'user' => $user
+        ]);
+    }
+
 }

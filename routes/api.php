@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/user/photo', [AuthController::class, 'updatePhoto']);
+    Route::put('/user/profile', [AuthController::class, 'updateProfile']);
 
     // =======================================================
     //  ROTA ADICIONADA: Para o App salvar o token FCM
