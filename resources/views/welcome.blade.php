@@ -70,6 +70,9 @@
     <button id="guestMenuBtn"
         class="ml-3 btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-2 transition-all duration-200">
 
+        <!-- Texto mantém igual -->
+        Menu
+
         <!-- Ícone animado -->
         <svg id="iconMenu" class="w-6 h-6 transition-all duration-200"
             fill="none" stroke="currentColor" stroke-width="2"
@@ -79,8 +82,6 @@
             <path d="M4 18h16" />
         </svg>
 
-        <!-- Texto mantém igual -->
-        Menu
     </button>
 
     <!-- DROPDOWN novo no tom do seu site -->
@@ -231,12 +232,12 @@
     let treeMarkers = {};
 
     const toggleBtn = L.DomUtil.create('button', 'map-filter-toggle');
-    toggleBtn.innerHTML = '🌿 Filtros';
+    toggleBtn.innerHTML = 'Filtros';
     map.getContainer().appendChild(toggleBtn);
 
     const panel = L.DomUtil.create('div', 'map-filter-panel');
     panel.innerHTML = `
-    <label for="search">🔎 Pesquisar árvore</label>
+    <label for="search">Pesquisar árvore</label>
     <div style="position: relative;">
         <input type="text" id="search" placeholder="Ex: ipê, pau-brasil...">
         <div id="autocomplete" class="autocomplete-list"></div>
@@ -432,7 +433,7 @@ window.mudarArvore = function (index) {
 
     const msg = document.createElement('div');
     msg.classList.add('map-filter-message', 'success');
-    msg.innerHTML = '🧹 Filtros limpos! Todas as árvores foram exibidas.';
+    msg.innerHTML = 'Filtros limpos! Todas as árvores foram exibidas.';
     panel.appendChild(msg);
 
     setTimeout(() => {

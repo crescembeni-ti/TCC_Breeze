@@ -42,6 +42,7 @@
   }
 
   .btn:hover {
+  background-color: #38c224;
   transform: scale(1.05) translateY(-2px);
   filter: brightness(1.05);
 }

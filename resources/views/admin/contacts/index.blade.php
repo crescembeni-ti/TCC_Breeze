@@ -22,6 +22,7 @@
     <!-- HEADER -->
     <header class="site-header flex items-center justify-between px-8 py-4 shadow-md bg-white">
         <div class="flex items-center gap-4">
+            <img src="{{ asset('images/Brasao_Verde.png') }}" alt="Logo Brasão de Paracambi" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
             <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
             <h1 class="text-4xl font-bold">
                 <span class="text-[#358054]">Árvores de</span>
@@ -33,7 +34,7 @@
     <main class="flex-1 p-10">
         <div class="bg-white shadow-sm rounded-lg p-8">
             <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-                <h2 class="text-3xl font-bold text-[#358054]">Mensagens de Contato 📬</h2>
+                <h2 class="text-3xl font-bold text-[#358054] mt-6 mb-6">Mensagens de Contato</h2>
 
                 <a href="{{ route('admin.dashboard') }}"
                    class="inline-flex items-center px-4 py-2 bg-[#358054] text-white rounded-lg text-sm font-semibold hover:bg-[#2d6947] transition">

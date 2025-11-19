@@ -52,6 +52,7 @@ body.welcome-page::before {
 }
 
 .btn:hover {
+    background-color: #38c224;
     transform: scale(1.05) translateY(-2px);
     filter: brightness(1.1);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);

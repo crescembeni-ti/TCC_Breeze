@@ -86,7 +86,7 @@ main a.btn {
 }
 
 main a.btn:hover {
-    background-color: #047857;
+    background-color: #38c224;
     transform: scale(1.05);
 }
 
@@ -108,7 +108,7 @@ header .btn {
 }
 
 header .btn:hover {
-    background-color: #38c224; /* Verde mais escuro no hover */
+    background-color: #38c224; /* Verde mais claro no hover */
     transform: scale(1.05);
     filter: brightness(1.05);
 }
