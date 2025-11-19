@@ -106,11 +106,10 @@
             </div>
         </aside> 
 
-        <main class="flex-1 p-10 ">
+        <main class="flex-1 p-10">
             <div class="bg-white shadow-sm rounded-lg p-8">
-            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+            <div class="flex items-center justify-center mb-6 flex-wrap gap-3 text-center">
                 <h2 class="text-3xl font-bold text-[#358054] text-center">Mensagens de Contato</h2>
-
             </div>
 
             @if(session('success'))
@@ -120,44 +119,62 @@
             @endif
 
             <!-- FILTROS -->
-            <div class="flex items-center gap-3 mb-4">
-                <a href="{{ route('admin.contato.index') }}?filtro=todas"
-                   class="px-3 py-2 rounded {{ $filtro === 'todas' ? 'bg-gray-800 text-white' : 'bg-gray-100' }}">Todas</a>
+            <div class="flex items-center justify-center relative mb-6">
+    <!-- Botões centralizados -->
+    <div class="flex justify-center gap-6">
+        <a href="{{ route('admin.contato.index') }}?filtro=todas"
+           class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
+                  {{ $filtro === 'todas' 
+                     ? 'bg-[#358054] text-white' 
+                     : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
+            Todas
+        </a>
 
-                <a href="{{ route('admin.contato.index') }}?filtro=pendentes"
-                   class="px-3 py-2 rounded {{ $filtro === 'pendentes' ? 'bg-yellow-500 text-white' : 'bg-gray-100' }}">Pendentes</a>
+        <a href="{{ route('admin.contato.index') }}?filtro=pendentes"
+           class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
+                  {{ $filtro === 'pendentes' 
+                     ? 'bg-[#358054] text-white' 
+                     : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
+            Pendentes
+        </a>
 
-                <a href="{{ route('admin.contato.index') }}?filtro=resolvidas"
-                   class="px-3 py-2 rounded {{ $filtro === 'resolvidas' ? 'bg-green-600 text-white' : 'bg-gray-100' }}">Resolvidas</a>
+        <a href="{{ route('admin.contato.index') }}?filtro=resolvidas"
+           class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
+                  {{ $filtro === 'resolvidas' 
+                     ? 'bg-[#358054] text-white' 
+                     : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
+            Resolvidas
+        </a>
+    </div>
 
-                <div class="ml-auto text-sm text-gray-600">Total: {{ $messages->count() }}</div>
-            </div>
+    <!-- Total alinhado à direita -->
+    <div class="absolute right-0 text-sm text-gray-600">
+        Total: {{ $messages->count() }}
+    </div>
+</div>
 
-            <!-- LISTAGEM / AGRUPAMENTO -->
-            @php
-                $groupsPendentes = ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'];
-                $groupsResolvidas = ['Concluído', 'Indeferido', 'Sem Pendências'];
-            @endphp
 
-            @if($filtro === 'pendentes')
-                @foreach($groupsPendentes as $group)
-                    <h3 class="mt-6 text-xl font-semibold text-blue-600">{{ $group }}</h3>
-                    @php $subset = $messages->where('status.name', $group); @endphp
-                    <div class="lista-placeholder" data-ids="{{ $messages->where('status.name', $group)->pluck('id')->toJson() }}"></div>
+<!-- AGRUPAMENTO -->
+ @php
+    $groupsPendentes = ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'];
+    $groupsResolvidas = ['Concluído', 'Indeferido', 'Sem Pendências'];
 
-                @endforeach
-            @elseif($filtro === 'resolvidas')
-                @foreach($groupsResolvidas as $group)
-                    <h3 class="mt-6 text-xl font-semibold text-green-600">{{ $group }}</h3>
-                    @php $subset = $messages->where('status.name', $group); @endphp
-                    <div class="lista-placeholder" data-ids="{{ $messages->where('status.name', $group)->pluck('id')->toJson() }}"></div>
+    // Apenas cor do texto (sem fundo)
+    $statusColors = [
+        'Em Análise' => '#9ea3af',
+        'Deferido' => '#3850d6',
+        'Indeferido' => '#d2062a',
+        'Vistoriado' => '#8c3c14',
+        'Em Execução' => '#f4ca29',
+        'Sem Pendências' => '#ef6d22',
+        'Concluído' => '#34a54c',
+    ];
+@endphp
 
-                @endforeach
-            @else
-                <h3 class="mt-4 text-lg font-semibold">Todas as solicitações</h3>
-               <div class="lista-placeholder" data-all="true"></div>
 
-            @endif
+<!-- Local onde o JS vai inserir os blocos -->
+<div id="mensagens-container"></div>
+
             </div>
         </main>
     </div>
@@ -252,39 +269,49 @@
                 return `<p class="text-gray-400 mt-2">Nenhuma solicitação aqui.</p>`;
             }
 
-            let rows = itens.map(m => {
-                const nome = (m.user && m.user.name) ? m.user.name : (m.nome_solicitante ?? '');
-                const email = (m.user && m.user.email) ? m.user.email : (m.email_solicitante ?? '');
-                const statusName = m.status ? m.status.name : '';
-                const created = new Date(m.created_at).toLocaleString();
+    let rows = itens.map(m => {
+        const nome = (m.user && m.user.name) ? m.user.name : (m.nome_solicitante ?? '');
+        const email = (m.user && m.user.email) ? m.user.email : (m.email_solicitante ?? '');
+        const statusName = m.status ? m.status.name : '';
+        const created = new Date(m.created_at).toLocaleString();
 
-                return `
-                <tr class="border-t">
-                    <td class="px-6 py-4 align-top text-sm text-gray-500">${escapeHtml(created)}</td>
-                    <td class="px-6 py-4 align-top">
-                        <div class="text-sm font-medium text-gray-900">${escapeHtml(m.bairro)}, ${escapeHtml(m.rua)}, ${escapeHtml(m.numero)}</div>
-                        <div class="text-sm text-gray-500">${escapeHtml(m.descricao.substring(0, 120))}</div>
-                    </td>
-                    <td class="px-6 py-4 align-top text-right text-sm space-x-2">
-                        <button onclick="openViewModal(${m.id})" class="inline-flex items-center px-3 py-1.5 bg-[#358054] text-white rounded-md text-xs font-semibold hover:bg-[#2d6947] transition">
-                            Ver
-                        </button>
-                        <button onclick="openStatusModal(${m.id})" class="inline-flex items-center px-3 py-1.5 bg-blue-700 text-white rounded-md text-xs font-semibold hover:bg-blue-600 transition-colors">
-                            Atualizar
-                        </button>
+        // garante compatibilidade com diferentes nomes de campo
+        const descricao = m.descricao ?? m.content ?? m.mensagem ?? '(sem descrição)';
+        const endereco = [m.bairro, m.rua, m.numero].filter(Boolean).join(', ');
 
-                    </td>
-                </tr>
-                `;
-            }).join('');
+        return `
+        <tr class="border-t">
+            <td class="px-6 py-4 align-top text-sm text-gray-500">${escapeHtml(created)}</td>
+            <td class="px-6 py-4 align-top">
+                <div class="text-sm font-medium text-gray-900">${escapeHtml(endereco)}</div>
+                <div class="text-sm text-gray-500">${escapeHtml(descricao.substring(0, 120))}</div>
+            </td>
+            <td class="px-6 py-4 align-top text-right text-sm space-x-2">
+                <button onclick="openViewModal(${m.id})"
+                        class="inline-flex items-center px-3 py-1.5 bg-[#358054] text-white rounded-md text-xs font-semibold hover:bg-[#2d6947] transition">
+                    Ver
+                </button>
+                <button onclick="openStatusModal(${m.id})"
+                        class="inline-flex items-center px-3 py-1.5 bg-blue-700 text-white rounded-md text-xs font-semibold hover:bg-blue-600 transition-colors">
+                    Atualizar
+                </button>
+            </td>
+        </tr>
+        `;
+     }).join('');
 
-            return `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50">
-                <tr>                    
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Data</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Solicitação</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Ações</th>
-                </tr>
-            </thead><tbody class="bg-white">${rows}</tbody></table></div>`;
+            return `<div class="overflow-x-auto">
+    <table class="min-w-full table-fixed divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 w-1/4 text-left text-xs font-medium text-gray-600 uppercase">Data</th>
+                <th class="px-6 py-3 w-2/4 text-left text-xs font-medium text-gray-600 uppercase">Solicitação</th>
+                <th class="px-6 py-3 w-1/4 text-right text-xs font-medium text-gray-600 uppercase">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white">${rows}</tbody>
+    </table>
+</div>`;
         }
 
         // utility
@@ -425,35 +452,80 @@
 
     {{-- placeholders preenchidos pelo blade com data (facilita render JS) --}}
     <script>
-        // Criando placeholders no DOM com os ids de cada grupo para a renderTable JS ler
-        (function insertPlaceholders(){
-            @if($filtro === 'pendentes')
-                @php
-                    foreach($groupsPendentes as $group){
-                        $ids = $messages->filter(fn($m)=> $m->status && $m->status->name === $group)->pluck('id');
-                        $jsonIds = $ids->values()->toJson();
-                        echo "document.write('<h3 class=\"mt-6 text-xl font-semibold text-blue-600\">{$group}</h3>');";
-                        echo "document.write('<div class=\"lista-placeholder\" data-ids=\"".htmlspecialchars($jsonIds, ENT_QUOTES)."'></div>');";
-                    }
-                @endphp
-            @elseif($filtro === 'resolvidas')
-                @php
-                    foreach($groupsResolvidas as $group){
-                        $ids = $messages->filter(fn($m)=> $m->status && $m->status->name === $group)->pluck('id');
-                        $jsonIds = $ids->values()->toJson();
-                        echo "document.write('<h3 class=\"mt-6 text-xl font-semibold text-green-600\">{$group}</h3>');";
-                        echo "document.write('<div class=\"lista-placeholder\" data-ids=\"".htmlspecialchars($jsonIds, ENT_QUOTES)."'></div>');";
-                    }
-                @endphp
-            @else
-                // todas
-                echoPlaceholder = true;
-                @php
-                    $allIds = $messages->pluck('id')->values()->toJson();
-                    echo "document.write('<div data-all=\"true\"></div>');";
-                @endphp
-            @endif
-        })();
-    </script>
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('mensagens-container');
+    @if($filtro === 'pendentes')
+        @php
+            foreach($groupsPendentes as $group){
+                $ids = $messages->filter(fn($m)=> $m->status && $m->status->name === $group)->pluck('id')->values();
+                $jsonIds = $ids->toJson();
+        @endphp
+            (function(){
+                const block = document.createElement('div');
+                block.setAttribute('x-data', '{ open: false }');
+                block.innerHTML = `
+                    <h3 @click="open = !open" class="mt-6 text-xl font-semibold cursor-pointer" style="color: {{ $statusColors[$group] ?? '#333' }};">
+                        {{ $group }}
+                        <svg class="w-4 h-4 ml-1 inline-block transform transition-transform"
+                             :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </h3>
+                    <div x-show="open" class="mt-4 lista-placeholder" data-ids='{{ $jsonIds }}'></div>
+                `;
+                container.appendChild(block);
+            })();
+        @php
+            }
+        @endphp
+    @elseif($filtro === 'resolvidas')
+        @php
+            foreach($groupsResolvidas as $group){
+                $ids = $messages->filter(fn($m)=> $m->status && $m->status->name === $group)->pluck('id')->values();
+                $jsonIds = $ids->toJson();
+        @endphp
+            (function(){
+                const block = document.createElement('div');
+                block.setAttribute('x-data', '{ open: false }');
+                block.innerHTML = `
+                    <h3 @click="open = !open" class="mt-6 text-xl font-semibold cursor-pointer" style="color: {{ $statusColors[$group] ?? '#333' }};">
+                        {{ $group }}
+                        <svg class="w-4 h-4 ml-1 inline-block transform transition-transform"
+                             :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </h3>
+                    <div x-show="open" class="mt-4 lista-placeholder" data-ids='{{ $jsonIds }}'></div>
+                `;
+                container.appendChild(block);
+            })();
+        @php
+            }
+        @endphp
+    @else
+        const allDiv = document.createElement('div');
+        allDiv.className = 'lista-placeholder';
+        allDiv.setAttribute('data-all', 'true');
+        container.appendChild(allDiv);
+    @endif
+
+    // renderiza as tabelas depois que os blocos estão prontos
+    setTimeout(() => {
+        document.querySelectorAll('.lista-placeholder').forEach(div => {
+            const ids = JSON.parse(div.getAttribute('data-ids') || '[]');
+            const itens = ids.map(i => messages[i]).filter(Boolean);
+            div.innerHTML = renderTable(itens);
+        });
+
+        const allPlaceholder = document.querySelector('[data-all="true"]');
+        if (allPlaceholder) {
+            allPlaceholder.innerHTML = renderTable(Object.values(messages));
+        }
+    }, 200);
+});
+</script>
+
 </body>
 </html>

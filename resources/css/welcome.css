@@ -437,6 +437,46 @@ main {
   transform: translateX(4px);
 }
 
+.sidebar {
+    min-height: calc(100vh - 6rem);
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.2);
+}
 
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    color: #ffffff;
+    transition: all 0.2s ease-in-out;
+}
 
+.sidebar-link:hover {
+    background-color: #2b6d46;
+    transform: translateX(5px);
+}
 
+.sidebar-link .icon {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+/* MAIN */
+main {
+    background-color: #f9fafb;
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

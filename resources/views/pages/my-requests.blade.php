@@ -64,86 +64,84 @@
                 </h1>
             </a>
         </div>
-
-        <!-- Menu com botão hambúrguer -->
-        <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">
-
-            @auth
-                <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Painel</a>
-                <a href="{{ route('about') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Sobre</a>
-            @else
-                <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Entrar</a>
-                <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
-            @endauth
-
-            <!-- Botão hamburguer animado -->
-            <button 
-                @click="open = !open"
-                class="menu-button focus:outline-none sm:ml-2 relative w-8 h-8"
-                aria-label="Abrir menu"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     fill="none" viewBox="0 0 24 24"
-                     stroke-width="2" stroke="currentColor"
-                     class="icon-hamburger absolute inset-0 m-auto transition-all duration-300"
-                     :class="{ 'opacity-0 rotate-90 scale-75': open }">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     fill="none" viewBox="0 0 24 24"
-                     stroke-width="2" stroke="currentColor"
-                     class="icon-close absolute inset-0 m-auto transition-all duration-300 opacity-0 scale-75 rotate-90"
-                     :class="{ 'opacity-100 rotate-0 scale-100': open }">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-
-            <!-- Dropdown -->
-            <div 
-                x-show="open"
-                @click.away="open = false"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 transform translate-y-2"
-                x-transition:enter-end="opacity-100 transform translate-y-0"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 transform translate-y-0"
-                x-transition:leave-end="opacity-0 transform translate-y-2"
-                class="menu-dropdown absolute right-0 top-[5rem] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl sm:w-48 w-[90vw] py-2 text-center sm:text-left z-50"
-                style="display: none;"
-            >
-                @guest
-                    <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Fazer Solicitação</a>
-                    <a href="{{ route('contact.myrequests') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Minhas Solicitações</a>
-                    <a href="{{ route('about') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Sobre</a>
-                @endguest
-
-                @auth
-                    <a href="{{ route('contact') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Fazer Solicitação</a>
-                    
-                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-700 transition">Meu Perfil</a>
-
-                    <div class="border-t border-gray-200 my-2"></div>
-
-                    <form method="POST" action="{{ route('logout') }}" class="m-0">
-                        @csrf
-                        <a href="{{ route('logout') }}"
-                           class="block px-4 py-2 text-red-600 hover:bg-red-100 hover:text-red-800 font-medium transition"
-                           onclick="event.preventDefault(); this.closest('form').submit();">
-                           Sair
-                        </a>
-                    </form>
-                @endauth
-            </div>
-        </div>
-    </div>
 </header>
 
+<div class="flex flex-1">
+<!-- SIDEBAR LATERAL -->
+        <aside class="sidebar w-64 bg-[#358054] text-white flex flex-col py-8 px-4" style="height: 100vh; overflow-y: auto;">
+            <nav class="space-y-4">
+
+                @if(auth('admin')->check())
+
+                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link">
+                        <i data-lucide="layout-dashboard" class="icon"></i>
+                        <span>Painel</span>
+                    </a>
+
+                    <a href="{{ route('admin.map') }}" class="sidebar-link">
+                        <i data-lucide="map-pin" class="icon"></i>
+                        <span>Cadastrar Árvores</span>
+                    </a>
+
+                    <a href="{{ route('admin.trees.index') }}" class="sidebar-link">
+                        <i data-lucide="edit-3" class="icon"></i>
+                        <span>Editar Árvores</span>
+                    </a>
+
+                    <a href="{{ route('admin.contato.index') }}" class="sidebar-link">
+                        <i data-lucide="inbox" class="icon"></i>
+                        <span>Solicitações</span>
+                    </a>
+
+                    <a href="{{ route('admin.profile.edit') }}" class="sidebar-link">
+                        <i data-lucide="user" class="icon"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+
+                    <a href="{{ route('about') }}" class="sidebar-link">
+                        <i data-lucide="info" class="icon"></i>
+                        <span>Sobre o Site</span>
+                    </a>
+
+                @else
+                    <a href="{{ route('dashboard') }}" class="sidebar-link">
+                        <i data-lucide="layout-dashboard" class="icon"></i>
+                        <span>Painel</span>
+                    </a>
+
+                    <a href="{{ route('contact') }}" class="sidebar-link">
+                        <i data-lucide="send" class="icon"></i>
+                        <span>Nova Solicitação</span>
+                    </a>
+
+                    <a href="{{ route('contact.myrequests') }}" class="sidebar-link">
+                        <i data-lucide="clipboard-list" class="icon"></i>
+                        <span>Minhas Solicitações</span>
+                    </a>
+
+                    <a href="{{ route('profile.edit') }}" class="sidebar-link">
+                        <i data-lucide="user" class="icon"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+
+                    <a href="{{ route('about') }}" class="sidebar-link">
+                        <i data-lucide="info" class="icon"></i>
+                        <span>Sobre o Site</span>
+                    </a>
+                @endif
+            </nav>
+
+            <div class="mt-auto border-t border-green-400 pt-6">
+
+                <a href="{{ route('home') }}" class="sidebar-link text-sm opacity-80 hover:opacity-100">
+                    <i data-lucide="arrow-left-circle" class="icon"></i>
+                    Voltar ao Mapa
+                </a>
+            </div>
+        </aside> 
 
         {{-- CONTEÚDO PRINCIPAL --}}
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <main class="flex-1 p-10">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 md:p-8 text-gray-900">
                     
@@ -322,7 +320,7 @@
                 </div>
             </div>
         </main>
-
+                                                </div>
         {{-- RODAPÉ --}}
         <footer class="bg-gray-800 shadow mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
