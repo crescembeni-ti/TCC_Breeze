@@ -11,15 +11,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage; 
+use Illuminate\Support\Facades\Log; // Mantido caso precise de logs no site
 
-// Imports do Firebase
+// Imports do Firebase (Mantidos caso o site também envie notificações no futuro)
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
-use App\Models\User;
-use Illuminate\Support\Facades\Log; 
 
 class ContactController extends Controller
 {
+    /**
+     * [SITE] Página de contato (formulário).
+     */
     public function index()
     {
         $bairros = Bairro::orderBy('nome', 'asc')->get();
@@ -27,42 +29,46 @@ class ContactController extends Controller
         return view('pages.contact', compact('bairros', 'topicos'));
     }
 
+    /**
+     * [SITE] Salva solicitação vinda do formulário web.
+     */
     public function store(Request $request)
     {
-        $user = Auth::user();
+        $user = Auth::user(); 
+        
         $nomesDeBairrosValidos = Bairro::pluck('nome')->toArray();
-        $nomesDeTopicosValidos = Topico::pluck('nome')->toArray();
+        $nomesDeTopicosValidos = Topico::pluck('nome')->toArray(); 
 
         $validated = $request->validate([
-            'topico' => [
+            'topico' => [ 
                 'required', 'string', 'max:255',
-                Rule::in($nomesDeTopicosValidos)
+                Rule::in($nomesDeTopicosValidos) 
             ],
             'bairro' => [
                 'required', 'string', 'max:255',
-                Rule::in($nomesDeBairrosValidos)
+                Rule::in($nomesDeBairrosValidos) 
             ],
             'rua' => 'required|string|max:255',
             'numero' => 'required|string|max:10',
             'descricao' => 'required|string',
             'foto' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
         ]);
-
+        
         $fotoPath = null;
         if ($request->hasFile('foto')) {
             $fotoPath = $request->file('foto')->store('solicitacoes', 'public');
         }
-
+        
         $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, function () {
             return Status::where('name', 'Em Análise')->firstOrFail()->id;
         });
 
         $dataToSave = array_merge($validated, [
-            'user_id' => $user->id,
-            'nome_solicitante' => $user->name,
+            'user_id' => $user->id, 
+            'nome_solicitante' => $user->name, 
             'email_solicitante' => $user->email,
             'status_id' => $statusEmAnaliseId,
-            'justificativa' => null,
+            'justificativa' => null, 
             'foto_path' => $fotoPath,
         ]);
 
@@ -72,7 +78,7 @@ class ContactController extends Controller
     }
 
     /**
-     * PÁGINA ADMIN: lista com filtro e agrupamento
+     * [SITE ADMIN] Lista de solicitações com filtros.
      */
     public function adminContactList(Request $request)
     {
@@ -104,8 +110,7 @@ class ContactController extends Controller
     }
 
     /**
-     * Atualiza status (rota usada pelo admin).
-     * Aceita requisição AJAX (retorna JSON) ou normal (redirect).
+     * [SITE ADMIN] Atualiza status e envia notificação (se FCM existir).
      */
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
@@ -146,7 +151,7 @@ class ContactController extends Controller
         $contact->update($dataToSave);
         $contact->load('status', 'user');
 
-        // try enviar push (se tiver FCM token) — não quebra se falhar
+        // Tenta enviar push (se tiver FCM token) — mas não quebra o site se falhar
         try {
             $user = $contact->user;
             $fcmToken = $user->fcm_token ?? null;
@@ -162,10 +167,10 @@ class ContactController extends Controller
                 $messaging->send($message);
             }
         } catch (\Exception $e) {
-            Log::error('Falha ao enviar notificação FCM: ' . $e->getMessage());
+            Log::error('Falha ao enviar notificação FCM (Site): ' . $e->getMessage());
         }
 
-        // resposta JSON para AJAX
+        // Se for uma requisição JSON (Ajax do site), retorna JSON
         if ($request->wantsJson() || $request->isJson()) {
             return response()->json([
                 'message' => 'Status atualizado com sucesso!',
@@ -176,6 +181,10 @@ class ContactController extends Controller
         return back()->with('success', 'Status da mensagem atualizado.');
     }
 
+
+    /**
+     * [SITE USUÁRIO] Minhas solicitações.
+     */
     public function userRequestList()
     {
         $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, function () {
@@ -192,27 +201,42 @@ class ContactController extends Controller
         return view('pages.my-requests', compact('myRequests'));
     }
 
+    /**
+     * [SITE USUÁRIO] Cancelar solicitação.
+     */
     public function cancelRequest(Request $request, Contact $contact)
     {
+        // garantir que só o dono pode cancelar
         if (Auth::id() !== $contact->user_id) {
             abort(403);
         }
 
-        $statusConcluidoId = Cache::remember('status_concluido_id', 3600, function () {
-            return Status::where('name', 'Concluído')->firstOrFail()->id;
-        });
-        $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, function () {
-            return Status::where('name', 'Cancelado')->firstOrFail()->id;
-        });
+        // buscar IDs dos status
+        $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, fn() =>
+            Status::where('name', 'Em Análise')->firstOrFail()->id
+        );
 
-        if ($contact->status_id === $statusConcluidoId || $contact->status_id === $statusCanceladoId) {
-            return back()->withErrors(['cancel_error' => 'Esta solicitação não pode mais ser cancelada.']);
+        $statusDeferidoId = Cache::remember('status_deferido_id', 3600, fn() =>
+            Status::where('name', 'Deferido')->firstOrFail()->id
+        );
+
+        $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, fn() =>
+            Status::where('name', 'Cancelado')->firstOrFail()->id
+        );
+
+        // VERIFICA SE O STATUS ATUAL PERMITE CANCELAMENTO
+        if (!in_array($contact->status_id, [$statusEmAnaliseId, $statusDeferidoId])) {
+            return back()->withErrors([
+                'cancel_error' => 'Esta solicitação não pode mais ser cancelada.'
+            ]);
         }
 
+        // validar motivo opcional
         $request->validate([
             'justificativa_cancelamento' => 'nullable|string|max:500'
         ]);
 
+        // realizar cancelamento
         $contact->update([
             'status_id' => $statusCanceladoId,
             'justificativa' => $request->justificativa_cancelamento
@@ -223,160 +247,4 @@ class ContactController extends Controller
         return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada com sucesso.');
     }
 
-    
-    // ===================================================================
-    // ================== MÉTODOS DA API (ANDROID) =======================
-    // ===================================================================
-
-    public function storeApi(Request $request)
-    {
-        $user = $request->user(); 
-        $validated = $request->validate([
-            'titulo' => 'required|string|max:255',
-            'descricao' => 'required|string',
-            'bairro' => 'required|string|max:255',
-            'rua' => 'required|string|max:255',
-            'numero' => 'required|string|max:20',
-            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-        $fotoPath = null;
-        if ($request->hasFile('imagem')) {
-            $fotoPath = $request->file('imagem')->store('solicitacoes', 'public');
-        }
-        $statusEmAnalise = Status::where('name', 'Em Análise')->first();
-        $statusEmAnaliseId = $statusEmAnalise ? $statusEmAnalise->id : 1;
-        $dataToSave = [
-            'user_id' => $user->id, 
-            'nome_solicitante' => $user->name,
-            'email_solicitante' => $user->email,
-            'topico' => $validated['titulo'],
-            'descricao' => $validated['descricao'],
-            'foto_path' => $fotoPath,
-            'bairro' => $validated['bairro'],
-            'rua' => $validated['rua'],
-            'numero' => $validated['numero'],
-            'status_id' => $statusEmAnaliseId,
-            'justificativa' => null,
-        ];
-        $contact = Contact::create($dataToSave); 
-        return response()->json([
-            'message' => 'Solicitação criada com sucesso!',
-            'data' => $contact 
-        ], 201);
-    }
-
-    public function userRequestListApi(Request $request)
-    {
-        $user = $request->user();
-        $statusCancelado = Status::where('name', 'Cancelado')->first();
-        $query = $user->contacts()->with('status')->latest();
-        if ($statusCancelado) {
-            $query->where('status_id', '!=', $statusCancelado->id);
-        }
-        $myRequests = $query->get();
-        return response()->json($myRequests);
-    }
-    
-    public function adminRequestListApi(Request $request)
-    {
-        $solicitacoes = Contact::with('status', 'user') 
-                            ->latest()
-                            ->get();
-        return response()->json($solicitacoes);
-    }
-
-    // ===================================================================
-    //  MÉTODO 'adminUpdateStatusApi' ATUALIZADO COM NOTIFICAÇÃO
-    // ===================================================================
-    /**
-     * [API ADMIN] Atualiza o status de uma solicitação e envia notificação.
-     */
-    public function adminUpdateStatusApi(Request $request, Contact $contact)
-    {
-        // 1. Busca o ID do status "Indeferido" (para a validação)
-        $statusIndeferidoId = Cache::remember('status_indeferido_id', 3600, function () {
-            return Status::where('name', 'Indeferido')->firstOrFail()->id;
-        });
-
-        // 2. Valida os dados (status_id é obrigatório, justificativa é opcional)
-        $validated = $request->validate([
-            'status_id' => 'required|integer|exists:statuses,id',
-            'justificativa' => [
-                'nullable',
-                'string',
-                Rule::requiredIf($request->status_id == $statusIndeferidoId)
-            ],
-        ]);
-
-        // 3. Prepara os dados para salvar
-        $dataToSave = [
-            'status_id' => $validated['status_id'],
-            'justificativa' => $validated['justificativa'],
-        ];
-
-        if ($validated['status_id'] != $statusIndeferidoId) {
-            $dataToSave['justificativa'] = null;
-        }
-
-        // 4. Atualiza o banco
-        $contact->update($dataToSave);
-        
-        // =======================================================
-        //  5. (NOVO) ENVIAR NOTIFICAÇÃO PUSH
-        // =======================================================
-        try {
-            // Recarrega o 'contact' para pegar o nome do novo status
-            $contact->load('status', 'user'); 
-            
-            // Pega o usuário que CRIOU a solicitação
-            $user = $contact->user; 
-            
-            // Pega o token FCM que salvamos no banco
-            $fcmToken = $user->fcm_token; 
-
-            if ($fcmToken) {
-                // Prepara a notificação
-                $messaging = app('firebase.messaging');
-                $notification = Notification::create(
-                    'Sua solicitação foi atualizada!', // Título
-                    'O status da sua solicitação "' . $contact->topico . '" agora é: ' . $contact->status->name // Corpo
-                );
-
-                // Cria a mensagem para o token específico
-                $message = CloudMessage::withTarget('token', $fcmToken)
-                    ->withNotification($notification);
-
-                // Envia
-                $messaging->send($message);
-            }
-
-        } catch (\Exception $e) {
-            // Se o envio da notificação falhar, registra o erro
-            // mas NÃO quebra a requisição. O status foi salvo com sucesso.
-            Log::error('Falha ao enviar notificação FCM: ' . $e->getMessage());
-        }
-        // =======================================================
-
-        // 6. Retorna uma resposta JSON
-        return response()->json([
-            'message' => 'Status atualizado com sucesso!',
-            'data' => $contact // Retorna o contato com o novo status
-        ]);
-    }
-    
-    /**
-     * [API ADMIN] Retorna solicitações filtradas por nome do status.
-     */
-    public function adminRequestListByStatusApi(Request $request, $statusName)
-    {
-        $status = Status::where('name', $statusName)->first();
-        if (!$status) {
-            return response()->json([]);
-        }
-        $solicitacoes = Contact::where('status_id', $status->id)
-                            ->with('status', 'user')
-                            ->latest()
-                            ->get();
-        return response()->json($solicitacoes);
-    }
-}
+} // Fim da classe

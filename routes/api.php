@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\ContactController; 
 use App\Models\Status; 
 use App\Models\Noticia;
+use App\Http\Controllers\Api\ContatoApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,11 +33,11 @@ Route::get('/noticias', function () {
 Route::middleware('auth:sanctum')->group(function () {
     
     // --- Solicitações ---
-    Route::post('/contato_com_anexo', [ContactController::class, 'storeApi']);
-    Route::get('/minhas-solicitacoes', [ContactController::class, 'userRequestListApi']);
-    Route::get('/admin/solicitacoes', [ContactController::class, 'adminRequestListApi']);
-    Route::post('/admin/solicitacoes/{contact}/status', [ContactController::class, 'adminUpdateStatusApi']);
-    Route::get('/admin/solicitacoes-por-status/{statusName}', [ContactController::class, 'adminRequestListByStatusApi']);
+    Route::post('/contato_com_anexo', [ContatoApiController::class, 'storeApi']);
+    Route::get('/minhas-solicitacoes', [ContatoApiController::class, 'userRequestListApi']);
+    Route::get('/admin/solicitacoes', [ContatoApiController::class, 'adminRequestListApi']);
+    Route::post('/admin/solicitacoes/{contact}/status', [ContatoApiController::class, 'adminUpdateStatusApi']);
+    Route::get('/admin/solicitacoes-por-status/{statusName}', [ContatoApiController::class, 'adminRequestListByStatusApi']);
 
     
     // --- Usuário ---
