@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,13 +19,22 @@
 <body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen">
 
     <!-- HEADER -->
-    <header class="site-header flex items-center justify-between px-8 py-4 shadow-md bg-white">
-        <div class="flex items-center gap-4">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
-            <h1 class="text-4xl font-bold">
-                <span class="text-[#358054]">Árvores de</span>
-                <span class="text-[#a0c520]"> Paracambi</span>
-            </h1>
+    <header class="site-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
+
+            <!-- LOGOS E TÍTULO -->
+            <div class="flex items-center gap-4 flex-shrink-0">
+                <a href="{{ route('home') }}" class="flex items-center gap-4">
+                    <img src="{{ asset('images/Brasao_Verde.png') }}" alt="Logo Brasão de Paracambi"
+                        class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi"
+                        class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
+                    <h1 class="text-3xl sm:text-4xl font-bold">
+                        <span class="text-[#358054]">Árvores de</span>
+                        <span class="text-[#a0c520]">Paracambi</span>
+                    </h1>
+                </a>
+            </div>
         </div>
     </header>
 
@@ -38,7 +48,7 @@
                 <h2 class="text-3xl font-bold text-[#358054]">Editar Árvore #{{ $tree->id }} 🌳</h2>
 
                 <a href="{{ route('admin.trees.index') }}"
-                   class="inline-flex items-center px-4 py-2 bg-[#358054] text-white rounded-lg text-sm font-semibold hover:bg-[#2d6947] transition">
+                    class="inline-flex items-center px-4 py-2 bg-[#358054] text-white rounded-lg text-sm font-semibold hover:bg-[#2d6947] transition">
                     <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
                     Voltar
                 </a>
@@ -73,10 +83,10 @@
 
                         <div>
                             <label class="font-medium">Espécie</label>
-                            <select name="species_id"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <select name="species_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 @foreach ($species as $spec)
-                                    <option value="{{ $spec->id }}" {{ $tree->species_id == $spec->id ? 'selected' : '' }}>
+                                    <option value="{{ $spec->id }}"
+                                        {{ $tree->species_id == $spec->id ? 'selected' : '' }}>
                                         {{ $spec->name }}
                                     </option>
                                 @endforeach
@@ -144,11 +154,15 @@
                         {{-- Tipo de bifurcação --}}
                         <div>
                             <label class="font-medium">Tipo de Bifurcação</label>
-                            <select name="bifurcation_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <select name="bifurcation_type"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="">Selecione</option>
-                                <option value="ausente" {{ $tree->bifurcation_type == 'ausente' ? 'selected' : '' }}>Ausente</option>
-                                <option value="U" {{ $tree->bifurcation_type == 'U' ? 'selected' : '' }}>U</option>
-                                <option value="V" {{ $tree->bifurcation_type == 'V' ? 'selected' : '' }}>V</option>
+                                <option value="ausente" {{ $tree->bifurcation_type == 'ausente' ? 'selected' : '' }}>
+                                    Ausente</option>
+                                <option value="U" {{ $tree->bifurcation_type == 'U' ? 'selected' : '' }}>U
+                                </option>
+                                <option value="V" {{ $tree->bifurcation_type == 'V' ? 'selected' : '' }}>V
+                                </option>
                             </select>
                         </div>
 
@@ -157,9 +171,12 @@
                             <label class="font-medium">Equilíbrio do Fuste (Inclinação)</label>
                             <select name="stem_balance" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="">Selecione</option>
-                                <option value="ausente" {{ $tree->stem_balance == 'ausente' ? 'selected' : '' }}>Ausente</option>
-                                <option value="maior_45" {{ $tree->stem_balance == 'maior_45' ? 'selected' : '' }}>Maior que 45°</option>
-                                <option value="menor_45" {{ $tree->stem_balance == 'menor_45' ? 'selected' : '' }}>Menor que 45°</option>
+                                <option value="ausente" {{ $tree->stem_balance == 'ausente' ? 'selected' : '' }}>
+                                    Ausente</option>
+                                <option value="maior_45" {{ $tree->stem_balance == 'maior_45' ? 'selected' : '' }}>
+                                    Maior que 45°</option>
+                                <option value="menor_45" {{ $tree->stem_balance == 'menor_45' ? 'selected' : '' }}>
+                                    Menor que 45°</option>
                             </select>
                         </div>
 
@@ -168,12 +185,17 @@
                             <label class="font-medium">Equilíbrio da copa</label>
                             <select name="crown_balance" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="">Selecione</option>
-                                <option value="equilibrada" {{ $tree->crown_balance == 'equilibrada' ? 'selected' : '' }}>Equilibrada</option>
-                                <option value="medianamente_desequilibrada" {{ $tree->crown_balance == 'medianamente_desequilibrada' ? 'selected' : '' }}>
+                                <option value="equilibrada"
+                                    {{ $tree->crown_balance == 'equilibrada' ? 'selected' : '' }}>Equilibrada</option>
+                                <option value="medianamente_desequilibrada"
+                                    {{ $tree->crown_balance == 'medianamente_desequilibrada' ? 'selected' : '' }}>
                                     Medianamente desequilibrada
                                 </option>
-                                <option value="desequilibrada" {{ $tree->crown_balance == 'desequilibrada' ? 'selected' : '' }}>Desequilibrada</option>
-                                <option value="muito_desequilibrada" {{ $tree->crown_balance == 'muito_desequilibrada' ? 'selected' : '' }}>
+                                <option value="desequilibrada"
+                                    {{ $tree->crown_balance == 'desequilibrada' ? 'selected' : '' }}>Desequilibrada
+                                </option>
+                                <option value="muito_desequilibrada"
+                                    {{ $tree->crown_balance == 'muito_desequilibrada' ? 'selected' : '' }}>
                                     Muito desequilibrada
                                 </option>
                             </select>
@@ -184,8 +206,10 @@
                             <label class="font-medium">Organismos xilófagos/patogênicos</label>
                             <select name="organisms" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="">Selecione</option>
-                                <option value="ausente" {{ $tree->organisms == 'ausente' ? 'selected' : '' }}>Ausente</option>
-                                <option value="infestacao_inicial" {{ $tree->organisms == 'infestacao_inicial' ? 'selected' : '' }}>
+                                <option value="ausente" {{ $tree->organisms == 'ausente' ? 'selected' : '' }}>Ausente
+                                </option>
+                                <option value="infestacao_inicial"
+                                    {{ $tree->organisms == 'infestacao_inicial' ? 'selected' : '' }}>
                                     Infestação Inicial
                                 </option>
                             </select>
@@ -196,9 +220,14 @@
                             <label class="font-medium">Estado da fiação</label>
                             <select name="wiring_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="">Selecione</option>
-                                <option value="pode_interferir" {{ $tree->wiring_status == 'pode_interferir' ? 'selected' : '' }}>Pode interferir</option>
-                                <option value="interfere" {{ $tree->wiring_status == 'interfere' ? 'selected' : '' }}>Interfere</option>
-                                <option value="nao_interfere" {{ $tree->wiring_status == 'nao_interfere' ? 'selected' : '' }}>Não interfere</option>
+                                <option value="pode_interferir"
+                                    {{ $tree->wiring_status == 'pode_interferir' ? 'selected' : '' }}>Pode interferir
+                                </option>
+                                <option value="interfere" {{ $tree->wiring_status == 'interfere' ? 'selected' : '' }}>
+                                    Interfere</option>
+                                <option value="nao_interfere"
+                                    {{ $tree->wiring_status == 'nao_interfere' ? 'selected' : '' }}>Não interfere
+                                </option>
                             </select>
                         </div>
 
@@ -231,15 +260,13 @@
 
                         <div>
                             <label class="font-medium">Alvo</label>
-                            <input type="text" name="target"
-                                value="{{ old('target', $tree->target) }}"
+                            <input type="text" name="target" value="{{ old('target', $tree->target) }}"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
                         <div>
                             <label class="font-medium">Injúrias mecânicas e cavidades</label>
-                            <input type="text" name="injuries"
-                                value="{{ old('injuries', $tree->injuries) }}"
+                            <input type="text" name="injuries" value="{{ old('injuries', $tree->injuries) }}"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
@@ -258,22 +285,19 @@
 
                         <div class="md:col-span-2">
                             <label class="font-medium">Endereço</label>
-                            <input type="text" name="address"
-                                value="{{ old('address', $tree->address) }}"
+                            <input type="text" name="address" value="{{ old('address', $tree->address) }}"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
                         <div>
                             <label class="font-medium">Latitude</label>
-                            <input type="text" name="latitude"
-                                value="{{ old('latitude', $tree->latitude) }}"
+                            <input type="text" name="latitude" value="{{ old('latitude', $tree->latitude) }}"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
                         <div>
                             <label class="font-medium">Longitude</label>
-                            <input type="text" name="longitude"
-                                value="{{ old('longitude', $tree->longitude) }}"
+                            <input type="text" name="longitude" value="{{ old('longitude', $tree->longitude) }}"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
@@ -294,9 +318,12 @@
                             <label class="font-medium">Status de Saúde</label>
                             <select name="health_status"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                <option value="good" {{ $tree->health_status == 'good' ? 'selected' : '' }}>Boa</option>
-                                <option value="fair" {{ $tree->health_status == 'fair' ? 'selected' : '' }}>Razoável</option>
-                                <option value="poor" {{ $tree->health_status == 'poor' ? 'selected' : '' }}>Ruim</option>
+                                <option value="good" {{ $tree->health_status == 'good' ? 'selected' : '' }}>Boa
+                                </option>
+                                <option value="fair" {{ $tree->health_status == 'fair' ? 'selected' : '' }}>Razoável
+                                </option>
+                                <option value="poor" {{ $tree->health_status == 'poor' ? 'selected' : '' }}>Ruim
+                                </option>
                             </select>
                         </div>
 
@@ -315,7 +342,7 @@
                 <div class="flex justify-between pt-8">
 
                     <a href="{{ route('admin.trees.index') }}"
-                       class="px-4 py-2 bg-gray-200 rounded-lg font-semibold hover:bg-gray-300 transition">
+                        class="px-4 py-2 bg-gray-200 rounded-lg font-semibold hover:bg-gray-300 transition">
                         Voltar
                     </a>
 
@@ -329,9 +356,7 @@
 
 
             <!-- EXCLUIR -->
-            <form action="{{ route('admin.trees.destroy', $tree) }}"
-                method="POST"
-                class="mt-6"
+            <form action="{{ route('admin.trees.destroy', $tree) }}" method="POST" class="mt-6"
                 onsubmit="return confirm('Tem certeza que deseja excluir esta árvore?');">
                 @csrf
                 @method('DELETE')
@@ -346,9 +371,11 @@
 
     </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-gray-800 text-gray-300 text-center py-4 text-sm border-t border-[#358054] mt-auto">
-        © {{ date('Y') }} - Árvores de Paracambi
+    <!-- RODAPÉ -->
+    <footer class="bg-gray-800 shadow mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
+        </div>
     </footer>
 
     <script>
@@ -356,4 +383,5 @@
     </script>
 
 </body>
+
 </html>

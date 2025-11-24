@@ -27,13 +27,16 @@
         <header class="site-header relative" style="background-color: #beffb4;">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-20 w-20 object-contain">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi"
+                        class="h-20 w-20 object-contain">
                     <h1 class="text-4xl font-bold">
                         <span class="text-[#358054]">Detalhes</span>
                         <span class="text-[#a0c520]"> das Árvores</span>
                     </h1>
                 </div>
-                <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-green-700 transition-all duration-300 transform hover:scale-105"> ← Voltar ao Mapa </a>
+                <a href="{{ route('home') }}"
+                    class="btn bg-green-600 hover:bg-green-700 transition-all duration-300 transform hover:scale-105"> ←
+                    Voltar ao Mapa </a>
             </div>
         </header>
 
@@ -43,25 +46,27 @@
 
                 <!-- INFORMAÇÕES DA ÁRVORE -->
                 <div class="bg-white p-6 tree-card">
-                    <h2 class="text-2xl font-bold text-[#358054] mb-4">🌳 Informações da Árvore</h2>
-                    @if($tree->photo)
-                    <div class="mb-6">
-                        <img src="{{ $tree->photo }}" alt="Foto de {{ $tree->species->name }}" class="w-full h-64 object-cover rounded-lg shadow-md" onerror="this.style.display='none'">
-                    </div>
+                    <h2 class="text-2xl font-bold text-[#358054] mb-4">Informações da Árvore</h2>
+                    @if ($tree->photo)
+                        <div class="mb-6">
+                            <img src="{{ $tree->photo }}" alt="Foto de {{ $tree->species->name }}"
+                                class="w-full h-64 object-cover rounded-lg shadow-md"
+                                onerror="this.style.display='none'">
+                        </div>
                     @endif
                     <div class="space-y-4">
                         <div>
                             <h3 class="text-sm font-semibold text-gray-600">Espécie</h3>
                             <p class="text-lg text-gray-900">{{ $tree->species->name }}</p>
-                            @if($tree->species->scientific_name)
-                            <p class="text-sm italic text-gray-600">{{ $tree->species->scientific_name }}</p>
+                            @if ($tree->species->scientific_name)
+                                <p class="text-sm italic text-gray-600">{{ $tree->species->scientific_name }}</p>
                             @endif
                         </div>
-                        @if($tree->species->description)
-                        <div>
-                            <h3 class="text-sm font-semibold text-gray-600">Descrição</h3>
-                            <p class="text-gray-900">{{ $tree->species->description }}</p>
-                        </div>
+                        @if ($tree->species->description)
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-600">Descrição</h3>
+                                <p class="text-gray-900">{{ $tree->species->description }}</p>
+                            </div>
                         @endif
                         <div>
                             <h3 class="text-sm font-semibold text-gray-600">Endereço</h3>
@@ -77,24 +82,24 @@
                                 <p class="text-lg text-gray-900 capitalize">{{ $tree->health_status }}</p>
                             </div>
                         </div>
-                        @if($tree->planted_at)
-                        <div>
-                            <h3 class="text-sm font-semibold text-gray-600">Data de Plantio</h3>
-                            <p class="text-gray-900">{{ $tree->planted_at->format('d/m/Y') }}</p>
-                        </div>
+                        @if ($tree->planted_at)
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-600">Data de Plantio</h3>
+                                <p class="text-gray-900">{{ $tree->planted_at->format('d/m/Y') }}</p>
+                            </div>
                         @endif
-                        @if($tree->user)
-                        <div>
-                            <h3 class="text-sm font-semibold text-gray-600">Registrado por</h3>
-                            <p class="text-gray-900">{{ $tree->user->name }}</p>
-                        </div>
+                        @if ($tree->user)
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-600">Registrado por</h3>
+                                <p class="text-gray-900">{{ $tree->user->name }}</p>
+                            </div>
                         @endif
                     </div>
                 </div>
 
                 <!-- MAPA -->
                 <div class="bg-white p-6 tree-card">
-                    <h2 class="text-2xl font-bold text-[#358054] mb-4">📍 Localização</h2>
+                    <h2 class="text-2xl font-bold text-[#358054] mb-4">Localização</h2>
                     <div id="tree-map" class="rounded-lg"></div>
                 </div>
 
@@ -103,31 +108,32 @@
             <!-- HISTÓRICO DE ATIVIDADES -->
             <div class="bg-white p-6 mt-10 tree-card">
                 <h2 class="text-2xl font-bold text-[#358054] mb-4">🪵 Histórico de Atividades</h2>
-                @if($tree->activities->count() > 0)
-                <div class="space-y-4">
-                    @foreach($tree->activities as $activity)
-                    <div class="activity-item">
-                        <p class="text-sm text-gray-600">{{ $activity->activity_date->format('d/m/Y H:i') }}</p>
-                        <p class="text-gray-900">
-                            <strong>{{ ucfirst($activity->type) }}</strong> por {{ $activity->user->name }}
-                        </p>
-                        @if($activity->description)
-                        <p class="text-gray-700 mt-1">{{ $activity->description }}</p>
-                        @endif
+                @if ($tree->activities->count() > 0)
+                    <div class="space-y-4">
+                        @foreach ($tree->activities as $activity)
+                            <div class="activity-item">
+                                <p class="text-sm text-gray-600">{{ $activity->activity_date->format('d/m/Y H:i') }}
+                                </p>
+                                <p class="text-gray-900">
+                                    <strong>{{ ucfirst($activity->type) }}</strong> por {{ $activity->user->name }}
+                                </p>
+                                @if ($activity->description)
+                                    <p class="text-gray-700 mt-1">{{ $activity->description }}</p>
+                                @endif
+                            </div>
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
                 @else
-                <p class="text-gray-600">Nenhuma atividade registrada para esta árvore.</p>
+                    <p class="text-gray-600">Nenhuma atividade registrada para esta árvore.</p>
                 @endif
             </div>
 
         </main>
 
-        <!-- FOOTER -->
-        <footer class="shadow mt-12">
+        <!-- RODAPÉ -->
+        <footer class="bg-gray-800 shadow mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <p class="text-center text-gray-700 font-medium">© {{ date('Y') }} Mapa de Árvores de Paracambi 🌿</p>
+                <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
             </div>
         </footer>
 

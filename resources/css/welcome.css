@@ -22,23 +22,28 @@ body.welcome-page {
     background-position: center center;
     background-repeat: no-repeat;
 
-    position: relative; /* Necessário para adicionar a camada pseudo */
+    position: relative;
+    /* Necessário para adicionar a camada pseudo */
 }
 
 body.welcome-page::before {
-    content: ""; /* Cria um conteúdo vazio */
+    content: "";
+    /* Cria um conteúdo vazio */
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: inherit; /* Copia a imagem de fundo */
+    background-image: inherit;
+    /* Copia a imagem de fundo */
     background-size: cover;
     background-attachment: fixed;
     background-position: center center;
     background-repeat: no-repeat;
-    filter: blur(3px); /* Aplica o desfoque */
-    z-index: -1; /* Coloca a camada atrás do conteúdo da página */
+    filter: blur(3px);
+    /* Aplica o desfoque */
+    z-index: -1;
+    /* Coloca a camada atrás do conteúdo da página */
 }
 
 /* O RESTO DO SEU WELCOME.CSS (se houver) VEM DEPOIS... */
@@ -267,8 +272,13 @@ main {
 }
 
 @keyframes spin {
-    0% { transform: translateY(-50%) rotate(0deg); }
-    100% { transform: translateY(-50%) rotate(360deg); }
+    0% {
+        transform: translateY(-50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translateY(-50%) rotate(360deg);
+    }
 }
 
 /* ======== AVISO DE RESULTADOS DO FILTRO ======== */
@@ -353,88 +363,94 @@ main {
     display: inline-block;
     animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Ajustes específicos para o header e menu mobile */
 @media (max-width: 768px) {
-  header.site-header {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
+    header.site-header {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
 
-  .site-header h1 {
-    font-size: 1.75rem;
-    text-align: center;
-  }
+    .site-header h1 {
+        font-size: 1.75rem;
+        text-align: center;
+    }
 
-  .menu-button {
-    width: 52px;
-    height: 52px;
-  }
+    .menu-button {
+        width: 52px;
+        height: 52px;
+    }
 
-  .menu-dropdown {
-    top: 72px;
-    right: 50%;
-    transform: translateX(50%);
-    width: 90%;
-    max-width: 320px;
-    border-radius: 1rem;
-    padding: 0.5rem 0;
-  }
+    .menu-dropdown {
+        top: 72px;
+        right: 50%;
+        transform: translateX(50%);
+        width: 90%;
+        max-width: 320px;
+        border-radius: 1rem;
+        padding: 0.5rem 0;
+    }
 
-  .menu-dropdown a {
-    font-size: 1.05rem;
-    padding: 1rem;
-  }
+    .menu-dropdown a {
+        font-size: 1.05rem;
+        padding: 1rem;
+    }
 
-  .menu-dropdown-divider {
-    height: 1px;
-    background-color: #e5e7eb;
-    margin: 0.5rem 0;
-  }
+    .menu-dropdown-divider {
+        height: 1px;
+        background-color: #e5e7eb;
+        margin: 0.5rem 0;
+    }
 }
 
 @media (max-width: 480px) {
-  .site-header h1 {
-    font-size: 1.5rem;
-  }
+    .site-header h1 {
+        font-size: 1.5rem;
+    }
 
-  .menu-button {
-    width: 46px;
-    height: 46px;
-  }
+    .menu-button {
+        width: 46px;
+        height: 46px;
+    }
 
-  .menu-dropdown {
-    top: 65px;
-    width: 95%;
-  }
+    .menu-dropdown {
+        top: 65px;
+        width: 95%;
+    }
 }
 
 .site-header {
-  background-color: #b6fbb7;
-  border-bottom: 2px solid #3fa45b;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    background-color: #b6fbb7;
+    border-bottom: 2px solid #3fa45b;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .site-header .btn {
-  border-radius: 0.5rem;
-  transition: all 0.25s ease;
-  font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.25s ease;
+    font-weight: 600;
 }
 
 .site-header .btn:hover {
-  transform: scale(1.05);
+    transform: scale(1.05);
 }
 
 .menu-dropdown a {
-  transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
 }
 
 .menu-dropdown a:hover {
-  transform: translateX(4px);
+    transform: translateX(4px);
 }
 
 .sidebar {
@@ -475,6 +491,7 @@ main {
         opacity: 0;
         transform: translateY(15px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

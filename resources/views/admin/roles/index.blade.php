@@ -3,8 +3,8 @@
 
 @section('content')
     <h2>Gerenciamento de Cargos</h2>
-    
-    @if(session('success'))
+
+    @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
@@ -18,7 +18,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($users as $user)
+            @foreach ($users as $user)
                 <tr>
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
@@ -33,6 +33,6 @@
             @endforeach
         </tbody>
     </table>
-    
+
     {{ $users->links() }} {{-- Para paginação --}}
 @endsection

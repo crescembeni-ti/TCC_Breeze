@@ -22,7 +22,7 @@
                             <label for="conteudo">Conteúdo</label>
                             <textarea id="conteudo" name="conteudo" class="block mt-1 w-full" rows="5"></textarea>
                         </div>
-                        
+
                         <div class="mt-4">
                             <label for="imagem_url">URL da Imagem (Opcional)</label>
                             <input id="imagem_url" class="block mt-1 w-full" type="text" name="imagem_url" />
