@@ -134,7 +134,7 @@
         </aside>
 
         <!-- CONTEÚDO PRINCIPAL -->
-        <main class="flex-1 p-10 bg-white overflow-y-auto">
+        <main class="flex-1 p-10 bg-transparent overflow-y-auto">
             @yield('content')
         </main>
     </div>
@@ -149,27 +149,6 @@
     <script>
         lucide.createIcons();
     </script>
-
-    <style>
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.5rem;
-            transition: background 0.3s ease, transform 0.2s;
-        }
-
-        .sidebar-link:hover {
-            background-color: #2f6f47;
-            transform: translateX(4px);
-        }
-
-        .icon {
-            width: 18px;
-            height: 18px;
-        }
-    </style>
 
     <!--  Modal de confirmação SWEETALERT -->
     <script>

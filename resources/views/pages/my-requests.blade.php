@@ -1,3 +1,6 @@
+@extends('layouts.dashboard')
+@section('content')
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -10,174 +13,13 @@
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @vite('resources/css/welcome.css')
+    @vite('resources/css/dashboard.css')
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <style>
-        /* Estilo para os Tooltips (Legendas) - ADAPTADO */
-        .tooltip {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            cursor: help;
-        }
-
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 240px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            /* Centralizado fica melhor */
-            border-radius: 6px;
-            padding: 8px 12px;
-            position: absolute;
-            z-index: 10;
-            bottom: 135%;
-            /* Um pouco mais baixo para não ficar tão longe */
-
-            /* Posicionamento padrão (centralizado) */
-            left: 50%;
-            margin-left: -120px;
-            /* Metade da largura para centralizar */
-
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.875rem;
-            font-weight: 400;
-            line-height: 1.4;
-            pointer-events: none;
-            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
-            /* Sombra para destacar */
-        }
-
-        .tooltip .tooltiptext::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #333 transparent transparent transparent;
-        }
-
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* CORREÇÃO: Para tooltips muito à esquerda, alinhar à esquerda */
-        .tooltip.left-align .tooltiptext {
-            left: 0;
-            margin-left: -10px;
-            /* Pequeno ajuste fino */
-        }
-
-        .tooltip.left-align .tooltiptext::after {
-            left: 20px;
-            /* Move a setinha para acompanhar o alinhamento */
-            margin-left: 0;
-        }
-    </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-100">
-    <div class="min-h-screen flex flex-col justify-between">
-
-        {{-- CABEÇALHO --}}
-        <header class="site-header relative">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
-
-                <!-- Logo -->
-                <div class="flex items-center gap-4 flex-shrink-0">
-                    <a href="{{ route('home') }}" class="flex items-center gap-4">
-                        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi"
-                            class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                        <h1 class="text-3xl sm:text-4xl font-bold leading-tight">
-                            <span class="text-[#358054]">Árvores de</span>
-                            <span class="text-[#a0c520]"> Paracambi</span>
-                        </h1>
-                    </a>
-                </div>
-        </header>
-
-        <div class="flex flex-1">
-            <!-- SIDEBAR LATERAL -->
-            <aside class="sidebar w-64 bg-[#358054] text-white flex flex-col py-8 px-4"
-                style="height: 100vh; overflow-y: auto;">
-                <nav class="space-y-4">
-
-                    @if (auth('admin')->check())
-                        <a href="{{ route('admin.dashboard') }}" class="sidebar-link">
-                            <i data-lucide="layout-dashboard" class="icon"></i>
-                            <span>Painel</span>
-                        </a>
-
-                        <a href="{{ route('admin.map') }}" class="sidebar-link">
-                            <i data-lucide="map-pin" class="icon"></i>
-                            <span>Cadastrar Árvores</span>
-                        </a>
-
-                        <a href="{{ route('admin.trees.index') }}" class="sidebar-link">
-                            <i data-lucide="edit-3" class="icon"></i>
-                            <span>Editar Árvores</span>
-                        </a>
-
-                        <a href="{{ route('admin.contato.index') }}" class="sidebar-link">
-                            <i data-lucide="inbox" class="icon"></i>
-                            <span>Solicitações</span>
-                        </a>
-
-                        <a href="{{ route('admin.profile.edit') }}" class="sidebar-link">
-                            <i data-lucide="user" class="icon"></i>
-                            <span>Meu Perfil</span>
-                        </a>
-
-                        <a href="{{ route('about') }}" class="sidebar-link">
-                            <i data-lucide="info" class="icon"></i>
-                            <span>Sobre o Site</span>
-                        </a>
-                    @else
-                        <a href="{{ route('dashboard') }}" class="sidebar-link">
-                            <i data-lucide="layout-dashboard" class="icon"></i>
-                            <span>Painel</span>
-                        </a>
-
-                        <a href="{{ route('contact') }}" class="sidebar-link">
-                            <i data-lucide="send" class="icon"></i>
-                            <span>Nova Solicitação</span>
-                        </a>
-
-                        <a href="{{ route('contact.myrequests') }}" class="sidebar-link">
-                            <i data-lucide="clipboard-list" class="icon"></i>
-                            <span>Minhas Solicitações</span>
-                        </a>
-
-                        <a href="{{ route('profile.edit') }}" class="sidebar-link">
-                            <i data-lucide="user" class="icon"></i>
-                            <span>Meu Perfil</span>
-                        </a>
-
-                        <a href="{{ route('about') }}" class="sidebar-link">
-                            <i data-lucide="info" class="icon"></i>
-                            <span>Sobre o Site</span>
-                        </a>
-                    @endif
-                </nav>
-
-                <div class="mt-auto border-t border-green-400 pt-6">
-
-                    <a href="{{ route('home') }}" class="sidebar-link text-sm opacity-80 hover:opacity-100">
-                        <i data-lucide="arrow-left-circle" class="icon"></i>
-                        Voltar ao Mapa
-                    </a>
-                </div>
-            </aside>
-
-            {{-- CONTEÚDO PRINCIPAL --}}
+       {{-- CONTEÚDO PRINCIPAL --}}
             <main class="flex-1 p-10">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 md:p-8 text-gray-900">
@@ -406,15 +248,7 @@
                     </div>
                 </div>
             </main>
-        </div>
-
-        <!-- RODAPÉ -->
-        <footer class="bg-gray-800 shadow mt-12">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
-            </div>
-        </footer>
-    </div>
+       
 
     <!-- LUCIDE ICONS -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -425,3 +259,4 @@
 </body>
 
 </html>
+@endsection

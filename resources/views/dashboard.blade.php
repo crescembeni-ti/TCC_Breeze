@@ -41,25 +41,23 @@
 
 
         {{-- Estatísticas --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div class="card text-center">
-                <h4 class="text-lg font-semibold text-green-800">Total de Árvores</h4>
-                <p class="text-4xl font-bold" style="color:#38c224;">{{ $stats['total_trees'] }}
-                </p>
-            </div>
+        <div class="flex justify-center flex-wrap gap-6 mt-8">
+    <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center p-6 w-64 aspect-square">
+        <h4 class="text-xl font-semibold text-green-800">Total de Árvores</h4><br>
+        <p class="text-4xl font-bold text-[#38c224]">{{ $stats['total_trees'] }}</p>
+    </div>
 
-            <div class="card text-center">
-                <h4 class="text-lg font-semibold text-green-800">Atividades Registradas</h4>
-                <p class="text-4xl font-bold" style="color:#38c224;">{{ $stats['total_activities'] }}
-                </p>
-            </div>
+    <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center p-6 w-64 aspect-square">
+        <h4 class="text-xl font-semibold text-green-800">Atividades Registradas</h4><br>
+        <p class="text-4xl font-bold text-[#38c224]">{{ $stats['total_activities'] }}</p>
+    </div>
 
-            <div class="card text-center">
-                <h4 class="text-lg font-semibold text-green-800">Espécies no Mapa</h4>
-                <p class="text-4xl font-bold" style="color:#38c224;">{{ $stats['total_species'] }}
-                </p>
-            </div>
-        </div>
+    <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center p-6 w-64 aspect-square">
+        <h4 class="text-xl font-semibold text-green-800">Espécies no Mapa</h4><br>
+        <p class="text-4xl font-bold text-[#38c224]">{{ $stats['total_species'] }}</p>
+    </div>
+</div>
+
 
 
         {{-- Conexão com os ODS --}}
