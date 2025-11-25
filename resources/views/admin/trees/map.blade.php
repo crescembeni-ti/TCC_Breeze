@@ -1,232 +1,340 @@
 @extends('layouts.dashboard')
 
 @section('content')
-    <h2 class="text-3xl font-bold text-[#358054] mb-6">
+    <h2 class="text-3xl font-bold text-[#358054] mb-8">
         Painel de Administração – Mapa de Árvores
     </h2>
 
-    {{-- MENSAGENS --}}
+    {{-- ALERTAS --}}
     @if (session('success'))
-        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
             <strong>Sucesso!</strong> {{ session('success') }}
         </div>
     @endif
 
     @if (session('error'))
-        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
             <strong>Erro!</strong> {{ session('error') }}
         </div>
     @endif
 
+    {{-- CARD: ADICIONAR ARVORE --}}
+    <div class="bg-white border border-gray-200 shadow rounded-xl mb-10 p-8">
 
-    {{-- CARD: ADICIONAR ÁRVORE --}}
-    <div class="bg-white shadow-sm rounded-lg mb-8 p-6 tree-card">
+        <h3 class="text-2xl font-bold mb-6 text-gray-800">Adicionar Nova Árvore</h3>
 
-        <h3 class="text-xl font-semibold mb-4">Adicionar Nova Árvore</h3>
-
-        <form method="POST" action="{{ route('admin.map.store') }}" class="space-y-4">
+        <form method="POST" action="{{ route('admin.map.store') }}" class="space-y-10">
             @csrf
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {{-- SEÇÃO 1: IDENTIFICAÇÃO --}}
+            <div>
+                <h4 class="text-lg font-semibold text-[#358054] mb-3">Identificação</h4>
 
-                <div>
-                    <label class="form-label">Nome *</label>
-                    <input type="text" name="name" class="input" required>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    {{-- Nome --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
+                        <input type="text" name="name"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    {{-- Endereço --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Endereço *</label>
+                        <input type="text" name="address"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    {{-- Espécie --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Espécie *</label>
+                        <input type="text" name="species_name"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    {{-- Nome vulgar --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome vulgar *</label>
+                        <input type="text" name="vulgar_name"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    {{-- Nome científico --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome científico *</label>
+                        <input type="text" name="scientific_name"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    {{-- Caso não tenha espécie --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Caso não tenha espécie</label>
+                        <input type="text" name="no_species_case"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500">
+                    </div>
+
                 </div>
-
-                <div>
-                    <label class="form-label">Endereço *</label>
-                    <input type="text" name="address" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Espécie *</label>
-                    <input type="text" name="species_name" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Latitude *</label>
-                    <input type="number" step="0.0000001" id="latitude" name="latitude" class="input" required>
-                    <p class="hint">Clique no mapa para preencher</p>
-                </div>
-
-                <div>
-                    <label class="form-label">Longitude *</label>
-                    <input type="number" step="0.0000001" id="longitude" name="longitude" class="input" required>
-                    <p class="hint">Clique no mapa para preencher</p>
-                </div>
-
-                <div>
-                    <label class="form-label">Estado de Saúde *</label>
-                    <select name="health_status" class="input" required>
-                        <option value="good">Boa</option>
-                        <option value="fair">Regular</option>
-                        <option value="poor">Ruim</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="form-label">Data de Plantio *</label>
-                    <input type="date" name="planted_at" class="input" max="{{ now()->format('Y-m-d') }}" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Diâmetro do Tronco (cm) *</label>
-                    <input type="number" step="0.01" name="trunk_diameter" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Nome vulgar *</label>
-                    <input type="text" name="vulgar_name" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Nome científico *</label>
-                    <input type="text" name="scientific_name" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">CAP (cm) *</label>
-                    <input type="number" step="0.01" name="cap" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Altura (m) *</label>
-                    <input type="number" step="0.01" name="height" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Altura de copa (m) *</label>
-                    <input type="number" step="0.01" name="crown_height" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Diâmetro de copa longitudinal (m) *</label>
-                    <input type="number" step="0.01" name="crown_diameter_longitudinal" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Diâmetro de copa perpendicular (m) *</label>
-                    <input type="number" step="0.01" name="crown_diameter_perpendicular" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Tipo de Bifurcação *</label>
-                    <select name="bifurcation_type" class="input" required>
-                        <option value="">Selecione</option>
-                        <option value="ausente">Ausente</option>
-                        <option value="U">U</option>
-                        <option value="V">V</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="form-label">Equilíbrio Fuste *</label>
-                    <select name="stem_balance" class="input" required>
-                        <option value="">Selecione</option>
-                        <option value="ausente">Ausente</option>
-                        <option value="maior_45">Maior que 45°</option>
-                        <option value="menor_45">Menor que 45°</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="form-label">Equilíbrio da copa *</label>
-                    <select name="crown_balance" class="input" required>
-                        <option value="">Selecione</option>
-                        <option value="equilibrada">Equilibrada</option>
-                        <option value="medianamente_desequilibrada">Medianamente Desequilibrada</option>
-                        <option value="desequilibrada">Desequilibrada</option>
-                        <option value="muito_desequilibrada">Muito Desequilibrada</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="form-label">Organismos *</label>
-                    <select name="organisms" class="input" required>
-                        <option value="">Selecione</option>
-                        <option value="ausente">Ausente</option>
-                        <option value="infestacao_inicial">Infestação Inicial</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="form-label">Alvo *</label>
-                    <input type="text" name="target" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Injúrias mecânicas *</label>
-                    <input type="text" name="injuries" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Estado da fiação *</label>
-                    <select name="wiring_status" class="input" required>
-                        <option value="">Selecione</option>
-                        <option value="pode_interferir">Pode interferir</option>
-                        <option value="interfere">Interfere</option>
-                        <option value="nao_interfere">Não interfere</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="form-label">Largura total (m) *</label>
-                    <input type="number" step="0.01" name="total_width" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Largura da rua (m) *</label>
-                    <input type="number" step="0.01" name="street_width" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Altura da gola (m) *</label>
-                    <input type="number" step="0.01" name="gutter_height" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Largura da gola (m) *</label>
-                    <input type="number" step="0.01" name="gutter_width" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Comprimento da gola (m) *</label>
-                    <input type="number" step="0.01" name="gutter_length" class="input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Caso não tenha espécie</label>
-                    <input type="text" name="no_species_case" class="input">
-                </div>
-
             </div>
 
+            {{-- SEÇÃO 2: COORDENADAS --}}
+            <div>
+                <h4 class="text-lg font-semibold text-[#358054] mb-3">Coordenadas</h4>
 
-            <button class="btn bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    {{-- Latitude --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Latitude *</label>
+                        <input type="number" step="0.0000001" id="latitude" name="latitude"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                        <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
+                    </div>
+
+                    {{-- Longitude --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Longitude *</label>
+                        <input type="number" step="0.0000001" id="longitude" name="longitude"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                        <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- SEÇÃO 3: DADOS GERAIS --}}
+            <div>
+                <h4 class="text-lg font-semibold text-[#358054] mb-3">Dados Gerais</h4>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    {{-- Estado de saúde --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado de Saúde *</label>
+                        <select name="health_status"
+                                class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                                required>
+                            <option value="good">Boa</option>
+                            <option value="fair">Regular</option>
+                            <option value="poor">Ruim</option>
+                        </select>
+                    </div>
+
+                    {{-- Data plantio --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data de Plantio *</label>
+                        <input type="date" name="planted_at" max="{{ now()->format('Y-m-d') }}"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    {{-- Diâmetro tronco --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Diâmetro do Tronco (cm) *</label>
+                        <input type="number" step="0.01" name="trunk_diameter"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- SEÇÃO 4: DIMENSÕES --}}
+            <div>
+                <h4 class="text-lg font-semibold text-[#358054] mb-3">Dimensões</h4>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CAP (cm) *</label>
+                        <input type="number" step="0.01" name="cap"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura (m) *</label>
+                        <input type="number" step="0.01" name="height"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura da copa (m) *</label>
+                        <input type="number" step="0.01" name="crown_height"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Diâmetro longitudinal (m) *</label>
+                        <input type="number" step="0.01" name="crown_diameter_longitudinal"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Diâmetro perpendicular (m) *</label>
+                        <input type="number" step="0.01" name="crown_diameter_perpendicular"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- SEÇÃO 5: CARACTERÍSTICAS --}}
+            <div>
+                <h4 class="text-lg font-semibold text-[#358054] mb-3">Características</h4>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    {{-- Bifurcação --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Bifurcação *</label>
+                        <select name="bifurcation_type"
+                                class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                                required>
+                            <option value="ausente">Ausente</option>
+                            <option value="U">U</option>
+                            <option value="V">V</option>
+                        </select>
+                    </div>
+
+                    {{-- Equilíbrio fuste --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio Fuste *</label>
+                        <select name="stem_balance"
+                                class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                                required>
+                            <option value="ausente">Ausente</option>
+                            <option value="maior_45">Maior que 45°</option>
+                            <option value="menor_45">Menor que 45°</option>
+                        </select>
+                    </div>
+
+                    {{-- Equilíbrio copa --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio da copa *</label>
+                        <select name="crown_balance"
+                                class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                                required>
+                            <option value="equilibrada">Equilibrada</option>
+                            <option value="medianamente_desequilibrada">Medianamente Desequilibrada</option>
+                            <option value="desequilibrada">Desequilibrada</option>
+                            <option value="muito_desequilibrada">Muito Desequilibrada</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- SEÇÃO 6: AMBIENTE --}}
+            <div>
+                <h4 class="text-lg font-semibold text-[#358054] mb-3">Ambiente</h4>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    {{-- Organismos --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Organismos *</label>
+                        <select name="organisms"
+                                class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                                required>
+                            <option value="ausente">Ausente</option>
+                            <option value="infestacao_inicial">Infestação Inicial</option>
+                        </select>
+                    </div>
+
+                    {{-- Alvo --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Alvo *</label>
+                        <input type="text" name="target"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    {{-- Injúrias --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Injúrias mecânicas *</label>
+                        <input type="text" name="injuries"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    {{-- Fiação --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado da fiação *</label>
+                        <select name="wiring_status"
+                                class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                                required>
+                            <option value="pode_interferir">Pode interferir</option>
+                            <option value="interfere">Interfere</option>
+                            <option value="nao_interfere">Não interfere</option>
+                        </select>
+                    </div>
+
+                    {{-- Larguras --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura total (m) *</label>
+                        <input type="number" step="0.01" name="total_width"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura da rua (m) *</label>
+                        <input type="number" step="0.01" name="street_width"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    {{-- Gola --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura da gola (m) *</label>
+                        <input type="number" step="0.01" name="gutter_height"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura da gola (m) *</label>
+                        <input type="number" step="0.01" name="gutter_width"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Comprimento da gola (m) *</label>
+                        <input type="number" step="0.01" name="gutter_length"
+                               class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500"
+                               required>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- BOTÃO --}}
+            <button
+                class="px-6 py-3 bg-[#358054] hover:bg-[#2e6f48] text-white rounded-lg text-lg shadow-md active:scale-95 transition">
                 Adicionar Árvore
             </button>
-
         </form>
     </div>
 
-
     {{-- MAPA --}}
-    <div class="bg-white shadow-sm rounded-lg p-6 tree-card">
+    <div class="bg-white border border-gray-200 shadow rounded-xl p-8">
+        <h3 class="text-2xl font-bold mb-4 text-gray-800">Mapa de Árvores</h3>
+        <p class="text-sm text-gray-600 mb-4">Clique no mapa para definir coordenadas.</p>
 
-        <h3 class="text-xl font-semibold mb-4">Mapa de Árvores</h3>
-        <p class="text-sm text-gray-600 mb-3">Clique no mapa para definir coordenadas.</p>
-
-        <style>
-            #map {
-                height: 500px !important;
-                width: 100% !important;
-                min-height: 500px !important;
-                z-index: 1;
-            }
-        </style>
-
-        <div id="map"></div>
+        <div id="map" class="rounded-xl overflow-hidden" style="height: 500px;"></div>
     </div>
 @endsection
 
@@ -236,7 +344,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
 
             const map = L.map('map').setView([-22.6091, -43.7089], 14);
 
@@ -255,14 +363,18 @@
 
                 if (tempMarker) map.removeLayer(tempMarker);
 
-                tempMarker = L.marker([lat, lng]).addTo(map);
+                tempMarker = L.marker([lat, lng]).addTo(map)
+                    .bindPopup("Coordenada selecionada").openPopup();
             });
 
             const trees = @json($trees);
 
             trees.forEach(tree => {
                 L.marker([tree.latitude, tree.longitude]).addTo(map)
-                    .bindPopup(`<b>${tree.species.name}</b><br>${tree.address || 'Sem endereço'}`);
+                    .bindPopup(`
+                        <div style='font-weight:600; margin-bottom:4px;'>${tree.species.name}</div>
+                        <div style='color:#555;'>${tree.address || 'Sem endereço'}</div>
+                    `);
             });
 
         });
