@@ -48,6 +48,16 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+
+        'analyst' => [
+            'driver' => 'session',
+            'provider' => 'analysts',
+        ],
+
+        'service' => [
+        'driver' => 'session',
+        'provider' => 'services',
+        ],
         // --- FIM DA ADIÇÃO ---
     ],
 
@@ -80,6 +90,16 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
+        ],
+
+        'analysts' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Analyst::class,
+        ],
+
+        'services' => [
+             'driver' => 'eloquent',
+             'model' => App\Models\Service::class,
         ],
         // --- FIM DA ADIÇÃO ---
 
