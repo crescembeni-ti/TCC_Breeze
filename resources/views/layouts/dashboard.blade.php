@@ -174,7 +174,7 @@
         <!-- ========================================================= -->
         <!-- CONTEÚDO PRINCIPAL -->
         <!-- ========================================================= -->
-        <main class="flex-1 p-10 bg-transparent overflow-y-auto md:ml-60">
+        <main class="flex-1 p-10 bg-transparent overflow-y-auto md:ml-50">
             @yield('content')
         </main>
 
