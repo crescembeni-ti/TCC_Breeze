@@ -1,5 +1,3 @@
-@extends('layouts.dashboard')
-
 @section('title', 'Painel do Analista')
 
 @section('content')
