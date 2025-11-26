@@ -26,13 +26,20 @@
         @csrf
 
         <!-- Email -->
-        <div>
+       <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email"
-                class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500"
-                type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <div class="relative">
+                <input type="email"
+                id="email"
+                name="email"
+                :value="old('email')"
+                required
+                autofocus
+                autocomplete="username"
+                class="block mt-1 w-full rounded-md border border-gray-300 bg-[#f9fafb] text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 pr-10" />
+            </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+         </div>
 
         <!-- Senha com olhinho (Seu código está perfeito, mantive 100%) -->
         <div class="mt-4" x-data="{ show: false }">

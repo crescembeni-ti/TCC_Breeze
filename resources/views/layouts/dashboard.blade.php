@@ -148,15 +148,15 @@
                     </a>
 
                 @endif
-
+                
                 <a href="{{ route('about') }}" class="sidebar-link">
                     <i data-lucide="info" class="icon"></i> Sobre o Site
                 </a>
             </nav>
-
+        
             <!-- ================== LOGOUT ======================= -->
-            <div class="mt-auto border-t-2 border-green-400 pt-8">
-
+             <hr class="border-t-2 border-green-400 my-6 opacity-80">
+             
                 <a href="{{ route('home') }}" class="sidebar-link">
                     <i data-lucide="arrow-left-circle" class="icon"></i> Voltar ao Mapa
                 </a>
@@ -195,7 +195,7 @@
                     </form>
                 @endif
 
-            </div>
+            
         </aside>
 
         <!-- ================= CONTEÚDO ===================== -->

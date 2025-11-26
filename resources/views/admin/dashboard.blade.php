@@ -34,20 +34,21 @@
     </div>
 
     <div class="bg-white rounded-lg shadow p-6 mt-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Atividade Recente do Painel</h2>
-        <div class="space-y-4">
-            @forelse($adminLogs ?? [] as $log)
-                <div class="border-l-4 border-blue-500 pl-4 py-2">
-                    <p class="text-sm text-gray-600">
-                        {{ $log->created_at->format('d/m/Y H:i') }}
-                    </p>
-                    <p class="text-gray-900">
-                        {{ $log->description }}
-                    </p>
-                </div>
-            @empty
-                <p class="text-gray-600">Nenhuma atividade registrada ainda.</p>
-            @endforelse
-        </div>
+    <h2 class="text-2xl font-bold text-gray-900 mb-4">Atividade Recente do Painel</h2>
+    <div class="space-y-4">
+        @forelse($adminLogs ?? [] as $log)
+            <div class="border-l-4 border-[#358054] pl-4 py-2">
+                <p class="text-sm text-gray-600">
+                    {{ $log->created_at->format('d/m/Y H:i') }}
+                </p>
+                <p class="text-gray-900">
+                    {{ $log->description }}
+                </p>
+            </div>
+        @empty
+            <p class="text-gray-600">Nenhuma atividade registrada ainda.</p>
+        @endforelse
     </div>
+</div>
+
 @endsection

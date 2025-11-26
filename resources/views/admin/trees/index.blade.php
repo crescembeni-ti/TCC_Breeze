@@ -1,3 +1,6 @@
+@extends('layouts.dashboard')
+
+@section('content')
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -18,37 +21,13 @@
 
 <body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen">
 
-    <!-- HEADER -->
-    <header class="site-header">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
-
-            <!-- LOGOS E TÍTULO -->
-            <div class="flex items-center gap-4 flex-shrink-0">
-                <a href="{{ route('home') }}" class="flex items-center gap-4">
-                    <img src="{{ asset('images/Brasao_Verde.png') }}" alt="Logo Brasão de Paracambi"
-                        class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi"
-                        class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                    <h1 class="text-3xl sm:text-4xl font-bold">
-                        <span class="text-[#358054]">Árvores de</span>
-                        <span class="text-[#a0c520]">Paracambi</span>
-                    </h1>
-                </a>
-            </div>
-        </div>
-    </header>
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 p-10">
         <div class="bg-white shadow-sm rounded-lg p-8">
             <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-                <h2 class="text-3xl font-bold text-[#358054]">Gerenciar Árvores 🌳</h2>
+                <h2 class="text-3xl font-bold text-[#358054]">Gerenciar Árvores</h2>
 
-                <a href="{{ route('admin.dashboard') }}"
-                    class="inline-flex items-center px-4 py-2 bg-[#358054] text-white rounded-lg text-sm font-semibold hover:bg-[#2d6947] transition">
-                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                    Voltar ao Painel
-                </a>
             </div>
 
             <div class="overflow-x-auto">
@@ -91,12 +70,6 @@
         </div>
     </main>
 
-    <!-- RODAPÉ -->
-    <footer class="bg-gray-800 shadow mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
-        </div>
-    </footer>
 
     <script>
         lucide.createIcons();
@@ -104,3 +77,4 @@
 </body>
 
 </html>
+@endsection
