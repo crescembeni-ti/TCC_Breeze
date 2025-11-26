@@ -13,7 +13,7 @@
   padding: 25px 30px;
   margin-bottom: 25px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+  border: 1px solid #358054;
   transition: all 0.3s ease;
 }
 
@@ -64,7 +64,7 @@
 }
 
 .perfil-box button:hover {
-  background-color: #3f9a5e; /* Verde mais vibrante */
+  background-color: #38c224; /* Verde mais vibrante */
   box-shadow: 0 4px 10px rgba(53, 128, 84, 0.4);
   transform: translateY(-1px);
 }

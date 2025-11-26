@@ -2,119 +2,120 @@
 
 /* HEADER */
 header.site-header {
-    background: #beffb4;
-    border-bottom: 3px solid #358054;
-    box-shadow: 0 6px 12px rgba(53, 128, 84, 0.25);
+  background: #beffb4;
+  border-bottom: 2px solid #358054;
+  box-shadow: 0 6px 12px rgba(53, 128, 84, 0.25);
 }
 
 .btn {
-    background-color: #358054;
-    /* Verde principal */
-    color: #ffffff;
-    box-shadow: 0 2px 4px rgba(56, 194, 36, 0.2);
-    transition: all 0.2s ease-in-out;
+  background-color: #358054;
+  /* Verde principal */
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(56, 194, 36, 0.2);
+  transition: all 0.2s ease-in-out;
 }
 
 .btn:hover {
-    background-color: #38c224;
-    transform: scale(1.05) translateY(-2px);
-    filter: brightness(1.1);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background-color: #38c224;
+  transform: scale(1.05) translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* SIDEBAR */
 .sidebar {
-    min-height: calc(100vh - 6rem);
-    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.2);
+  min-height: calc(60vh);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.2);
 }
 
 .sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    color: #ffffff;
-    transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  color: #ffffff;
+  transition: all 0.2s ease-in-out;
 }
 
 .sidebar-link:hover {
-    background-color: #2b6d46;
-    transform: translateX(5px);
+  background-color: #2b6d46;
+  transform: translateX(5px);
 }
 
 .sidebar-link .icon {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2;
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
 }
 
 /* MAIN */
 main {
-    background-color: #f9fafb;
-    animation: fadeIn 0.8s ease-out;
+  background-color: transparent;
+  animation: fadeIn 0.8s ease-out;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(15px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* CARDS */
 .card {
-    background-color: #fff;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    border: 1px solid #d1d5db;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
+  background-color: #fff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
 .card h3 {
-    font-weight: 600;
-    color: #358054;
-    margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #358054;
+  margin-bottom: 0.5rem;
 }
 
 .input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #96cfa8;
-    border-radius: 8px;
-    font-size: 1rem;
-    background: #fff;
-    transition: 0.2s;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #96cfa8;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+  transition: 0.2s;
 }
 
 .input:focus {
-    border-color: #358054;
-    box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.25);
-    outline: none;
+  border-color: #358054;
+  box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.25);
+  outline: none;
 }
 
 .form-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #22543d;
-    margin-bottom: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #22543d;
+  margin-bottom: 4px;
 }
 
 .hint {
-    font-size: 0.75rem;
-    color: #666;
-    margin-top: 4px;
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 4px;
 }
 
 /* Animação para o efeito de desvanecer e aparecer */
@@ -123,6 +124,7 @@ main {
     opacity: 0;
     transform: translateY(20px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -132,4 +134,125 @@ main {
 /* Classe para aplicar a animação aos elementos */
 .group-transition {
   animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* ================================ */
+/*   IMAGENS E CARROSSEL RESPONSIVO */
+/* ================================ */
+
+/* Carrossel: mantém proporção e cobre toda a largura */
+#carrossel {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  position: relative;
+}
+
+#carrossel .slides {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  /* mantém a proporção */
+}
+
+#carrossel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 1s ease-in-out;
+  border-radius: 0.75rem;
+}
+
+/* Em telas menores, usa formato mais alto */
+@media (max-width: 768px) {
+  #carrossel .slides {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* ================================ */
+/*   IMAGENS DOS CARDS (ODS)        */
+/* ================================ */
+.card img {
+  width: 100%;
+  height: auto;
+  max-width: 220px;
+  object-fit: contain;
+  border-radius: 0.75rem;
+  margin: 0 auto 1rem auto;
+  display: block;
+}
+
+/* Ajuste extra para telas pequenas */
+@media (max-width: 640px) {
+  .card img {
+    max-width: 160px;
+  }
+}
+
+/* Estilo para os Tooltips (Legendas) - ADAPTADO */
+.tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 240px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  /* Centralizado fica melhor */
+  border-radius: 6px;
+  padding: 8px 12px;
+  position: absolute;
+  z-index: 10;
+  bottom: 135%;
+  /* Um pouco mais baixo para não ficar tão longe */
+
+  /* Posicionamento padrão (centralizado) */
+  left: 50%;
+  margin-left: -120px;
+  /* Metade da largura para centralizar */
+
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  pointer-events: none;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+  /* Sombra para destacar */
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* CORREÇÃO: Para tooltips muito à esquerda, alinhar à esquerda */
+.tooltip.left-align .tooltiptext {
+  left: 0;
+  margin-left: -10px;
+  /* Pequeno ajuste fino */
+}
+
+.tooltip.left-align .tooltiptext::after {
+  left: 20px;
+  /* Move a setinha para acompanhar o alinhamento */
+  margin-left: 0;
 }

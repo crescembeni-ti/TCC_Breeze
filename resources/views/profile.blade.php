@@ -1,4 +1,3 @@
-
 <x-app-layout>
     <div class="max-w-4xl mx-auto py-10 px-6">
         <h1 class="text-3xl font-bold text-green-700 mb-6">Perfil do Usuário</h1>
@@ -12,8 +11,7 @@
             </p>
 
             <div class="mt-8 flex justify-between items-center">
-                <a href="{{ route('home') }}"
-                   class="text-sm text-green-700 hover:text-green-800 underline font-medium">
+                <a href="{{ route('home') }}" class="text-sm text-green-700 hover:text-green-800 underline font-medium">
                     ← Voltar ao mapa
                 </a>
 
