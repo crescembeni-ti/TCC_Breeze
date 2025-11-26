@@ -10,45 +10,78 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/dashboard.css', 'resources/css/perfil.css'])
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js',
+        'resources/css/dashboard.css',
+        'resources/css/perfil.css'
+    ])
 
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
-    <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!--  SweetAlert2 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Alpine.js (Menu Mobile) -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
 </head>
 
 <body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen">
 
+    <!-- ========================================================= -->
     <!-- HEADER SUPERIOR -->
+    <!-- ========================================================= -->
     <header class="site-header">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
 
-            <!-- LOGOS E TÍTULO -->
-            <div class="flex items-center gap-4 flex-shrink-0">
+            <div class="flex items-center gap-4">
                 <a href="{{ route('home') }}" class="flex items-center gap-4">
-                    <img src="{{ asset('images/Brasao_Verde.png') }}" alt="Logo Brasão de Paracambi"
+                    <img src="{{ asset('images/Brasao_Verde.png') }}"
                         class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi"
+                    <img src="{{ asset('images/logo.png') }}"
                         class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
+
                     <h1 class="text-3xl sm:text-4xl font-bold">
                         <span class="text-[#358054]">Árvores de</span>
                         <span class="text-[#a0c520]">Paracambi</span>
                     </h1>
                 </a>
             </div>
+
+            <!-- BOTÃO MOBILE PARA ABRIR MENU -->
+            <button
+                @click="open = !open"
+                class="md:hidden bg-[#358054] text-white px-4 py-2 rounded-lg shadow font-medium">
+                Menu
+            </button>
+
         </div>
     </header>
 
-    <!-- ====== CONTEÚDO COM SIDEBAR ====== -->
-    <div class="flex flex-1 w-full items-start">
-        <!-- SIDEBAR -->
+    <!-- ========================================================= -->
+    <!-- LAYOUT COM SIDEBAR + CONTEÚDO -->
+    <!-- ========================================================= -->
+    <div x-data="{ open: false }" class="flex flex-1 w-full relative">
+
+        <!-- ========================================================= -->
+        <!-- SIDEBAR RESPONSIVA -->
+        <!-- ========================================================= -->
         <aside
-            class="sidebar w-60 bg-[#358054] text-white flex flex-col py-8 px-4 sticky top-0 h-fit self-start rounded-br-2xl">
+            :class="open ? 'translate-x-0' : '-translate-x-full'"
+            class="sidebar fixed md:static top-0 left-0
+                   w-60 h-full md:h-auto
+                   bg-[#358054] text-white
+                   flex flex-col py-8 px-4
+                   transform transition-transform duration-300
+                   md:translate-x-0
+                   z-40 md:z-auto
+                   rounded-br-2xl md:rounded-none">
+
             <nav class="space-y-4">
 
                 @if (auth('admin')->check())
+
                     <a href="{{ route('admin.dashboard') }}" class="sidebar-link">
                         <i data-lucide="layout-dashboard" class="icon"></i>
                         <span>Painel</span>
@@ -78,7 +111,9 @@
                         <i data-lucide="info" class="icon"></i>
                         <span>Sobre o Site</span>
                     </a>
+
                 @else
+
                     <a href="{{ route('dashboard') }}" class="sidebar-link">
                         <i data-lucide="layout-dashboard" class="icon"></i>
                         <span>Menu</span>
@@ -103,12 +138,14 @@
                         <i data-lucide="info" class="icon"></i>
                         <span>Sobre o Site</span>
                     </a>
+
                 @endif
             </nav>
 
+            <!-- Rodapé da Sidebar -->
             <div class="mt-auto border-t-2 border-green-400 pt-8">
 
-                <a href="{{ route('home') }}" class="sidebar-link text-base font-medium hover:opacity-100">
+                <a href="{{ route('home') }}" class="sidebar-link">
                     <i data-lucide="arrow-left-circle" class="icon"></i>
                     Voltar ao Mapa
                 </a>
@@ -116,7 +153,7 @@
                 @if (auth('admin')->check())
                     <form method="POST" action="{{ route('admin.logout') }}" class="mt-2">
                         @csrf
-                        <a href="#" class="sidebar-link text-base font-medium hover:opacity-100 logout-btn">
+                        <a href="#" class="sidebar-link logout-btn">
                             <i data-lucide="log-out" class="icon"></i>
                             Sair
                         </a>
@@ -124,41 +161,46 @@
                 @else
                     <form method="POST" action="{{ route('logout') }}" class="mt-2">
                         @csrf
-                        <a href="#" class="sidebar-link text-base font-medium hover:opacity-100 logout-btn">
+                        <a href="#" class="sidebar-link logout-btn">
                             <i data-lucide="log-out" class="icon"></i>
                             Sair
                         </a>
                     </form>
                 @endif
+
             </div>
         </aside>
 
+        <!-- ========================================================= -->
         <!-- CONTEÚDO PRINCIPAL -->
-        <main class="flex-1 p-10 bg-transparent overflow-y-auto">
+        <!-- ========================================================= -->
+        <main class="flex-1 p-10 bg-transparent overflow-y-auto md:ml-50">
             @yield('content')
         </main>
+
     </div>
 
+    <!-- ========================================================= -->
     <!-- RODAPÉ -->
+    <!-- ========================================================= -->
     <footer class="bg-gray-800 shadow mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
         </div>
     </footer>
 
-    <script>
-        lucide.createIcons();
-    </script>
+    <script> lucide.createIcons(); </script>
 
-    <!--  Modal de confirmação SWEETALERT -->
+    <!-- Logout com SweetAlert -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll(".logout-btn").forEach(btn => {
-                btn.addEventListener("click", function(e) {
+
+                btn.addEventListener("click", function (e) {
                     e.preventDefault();
 
                     Swal.fire({
-                        title: "Tem certeza que quer sair?",
+                        title: "Deseja realmente sair?",
                         text: "Você precisará fazer login novamente.",
                         icon: "warning",
                         showCancelButton: true,
@@ -172,6 +214,7 @@
                         }
                     });
                 });
+
             });
         });
     </script>

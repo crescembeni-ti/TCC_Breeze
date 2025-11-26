@@ -8,7 +8,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\VerifyEmailCodeController;
 use App\Http\Controllers\NoticiaController;
-
+use App\Http\Controllers\AnalystLoginController; 
 use Illuminate\Support\Facades\Route;
 use App\Models\Bairro;
 
