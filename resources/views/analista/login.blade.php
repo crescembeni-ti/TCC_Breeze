@@ -19,6 +19,7 @@
     <!-- Mensagem de status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
+    <!-- FORM CORRIGIDO: abre e fecha corretamente -->
     <form method="POST" action="{{ route('analyst.login.store') }}">
         @csrf
 
@@ -52,6 +53,7 @@
                         class="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-green-700"
                         tabindex="-1"
                         aria-label="Mostrar ou ocultar senha">
+                    
                     <!-- Ícone olho fechado -->
                     <svg x-show="!show" xmlns="http://www.w3.org/2000/svg" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
@@ -78,6 +80,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M3 3l18 18" />
                     </svg>
+
                 </button>
             </div>
 

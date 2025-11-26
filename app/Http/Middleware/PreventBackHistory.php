@@ -11,9 +11,8 @@ class PreventBackHistory
     public function handle(Request $request, Closure $next): Response
     {
         /**
-         * 🔓 ROTAS SEM RESTRIÇÃO
-         * Essas rotas NÃO podem sofrer redirecionamento
-         * e NÃO devem ser verificadas pelo preventBack.
+         * 🔓 ROTAS QUE NÃO PODEM SER INTERCEPTADAS
+         * (login, registro, mapa, api pública etc.)
          */
         $rotasLiberadas = [
             'login',
@@ -27,17 +26,16 @@ class PreventBackHistory
             'verify-code',
             'verify-code/*',
 
-            // 🔥 API pública usada pelo mapa
-            'api/*',
+            // API pública usada no mapa
             'api',
+            'api/*',
 
-
-            // 🔥 Página pública do mapa
+            // Página pública do mapa
             '/',
             'home',
         ];
 
-        // Se a rota estiver liberada → processa normal sem bloqueios
+        // Ignorar rotas liberadas
         foreach ($rotasLiberadas as $rota) {
             if ($request->is($rota)) {
                 $response = $next($request);
@@ -45,24 +43,30 @@ class PreventBackHistory
             }
         }
 
-        // Executa a requisição normal
+        // Continua a request normalmente
         $response = $next($request);
 
         // Remove cache de páginas protegidas
         $this->noCache($response);
 
         /**
-         * 🚫 Tentativa de voltar após logout
-         * Se o usuário NÃO está logado e a página exige login
+         * 🚫 Usuário tenta voltar após logout
          */
         if ($this->isBackNavigationAfterLogout($request)) {
 
-            // Se for área administrativa
             if ($request->is('pbi-admin/*')) {
                 return redirect()->route('admin.login');
             }
 
-            // Senão, área do usuário normal
+            if ($request->is('pbi-analista/*')) {
+                return redirect()->route('analyst.login');
+            }
+
+            if ($request->is('pbi-servico/*')) {
+                return redirect()->route('service.login');
+            }
+
+            // rota padrão (usuário)
             return redirect()->route('login');
         }
 
@@ -80,13 +84,16 @@ class PreventBackHistory
     }
 
     /**
-     * Detecta "voltar" após logout
+     * Detecta tentativa de voltar após logout
+     * (considera TODOS os guards!)
      */
     private function isBackNavigationAfterLogout(Request $request): bool
     {
-        return in_array($request->method(), ['GET', 'POST'])
-            && !auth()->check()
+        return in_array($request->method(), ['GET'])
+            && !auth('web')->check()
             && !auth('admin')->check()
+            && !auth('analyst')->check()
+            && !auth('service')->check()
             && $request->headers->get('cache-control') !== null;
     }
 }

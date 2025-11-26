@@ -1,129 +1,83 @@
-@section('title', 'Painel do Analista')
+@extends('layouts.dashboard')
+
+@section('title', 'Dashboard do Analista')
 
 @section('content')
-<div class="bg-white overflow-hidden p-8 rounded-lg" style="box-shadow: 0 4px 12px rgba(56, 194, 36, 0.3);">
-    <h2 class="text-3xl font-bold text-[#358054] mb-4">Bem-vindo, {{ $user->name }}</h2>
-    <p class="text-gray-700 text-lg">
-        Continue nos ajudando a cuidar das árvores da nossa cidade! <br>
-        Cada ação, cada solicitação e cada cuidado faz a diferença para manter Paracambi mais verde, saudável e bonita. <br>
-        Juntos, estamos construindo um futuro mais sustentável e cheio de vida.
-    </p>
 
-    {{-- Carrossel de imagens --}}
-    <div class="relative w-full max-w-8x1 mx-auto rounded-xl overflow-hidden shadow-lg cursor-pointer mt-8" id="carrossel">
-        <div class="slides relative w-full h-[600px]">
-            <img src="{{ asset('images/fabrica.jpeg') }}" class="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000" alt="imagem 1">
-            <img src="{{ asset('images/arvore.jpeg') }}" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000" alt="imagem 2">
-            <img src="{{ asset('images/fotofabrica.jpg') }}" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000" alt="imagem 3">
+    <header class="bg-white shadow mb-8 rounded-lg p-6">
+        <h2 class="text-3xl font-semibold text-[#358054] leading-tight">
+            Painel do Analista
+        </h2>
+        <p class="text-gray-600 mt-1">Gerencie e realize as vistorias pendentes.</p>
+    </header>
+    
+    <div class="space-y-8">
+        
+        {{-- CARD DE VISÃO GERAL --}}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {{-- Substitua 5 por uma variável que carrega o COUNT de vistorias pendentes --}}
+            <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
+                <p class="text-sm font-medium text-gray-500">Vistorias Pendentes</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">5</p> 
+            </div>
+            
+            {{-- Substitua 12 por uma variável que carrega o COUNT de vistorias concluídas --}}
+            <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                <p class="text-sm font-medium text-gray-500">Vistorias Concluídas</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">12</p>
+            </div>
+
+            {{-- Card para o perfil --}}
+             <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-gray-500 flex justify-between items-center">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Acesse seu Perfil</p>
+                    <p class="text-xl font-bold text-gray-900 mt-1">{{ Auth::guard('analyst')->user()->name }}</p>
+                </div>
+                <a href="{{ route('analyst.profile.edit') }}" class="text-green-600 hover:text-green-700 font-medium">
+                    Ver →
+                </a>
+            </div>
+        </div>
+
+        {{-- TABELA PRINCIPAL DE VISTORIAS --}}
+        <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-[#358054] mb-6">
+                    Lista de Solicitações de Vistoria
+                </h3>
+                
+                {{-- A LÓGICA DE EXIBIÇÃO DE DADOS VEM AQUI --}}
+                <p class="text-lg text-red-500">⚠️ **Lembrete:** Esta lista precisa ser carregada do seu Controller, passando os dados para a View.</p>
+                
+                {{-- Exemplo de como a tabela deve ficar --}}
+                <div class="mt-4">
+                    {{-- Estrutura da Tabela (necessita de dados do Controller) --}}
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Solicitação</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {{-- @foreach ($vistorias as $vistoria) --}}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">#001</td>
+                                <td class="px-6 py-4 whitespace-nowrap">Poda de Árvore Risco</td>
+                                <td class="px-6 py-4 whitespace-nowrap">2025-11-25</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="#" class="text-indigo-600 hover:text-indigo-900">Iniciar Vistoria</a>
+                                </td>
+                            </tr>
+                            {{-- @endforeach --}}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
         </div>
     </div>
 
-    {{-- Texto introdutório para as estatísticas --}}
-    <div class="mt-10 text-center">
-    <h3 class="text-2xl font-semibold text-[#358054] mb-3">Cuidar da natureza é cuidar da nossa cidade</h3>
-    <p class="text-gray-700 text-lg leading-relaxed max-w-5xl mx-auto">
-        Paracambi segue comprometida com a preservação e o monitoramento de suas árvores!<br>
-        O mapeamento ambiental reflete o empenho da população e da gestão pública em proteger nosso patrimônio natural.<br>
-        Abaixo, você confere alguns dados que representam esse compromisso com o meio ambiente.
-    </p>
-    </div>
-
-
-    {{-- Estatísticas --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-        <div class="card text-center">
-            <h3>Total de Árvores</h3>
-            <p class="text-4xl font-bold text-green-700">{{ $stats['total_trees']}}</p>
-        </div>
-
-        <div class="card text-center">
-            <h3>Atividades Registradas</h3>
-            <p class="text-4xl font-bold text-blue-700">{{ $stats['total_activities']}}</p>
-        </div>
-
-        <div class="card text-center">
-            <h3>Espécies no Mapa</h3>
-            <p class="text-4xl font-bold text-purple-700">{{ $stats['total_species']}}</p>
-        </div>
-    </div>
-
-    {{-- Conexão com os ODS --}}
-    <div class="mt-12 text-center">
-        <h3 class="text-2xl font-semibold text-[#358054] mb-3">Cuidar das árvores é cuidar do futuro</h3>
-        <p class="text-gray-700 text-lg leading-relaxed max-w-3xl mx-auto">
-        Ao ajudar a preservar as árvores de Paracambi, você também está contribuindo com os Objetivos de Desenvolvimento Sustentável <strong>(ODS)</strong> da ONU.<br>  
-        Essas ações fortalecem metas globais essenciais para o planeta, como: 
-        <br>
-        </p>
-    </div>
-
-     {{-- Cards dos ODS --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-10">
-        <!-- ODS 3 - Saúde e Bem-Estar -->
-        <div class="card bg-gray-50 shadow-lg rounded-lg text-center p-6">
-            <img src="{{ asset('images/ods3.jpg') }}" alt="ODS 3" class="w-48 h-48 object-cover rounded-lg mx-auto mb-4">
-            <h4 class="text-xl font-semibold text-[#358054]">ODS 3 - Saúde e Bem-Estar</h4>
-            <p class="text-gray-700">Garantir uma vida saudável e promover o bem-estar para todos, em todas as idades.</p>
-        </div>
-
-        <!-- ODS 11 - Cidades e Comunidades Sustentáveis -->
-        <div class="card bg-gray-50 shadow-lg rounded-lg text-center p-6">
-            <img src="{{ asset('images/ods11.jpg') }}" alt="ODS 11" class="w-48 h-48 object-cover rounded-lg mx-auto mb-4">
-            <h4 class="text-xl font-semibold text-[#358054]">ODS 11 - Cidades Sustentáveis</h4>
-            <p class="text-gray-700">Tornar as cidades e os assentamentos humanos inclusivos, seguros, resilientes e sustentáveis.</p>
-        </div>
-
-        <!-- ODS 13 - Ação contra a Mudança Global do Clima -->
-        <div class="card bg-gray-50 shadow-lg rounded-lg text-center p-6">
-            <img src="{{ asset('images/ods13.jpg') }}" alt="ODS 13" class="w-48 h-48 object-cover rounded-lg mx-auto mb-4">
-            <h4 class="text-xl font-semibold text-[#358054]">ODS 13 - Ação contra a Mudança Climática</h4>
-            <p class="text-gray-700">Melhorar a educação e a conscientização sobre as mudanças climáticas e suas consequências.</p>
-        </div>
-
-        <!-- ODS 15 - Vida Terrestre -->
-        <div class="card bg-gray-50 shadow-lg rounded-lg text-center p-6">
-            <img src="{{ asset('images/ods15.jpg') }}" alt="ODS 15" class="w-48 h-48 object-cover rounded-lg mx-auto mb-4">
-            <h4 class="text-xl font-semibold text-[#358054]">ODS 15 - Vida Terrestre</h4>
-            <p class="text-gray-700">Proteger, restaurar e promover o uso sustentável dos ecossistemas terrestres.</p>
-        </div>
-
-        <!-- ODS 17 - Parcerias e Meios de Implementação -->
-        <div class="card bg-gray-50 shadow-lg rounded-lg text-center p-6">
-            <img src="{{ asset('images/ods17.jpg') }}" alt="ODS 17" class="w-48 h-48 object-cover rounded-lg mx-auto mb-4">
-            <h4 class="text-xl font-semibold text-[#358054]">ODS 17 - Parcerias e Meios de Implementação</h4>
-            <p class="text-gray-700">Fortalecer os meios de implementação e revitalizar a parceria global para o desenvolvimento sustentável.</p>
-        </div>
-    </div>
-
-</div>
 @endsection
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const slides = document.querySelectorAll("#carrossel .slides img");
-    let current = 0;
-
-    // Troca automática a cada 5 segundos
-    setInterval(() => {
-        slides[current].classList.remove("opacity-100");
-        slides[current].classList.add("opacity-0");
-
-        current = (current + 1) % slides.length;
-
-        slides[current].classList.remove("opacity-0");
-        slides[current].classList.add("opacity-100");
-    }, 5000);
-
-    // Troca manual ao clicar na imagem
-    const carrossel = document.getElementById("carrossel");
-    carrossel.addEventListener("click", () => {
-        slides[current].classList.remove("opacity-100");
-        slides[current].classList.add("opacity-0");
-
-        current = (current + 1) % slides.length;
-
-        slides[current].classList.remove("opacity-0");
-        slides[current].classList.add("opacity-100");
-    });
-});
-</script>
