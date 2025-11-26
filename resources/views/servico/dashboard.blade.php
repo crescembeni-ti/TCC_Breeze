@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Painel do Usuário')
+@section('title', 'Painel da Equipe de Serviço')
 
 @section('content')
 <div class="bg-white overflow-hidden p-8 rounded-lg" style="box-shadow: 0 4px 12px rgba(56, 194, 36, 0.3);">

@@ -12,10 +12,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+
+        // === Alias de Middleware Personalizados ===
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminMiddleware::class,
-            'preventBack' => \App\Http\Middleware\PreventBackHistory::class,
+            'admin'         => \App\Http\Middleware\AdminMiddleware::class,
+            'preventBack'   => \App\Http\Middleware\PreventBackHistory::class,
+
+            // Middleware ESSENCIAL para multi-auth
+            // Garante que ao acessar outra área, guards incorretos são deslogados
+            'guard.only'    => \App\Http\Middleware\RedirectIfAuthenticatedInAnotherGuard::class,
         ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

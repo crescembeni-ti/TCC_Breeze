@@ -4,33 +4,28 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Exibe a tela de login.
-     */
-    public function create(): View
+    public function create()
     {
         return view('auth.login');
     }
 
-    /**
-     * Lida com a requisição de autenticação.
-     */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
-        // Tenta autenticar
+        // DESLOGA TODOS OS OUTROS GUARDS
+        Auth::guard('admin')->logout();
+        Auth::guard('analyst')->logout();
+        Auth::guard('service')->logout();
+
         $request->authenticate();
 
         $user = $request->user();
 
-        // Se email não verificado → bloco
         if (!$user->hasVerifiedEmail()) {
 
             Auth::guard('web')->logout();
@@ -42,17 +37,12 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        // Login OK
         $request->session()->regenerate();
 
-        // 🔥 USUÁRIO VAI PRO MAPA (welcome)
-        return redirect()->intended(route('home'));
+        return redirect()->intended(route('dashboard'));
     }
 
-    /**
-     * Logout do usuário.
-     */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
         Auth::guard('web')->logout();
 

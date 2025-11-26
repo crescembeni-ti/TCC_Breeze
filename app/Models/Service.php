@@ -12,7 +12,7 @@ class Service extends Authenticatable
     protected $table = 'services';
 
     protected $fillable = [
-        'nome',
+        'name',
         'email',
         'cpf',
         'password',

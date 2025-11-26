@@ -8,27 +8,28 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Tela de login do serviço.
-     */
     public function create()
     {
-        return view('servico.login'); // você criará esta view
+        return view('servico.login');
     }
 
-    /**
-     * Autenticação do serviço.
-     */
     public function store(Request $request)
     {
+        // DESLOGA TODOS OS OUTROS GUARDS
+        Auth::guard('web')->logout();
+        Auth::guard('admin')->logout();
+        Auth::guard('analyst')->logout();
+
         $credentials = $request->validate([
             'email' => ['required','email'],
             'password' => ['required'],
         ]);
 
         if (Auth::guard('service')->attempt($credentials, $request->boolean('remember'))) {
+
             $request->session()->regenerate();
-            return redirect()->route('servico.dashboard');
+
+            return redirect()->route('service.dashboard');
         }
 
         return back()->withErrors([
@@ -36,9 +37,6 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
-    /**
-     * Logout do serviço.
-     */
     public function destroy(Request $request)
     {
         Auth::guard('service')->logout();
@@ -46,6 +44,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('servico.login');
+        return redirect()->route('service.login');
     }
 }

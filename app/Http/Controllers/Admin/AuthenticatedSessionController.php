@@ -4,60 +4,46 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Tela de login do admin.
-     */
-    public function create(): View
+    public function create()
     {
         return view('admin.auth.login');
     }
 
-    /**
-     * Autenticação do admin.
-     */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        // Validação
+        // DESLOGA TODOS OS OUTROS GUARDS
+        Auth::guard('web')->logout();
+        Auth::guard('analyst')->logout();
+        Auth::guard('service')->logout();
+
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required','email'],
             'password' => ['required'],
         ]);
 
-        // Se usuário comum estiver logado → desloga
-        Auth::guard('web')->logout();
-
-        // Login via guard admin
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
 
             $request->session()->regenerate();
 
-            // 🔥 ADMIN TAMBÉM VAI PARA O MAPA (welcome)
-            return redirect()->intended(route('home'));
+            return redirect()->route('admin.dashboard');
         }
 
-        // Erro nas credenciais
         return back()->withErrors([
             'email' => __('auth.failed'),
         ])->onlyInput('email');
     }
 
-    /**
-     * Logout do admin.
-     */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
         Auth::guard('admin')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Após logout → login admin
-        return redirect(route('admin.login'));
+        return redirect()->route('admin.login');
     }
 }
