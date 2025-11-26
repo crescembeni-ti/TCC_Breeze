@@ -17,7 +17,7 @@ use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminLoginContr
 use App\Http\Controllers\Admin\AdminProfileController;
 
 // ANALISTA controllers
-use App\Http\Controllers\Analista\AuthenticatedSessionController as AnalistaLoginController;
+use App\Http\Controllers\Analista\AuthenticatedSessionController as AnalystLoginController;
 
 // SERVIÇO controllers
 use App\Http\Controllers\Servico\AuthenticatedSessionController as ServicoLoginController;
@@ -77,6 +77,7 @@ Route::middleware(['auth', 'verified', 'preventBack'])->group(function () {
 |--------------------------------------------------------------------------
 | 🔐 ROTAS ADMINISTRATIVAS (/pbi-admin)
 |--------------------------------------------------------------------------
+| Guard: admin | Provider: admins | Model: App\Models\Admin
 */
 Route::prefix('pbi-admin')->name('admin.')->group(function () {
 
@@ -85,7 +86,8 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
     // Login admin
     Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
-        Route::post('/login', [AdminLoginController::class, 'store']);
+        // CORRIGIDO: Nome da rota de submissão do formulário
+        Route::post('/login', [AdminLoginController::class, 'store'])->name('login.store'); 
     });
 
     // Área protegida admin
@@ -123,6 +125,7 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
 |--------------------------------------------------------------------------
 | 🧪 ROTAS DO ANALISTA (/pbi-analista)
 |--------------------------------------------------------------------------
+| Guard: analyst | Provider: analysts | Model: App\Models\Analyst
 */
 Route::prefix('pbi-analista')->name('analyst.')->group(function () {
 
@@ -134,7 +137,8 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
     // Login do analista (apenas guest)
     Route::middleware('guest:analyst')->group(function () {
         Route::get('/login', [AnalystLoginController::class, 'create'])->name('login');
-        Route::post('/login', [AnalystLoginController::class, 'store']);
+        // CORRIGIDO: Nome da rota de submissão do formulário (USADO NA VIEW)
+        Route::post('/login', [AnalystLoginController::class, 'store'])->name('login.store');
     });
 
     // Área protegida do analista
@@ -152,6 +156,7 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
 |--------------------------------------------------------------------------
 | 🛠 ROTAS DO SERVIÇO (/pbi-servico)
 |--------------------------------------------------------------------------
+| Guard: service | Provider: services | Model: App\Models\Service
 */
 Route::prefix('pbi-servico')->name('service.')->group(function () {
 
@@ -162,13 +167,14 @@ Route::prefix('pbi-servico')->name('service.')->group(function () {
     
     // Login serviço (guest)
     Route::middleware('guest:service')->group(function () {
-        Route::get('/login', [ServiceLoginController::class, 'create'])->name('login');
-        Route::post('/login', [ServiceLoginController::class, 'store']);
+        Route::get('/login', [ServicoLoginController::class, 'create'])->name('login');
+        // CORRIGIDO: Nome da rota de submissão do formulário
+        Route::post('/login', [ServicoLoginController::class, 'store'])->name('login.store');
     });
 
     // Área protegida do serviço
     Route::middleware(['auth:service', 'preventBack'])->group(function () {
-        Route::post('/logout', [ServiceLoginController::class, 'destroy'])->name('logout');
+        Route::post('/logout', [ServicoLoginController::class, 'destroy'])->name('logout');
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/map', [TreeController::class, 'adminMap'])->name('map');

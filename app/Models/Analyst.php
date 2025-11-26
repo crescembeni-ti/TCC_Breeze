@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class Analist extends Authenticatable
+class Analyst extends Authenticatable
 {
     use Notifiable;
 
     protected $table = 'analysts';
 
     protected $fillable = [
-        'nome',
+        'name',
         'email',
         'cpf',
         'password',
