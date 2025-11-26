@@ -6,57 +6,39 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Notifications\VerifyEmailWithCode; // Seu código de verificação
-use App\Models\Contact; // Importando o modelo Contact
+use App\Notifications\VerifyEmailWithCode;
+use App\Models\Contact; 
 use App\Notifications\SendVerificationCode;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-// --- IMPORTS ADICIONADOS PARA A FOTO DE PERFIL ---
+// Imports para a foto
 use Illuminate\Database\Eloquent\Casts\Attribute; 
 use Illuminate\Support\Facades\Storage; 
 
-class User extends Authenticatable 
+// Adicionado "implements MustVerifyEmail" para garantir que a verificação funcione
+class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles; 
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'is_admin',
+        'is_admin', // Mantido por compatibilidade (pode remover no futuro)
+        'role',     // <-- O CAMPO NOVO (admin, analista, user)
         'email_verification_code',
         'email_verification_code_expires_at',
         'profile_photo_path',
-        
-        // =======================================================
-        //  ADICIONE A COLUNA DO TOKEN FCM
-        // =======================================================
         'fcm_token',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
-        'fcm_token', // Opcional: mas bom para segurança, para não enviar o token a todos
+        'fcm_token', 
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -66,14 +48,29 @@ class User extends Authenticatable
         ];
     }
 
+    // =======================================================
+    //  MÉTODOS DE PERMISSÃO (ATUALIZADOS)
+    // =======================================================
+    
+    /**
+     * Verifica se é Admin olhando o novo campo 'role'
+     */
     public function isAdmin(): bool
     {
-        return $this->is_admin;
+        // Verifica se a role é 'admin' OU se o booleano antigo é true
+        return $this->role === 'admin' || $this->is_admin === true;
     }
 
     /**
-     * Envia a notificação de verificação de e-mail customizada.
+     * Verifica se é Analista (Funcionário)
      */
+    public function isAnalyst(): bool
+    {
+        return $this->role === 'analista';
+    }
+
+    // =======================================================
+
     public function sendEmailVerificationNotification()
     {
         $this->notify(new SendVerificationCode); 
@@ -84,16 +81,12 @@ class User extends Authenticatable
         return $this->hasMany(Contact::class);
     }
 
-    /**
-     * Retorna a URL completa da foto de perfil.
-     */
+    // Acessor da Foto
     protected function profilePhotoUrl(): Attribute
     {
         return Attribute::make(
             get: fn ($value, $attributes) => $attributes['profile_photo_path']
-                // Se a foto existir no banco, retorna a URL completa
                 ? Storage::url($attributes['profile_photo_path'])
-                // Senão, retorna null
                 : null,
         );
     }

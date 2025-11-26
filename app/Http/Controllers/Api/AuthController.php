@@ -253,4 +253,21 @@ public function updateProfile(Request $request)
         ]);
     }
 
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+
+        // 1. Apaga a foto de perfil do armazenamento, se existir
+        if ($user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+        }
+
+        // 2. Apaga o usuário do banco de dados
+        // (Como configuramos 'onDelete cascade' nas migrations de Contacts,
+        // as solicitações dele serão apagadas automaticamente pelo banco)
+        $user->delete();
+
+        return response()->json(['message' => 'Conta excluída com sucesso.']);
+    }
+
 }

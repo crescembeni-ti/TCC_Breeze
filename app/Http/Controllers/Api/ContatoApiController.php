@@ -15,16 +15,12 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage; 
 use Illuminate\Support\Facades\Log;
 
-// Imports do Firebase
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 
 class ContatoApiController extends Controller
 {
-    /**
-     * [API] Salva a solicitação de contato vinda do App.
-     * (Substitui o seu método 'store' simples)
-     */
+    // --- 1. Salvar Solicitação ---
     public function storeApi(Request $request)
     {
         $user = $request->user(); 
@@ -43,7 +39,6 @@ class ContatoApiController extends Controller
             $fotoPath = $request->file('imagem')->store('solicitacoes', 'public');
         }
 
-        // Lógica de Status (Em Análise)
         $statusEmAnalise = Status::where('name', 'Em Análise')->first();
         $statusEmAnaliseId = $statusEmAnalise ? $statusEmAnalise->id : 1; 
 
@@ -57,21 +52,20 @@ class ContatoApiController extends Controller
             'bairro' => $validated['bairro'],
             'rua' => $validated['rua'],
             'numero' => $validated['numero'],
-            'status_id' => $statusEmAnaliseId, // Usamos ID, não string 'novo'
+            'status_id' => $statusEmAnaliseId,
             'justificativa' => null,
         ];
         
         $contact = Contact::create($dataToSave); 
 
+        // CORREÇÃO: Retorna JSON, não redirect
         return response()->json([
             'message' => 'Solicitação criada com sucesso!',
             'data' => $contact 
         ], 201);
     }
 
-    /**
-     * [API] Retorna a lista de solicitações do usuário logado.
-     */
+    // --- 2. Listar Minhas Solicitações ---
     public function userRequestListApi(Request $request)
     {
         $user = $request->user();
@@ -87,18 +81,21 @@ class ContatoApiController extends Controller
         return response()->json($myRequests);
     }
     
-    /**
-     * [API ADMIN] Retorna TODAS as solicitações (Backup).
-     */
+    // --- 3. Listar Todas (Admin) ---
     public function adminRequestListApi(Request $request)
     {
         $solicitacoes = Contact::with('status', 'user')->latest()->get();
         return response()->json($solicitacoes);
     }
 
-    /**
-     * [API ADMIN] Atualiza o status e envia notificação Push.
-     */
+    // --- 4. Listar Analistas (Novo) ---
+    public function getAnalystsList()
+    {
+        $analysts = User::where('role', 'analista')->select('id', 'name', 'email')->get();
+        return response()->json($analysts);
+    }
+
+    // --- 5. Atualizar Status e Designar ---
     public function adminUpdateStatusApi(Request $request, Contact $contact)
     {
         $statusIndeferidoId = Cache::remember('status_indeferido_id', 3600, function () {
@@ -112,31 +109,39 @@ class ContatoApiController extends Controller
                 'string',
                 Rule::requiredIf($request->status_id == $statusIndeferidoId)
             ],
+            'designated_to' => 'nullable|integer|exists:users,id'
         ]);
 
         $dataToSave = [
             'status_id' => $validated['status_id'],
-            'justificativa' => $validated['justificativa'],
+            'justificativa' => $validated['justificativa'] ?? null,
         ];
 
         if ($validated['status_id'] != $statusIndeferidoId) {
             $dataToSave['justificativa'] = null;
         }
+        
+        // Atualiza o funcionário designado
+        if ($request->has('designated_to')) {
+            $dataToSave['designated_to'] = $validated['designated_to'];
+        }
 
         $contact->update($dataToSave);
         
-        // --- ENVIAR NOTIFICAÇÃO PUSH ---
+        // Enviar Notificação
         try {
-            $contact->load('status', 'user'); 
+            $contact->load('status', 'user', 'responsible'); 
             $user = $contact->user; 
             $fcmToken = $user->fcm_token; 
 
             if ($fcmToken) {
                 $messaging = app('firebase.messaging');
                 
+                $responsavelNome = $contact->responsible ? $contact->responsible->name : 'Ninguém';
+                
                 $notification = Notification::create(
                     'Sua solicitação foi atualizada!', 
-                    'O status da sua solicitação "' . $contact->topico . '" agora é: ' . $contact->status->name
+                    'Status: ' . $contact->status->name . '. Responsável: ' . $responsavelNome
                 );
 
                 $message = CloudMessage::withTarget('token', $fcmToken)
@@ -169,9 +174,7 @@ class ContatoApiController extends Controller
         ]);
     }
     
-    /**
-     * [API ADMIN] Retorna solicitações filtradas por GRUPO (Abas).
-     */
+    // --- 6. Listar por Abas ---
     public function adminRequestListByStatusApi(Request $request, $statusName)
     {
         $statusNomes = [];
