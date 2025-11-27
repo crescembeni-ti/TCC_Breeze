@@ -24,16 +24,20 @@
         @csrf
 
         <!-- Email -->
-        <div>
+        <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email"
-                class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500"
-                type="email"
+            <div class="relative">
+                <input type="email"
+                id="email"
                 name="email"
                 :value="old('email')"
-                required autofocus autocomplete="username" />
+                required
+                autofocus
+                autocomplete="username"
+                class="block mt-1 w-full rounded-md border border-gray-300 bg-[#f9fafb] text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 pr-10" />
+            </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+         </div>
 
         <!-- Senha com olhinho -->
         <div class="mt-4" x-data="{ show: false }">
@@ -106,8 +110,14 @@
 
         <!-- Botão -->
         <div class="mt-6">
-            <x-primary-button class="w-full justify-center bg-green-600 hover:bg-green-700">
-                Entrar
+            <x-primary-button class="w-full justify-center 
+            bg-green-600 
+            hover:bg-green-700 
+            active:bg-[#38c224] 
+            focus:outline-none
+            focus:ring-0
+            focus:border-transparent">
+            Entrar
             </x-primary-button>
         </div>
 

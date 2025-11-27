@@ -4,7 +4,7 @@
  * Estilos refinados para a página "Contato".
  */
 
- body {
+body {
     /* 1. O caminho da imagem (na pasta 'public/images/') */
     background-image: url('/public/images/fotofabrica.jpg');
 

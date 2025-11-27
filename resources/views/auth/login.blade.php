@@ -107,8 +107,14 @@
 
         <!-- Botão -->
         <div class="mt-6">
-            <x-primary-button class="w-full justify-center bg-green-600 hover:bg-green-700">
-                Entrar
+            <x-primary-button class="w-full justify-center 
+            bg-green-600 
+            hover:bg-green-700 
+            active:bg-[#38c224] 
+            focus:outline-none
+            focus:ring-0
+            focus:border-transparent">
+            Entrar
             </x-primary-button>
         </div>
 

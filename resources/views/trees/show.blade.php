@@ -24,21 +24,31 @@
     <div class="min-h-screen">
 
         <!-- HEADER -->
-        <header class="site-header relative" style="background-color: #beffb4;">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi"
-                        class="h-20 w-20 object-contain">
-                    <h1 class="text-4xl font-bold">
-                        <span class="text-[#358054]">Detalhes</span>
-                        <span class="text-[#a0c520]"> das Árvores</span>
+        <header class="site-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
+
+            <div class="flex items-center gap-4">
+                <a href="{{ route('home') }}" class="flex items-center gap-4">
+                    <img src="{{ asset('images/Brasao_Verde.png') }}"
+                         class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
+
+                    <img src="{{ asset('images/logo.png') }}"
+                         class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
+
+                    <h1 class="text-3xl sm:text-4xl font-bold">
+                        <span class="text-[#358054]">Árvores de</span>
+                        <span class="text-[#a0c520]">Paracambi</span>
                     </h1>
-                </div>
-                <a href="{{ route('home') }}"
-                    class="btn bg-green-600 hover:bg-green-700 transition-all duration-300 transform hover:scale-105"> ←
-                    Voltar ao Mapa </a>
+                </a>
             </div>
-        </header>
+
+            <a href="{{ route('home') }}"
+            class="btn bg-green-600 hover:bg-[#38c224] transition-all duration-300 transform hover:scale-105">
+            ← Voltar ao Mapa
+            </a>
+
+        </div>
+    </header>
 
         <!-- CONTEÚDO PRINCIPAL -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
@@ -98,7 +108,7 @@
                 </div>
 
                 <!-- MAPA -->
-                <div class="bg-white p-6 tree-card">
+<div class="bg-white p-6 pb-0 tree-card">
                     <h2 class="text-2xl font-bold text-[#358054] mb-4">Localização</h2>
                     <div id="tree-map" class="rounded-lg"></div>
                 </div>
@@ -107,7 +117,7 @@
 
             <!-- HISTÓRICO DE ATIVIDADES -->
             <div class="bg-white p-6 mt-10 tree-card">
-                <h2 class="text-2xl font-bold text-[#358054] mb-4">🪵 Histórico de Atividades</h2>
+                <h2 class="text-2xl font-bold text-[#358054] mb-4">Histórico de Atividades</h2>
                 @if ($tree->activities->count() > 0)
                     <div class="space-y-4">
                         @foreach ($tree->activities as $activity)
