@@ -1,5 +1,26 @@
 /* Painel Administrativo (Dashboard) */
 
+html, body {
+  height: 100%; /* Garante que o body ocupe 100% da altura da tela */
+  margin: 0;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Sidebar deve ter altura mínima para ocupar toda a tela */
+.sidebar {
+  min-height: 100vh;
+}
+
+footer {
+  margin-top: auto; /* Isso empurra o footer para o final da tela */
+}
+
+
 /* HEADER */
 header.site-header {
   background: #beffb4;
@@ -8,8 +29,7 @@ header.site-header {
 }
 
 .btn {
-  background-color: #358054;
-  /* Verde principal */
+  background-color: #358054; /* Verde principal */
   color: #ffffff;
   box-shadow: 0 2px 4px rgba(56, 194, 36, 0.2);
   transition: all 0.2s ease-in-out;
@@ -24,8 +44,10 @@ header.site-header {
 
 /* SIDEBAR */
 .sidebar {
-  min-height: calc(60vh);
+  min-height: 100vh; /* Corrigido para ocupar toda a altura da tela */
+  height: 100vh; /* Garante que a sidebar ocupe 100% da altura da tela */
   box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.2);
+  flex-shrink: 0; /* Impede que o sidebar encolha */
 }
 
 .sidebar-link {
@@ -54,8 +76,12 @@ header.site-header {
 main {
   background-color: transparent;
   animation: fadeIn 0.8s ease-out;
+  flex-grow: 1; /* Garante que o main ocupe o restante do espaço */
+  min-height: 0; /* Para corrigir o overflow */
+  padding: 20px;
 }
 
+/* Animação para o efeito de desvanecer e aparecer */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -66,6 +92,15 @@ main {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ================== FOOTER ======================== */
+footer {
+  background-color: #2d3748;
+  color: white;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  margin-top: auto; /* Garante que o footer ficará no final da tela */
 }
 
 /* CARDS */
@@ -152,8 +187,7 @@ main {
 #carrossel .slides {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  /* mantém a proporção */
+  aspect-ratio: 16 / 9; /* mantém a proporção */
 }
 
 #carrossel img {

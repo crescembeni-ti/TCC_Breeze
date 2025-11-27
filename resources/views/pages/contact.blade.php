@@ -1,3 +1,6 @@
+@extends('layouts.dashboard')
+
+@section('content')
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -17,39 +20,6 @@
 <body class="font-sans antialiased">
     <div class="min-h-screen">
 
-        <!-- HEADER -->
-        <header class="site-header">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
-
-                <!-- LOGOS E TÍTULO -->
-                <div class="flex items-center gap-4 flex-shrink-0">
-                    <a href="{{ route('home') }}" class="flex items-center gap-4">
-                        <img src="{{ asset('images/Brasao_Verde.png') }}" alt="Logo Brasão de Paracambi"
-                            class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                        <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi"
-                            class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                        <h1 class="text-3xl sm:text-4xl font-bold">
-                            <span class="text-[#358054]">Árvores de</span>
-                            <span class="text-[#a0c520]"> Paracambi</span>
-                        </h1>
-                    </a>
-                </div>
-
-                <!-- BOTÕES -->
-                <div class="flex gap-4">
-                    <a href="{{ route('home') }}" class="btn bg-white text-green-700 hover:bg-gray-100">
-                        Voltar ao Mapa
-                    </a>
-
-                    <a href="{{ route('contact.myrequests') }}"
-                        class="btn bg-gray-700 text-white hover:bg-gray-800 transition-colors">
-                        Minhas Solicitações
-                    </a>
-                </div>
-
-            </div>
-        </header>
-
         <!-- MAIN -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
@@ -67,7 +37,7 @@
             <!-- GRID PRINCIPAL -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden mr-16">
                     <div class="p-8">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
                         <div class="space-y-6">
@@ -219,13 +189,8 @@
             </div>
         </main>
 
-        <!-- RODAPÉ -->
-        <footer class="bg-gray-800 shadow mt-12">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
-            </div>
-        </footer>
     </div>
 </body>
 
 </html>
+@endsection

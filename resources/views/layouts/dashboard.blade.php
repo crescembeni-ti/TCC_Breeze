@@ -27,7 +27,7 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 
-<body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen">
+<body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen flex-container">
 
     <!-- ======================== HEADER ========================== -->
     <header class="site-header">
@@ -62,16 +62,11 @@
     <div x-data="{ open: false }" class="flex flex-1 w-full relative">
 
         <!-- ====================== SIDEBAR ========================= -->
-        <aside
-            :class="open ? 'translate-x-0' : '-translate-x-full'"
-            class="sidebar fixed md:static top-0 left-0
-                   w-60 h-full md:h-auto
-                   bg-[#358054] text-white
-                   flex flex-col py-8 px-4
-                   transform transition-transform duration-300
-                   md:translate-x-0
-                   rounded-br-2xl md:rounded-none
-                   z-40 md:z-auto">
+        <aside :class="open ? 'translate-x-0' : '-translate-x-full'" 
+        class="sidebar fixed md:static top-0 left-0 w-60 min-h-screen bg-[#358054] 
+        text-white flex flex-col py-8 px-4 transform transition-transform duration-300 
+        md:translate-x-0 rounded-br-2xl md:rounded-none z-40 md:z-auto">
+
 
             <nav class="space-y-4">
 
@@ -199,14 +194,14 @@
         </aside>
 
         <!-- ================= CONTEÚDO ===================== -->
-        <main class="flex-1 p-10 bg-transparent overflow-y-auto md:ml-50">
+<main class="flex-1 p-10 bg-transparent overflow-y-auto md:ml-50">
             @yield('content')
         </main>
 
     </div>
 
     <!-- ================== FOOTER ======================== -->
-    <footer class="bg-gray-800 shadow mt-12">
+    <footer class="bg-gray-800 shadow mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
         </div>
