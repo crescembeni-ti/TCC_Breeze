@@ -326,38 +326,63 @@
         }
 
         // === Popup (ATUALIZADO) ===
-        function criarPopup(tree, index) {
-            const anterior = index > 0 ?
-                `<button onclick="mudarArvore(${index - 1})" class="popup-nav-btn" title="Árvore anterior">
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-             </svg>
-           </button>` :
-                '<span></span>';
+       function criarPopup(tree, index) {
+    const anterior = index > 0 ?
+        `<button onclick="mudarArvore(${index - 1})" class="popup-nav-btn" title="Árvore anterior">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+    </svg>
+</button>
+` :
+        '<span></span>';
 
-            const proximo = index < filteredTrees.length - 1 ?
-                `<button onclick="mudarArvore(${index + 1})" class="popup-nav-btn" title="Próxima árvore">
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-             </svg>
-           </button>` :
-                '<span></span>';
+    const proximo = index < filteredTrees.length - 1 ?
+        `<button onclick="mudarArvore(${index + 1})" class="popup-nav-btn" title="Próxima árvore">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+    </svg>
+</button>
+` :
+        '<span></span>';
 
-            return `
+    return `
         <div style="padding: 0.5rem; text-align:center;">
             <h3 style="font-weight:700; font-size:1.125rem;">${tree.species_name}</h3>
-            
+
             <p><strong>Endereço:</strong> ${tree.address}</p>
-            
+
             <p><strong>Diâmetro:</strong> ${tree.trunk_diameter} cm</p>
-            <div class="popup-nav">
+
+            <div class="popup-nav" style="margin-top: 8px; margin-bottom: 10px;">
                 ${anterior}
-                <a href="/trees/${tree.id}" class="popup-link">Ver detalhes</a>
+                <button 
+            onclick="window.location.href='/trees/${tree.id}'"
+            style="
+            display: inline-block;
+            background: #358054;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: .8rem;
+            border: none;
+            cursor: pointer;
+            transition: .2s;
+            "   
+            onmouseover="this.style.background='#2d6e4b'"
+            onmouseout="this.style.background='#358054'"
+            >
+            Ver detalhes
+            </button>
+
                 ${proximo}
             </div>
         </div>
     `;
-        }
+}
+
 
         // === Navegação entre árvores (Sem alteração) ===
         window.mudarArvore = function(index) {
