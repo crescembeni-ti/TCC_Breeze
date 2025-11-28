@@ -51,10 +51,41 @@
 
                             {{-- USUÁRIO LOGADO --}}
                         @elseif(auth()->check())
+                            <div class="relative group flex items-center">
                             <a href="{{ route('dashboard') }}"
                         class="btn bg-green-600 hover:bg-green-700 hidden sm:block px-6 py-3 text-lg rounded-lg">
-                        Menu
+                            Menu
                         </a>
+
+                        <!-- Tooltip verde no estilo do layout -->
+                    <div class="
+                        absolute 
+                        bottom-[-55px]
+                        left-1/2
+                        transform -translate-x-1/2
+                        bg-gradient-to-r from-[#358054] to-[#a0c520]
+                        text-white text-xs font-semibold
+                        py-1.5 px-3 rounded-lg shadow-xl
+                        opacity-0 group-hover:opacity-100
+                        pointer-events-none
+                        transition-all duration-200
+                        whitespace-nowrap
+                ">
+                    Acesse seu painel e opções da conta
+
+                    <!-- Setinha combinando -->
+                    <span class="
+                        absolute 
+                        top-[-6px] left-1/2 transform -translate-x-1/2
+                        w-0 h-0
+                        border-l-[6px] border-l-transparent
+                        border-r-[6px] border-r-transparent
+                        border-b-[6px] border-b-[#358054]
+                        "></span>
+                </div>
+            </div>
+
+
 
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
