@@ -21,14 +21,7 @@
                 Solicitações que aguardam emissão de Ordem de Serviço.
             </p>
         </div>
-        <div class="mt-4 md:mt-0">
-            <a href="{{ route('analyst.dashboard') }}" class="text-sm font-medium text-gray-500 hover:text-[#358054] flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
-                Voltar ao Painel
-            </a>
-        </div>
+    
     </header>
     
     {{-- TABELA DE LISTAGEM --}}
@@ -50,7 +43,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Protocolo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Local</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -259,7 +252,7 @@
                         {{-- BOTÕES DE AÇÃO --}}
                         <div class="mt-6 flex flex-row-reverse gap-2">
                             <button type="submit" class="inline-flex w-full justify-center rounded-md bg-[#358054] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 sm:w-auto">
-                                Confirmar e Gerar OS
+                              Gerar Ordem de serviço
                             </button>
                             <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto" @click="open = false">
                                 Cancelar
