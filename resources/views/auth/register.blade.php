@@ -36,12 +36,23 @@
         </div>
 
         <!-- Senha -->
-        <div class="mt-4" x-data="{ show: false }">
+        <div class="mt-4" x-data="{ show: false, pass: '' }">
             <x-input-label for="password" :value="__('Senha')" />
+
+                <!-- Aviso dinâmico -->
+                <small
+                    class="block text-sm mb-1 transition-all"
+                    :class="pass.length >= 8 ? 'text-green-600' : 'text-red-600'"
+                    >
+                    A senha deve conter no mínimo 8 caracteres
+                    </small>
+
+
             <div class="relative">
                 <input :type="show ? 'text' : 'password'"
                        id="password"
                        name="password"
+                       x-model="pass"
                        required
                        autocomplete="new-password"
                        class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" />
@@ -68,12 +79,25 @@
         </div>
 
         <!-- Confirmar Senha -->
-        <div class="mt-4" x-data="{ showConfirm: false }">
+        <div class="mt-4" x-data="{ showConfirm: false, confirm: '', passValue: '' }"
+             x-init="$watch('confirm', v => passValue = document.getElementById('password').value)">
+            
             <x-input-label for="password_confirmation" :value="__('Confirmar senha')" />
+
+            <!-- Aviso confirmar senha -->
+           <small
+            class="block text-sm mb-1 transition-all"
+            :class="confirm === passValue && confirm.length > 0 ? 'text-green-600' : 'text-red-600'"
+        >
+            As senhas devem ser iguais
+            </small>
+
+
             <div class="relative">
                 <input :type="showConfirm ? 'text' : 'password'"
                        id="password_confirmation"
                        name="password_confirmation"
+                       x-model="confirm"
                        required
                        autocomplete="new-password"
                        class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" />
@@ -96,6 +120,7 @@
                     </svg>
                 </button>
             </div>
+
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 

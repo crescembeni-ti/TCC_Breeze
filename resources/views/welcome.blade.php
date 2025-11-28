@@ -52,9 +52,10 @@
                             {{-- USUÁRIO LOGADO --}}
                         @elseif(auth()->check())
                             <a href="{{ route('dashboard') }}"
-                                class="btn bg-green-600 hover:bg-green-700 hidden sm:block">
-                                Menu
-                            </a>
+                        class="btn bg-green-600 hover:bg-green-700 hidden sm:block px-6 py-3 text-lg rounded-lg">
+                        Menu
+                        </a>
+
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
 
