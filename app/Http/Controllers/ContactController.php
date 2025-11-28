@@ -254,7 +254,7 @@ class ContactController extends Controller
     public function vistoriasPendentes()
     {
         // 1. Defina quais status aparecem para o analista
-        $statusPendentes = ['Em Análise', 'Deferido', 'Em Execução'];
+        $statusPendentes = [ 'Deferido'];
 
         // 2. Busca as solicitações com esses status
         // Se tiver relacionamento com 'bairro', adicione no array: with(['status', 'user', 'bairro'])

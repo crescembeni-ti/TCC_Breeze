@@ -109,9 +109,6 @@
                         <i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes
                     </a>
 
-                    <a href="{{ route('analyst.profile.edit') }}" class="sidebar-link">
-                        <i data-lucide="user" class="icon"></i> Meu Perfil
-                    </a>
 
                 {{-- ===================== SERVIÇO ===================== --}}
                 @elseif (auth('service')->check())
@@ -124,9 +121,6 @@
                         <i data-lucide="tool" class="icon"></i> Minhas Tarefas
                     </a>
 
-                    <a href="{{ route('service.profile.edit') }}" class="sidebar-link">
-                        <i data-lucide="user" class="icon"></i> Meu Perfil
-                    </a>
 
                 {{-- ===================== USER ======================== --}}
                 @elseif (auth('web')->check())
@@ -166,7 +160,7 @@
                     <form method="POST" action="{{ route('admin.logout') }}" class="mt-2">
                         @csrf
                         <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair (Admin)
+                            <i data-lucide="log-out" class="icon"></i> Sair
                         </a>
                     </form>
 
@@ -174,7 +168,7 @@
                     <form method="POST" action="{{ route('analyst.logout') }}" class="mt-2">
                         @csrf
                         <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair (Analista)
+                            <i data-lucide="log-out" class="icon"></i> Sair
                         </a>
                     </form>
 
@@ -182,7 +176,7 @@
                     <form method="POST" action="{{ route('service.logout') }}" class="mt-2">
                         @csrf
                         <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair (Serviço)
+                            <i data-lucide="log-out" class="icon"></i> Sair
                         </a>
                     </form>
 

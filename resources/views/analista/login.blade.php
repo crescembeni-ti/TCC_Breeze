@@ -121,12 +121,6 @@
             </x-primary-button>
         </div>
 
-        <!-- Registro -->
-        <p class="text-center text-sm text-gray-600 mt-6">
-            Ainda não tem conta?
-            <a href="{{ route('register') }}" class="text-green-700 hover:text-green-800 underline font-medium">
-                Crie uma agora
-            </a>
-        </p>
+      
     </form>
 </x-guest-layout>

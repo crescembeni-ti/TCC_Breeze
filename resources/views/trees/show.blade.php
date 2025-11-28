@@ -83,15 +83,19 @@
                             <p class="text-gray-900">{{ $tree->address }}</p>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-600">Diâmetro do Tronco</h3>
-                                <p class="text-lg text-gray-900">{{ $tree->trunk_diameter }} cm</p>
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-600">Status de Saúde</h3>
-                                <p class="text-lg text-gray-900 capitalize">{{ $tree->health_status }}</p>
-                            </div>
-                        </div>
+                    <div>
+                    <h3 class="text-sm font-semibold text-gray-600">Diâmetro do Tronco</h3>
+                    <p class="text-lg text-gray-900">{{ $tree->trunk_diameter }} cm</p>
+                </div>
+
+                @auth
+                    <div>
+                <h3 class="text-sm font-semibold text-gray-600">Status de Saúde</h3>
+                <p class="text-lg text-gray-900 capitalize">{{ $tree->health_status }}</p>
+                </div>
+                    @endauth
+                    </div>
+
                         @if ($tree->planted_at)
                             <div>
                                 <h3 class="text-sm font-semibold text-gray-600">Data de Plantio</h3>

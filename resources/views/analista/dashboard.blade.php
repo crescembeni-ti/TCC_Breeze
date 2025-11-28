@@ -27,16 +27,7 @@
                 <p class="text-3xl font-bold text-gray-900 mt-1">12</p>
             </div>
 
-            {{-- Card para o perfil --}}
-             <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-gray-500 flex justify-between items-center">
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Acesse seu Perfil</p>
-                    <p class="text-xl font-bold text-gray-900 mt-1">{{ Auth::guard('analyst')->user()->name }}</p>
-                </div>
-                <a href="{{ route('analyst.profile.edit') }}" class="text-green-600 hover:text-green-700 font-medium">
-                    Ver →
-                </a>
-            </div>
+           
         </div>
 
         {{-- TABELA PRINCIPAL DE VISTORIAS --}}
@@ -47,7 +38,7 @@
                 </h3>
                 
                 {{-- A LÓGICA DE EXIBIÇÃO DE DADOS VEM AQUI --}}
-                <p class="text-lg text-red-500">⚠️ **Lembrete:** Esta lista precisa ser carregada do seu Controller, passando os dados para a View.</p>
+           {{-- Lembrete:** Esta lista precisa ser carregada do seu Controller, passando os dados para a View. -- }}
                 
                 {{-- Exemplo de como a tabela deve ficar --}}
                 <div class="mt-4">
@@ -55,7 +46,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr class="bg-gray-50">
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Protocolo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Solicitação</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
