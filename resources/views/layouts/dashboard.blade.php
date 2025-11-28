@@ -93,6 +93,11 @@
                         <i data-lucide="user" class="icon"></i> Meu Perfil
                     </a>
 
+                    <!-- NOVO BOTÃO ADICIONADO (VISÍVEL APENAS PARA ADMIN) -->
+                    <a href="{{ route('admin.accounts.index') }}" class="sidebar-link">
+                        <i data-lucide="users" class="icon"></i> Gerenciar Contas
+                    </a>
+
                 {{-- ==================== ANALISTA ==================== --}}
                 @elseif (auth('analyst')->check())
 
@@ -194,7 +199,7 @@
         </aside>
 
         <!-- ================= CONTEÚDO ===================== -->
-<main class="flex-1 p-10 bg-transparent overflow-y-auto md:ml-50">
+        <main class="flex-1 p-10 bg-transparent overflow-y-auto md:ml-50">
             @yield('content')
         </main>
 
