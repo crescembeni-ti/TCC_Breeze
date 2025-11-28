@@ -247,4 +247,27 @@ class ContactController extends Controller
         return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada com sucesso.');
     }
 
+
+    /**
+     * [ANALISTA] Lista de vistorias para a blade vistorias-pendentes.
+     */
+    public function vistoriasPendentes()
+    {
+        // 1. Defina quais status aparecem para o analista
+        $statusPendentes = ['Em Análise', 'Deferido', 'Em Execução'];
+
+        // 2. Busca as solicitações com esses status
+        // Se tiver relacionamento com 'bairro', adicione no array: with(['status', 'user', 'bairro'])
+        $vistorias = Contact::with(['status', 'user'])
+            ->whereHas('status', function ($query) use ($statusPendentes) {
+                $query->whereIn('name', $statusPendentes);
+            })
+            ->latest()
+            ->get();
+
+        // 3. Retorna a view correta dentro da pasta 'analista'
+        return view('analista.vistorias-pendentes', compact('vistorias'));
+    }
+
+
 } // Fim da classe

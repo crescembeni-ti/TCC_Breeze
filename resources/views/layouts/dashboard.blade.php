@@ -100,7 +100,7 @@
                         <i data-lucide="layout-dashboard" class="icon"></i> Painel Analista
                     </a>
 
-                    <a href="{{ route('analyst.vistorias') }}" class="sidebar-link">
+                    <a href="{{ route('analyst.vistorias.pendentes') }}" class="sidebar-link">
                         <i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes
                     </a>
 

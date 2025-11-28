@@ -198,7 +198,8 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
 
         Route::get('/dashboard', fn() => view('analista.dashboard'))->name('dashboard');
 
-        Route::get('/vistorias', fn() => view('analista.vistorias'))->name('vistorias');
+        Route::get('/vistorias-pendentes', [ContactController::class, 'vistoriasPendentes'])
+        ->name('vistorias.pendentes');
 
         Route::get('/profile', fn() => view('analista.profile'))->name('profile.edit');
     });
