@@ -11,8 +11,7 @@ class PreventBackHistory
     public function handle(Request $request, Closure $next): Response
     {
         /**
-         * 🔓 ROTAS QUE NÃO PODEM SER INTERCEPTADAS
-         * (login, registro, mapa, api pública etc.)
+         * Rotas que não devem ser bloqueadas
          */
         $rotasLiberadas = [
             'login',
@@ -26,16 +25,16 @@ class PreventBackHistory
             'verify-code',
             'verify-code/*',
 
-            // API pública usada no mapa
+            // API pública
             'api',
             'api/*',
 
-            // Página pública do mapa
+            // Página pública
             '/',
             'home',
         ];
 
-        // Ignorar rotas liberadas
+        // Se rota for liberada → só aplica noCache e continua
         foreach ($rotasLiberadas as $rota) {
             if ($request->is($rota)) {
                 $response = $next($request);
@@ -43,14 +42,9 @@ class PreventBackHistory
             }
         }
 
-        // Continua a request normalmente
-        $response = $next($request);
-
-        // Remove cache de páginas protegidas
-        $this->noCache($response);
-
         /**
-         * 🚫 Usuário tenta voltar após logout
+         * Detecta tentativa de voltar após logout
+         * (SEM executar o controller antes!)
          */
         if ($this->isBackNavigationAfterLogout($request)) {
 
@@ -66,11 +60,16 @@ class PreventBackHistory
                 return redirect()->route('service.login');
             }
 
-            // rota padrão (usuário)
             return redirect()->route('login');
         }
 
-        return $response;
+        /**
+         * Agora sim executa a request real
+         */
+        $response = $next($request);
+
+        // Sempre remove o cache das páginas protegidas
+        return $this->noCache($response);
     }
 
     /**
@@ -85,15 +84,22 @@ class PreventBackHistory
 
     /**
      * Detecta tentativa de voltar após logout
-     * (considera TODOS os guards!)
      */
     private function isBackNavigationAfterLogout(Request $request): bool
     {
-        return in_array($request->method(), ['GET'])
-            && !auth('web')->check()
-            && !auth('admin')->check()
-            && !auth('analyst')->check()
-            && !auth('service')->check()
+        return $request->isMethod('GET')
+            && !$this->isAnyGuardLoggedIn()
             && $request->headers->get('cache-control') !== null;
+    }
+
+    /**
+     * Verifica TODOS os guards
+     */
+    private function isAnyGuardLoggedIn(): bool
+    {
+        return auth('web')->check()
+            || auth('admin')->check()
+            || auth('analyst')->check()
+            || auth('service')->check();
     }
 }

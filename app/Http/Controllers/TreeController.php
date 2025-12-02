@@ -32,29 +32,26 @@ class TreeController extends Controller
         return view('welcome', compact('stats', 'recentActivities', 'bairros'));
     }
 
-
     /* ============================================================
      * BOLINHAS NO MAPA
      * ============================================================ */
     public function getTreesData()
-{
-    $trees = Tree::with('species')->get()->map(function ($tree) {
-        return [
-            'id' => $tree->id,
-            'latitude' => (float) $tree->latitude,
-            'longitude' => (float) $tree->longitude,
-            'species_name' => $tree->species->name,
-            'color_code' => $tree->species->color_code,
-            'address' => $tree->address,
-            'health_status' => $tree->health_status,
-            'trunk_diameter' => $tree->trunk_diameter,
-        ];
-    });
+    {
+        $trees = Tree::with('species')->get()->map(function ($tree) {
+            return [
+                'id' => $tree->id,
+                'latitude' => (float) $tree->latitude,
+                'longitude' => (float) $tree->longitude,
+                'species_name' => $tree->species->name,
+                'color_code' => $tree->species->color_code,
+                'address' => $tree->address,
+                'health_status' => $tree->health_status,
+                'trunk_diameter' => $tree->trunk_diameter,
+            ];
+        });
 
-    return response()->json($trees);
-}
-
-
+        return response()->json($trees);
+    }
 
     /* ============================================================
      * VISUALIZAÇÃO DE ÁRVORE
@@ -64,7 +61,6 @@ class TreeController extends Controller
         $tree = Tree::with(['species', 'activities.user'])->findOrFail($id);
         return view('trees.show', compact('tree'));
     }
-
 
     /* ============================================================
      * DASHBOARD ADMIN
@@ -82,7 +78,6 @@ class TreeController extends Controller
         return view('admin.dashboard', compact('stats', 'adminLogs'));
     }
 
-
     /* ============================================================
      * MAPA DO ADMIN
      * ============================================================ */
@@ -93,7 +88,6 @@ class TreeController extends Controller
 
         return view('admin.trees.map', compact('species', 'trees'));
     }
-
 
     /* ============================================================
      * CADASTRAR ÁRVORE
@@ -130,10 +124,8 @@ class TreeController extends Controller
             'gutter_width' => 'required|numeric|min:0',
             'gutter_length' => 'required|numeric|min:0',
 
-            // único opcional
             'no_species_case' => 'nullable|string|max:255',
-    ]);
-
+        ]);
 
         // Verifica espécie
         $species = Species::firstOrCreate(
@@ -150,8 +142,9 @@ class TreeController extends Controller
             'address' => $validated['address'] ?? $validated['name']
         ]));
 
-        // Log (sem user_id)
+        // Log corrigido
         AdminLog::create([
+            'admin_id' => auth('admin')->id(),
             'action' => 'create_tree',
             'description' => 'O admin ' . auth('admin')->user()->name .
                 ' cadastrou a árvore: ' . $species->name . ' (ID: ' . $tree->id . ')'
@@ -160,7 +153,6 @@ class TreeController extends Controller
         return redirect()->route('admin.dashboard')
                          ->with('success', 'Árvore cadastrada com sucesso!');
     }
-
 
     /* ============================================================
      * LISTA ADMIN
@@ -171,7 +163,6 @@ class TreeController extends Controller
         return view('admin.trees.index', compact('trees'));
     }
 
-
     /* ============================================================
      * EDITAR ÁRVORE
      * ============================================================ */
@@ -181,9 +172,8 @@ class TreeController extends Controller
         return view('admin.trees.edit', compact('tree', 'species'));
     }
 
-
     /* ============================================================
-     * ATUALIZAR (EDITAR) ÁRVORE
+     * ATUALIZAR (EDITAR)
      * ============================================================ */
     public function adminTreeUpdate(Request $request, Tree $tree)
     {
@@ -207,7 +197,7 @@ class TreeController extends Controller
             'stem_balance' => 'required|string|max:100',
             'crown_balance' => 'required|string|max:100',
             'organisms' => 'required|string|max:255',
-            'target' => 'required|string|max:255',
+            'target' => 'require|string|max:255',
             'injuries' => 'required|string|max:255',
             'wiring_status' => 'required|string|max:100',
             'total_width' => 'required|numeric|min:0',
@@ -217,12 +207,13 @@ class TreeController extends Controller
             'gutter_length' => 'required|numeric|min:0',
 
             'no_species_case' => 'nullable|string|max:255',
-    ]);
-
+        ]);
 
         $tree->update($validated);
 
+        // Log corrigido
         AdminLog::create([
+            'admin_id' => auth('admin')->id(),
             'action' => 'update_tree',
             'description' => 'O admin ' . auth('admin')->user()->name .
                 ' atualizou a árvore ' . $tree->species->name .
@@ -232,7 +223,6 @@ class TreeController extends Controller
         return redirect()->route('admin.trees.index')
             ->with('success', 'Árvore atualizada!');
     }
-
 
     /* ============================================================
      * EXCLUIR ÁRVORE
@@ -244,10 +234,11 @@ class TreeController extends Controller
 
         $tree->delete();
 
+        // Log corrigido
         AdminLog::create([
+            'admin_id' => auth('admin')->id(),
             'action' => 'delete_tree',
-            'description' =>
-                'O admin ' . auth('admin')->user()->name .
+            'description' => 'O admin ' . auth('admin')->user()->name .
                 " deletou a árvore $name (ID: $id)"
         ]);
 

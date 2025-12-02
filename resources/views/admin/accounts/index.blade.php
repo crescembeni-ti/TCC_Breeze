@@ -30,12 +30,12 @@
 
     {{-- BOTÃO ADICIONAR --}}
     <button 
-        onclick="document.getElementById('modalAdd').showModal()"
+        onclick="openAddModal('{{ $type }}')"
         class="bg-[#358054] text-white px-4 py-2 rounded-lg shadow mb-4">
         + Criar {{ ucfirst($type) }}
     </button>
 
-    {{-- TABELA DINÂMICA --}}
+    {{-- TABELA --}}
     <table class="min-w-full bg-white border border-gray-200">
         <thead class="bg-gray-100">
             <tr>
@@ -66,7 +66,7 @@
 
                         {{-- EDITAR --}}
                         <button 
-                            onclick="openEdit({{ $item->id }}, '{{ $item->name }}', '{{ $item->email }}', '{{ $item->cpf ?? '' }}')"
+                            onclick="openEdit({{ $item->id }}, '{{ $item->name }}', '{{ $item->email }}', '{{ $item->cpf ?? '' }}', '{{ $type }}')"
                             class="px-3 py-1 bg-blue-500 text-white text-xs rounded">
                             Editar
                         </button>
@@ -102,20 +102,23 @@
     <form method="POST" action="{{ route('admin.accounts.store') }}" class="space-y-4">
         @csrf
 
-        <input type="hidden" name="type" value="{{ $type }}">
+        <input id="add_type" type="hidden" name="type" value="">
 
         <h3 class="text-lg font-bold">Criar {{ ucfirst($type) }}</h3>
 
         <input name="name" class="w-full border rounded p-2" placeholder="Nome" required>
+        @error('name') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
 
         <input name="email" class="w-full border rounded p-2" placeholder="Email" required>
+        @error('email') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
 
-        @if ($type !== 'admin')
-            <input name="cpf" class="w-full border rounded p-2" placeholder="CPF" required>
-        @endif
+        <div id="cpf_add_container"></div>
 
         <input name="password" type="password" class="w-full border rounded p-2" placeholder="Senha" required>
+        @error('password') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
+
         <input name="password_confirmation" type="password" class="w-full border rounded p-2" placeholder="Confirmar Senha" required>
+        @error('password_confirmation') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
 
         <button class="bg-[#358054] text-white px-4 py-2 rounded">Salvar</button>
     </form>
@@ -130,15 +133,14 @@
         @csrf
         @method('PUT')
 
-        <h3 class="text-lg font-bold">Editar {{ ucfirst($type) }}</h3>
+        <input id="edit_type" type="hidden" name="type" value="">
+
+        <h3 class="text-lg font-bold">Editar</h3>
 
         <input id="edit_name" name="name" class="w-full border rounded p-2">
-
         <input id="edit_email" name="email" class="w-full border rounded p-2">
 
-        @if ($type !== 'admin')
-            <input id="edit_cpf" name="cpf" class="w-full border rounded p-2">
-        @endif
+        <div id="cpf_container"></div>
 
         <input name="password" type="password" class="w-full border rounded p-2" placeholder="Nova Senha (opcional)">
         <input name="password_confirmation" type="password" class="w-full border rounded p-2" placeholder="Confirmar Nova Senha">
@@ -150,19 +152,44 @@
 </dialog>
 
 
+{{-- REABRIR MODAL SE HOUVER ERROS --}}
+@if ($errors->any())
 <script>
-function openEdit(id, name, email, cpf = '') {
+    document.addEventListener("DOMContentLoaded", function() {
+        modalAdd.showModal();
+    });
+</script>
+@endif
+
+
+<script>
+/* MODAL ADD */
+function openAddModal(type) {
+    document.getElementById('add_type').value = type;
+
+    const cpfContainer = document.getElementById('cpf_add_container');
+    cpfContainer.innerHTML = (type !== 'admin')
+        ? '<input name="cpf" class="w-full border rounded p-2" placeholder="CPF" required>'
+        : '';
+
+    modalAdd.showModal();
+}
+
+/* MODAL EDIT */
+function openEdit(id, name, email, cpf = '', type) {
     modalEdit.showModal();
 
+    document.getElementById('edit_type').value = type;
     document.getElementById('edit_name').value = name;
     document.getElementById('edit_email').value = email;
 
-    if (document.getElementById('edit_cpf')) {
-        document.getElementById('edit_cpf').value = cpf;
-    }
+    const cpfDiv = document.getElementById('cpf_container');
+    cpfDiv.innerHTML = (type !== 'admin')
+        ? `<input id="edit_cpf" name="cpf" class="w-full border rounded p-2" value="${cpf}">`
+        : '';
 
     document.getElementById('formEdit').action =
-        "/pbi-admin/accounts/update/{{ $type }}/" + id;
+        "/pbi-admin/accounts/update/" + type + "/" + id;
 }
 </script>
 

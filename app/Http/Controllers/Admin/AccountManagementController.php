@@ -13,10 +13,8 @@ class AccountManagementController extends Controller
 {
     public function index(Request $request)
     {
-        // Aba atual (admin, analyst, service)
         $type = $request->get('type', 'admin');
 
-        // Carregar os dados conforme a aba
         $data = match ($type) {
             'admin'   => Admin::paginate(10),
             'analyst' => Analyst::paginate(10),
@@ -34,29 +32,29 @@ class AccountManagementController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email',
             'cpf'      => 'nullable|string',
-            'password' => 'required|min:6|confirmed'
+            'password' => 'required|min:6|confirmed', // importante!
         ]);
 
         $type = $request->type;
 
         match ($type) {
             'admin' => Admin::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => $request->password
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'password' => Hash::make($request->password), // faltava!
             ]),
 
             'analyst' => Analyst::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'cpf' => $request->cpf,
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'cpf'      => $request->cpf,
                 'password' => Hash::make($request->password),
             ]),
 
             'service' => Service::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'cpf' => $request->cpf,
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'cpf'      => $request->cpf,
                 'password' => Hash::make($request->password),
             ]),
         };
@@ -66,10 +64,17 @@ class AccountManagementController extends Controller
 
     public function update(Request $request, $type, $id)
     {
-        $request->validate([
+        $rules = [
             'name'  => 'required',
             'email' => 'required|email',
-        ]);
+        ];
+
+        // Validação de senha APENAS se o usuário quiser alterar
+        if ($request->filled('password')) {
+            $rules['password'] = 'confirmed|min:6';
+        }
+
+        $request->validate($rules);
 
         $model = $this->getModel($type)::findOrFail($id);
 
@@ -80,7 +85,8 @@ class AccountManagementController extends Controller
             $model->cpf = $request->cpf;
         }
 
-        if ($request->password) {
+        // Só atualiza senha se preenchida
+        if ($request->filled('password')) {
             $model->password = Hash::make($request->password);
         }
 
