@@ -46,7 +46,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Protocolo</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Solicitação</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                  
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -63,12 +63,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $vistoria->created_at->format('d/m/Y') }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        {{-- Link corrigido para levar à página de detalhes/modal --}}
-                                        <a href="{{ route('analyst.vistorias.pendentes') }}" class="text-indigo-600 hover:text-indigo-900 font-bold">
-                                            Gerar Ordem de Serviço
-                                        </a>
-                                    </td>
+                              
                                 </tr>
                                 @endforeach
                             </tbody>

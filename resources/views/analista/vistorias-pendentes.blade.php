@@ -125,9 +125,14 @@
                         </div>
                     </div>
 
-                    {{-- FORMULÁRIO --}}
-                    <form action="#" method="POST" class="text-sm"> @csrf
-                        {{-- DADOS DA SOLICITAÇÃO --}}
+                 {{-- FORMULÁRIO --}}
+                    <form action="{{ route('analyst.os.store') }}" method="POST" class="text-sm"> 
+                        @csrf
+
+                        {{-- CAMPO OCULTO PARA O ID --}}
+                        <input type="hidden" name="contact_id" :value="item.id">
+
+                       {{-- DADOS DA SOLICITAÇÃO --}}
                         <div class="grid grid-cols-2 gap-4 mb-2 border-b border-gray-300 pb-2">
                             <div>
                                 <label class="font-bold block text-gray-700">Nº Solicitação:</label>
@@ -135,7 +140,6 @@
                             </div>
                             <div>
                                 <label class="font-bold block text-gray-700">Data:</label>
-                                {{-- Formatação de data simples via JS --}}
                                 <input type="text" class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1" :value="new Date(item.created_at).toLocaleDateString('pt-BR')" readonly>
                             </div>
                         </div>
@@ -150,25 +154,25 @@
                                 </div>
                                 <div>
                                     <span class="text-gray-600">Coordenadas Geográficas:</span>
-                                    <input type="text" class="w-full border-0 border-b border-gray-400 p-1" placeholder="Latitude / Longitude (se houver)">
-                                    <input type="text" class="w-full border-0 border-b border-gray-400 p-1" placeholder="Longitude (se houver)">
+                                    <input type="text" name="lat_long" class="w-full border-0 border-b border-gray-400 p-1" placeholder="Latitude">
+                                     <input type="text" name="lat_long" class="w-full border-0 border-b border-gray-400 p-1" placeholder=" Longitude "> 
                                 </div>
                             </div>
                         </div>
 
-                        {{-- IDENTIFICAÇÃO DAS ÁRVORES --}}
+                       {{-- IDENTIFICAÇÃO DAS ÁRVORES --}}
                         <div class="grid grid-cols-3 gap-4 mb-2 border-b border-gray-300 pb-2">
                             <div class="col-span-2">
                                 <label class="font-bold block">Espécie(s):</label>
-                                <input type="text" class="w-full border-0 border-b border-gray-400 p-1" placeholder="Ex: Ipê, Mangueira...">
+                                <input type="text" name="especies" class="w-full border-0 border-b border-gray-400 p-1" placeholder="Ex: Ipê, Mangueira...">
                             </div>
                             <div>
                                 <label class="font-bold block">Quantidade:</label>
-                                <input type="number" class="w-full border-0 border-b border-gray-400 p-1" value="1">
+                                <input type="number" name="quantidade" class="w-full border-0 border-b border-gray-400 p-1" value="1">
                             </div>
                         </div>
 
-                        {{-- MOTIVO DA INTERVENÇÃO (Checkboxes) --}}
+                        {{-- MOTIVO DA INTERVENÇÃO --}}
                         <div class="mb-2 border-b border-gray-300 pb-2 bg-gray-50 p-2 rounded">
                             <h4 class="font-bold underline mb-1">Motivo da Intervenção</h4>
                             <div class="grid grid-cols-2 gap-y-1">
@@ -193,47 +197,47 @@
                         </div>
 
                         {{-- EQUIPAMENTOS E MATERIAIS --}}
-                        <div class="mb-4 border-b border-gray-300 pb-2">
+                       <div class="mb-4 border-b border-gray-300 pb-2">
                             <h4 class="font-bold underline mb-1">Equipamentos Necessários</h4>
                             <div class="flex flex-wrap gap-4">
-                                <label class="flex items-center gap-1"><input type="checkbox"> Motosserra</label>
-                                <label class="flex items-center gap-1"><input type="checkbox"> Motopoda</label>
-                                <label class="flex items-center gap-1"><input type="checkbox" checked> EPIs</label>
-                                <label class="flex items-center gap-1"><input type="checkbox"> Cordas</label>
-                                <label class="flex items-center gap-1"><input type="checkbox"> Cones</label>
-                                <label class="flex items-center gap-1"><input type="checkbox"> Caminhão</label>
+                                <label class="flex items-center gap-1"><input type="checkbox" name="equip[]" value="Motosserra"> Motosserra</label>
+                                <label class="flex items-center gap-1"><input type="checkbox" name="equip[]" value="Motopoda"> Motopoda</label>
+                                <label class="flex items-center gap-1"><input type="checkbox" name="equip[]" value="EPIs" checked> EPIs</label>
+                                <label class="flex items-center gap-1"><input type="checkbox" name="equip[]" value="Cordas"> Cordas</label>
+                                <label class="flex items-center gap-1"><input type="checkbox" name="equip[]" value="Cones"> Cones</label>
+                                <label class="flex items-center gap-1"><input type="checkbox" name="equip[]" value="Caminhão"> Caminhão</label>
                             </div>
                         </div>
                        {{--
                         =====================================================
-                            6. RESPONSABILIDADES E PROCEDIMENTOS (NOVO)
+                            6. RESPONSABILIDADES E PROCEDIMENTOS (NOVO)  (Adicionei Checkboxes para salvar no banco)
                             =====================================================
                         --}}
-                       <div class="mb-2 border-b-2 border-gray-400 pb-2 bg-gray-50 p-2 rounded">
-                            {{-- ALTERADO AQUI PARA text-black --}}
-                            <h4 class="font-bold text-sm text-black mb-2 border-b border-gray-300">Responsabilidades e Procedimentos</h4>
+                
+                        <div class="mb-2 border-b-2 border-gray-400 pb-2 bg-gray-50 p-2 rounded">
+                            <h4 class="font-bold text-sm text-black mb-2 border-b border-gray-300">Responsabilidades e Procedimentos (Confirmação)</h4>
                             
-                            <div class="space-y-1 text-xs text-gray-800">
-                                <div class="flex border-b border-dotted border-gray-300 pb-1">
-                                    <span class="font-bold w-32 shrink-0">Segurança:</span>
-                                    <span>Utilização obrigatória de EPIs</span>
-                                </div>
-                                <div class="flex border-b border-dotted border-gray-300 pb-1">
-                                    <span class="font-bold w-32 shrink-0">Sinalização:</span>
-                                    <span>Uso de cones e faixas de segurança no local</span>
-                                </div>
-                                <div class="flex border-b border-dotted border-gray-300 pb-1">
-                                    <span class="font-bold w-32 shrink-0">Descarte:</span>
-                                    <span>Destino adequado dos resíduos (Triturador)</span>
-                                </div>
-                                <div class="flex border-b border-dotted border-gray-300 pb-1">
-                                    <span class="font-bold w-32 shrink-0">Registro Fotográfico:</span>
-                                    <span>Fotos antes e depois do serviço para documentação</span>
-                                </div>
-                                <div class="flex">
-                                    <span class="font-bold w-32 shrink-0">Comunicação:</span>
-                                    <span>Informar ao responsável qualquer imprevisto antes de prosseguir com a execução</span>
-                                </div>
+                            <div class="flex flex-col gap-2 text-xs text-black">
+                                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded border-b border-dotted border-gray-300">
+                                    <input type="checkbox" name="procedimentos[]" value="Seguranca" checked class="mt-0.5 text-[#358054] focus:ring-[#358054]">
+                                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Segurança:</span><span>Utilização obrigatória de EPIs</span></div>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded border-b border-dotted border-gray-300">
+                                    <input type="checkbox" name="procedimentos[]" value="Sinalizacao" checked class="mt-0.5 text-[#358054] focus:ring-[#358054]">
+                                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Sinalização:</span><span>Uso de cones e faixas de segurança</span></div>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded border-b border-dotted border-gray-300">
+                                    <input type="checkbox" name="procedimentos[]" value="Descarte" checked class="mt-0.5 text-[#358054] focus:ring-[#358054]">
+                                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Descarte:</span><span>Destino adequado dos resíduos</span></div>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded border-b border-dotted border-gray-300">
+                                    <input type="checkbox" name="procedimentos[]" value="Registro" checked class="mt-0.5 text-[#358054] focus:ring-[#358054]">
+                                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Registro:</span><span>Fotos antes e depois</span></div>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded">
+                                    <input type="checkbox" name="procedimentos[]" value="Comunicacao" checked class="mt-0.5 text-[#358054] focus:ring-[#358054]">
+                                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Comunicação:</span><span>Informar imprevistos</span></div>
+                                </label>
                             </div>
                         </div>
 
@@ -241,11 +245,11 @@
                         <div class="grid grid-cols-2 gap-6 mt-4">
                             <div>
                                 <label class="font-bold block text-xs uppercase">Data Vistoria:</label>
-                                <input type="date" class="w-full border p-1 rounded">
+                                <input type="date" name="data_vistoria" class="w-full border p-1 rounded" required>
                             </div>
                             <div>
                                 <label class="font-bold block text-xs uppercase">Previsão Execução:</label>
-                                <input type="date" class="w-full border p-1 rounded">
+                                <input type="date" name="data_execucao" class="w-full border p-1 rounded">
                             </div>
                         </div>
 
