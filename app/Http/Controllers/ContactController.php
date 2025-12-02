@@ -248,16 +248,42 @@ class ContactController extends Controller
     }
 
 
+
+ // ... (outros códigos do seu controller, store, update, etc) ...
+
     /**
-     * [ANALISTA] Lista de vistorias para a blade vistorias-pendentes.
+     * [1] DASHBOARD (Tela Inicial com Cards)
+     * Rota: /pbi-analista/dashboard
+     */
+    public function analystDashboard()
+    {
+        $statusPendentes = ['Deferido', 'Em Análise', 'Em Execução'];
+        $statusConcluidos = ['Concluído', 'Vistoriado', 'Indeferido', 'Sem Pendências'];
+
+        // Contadores
+        $countPendentes = Contact::whereHas('status', fn($q) => $q->whereIn('name', $statusPendentes))->count();
+        $countConcluidas = Contact::whereHas('status', fn($q) => $q->whereIn('name', $statusConcluidos))->count();
+
+        // Lista Resumida (5 últimas)
+        $vistorias = Contact::with(['status', 'user'])
+            ->whereHas('status', fn($q) => $q->whereIn('name', $statusPendentes))
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('analista.dashboard', compact('vistorias', 'countPendentes', 'countConcluidas'));
+    }
+
+    /**
+     * [2] LISTA COMPLETA (Página de 'Gerar OS')
+     * Rota: /pbi-analista/vistorias-pendentes
+     * É ESTA FUNÇÃO QUE ESTAVA FALTANDO E GERANDO O ERRO
      */
     public function vistoriasPendentes()
     {
-        // 1. Defina quais status aparecem para o analista
-        $statusPendentes = [ 'Deferido'];
+        // Aqui pegamos todas, sem limite de quantidade
+        $statusPendentes = ['Deferido', 'Em Análise', 'Em Execução'];
 
-        // 2. Busca as solicitações com esses status
-        // Se tiver relacionamento com 'bairro', adicione no array: with(['status', 'user', 'bairro'])
         $vistorias = Contact::with(['status', 'user'])
             ->whereHas('status', function ($query) use ($statusPendentes) {
                 $query->whereIn('name', $statusPendentes);
@@ -265,9 +291,7 @@ class ContactController extends Controller
             ->latest()
             ->get();
 
-        // 3. Retorna a view correta dentro da pasta 'analista'
         return view('analista.vistorias-pendentes', compact('vistorias'));
     }
 
-
-} // Fim da classe
+} // <--- Fim da classe ContactController

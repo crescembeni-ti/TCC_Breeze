@@ -15,56 +15,65 @@
         
         {{-- CARD DE VISÃO GERAL --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {{-- Substitua 5 por uma variável que carrega o COUNT de vistorias pendentes --}}
+            {{-- CONTADOR PENDENTES --}}
             <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
                 <p class="text-sm font-medium text-gray-500">Vistorias Pendentes</p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">5</p> 
+                <p class="text-3xl font-bold text-gray-900 mt-1">{{ $countPendentes }}</p> 
             </div>
             
-            {{-- Substitua 12 por uma variável que carrega o COUNT de vistorias concluídas --}}
+            {{-- CONTADOR CONCLUÍDAS --}}
             <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
                 <p class="text-sm font-medium text-gray-500">Vistorias Concluídas</p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">12</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">{{ $countConcluidas }}</p>
             </div>
-
-           
         </div>
 
         {{-- TABELA PRINCIPAL DE VISTORIAS --}}
         <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
             <div class="p-6">
                 <h3 class="text-2xl font-bold text-[#358054] mb-6">
-                    Lista de Solicitações de Vistoria
+                    Lista de Solicitações de Vistoria (Recentes)
                 </h3>
                 
-                {{-- A LÓGICA DE EXIBIÇÃO DE DADOS VEM AQUI --}}
-           {{-- Lembrete:** Esta lista precisa ser carregada do seu Controller, passando os dados para a View. -- }}
-                
-                {{-- Exemplo de como a tabela deve ficar --}}
-                <div class="mt-4">
-                    {{-- Estrutura da Tabela (necessita de dados do Controller) --}}
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr class="bg-gray-50">
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Protocolo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Solicitação</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            {{-- @foreach ($vistorias as $vistoria) --}}
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">#001</td>
-                                <td class="px-6 py-4 whitespace-nowrap">Poda de Árvore Risco</td>
-                                <td class="px-6 py-4 whitespace-nowrap">2025-11-25</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="#" class="text-indigo-600 hover:text-indigo-900">Iniciar Vistoria</a>
-                                </td>
-                            </tr>
-                            {{-- @endforeach --}}
-                        </tbody>
-                    </table>
+                <div class="mt-4 overflow-x-auto">
+                    {{-- Verifica se tem dados --}}
+                    @if($vistorias->isEmpty())
+                        <p class="text-gray-500 text-center py-4">Nenhuma solicitação pendente no momento.</p>
+                    @else
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Protocolo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Solicitação</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {{-- Loop real pelos dados --}}
+                                @foreach ($vistorias as $vistoria)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-700">
+                                        #{{ $vistoria->id }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">{{ $vistoria->topico ?? 'Sem Tópico' }}</div>
+                                        <div class="text-xs text-gray-500">{{ $vistoria->bairro }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $vistoria->created_at->format('d/m/Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        {{-- Link corrigido para levar à página de detalhes/modal --}}
+                                        <a href="{{ route('analyst.vistorias.pendentes') }}" class="text-indigo-600 hover:text-indigo-900 font-bold">
+                                            Gerar Ordem de Serviço
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
                 </div>
 
             </div>

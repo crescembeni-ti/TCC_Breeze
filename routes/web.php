@@ -217,7 +217,8 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
 
         Route::post('/logout', [AnalystLoginController::class, 'destroy'])->name('logout');
 
-        Route::get('/dashboard', fn() => view('analista.dashboard'))->name('dashboard');
+       Route::get('/dashboard', [ContactController::class, 'analystDashboard'])
+     ->name('dashboard');
 
         Route::get('/vistorias-pendentes', [ContactController::class, 'vistoriasPendentes'])
             ->name('vistorias.pendentes');
