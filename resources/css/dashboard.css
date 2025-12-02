@@ -11,23 +11,25 @@ html, body {
   height: 100%;
 }
 
-/* Sidebar deve ter altura mínima para ocupar toda a tela */
+/* ================== SIDEBAR =================== */
+/* Sidebar ocupa do header ao footer e não quebra layout */
 .sidebar {
-  min-height: 100vh;
+  min-height: calc(100vh - 64px); /* Ajuste automático subtraindo a altura do header */
+  height: auto; /* Altura ajusta ao conteúdo, mas ocupa todo espaço disponível */
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.2);
+  flex-shrink: 0; /* Impede que o sidebar encolha */
+  display: flex;
+  flex-direction: column;
 }
 
-footer {
-  margin-top: auto; /* Isso empurra o footer para o final da tela */
-}
-
-
-/* HEADER */
+/* ================== HEADER =================== */
 header.site-header {
   background: #beffb4;
   border-bottom: 2px solid #358054;
   box-shadow: 0 6px 12px rgba(53, 128, 84, 0.25);
 }
 
+/* ================== BOTÕES =================== */
 .btn {
   background-color: #358054; /* Verde principal */
   color: #ffffff;
@@ -42,14 +44,7 @@ header.site-header {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* SIDEBAR */
-.sidebar {
-  min-height: 100vh; /* Corrigido para ocupar toda a altura da tela */
-  height: 100vh; /* Garante que a sidebar ocupe 100% da altura da tela */
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.2);
-  flex-shrink: 0; /* Impede que o sidebar encolha */
-}
-
+/* ================== SIDEBAR LINKS =================== */
 .sidebar-link {
   display: flex;
   align-items: center;
@@ -72,38 +67,43 @@ header.site-header {
   stroke-width: 2;
 }
 
-/* MAIN */
+/* ================== MAIN =================== */
 main {
   background-color: transparent;
   animation: fadeIn 0.8s ease-out;
-  flex-grow: 1; /* Garante que o main ocupe o restante do espaço */
-  min-height: 0; /* Para corrigir o overflow */
+  flex-grow: 1; /* Ocupa espaço restante */
+  min-height: 0; /* Corrige overflow */
   padding: 20px;
+  overflow-y: auto; /* Rolagem se necessário */
 }
 
-/* Animação para o efeito de desvanecer e aparecer */
+/* ================== ANIMAÇÃO FADEIN =================== */
 @keyframes fadeIn {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(20px);
   }
-
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* ================== FOOTER ======================== */
+.group-transition {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* ================== FOOTER =================== */
 footer {
   background-color: #2d3748;
   color: white;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
   padding: 10px;
-  margin-top: auto; /* Garante que o footer ficará no final da tela */
+  margin-top: auto; /* Fixa no final da tela */
+  text-align: center;
 }
 
-/* CARDS */
+/* ================== CARDS =================== */
 .card {
   background-color: #fff;
   border-radius: 0.75rem;
@@ -124,6 +124,7 @@ footer {
   margin-bottom: 0.5rem;
 }
 
+/* ================== INPUTS =================== */
 .input {
   width: 100%;
   padding: 10px 14px;
@@ -153,29 +154,7 @@ footer {
   margin-top: 4px;
 }
 
-/* Animação para o efeito de desvanecer e aparecer */
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Classe para aplicar a animação aos elementos */
-.group-transition {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-/* ================================ */
-/*   IMAGENS E CARROSSEL RESPONSIVO */
-/* ================================ */
-
-/* Carrossel: mantém proporção e cobre toda a largura */
+/* ================== CARROSSEL =================== */
 #carrossel {
   width: 100%;
   max-width: 100%;
@@ -187,7 +166,7 @@ footer {
 #carrossel .slides {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9; /* mantém a proporção */
+  aspect-ratio: 16 / 9;
 }
 
 #carrossel img {
@@ -198,16 +177,13 @@ footer {
   border-radius: 0.75rem;
 }
 
-/* Em telas menores, usa formato mais alto */
 @media (max-width: 768px) {
   #carrossel .slides {
     aspect-ratio: 4 / 3;
   }
 }
 
-/* ================================ */
-/*   IMAGENS DOS CARDS (ODS)        */
-/* ================================ */
+/* ================== IMAGENS DOS CARDS =================== */
 .card img {
   width: 100%;
   height: auto;
@@ -218,14 +194,13 @@ footer {
   display: block;
 }
 
-/* Ajuste extra para telas pequenas */
 @media (max-width: 640px) {
   .card img {
     max-width: 160px;
   }
 }
 
-/* Estilo para os Tooltips (Legendas) - ADAPTADO */
+/* ================== TOOLTIP =================== */
 .tooltip {
   position: relative;
   display: inline-flex;
@@ -239,19 +214,13 @@ footer {
   background-color: #333;
   color: #fff;
   text-align: center;
-  /* Centralizado fica melhor */
   border-radius: 6px;
   padding: 8px 12px;
   position: absolute;
   z-index: 10;
   bottom: 135%;
-  /* Um pouco mais baixo para não ficar tão longe */
-
-  /* Posicionamento padrão (centralizado) */
   left: 50%;
   margin-left: -120px;
-  /* Metade da largura para centralizar */
-
   opacity: 0;
   transition: opacity 0.3s;
   font-size: 0.875rem;
@@ -259,7 +228,6 @@ footer {
   line-height: 1.4;
   pointer-events: none;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
-  /* Sombra para destacar */
 }
 
 .tooltip .tooltiptext::after {
@@ -278,15 +246,12 @@ footer {
   opacity: 1;
 }
 
-/* CORREÇÃO: Para tooltips muito à esquerda, alinhar à esquerda */
 .tooltip.left-align .tooltiptext {
   left: 0;
   margin-left: -10px;
-  /* Pequeno ajuste fino */
 }
 
 .tooltip.left-align .tooltiptext::after {
   left: 20px;
-  /* Move a setinha para acompanhar o alinhamento */
   margin-left: 0;
 }

@@ -110,15 +110,19 @@
 
         <!-- Botão -->
         <div class="mt-6">
-            <x-primary-button class="w-full justify-center 
-            bg-green-600 
-            hover:bg-green-700 
-            active:bg-[#38c224] 
-            focus:outline-none
-            focus:ring-0
-            focus:border-transparent">
+            <button type="submit"
+            class="
+            bg-green-600 text-white font-semibold
+            rounded-md shadow-md
+            hover:bg-green-700 hover:shadow-lg
+            active:bg-[#38c224]
+            transition duration-200
+            w-full
+            px-4
+            py-2          
+            ">
             Entrar
-            </x-primary-button>
+            </button>
         </div>
 
       
