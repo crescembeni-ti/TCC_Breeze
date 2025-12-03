@@ -34,4 +34,10 @@ class Tree extends Model
     {
         return $this->hasMany(Activity::class);
     }
+
+    public function bairro(): BelongsTo
+    {
+        return $this->belongsTo(Bairro::class);
+    }
+
 }

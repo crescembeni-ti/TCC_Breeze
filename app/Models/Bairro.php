@@ -43,4 +43,10 @@ class Bairro extends Model
         // 'bairro_id' é a chave estrangeira na tabela 'contacts'
         return $this->hasMany(Contact::class, 'bairro_id');
     }
+
+    public function trees(): HasMany
+    {
+        return $this->hasMany(Tree::class);
+    }
+
 }

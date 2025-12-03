@@ -242,44 +242,87 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        const allBairros = @json($bairros);
-        const map = L.map('map').setView([-22.6111, -43.7089], 14);
+/* ============================================================
+   CONFIGURAÇÃO INICIAL DO MAPA
+   ============================================================ */
+const allBairros = @json($bairros); // do Laravel
+const map = L.map('map').setView([-22.6111, -43.7089], 14);
 
-        const satelliteLayer = L.tileLayer(
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles © Esri'
+// Camada satélite
+const satelliteLayer = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { attribution: 'Tiles © Esri' }
+).addTo(map);
+
+// Camada de rótulos
+const labelsLayer = L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png',
+    { subdomains: 'abcd', maxZoom: 20 }
+).addTo(map);
+
+// Limites
+const bounds = [
+    [-22.71, -43.85],
+    [-22.51, -43.58]
+];
+map.setMaxBounds(bounds);
+map.on('drag', () => map.panInsideBounds(bounds, { animate: false }));
+map.setMinZoom(13);
+map.setMaxZoom(17);
+
+// Layers de árvores
+let allTrees = [];
+let filteredTrees = [];
+let markersLayer = L.layerGroup().addTo(map);
+let treeMarkers = {};
+
+// Layer dos bairros (GeoJSON)
+let bairrosGeoLayer = null;
+
+
+/* ============================================================
+   BANCO DE ÍNDICE DOS BAIRROS (nome → id)
+   ============================================================ */
+const bairrosIndex = {};
+allBairros.forEach(b => bairrosIndex[b.nome.toUpperCase()] = b.id);
+
+
+/* ============================================================
+   CARREGAR GEOJSON DOS BAIRROS
+   ============================================================ */
+fetch('/bairros.json')
+    .then(r => r.json())
+    .then(geo => {
+
+        // Vincular polígono ao ID do banco
+        geo.features.forEach(f => {
+            const nome = (f.properties.BAIRRO || '').toUpperCase();
+            f.properties.id_bairro = bairrosIndex[nome] ?? null;
+        });
+
+        // Criar camada
+        bairrosGeoLayer = L.geoJSON(geo, {
+            style: {
+                color: "#555",
+                weight: 1,
+                fillOpacity: 0.05
+            },
+            onEachFeature: (feature, layer) => {
+                layer.bindPopup(feature.properties.BAIRRO);
             }
-        ).addTo(map);
+        }).addTo(map);
+    });
 
-        const labelsLayer = L.tileLayer(
-            'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-                subdomains: 'abcd',
-                maxZoom: 20
-            }
-        ).addTo(map);
 
-        const bounds = [
-            [-22.71, -43.85],
-            [-22.51, -43.58]
-        ];
-        map.setMaxBounds(bounds);
-        map.on('drag', () => map.panInsideBounds(bounds, {
-            animate: false
-        }));
-        map.setMinZoom(13);
-        map.setMaxZoom(17);
+/* ============================================================
+   BOTÃO E PAINEL DE FILTROS
+   ============================================================ */
+const toggleBtn = L.DomUtil.create('button', 'map-filter-toggle');
+toggleBtn.innerHTML = 'Filtros';
+map.getContainer().appendChild(toggleBtn);
 
-        let allTrees = [];
-        let filteredTrees = [];
-        let markersLayer = L.layerGroup().addTo(map);
-        let treeMarkers = {};
-
-        const toggleBtn = L.DomUtil.create('button', 'map-filter-toggle');
-        toggleBtn.innerHTML = 'Filtros';
-        map.getContainer().appendChild(toggleBtn);
-
-        const panel = L.DomUtil.create('div', 'map-filter-panel');
-        panel.innerHTML = `
+const panel = L.DomUtil.create('div', 'map-filter-panel');
+panel.innerHTML = `
     <label for="search">Pesquisar árvore</label>
     <div style="position: relative;">
         <input type="text" id="search" placeholder="Ex: ipê, pau-brasil...">
@@ -297,118 +340,105 @@
         <button id="limparFiltro" class="w-1/2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition">🧹 Limpar</button>
     </div>
 `;
-        map.getContainer().appendChild(panel);
+map.getContainer().appendChild(panel);
 
-        L.DomEvent.disableClickPropagation(panel);
-        L.DomEvent.disableScrollPropagation(panel);
+L.DomEvent.disableClickPropagation(panel);
+L.DomEvent.disableScrollPropagation(panel);
 
-        toggleBtn.addEventListener('click', () => panel.classList.toggle('open'));
+toggleBtn.addEventListener('click', () => panel.classList.toggle('open'));
 
-        fetch('/api/trees')
-            .then(response => response.json())
-            .then(data => {
-                allTrees = data;
-                exibirArvores(allTrees);
-                // 4. Chama a função 'popularFiltros' e passa as árvores E os bairros
-                popularFiltros(allTrees, allBairros);
-            })
-            .catch(error => console.error('Erro ao carregar árvores:', error));
 
-        function popularFiltros(trees, bairros) {
-            const especies = [...new Set(trees.map(t => t.species_name).filter(Boolean))].sort();
-            const bairroSelect = document.getElementById('bairro');
-            const especieSelect = document.getElementById('especie');
+/* ============================================================
+   CARREGAR TODAS AS ÁRVORES (API)
+   ============================================================ */
+fetch('/api/trees')
+    .then(response => response.json())
+    .then(data => {
+        allTrees = data;
 
-            bairros.forEach(b => {
-                const opt = document.createElement('option');
-                opt.value = b.nome;
-                opt.textContent = b.nome;
-                bairroSelect.appendChild(opt);
-            });
+        exibirArvores(allTrees);
+        popularFiltros(allTrees, allBairros);
+    })
+    .catch(error => console.error('Erro ao carregar árvores:', error));
 
-            especies.forEach(e => {
-                const opt = document.createElement('option');
-                opt.value = e;
-                opt.textContent = e;
-                especieSelect.appendChild(opt);
-            });
-        }
 
-        function exibirArvores(trees) {
-            markersLayer.clearLayers();
-            treeMarkers = {};
-            filteredTrees = trees;
+/* ============================================================
+   POPULAR SELECTS DE FILTRO
+   ============================================================ */
+function popularFiltros(trees, bairros) {
+    const especies = [...new Set(trees.map(t => t.species_name).filter(Boolean))].sort();
 
-            trees.forEach((tree, index) => {
-                const trunk = parseFloat(tree.trunk_diameter) || 5;
-                const radius = Math.max(5, trunk / 5);
+    const bairroSelect = document.getElementById('bairro');
+    const especieSelect = document.getElementById('especie');
 
-                const marker = L.circleMarker([tree.latitude, tree.longitude], {
-                    radius,
-                    fillColor: tree.color_code,
-                    color: '#FFF',
-                    weight: 2,
-                    opacity: 0.9,
-                    fillOpacity: 0.8
-                }).addTo(markersLayer);
+    // Bairros → agora usando ID
+    bairros.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b.id;
+        opt.textContent = b.nome;
+        bairroSelect.appendChild(opt);
+    });
 
-                marker.bindPopup(criarPopup(tree, index));
-                treeMarkers[tree.id] = marker;
-            });
-        }
+    // Espécies
+    especies.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e;
+        opt.textContent = e;
+        especieSelect.appendChild(opt);
+    });
+}
 
-        // === Popup (ATUALIZADO) ===
-       function criarPopup(tree, index) {
-    const anterior = index > 0 ?
-        `<button onclick="mudarArvore(${index - 1})" class="popup-nav-btn" title="Árvore anterior">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-    </svg>
-</button>
-` :
-        '<span></span>';
 
-    const proximo = index < filteredTrees.length - 1 ?
-        `<button onclick="mudarArvore(${index + 1})" class="popup-nav-btn" title="Próxima árvore">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-    </svg>
-</button>
-` :
-        '<span></span>';
+/* ============================================================
+   EXIBIR ÁRVORES NO MAPA
+   ============================================================ */
+function exibirArvores(trees) {
+    markersLayer.clearLayers();
+    treeMarkers = {};
+    filteredTrees = trees;
+
+    trees.forEach((tree, index) => {
+        const trunk = parseFloat(tree.trunk_diameter) || 5;
+        const radius = Math.max(5, trunk / 5);
+
+        const marker = L.circleMarker([tree.latitude, tree.longitude], {
+            radius,
+            fillColor: tree.color_code,
+            color: '#FFF',
+            weight: 2,
+            opacity: 0.9,
+            fillOpacity: 0.8
+        }).addTo(markersLayer);
+
+        marker.bindPopup(criarPopup(tree, index));
+        treeMarkers[tree.id] = marker;
+    });
+}
+
+
+/* ============================================================
+   POPUP DAS ÁRVORES
+   ============================================================ */
+function criarPopup(tree, index) {
+    const anterior = index > 0
+        ? `<button onclick="mudarArvore(${index - 1})" class="popup-nav-btn">◀</button>` : '<span></span>';
+
+    const proximo = index < filteredTrees.length - 1
+        ? `<button onclick="mudarArvore(${index + 1})" class="popup-nav-btn">▶</button>` : '<span></span>';
 
     return `
         <div style="padding: 0.5rem; text-align:center;">
-            <h3 style="font-weight:700; font-size:1.125rem;">${tree.species_name}</h3>
+            <h3 style="font-weight:700;">${tree.species_name}</h3>
 
             <p><strong>Endereço:</strong> ${tree.address}</p>
-
             <p><strong>Diâmetro:</strong> ${tree.trunk_diameter} cm</p>
 
-            <div class="popup-nav" style="margin-top: 8px; margin-bottom: 10px;">
+            <div class="popup-nav" style="margin-top: 8px;">
                 ${anterior}
-                <button 
-            onclick="window.location.href='/trees/${tree.id}'"
-            style="
-            display: inline-block;
-            background: #358054;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: .8rem;
-            border: none;
-            cursor: pointer;
-            transition: .2s;
-            "   
-            onmouseover="this.style.background='#2d6e4b'"
-            onmouseout="this.style.background='#358054'"
-            >
-            Ver detalhes
-            </button>
-
+                <button onclick="window.location.href='/trees/${tree.id}'"
+                    style="background:#358054;color:#fff;padding:4px 10px;border-radius:6px;">
+                    Ver detalhes
+                </button>
                 ${proximo}
             </div>
         </div>
@@ -416,102 +446,128 @@
 }
 
 
-        // === Navegação entre árvores (Sem alteração) ===
-        window.mudarArvore = function(index) {
-            const tree = filteredTrees[index];
-            const marker = treeMarkers[tree.id];
+/* ============================================================
+   NAVEGAÇÃO ENTRE POPUPS
+   ============================================================ */
+window.mudarArvore = function(index) {
+    const tree = filteredTrees[index];
+    const marker = treeMarkers[tree.id];
 
-            map.flyTo([tree.latitude, tree.longitude], 17, {
-                duration: 1.0
+    map.flyTo([tree.latitude, tree.longitude], 17, { duration: 1.0 });
+
+    setTimeout(() => {
+        marker.bindPopup(criarPopup(tree, index)).openPopup();
+    }, 600);
+};
+
+
+/* ============================================================
+   FOCAR POLÍGONO DO BAIRRO SELECIONADO
+   ============================================================ */
+function focarNoBairro(bairroId) {
+    if (!bairrosGeoLayer) return;
+
+    bairrosGeoLayer.eachLayer(layer => {
+        const props = layer.feature.properties;
+
+        if (props.id_bairro == bairroId) {
+            layer.setStyle({
+                color: "#007bff",
+                weight: 3,
+                fillOpacity: 0.15
             });
-
-            setTimeout(() => {
-                marker.bindPopup(criarPopup(tree, index)).openPopup();
-            }, 600);
-        };
-
-        // === Filtro dinâmico (ATUALIZADO) ===
-        const bairroSelect = document.getElementById('bairro');
-        const especieSelect = document.getElementById('especie');
-        const searchInput = document.getElementById('search');
-        const autocompleteBox = document.getElementById('autocomplete');
-        const aplicarBtn = document.getElementById('aplicarFiltro');
-        const limparBtn = document.getElementById('limparFiltro');
-
-
-        function aplicarFiltro(foco = false) {
-            const bairro = bairroSelect.value; // Pega o nome, ex: "Centro"
-            const especie = especieSelect.value;
-            const busca = searchInput.value.toLowerCase();
-
-            const filtradas = allTrees.filter(tree => {
-                // 7. CORREÇÃO DA LÓGICA DO FILTRO:
-                // Compara se o 'address' da árvore CONTÉM o nome do bairro selecionado
-                const matchBairro = bairro ? tree.address?.toLowerCase().includes(bairro.toLowerCase()) : true;
-                const matchEspecie = especie ? tree.species_name?.toLowerCase() === especie.toLowerCase() : true;
-                const matchBusca = busca ? tree.species_name?.toLowerCase().includes(busca) : true;
-                return matchBairro && matchEspecie && matchBusca;
+            map.fitBounds(layer.getBounds());
+        } else {
+            layer.setStyle({
+                color: "#555",
+                weight: 1,
+                fillOpacity: 0.05
             });
-
-            exibirArvores(filtradas);
-
-            // ... (o resto da sua função de mensagem está correta) ...
-            const mensagemAntiga = document.querySelector('.map-filter-message');
-            if (mensagemAntiga) mensagemAntiga.remove();
-
-            const msg = document.createElement('div');
-            msg.classList.add('map-filter-message');
-
-            if (filtradas.length > 0) {
-                msg.innerHTML = `✅ <strong>${filtradas.length}</strong> árvore(s) encontrada(s)!`;
-                msg.classList.add('success');
-
-                if (foco) {
-                    const alvo = filtradas[0];
-                    map.setView([alvo.latitude, alvo.longitude], 17);
-                    treeMarkers[alvo.id].openPopup();
-                }
-            } else {
-                msg.innerHTML = `⚠️ Nenhuma árvore encontrada com esses filtros.`;
-                msg.classList.add('warning');
-            }
-            panel.appendChild(msg);
-            setTimeout(() => {
-                msg.classList.add('fade-out');
-                setTimeout(() => msg.remove(), 800);
-            }, 4000);
         }
+    });
+}
 
-        bairroSelect.addEventListener('change', () => aplicarFiltro());
-        especieSelect.addEventListener('change', () => aplicarFiltro());
 
-        aplicarBtn.addEventListener('click', () => {
-            aplicarBtn.classList.add('loading');
-            aplicarBtn.textContent = 'Filtrando...';
-            setTimeout(() => {
-                aplicarFiltro(true);
-                aplicarBtn.classList.remove('loading');
-                aplicarBtn.textContent = 'Filtrar';
-            }, 600);
-        });
+/* ============================================================
+   FILTRO COMPLETO
+   ============================================================ */
+const bairroSelect = document.getElementById('bairro');
+const especieSelect = document.getElementById('especie');
+const searchInput = document.getElementById('search');
+const autocompleteBox = document.getElementById('autocomplete');
+const aplicarBtn = document.getElementById('aplicarFiltro');
+const limparBtn = document.getElementById('limparFiltro');
 
-        limparBtn.addEventListener('click', () => {
-            bairroSelect.value = '';
-            especieSelect.value = '';
-            searchInput.value = '';
-            exibirArvores(allTrees);
+function aplicarFiltro(foco = false) {
+    const bairro = bairroSelect.value;   // agora é ID
+    const especie = especieSelect.value;
+    const busca = searchInput.value.toLowerCase();
 
-            const msg = document.createElement('div');
-            msg.classList.add('map-filter-message', 'success');
-            msg.innerHTML = 'Filtros limpos! Todas as árvores foram exibidas.';
-            panel.appendChild(msg);
+    const filtradas = allTrees.filter(tree => {
+        const matchBairro = bairro ? tree.bairro_id == bairro : true;
+        const matchEspecie = especie ? tree.species_name?.toLowerCase() === especie.toLowerCase() : true;
+        const matchBusca = busca ? tree.species_name?.toLowerCase().includes(busca) : true;
+        return matchBairro && matchEspecie && matchBusca;
+    });
 
-            setTimeout(() => {
-                msg.classList.add('fade-out');
-                setTimeout(() => msg.remove(), 800);
-            }, 3000);
-        });
-    </script>
+    exibirArvores(filtradas);
+
+    // mensagem no painel
+    const msgAntiga = document.querySelector('.map-filter-message');
+    if (msgAntiga) msgAntiga.remove();
+
+    const msg = document.createElement('div');
+    msg.classList.add('map-filter-message');
+
+    if (filtradas.length > 0) {
+        msg.innerHTML = `✔️ ${filtradas.length} árvore(s) encontrada(s)!`;
+        msg.classList.add('success');
+
+        if (foco) {
+            // levar o mapa até a primeira árvore
+            const alvo = filtradas[0];
+            map.setView([alvo.latitude, alvo.longitude], 17);
+            treeMarkers[alvo.id].openPopup();
+        }
+    } else {
+        msg.innerHTML = `⚠️ Nenhuma árvore encontrada.`;
+        msg.classList.add('warning');
+    }
+
+    panel.appendChild(msg);
+    setTimeout(() => {
+        msg.classList.add('fade-out');
+        setTimeout(() => msg.remove(), 800);
+    }, 3500);
+}
+
+
+/* ============================================================
+   EVENTOS DO FILTRO
+   ============================================================ */
+bairroSelect.addEventListener('change', () => {
+    if (bairroSelect.value) focarNoBairro(bairroSelect.value);
+    aplicarFiltro();
+});
+
+especieSelect.addEventListener('change', () => aplicarFiltro());
+
+aplicarBtn.addEventListener('click', () => {
+    aplicarBtn.textContent = 'Filtrando...';
+    setTimeout(() => {
+        aplicarFiltro(true);
+        aplicarBtn.textContent = 'Filtrar';
+    }, 500);
+});
+
+limparBtn.addEventListener('click', () => {
+    bairroSelect.value = '';
+    especieSelect.value = '';
+    searchInput.value = '';
+    exibirArvores(allTrees);
+});
+</script>
+
 </body>
 
 </html>
