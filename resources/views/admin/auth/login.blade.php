@@ -111,21 +111,7 @@
             Entrar
             </button>
         </div>
-
-        {{-- MUDANÇA 4: Removido o link "Crie uma agora" --}}
-        <!-- Botão de Sair do ADMIN -->
-        <!-- Coloque isto na sua sidebar ou layout de admin -->
-
-        <form method="POST" action="{{ route('admin.logout') }}">
-            @csrf
-
-            <a href="{{ route('admin.logout') }}" onclick="event.preventDefault(); this.closest('form').submit();"
-                class="sidebar-link text-sm opacity-80 hover:opacity-100">
-
-                <i data-lucide="log-out" class="icon"></i>
-                Sair
-            </a>
-        </form>
+        
     </form>
 
 </x-guest-layout>
