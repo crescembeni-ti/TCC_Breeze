@@ -24,6 +24,9 @@ use App\Http\Controllers\Servico\AuthenticatedSessionController as ServiceLoginC
 
 use App\Models\Bairro;
 
+// Controller da verificação por código (IMPORTANTE)
+use App\Http\Controllers\Auth\VerifyEmailCodeController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +48,29 @@ Route::middleware('preventBack')->group(function () {
 });
 
 
+
+/*
+|--------------------------------------------------------------------------
+| VERIFICAÇÃO DE E-MAIL POR CÓDIGO (CUSTOM)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest')->group(function () {
+
+    // Tela para digitar o código
+    Route::get('/verification/code', [VerifyEmailCodeController::class, 'show'])
+        ->name('verification.code.show');
+
+    // Validar o código
+    Route::post('/verification/code', [VerifyEmailCodeController::class, 'verify'])
+        ->name('verification.code.verify');
+
+    // Reenviar código
+    Route::post('/verification/code/resend', [VerifyEmailCodeController::class, 'resend'])
+        ->name('verification.code.resend');
+});
+
+
+
 /*
 |--------------------------------------------------------------------------
 | DENÚNCIAS (somente usuários logados)
@@ -53,6 +79,7 @@ Route::middleware('preventBack')->group(function () {
 Route::post('/contato/denuncia', [ReportController::class, 'store'])
     ->middleware(['auth:web', 'preventBack'])
     ->name('report.store');
+
 
 
 /*
@@ -69,6 +96,7 @@ Route::middleware(['auth:web', 'preventBack'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 });
+
 
 
 /*
@@ -103,7 +131,6 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
 
     Route::get('/', fn() => redirect()->route('admin.login'));
 
-    // Login admin
     Route::middleware(['guest:admin', 'guard.only:admin'])->group(function () {
 
         Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
@@ -111,12 +138,6 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         Route::post('/login', [AdminLoginController::class, 'store'])->name('login.store');
     });
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Área PROTEGIDA do Admin
-    |--------------------------------------------------------------------------
-    */
     Route::middleware(['auth:admin', 'preventBack'])->group(function () {
 
         Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
@@ -124,69 +145,38 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [TreeController::class, 'adminDashboard'])->name('dashboard');
 
 
-        // ============================================================
         // Árvores
-        // ============================================================
         Route::get('/map', [TreeController::class, 'adminMap'])->name('map');
-
         Route::post('/map', [TreeController::class, 'storeTree'])->name('map.store');
-
         Route::get('/trees', [TreeController::class, 'adminTreeList'])->name('trees.index');
-
         Route::get('/trees/{tree}/edit', [TreeController::class, 'adminTreeEdit'])->name('trees.edit');
-
         Route::patch('/trees/{tree}', [TreeController::class, 'adminTreeUpdate'])->name('trees.update');
-
         Route::delete('/trees/{tree}', [TreeController::class, 'adminTreeDestroy'])->name('trees.destroy');
 
 
-        // ============================================================
         // Contatos
-        // ============================================================
         Route::get('/contacts', [ContactController::class, 'adminContactList'])->name('contato.index');
-
         Route::patch('/contacts/{contact}', [ContactController::class, 'adminContactUpdateStatus'])->name('contacts.updateStatus');
 
 
-        // ============================================================
         // Notícias
-        // ============================================================
         Route::get('/noticias', [NoticiaController::class, 'index'])->name('noticias.index');
-
         Route::get('/noticias/create', [NoticiaController::class, 'create'])->name('noticias.create');
-
         Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.store');
 
 
-        // ============================================================
         // Perfil Admin
-        // ============================================================
         Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
-
         Route::patch('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
-
         Route::delete('/profile', [AdminProfileController::class, 'destroy'])->name('profile.destroy');
 
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | ⭐ NOVO PAINEL DE CONTAS (Estilo Discord, com abas)
-        |--------------------------------------------------------------------------
-        | A rota index centraliza Admin, Analista e Serviço em um único painel.
-        */
+        // Painel de Contas (Admin / Analista / Serviço)
         Route::prefix('accounts')->name('accounts.')->group(function () {
 
-            // Página única com as abas
             Route::get('/', [AccountManagementController::class, 'index'])->name('index');
-
-            // Criar (via modal)
             Route::post('/store', [AccountManagementController::class, 'store'])->name('store');
-
-            // Editar (via modal)
             Route::put('/update/{type}/{id}', [AccountManagementController::class, 'update'])->name('update');
-
-            // Excluir
             Route::delete('/delete/{type}/{id}', [AccountManagementController::class, 'destroy'])->name('destroy');
         });
 
@@ -207,31 +197,23 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
     Route::middleware(['guest:analyst', 'guard.only:analyst'])->group(function () {
 
         Route::get('/login', [AnalystLoginController::class, 'create'])->name('login');
-
         Route::post('/login', [AnalystLoginController::class, 'store'])->name('login.store');
 
     });
-
 
     Route::middleware(['auth:analyst', 'preventBack'])->group(function () {
 
         Route::post('/logout', [AnalystLoginController::class, 'destroy'])->name('logout');
 
-       Route::get('/dashboard', [ContactController::class, 'analystDashboard'])
-     ->name('dashboard');
+        Route::get('/dashboard', [ContactController::class, 'analystDashboard'])->name('dashboard');
 
         Route::get('/vistorias-pendentes', [ContactController::class, 'vistoriasPendentes'])
             ->name('vistorias.pendentes');
 
         Route::get('/profile', fn() => view('analista.profile'))->name('profile.edit');
-        
-        // Dentro do grupo 'pbi-analista' -> middleware 'auth:analyst'
-       Route::post('/gerar-os', [ContactController::class, 'storeServiceOrder'])
-    ->name('os.store');
+
+        Route::post('/gerar-os', [ContactController::class, 'storeServiceOrder'])->name('os.store');
     });
-
-    
-
 
 });
 
@@ -249,7 +231,6 @@ Route::prefix('pbi-servico')->name('service.')->group(function () {
     Route::middleware(['guest:service', 'guard.only:service'])->group(function () {
 
         Route::get('/login', [ServiceLoginController::class, 'create'])->name('login');
-
         Route::post('/login', [ServiceLoginController::class, 'store'])->name('login.store');
 
     });

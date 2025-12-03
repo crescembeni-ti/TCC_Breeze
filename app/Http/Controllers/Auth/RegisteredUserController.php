@@ -47,8 +47,14 @@ class RegisteredUserController extends Controller
             'email_verification_code_expires_at' => $expires_at,
         ]);
 
-       // Envia o código por email
-        $user->notify(new SendVerificationCode($code));
+        // Envia o código por e-mail — mas NÃO deixa quebrar o fluxo
+        try {
+            $user->notify(new SendVerificationCode($code));
+        } catch (\Exception $e) {
+            // Aqui evita erro 500 se o Gmail estiver com problema
+            // Você pode logar se quiser:
+            // \Log::error("Erro ao enviar email: " . $e->getMessage());
+        }
 
         // DESLOGA para permitir acessar a rota guest
         \Auth::guard('web')->logout();
@@ -57,7 +63,5 @@ class RegisteredUserController extends Controller
 
         // Agora abre a tela de código
         return redirect()->route('verification.code.show', ['email' => $user->email]);
-
-
     }
 }
