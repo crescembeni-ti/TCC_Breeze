@@ -66,6 +66,7 @@
                     <a href="{{ route('admin.contato.index') }}" class="sidebar-link"><i data-lucide="inbox" class="icon"></i> Solicitações</a>
                     <a href="{{ route('admin.profile.edit') }}" class="sidebar-link"><i data-lucide="user" class="icon"></i> Meu Perfil</a>
                     <a href="{{ route('admin.accounts.index') }}" class="sidebar-link"><i data-lucide="users" class="icon"></i> Gerenciar Contas</a>
+                     <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
                 @elseif (auth('analyst')->check())
                     <a href="{{ route('analyst.dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Painel Analista</a>
                     <a href="{{ route('analyst.vistorias.pendentes') }}" class="sidebar-link"><i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes</a>
@@ -77,9 +78,10 @@
                     <a href="{{ route('contact') }}" class="sidebar-link"><i data-lucide="send" class="icon"></i> Nova Solicitação</a>
                     <a href="{{ route('contact.myrequests') }}" class="sidebar-link"><i data-lucide="clipboard-list" class="icon"></i> Minhas Solicitações</a>
                     <a href="{{ route('profile.edit') }}" class="sidebar-link"><i data-lucide="user" class="icon"></i> Meu Perfil</a>
+                     <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
                 @endif
 
-                <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
+               
             </nav>
         
            <!-- ================== LOGOUT ======================= -->
@@ -92,39 +94,39 @@
                 </a>
             @endif
 
-                {{-- Logout multi-guard --}}
-                @if (auth('admin')->check())
-                    <form method="POST" action="{{ route('admin.logout') }}" class="mt-2">
-                        @csrf
-                        <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair
-                        </a>
-                    </form>
+            {{-- Logout multi-guard --}}
+            @if (auth('admin')->check())
+                <form method="POST" action="{{ route('admin.logout') }}" class="mt-2">
+                    @csrf
+                    <a href="#" class="sidebar-link logout-btn">
+                        <i data-lucide="log-out" class="icon"></i> Sair
+                    </a>
+                </form>
 
-                @elseif(auth('analyst')->check())
-                    <form method="POST" action="{{ route('analyst.logout') }}" class="mt-2">
-                        @csrf
-                        <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair
-                        </a>
-                    </form>
+            @elseif(auth('analyst')->check())
+                <form method="POST" action="{{ route('analyst.logout') }}" class="mt-2">
+                    @csrf
+                    <a href="#" class="sidebar-link logout-btn">
+                        <i data-lucide="log-out" class="icon"></i> Sair
+                    </a>
+                </form>
 
-                @elseif(auth('service')->check())
-                    <form method="POST" action="{{ route('service.logout') }}" class="mt-2">
-                        @csrf
-                        <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair
-                        </a>
-                    </form>
+            @elseif(auth('service')->check())
+                <form method="POST" action="{{ route('service.logout') }}" class="mt-2">
+                    @csrf
+                    <a href="#" class="sidebar-link logout-btn">
+                        <i data-lucide="log-out" class="icon"></i> Sair
+                    </a>
+                </form>
 
-                @elseif(auth('web')->check())
-                    <form method="POST" action="{{ route('logout') }}" class="mt-2">
-                        @csrf
-                        <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair
-                        </a>
-                    </form>
-                @endif
+            @elseif(auth('web')->check())
+                <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                    @csrf
+                    <a href="#" class="sidebar-link logout-btn">
+                        <i data-lucide="log-out" class="icon"></i> Sair
+                    </a>
+                </form>
+            @endif
 
             
         </aside>

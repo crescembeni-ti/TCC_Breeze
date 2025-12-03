@@ -44,11 +44,6 @@
                         Voltar ao Mapa
                     </a>
 
-                    @if (!auth('admin')->check())
-                        <a href="{{ route('contact') }}" class="btn bg-green-600 hover:bg-green-700 text-white">
-                            Fazer Solicitação
-                        </a>
-                    @endif
                 </div>
 
             </div>
