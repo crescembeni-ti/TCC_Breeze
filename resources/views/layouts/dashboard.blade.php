@@ -148,46 +148,49 @@
                 </a>
             </nav>
         
-            <!-- ================== LOGOUT ======================= -->
-             <hr class="border-t-2 border-green-400 my-6 opacity-80">
-             
+           <!-- ================== LOGOUT ======================= -->
+            <hr class="border-t-2 border-green-400 my-6 opacity-80">
+
+            {{-- Mostrar "Voltar ao Mapa" só para admin e usuário comum --}}
+            @if(auth('admin')->check() || auth('web')->check())
                 <a href="{{ route('home') }}" class="sidebar-link">
                     <i data-lucide="arrow-left-circle" class="icon"></i> Voltar ao Mapa
                 </a>
+            @endif
 
-                {{-- Logout multi-guard --}}
-                @if (auth('admin')->check())
-                    <form method="POST" action="{{ route('admin.logout') }}" class="mt-2">
-                        @csrf
-                        <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair
-                        </a>
-                    </form>
+            {{-- Logout multi-guard --}}
+            @if (auth('admin')->check())
+                <form method="POST" action="{{ route('admin.logout') }}" class="mt-2">
+                    @csrf
+                    <a href="#" class="sidebar-link logout-btn">
+                        <i data-lucide="log-out" class="icon"></i> Sair
+                    </a>
+                </form>
 
-                @elseif(auth('analyst')->check())
-                    <form method="POST" action="{{ route('analyst.logout') }}" class="mt-2">
-                        @csrf
-                        <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair
-                        </a>
-                    </form>
+            @elseif(auth('analyst')->check())
+                <form method="POST" action="{{ route('analyst.logout') }}" class="mt-2">
+                    @csrf
+                    <a href="#" class="sidebar-link logout-btn">
+                        <i data-lucide="log-out" class="icon"></i> Sair
+                    </a>
+                </form>
 
-                @elseif(auth('service')->check())
-                    <form method="POST" action="{{ route('service.logout') }}" class="mt-2">
-                        @csrf
-                        <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair
-                        </a>
-                    </form>
+            @elseif(auth('service')->check())
+                <form method="POST" action="{{ route('service.logout') }}" class="mt-2">
+                    @csrf
+                    <a href="#" class="sidebar-link logout-btn">
+                        <i data-lucide="log-out" class="icon"></i> Sair
+                    </a>
+                </form>
 
-                @elseif(auth('web')->check())
-                    <form method="POST" action="{{ route('logout') }}" class="mt-2">
-                        @csrf
-                        <a href="#" class="sidebar-link logout-btn">
-                            <i data-lucide="log-out" class="icon"></i> Sair
-                        </a>
-                    </form>
-                @endif
+            @elseif(auth('web')->check())
+                <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                    @csrf
+                    <a href="#" class="sidebar-link logout-btn">
+                        <i data-lucide="log-out" class="icon"></i> Sair
+                    </a>
+                </form>
+            @endif
 
             
         </aside>
