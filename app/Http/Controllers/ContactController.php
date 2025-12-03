@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage; 
 use Illuminate\Support\Facades\Log; // Mantido caso precise de logs no site
-
+use App\Models\ServiceOrder;
 // Imports do Firebase (Mantidos caso o site também envie notificações no futuro)
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
@@ -292,6 +292,51 @@ class ContactController extends Controller
             ->get();
 
         return view('analista.vistorias-pendentes', compact('vistorias'));
+    }
+
+    /**
+     * [ANALISTA] Salvar a Ordem de Serviço
+     */
+    public function storeServiceOrder(Request $request)
+    {
+        // 1. Validação simples
+        $request->validate([
+            'contact_id' => 'required|exists:contacts,id',
+            'data_vistoria' => 'required|date',
+            'data_execucao' => 'nullable|date',
+            // Arrays (checkboxes)
+            'motivo' => 'nullable|array',
+            'servico' => 'nullable|array',
+            'equip' => 'nullable|array',
+            'procedimentos' => 'nullable|array',
+            'observacoes' => 'nullable|string'
+        ]);
+
+        // 2. Cria a Ordem de Serviço
+        ServiceOrder::create([
+            'contact_id' => $request->contact_id,
+            'supervisor_id' => Auth::guard('analyst')->id(),
+            'data_vistoria' => $request->data_vistoria,
+            'data_execucao' => $request->data_execucao,
+            
+            // Salvando os arrays (o Model cuida do JSON)
+            'motivos' => $request->motivo,
+            'servicos' => $request->servico,
+            'equipamentos' => $request->equip,
+            'procedimentos' => $request->procedimentos,
+            'observacoes' => $request->observacoes,
+        ]);
+
+        // 3. Atualiza o status da solicitação principal para "Deferido" (ou Em Execução)
+        // Busque o ID do status que você quer. Ex: Deferido.
+        $contact = Contact::find($request->contact_id);
+        $statusDeferido = Status::where('name', 'Deferido')->first();
+        
+        if ($statusDeferido) {
+            $contact->update(['status_id' => $statusDeferido->id]);
+        }
+
+        return back()->with('success', 'Ordem de Serviço gerada com sucesso!');
     }
 
 } // <--- Fim da classe ContactController

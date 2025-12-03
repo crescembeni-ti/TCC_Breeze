@@ -14,24 +14,35 @@
         @csrf
 
         <!-- Nome -->
-        <div>
-            <x-input-label for="name" :value="__('Nome completo')" />
-            <x-text-input id="name" class="block mt-1 w-full"
-                type="text"
-                name="name"
-                :value="old('name')"
-                required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+<div>
+    <x-input-label for="name" :value="__('Nome completo')" />
+    <div class="relative">
+        <input type="text"
+            id="name"
+            name="name"
+            :value="old('name')"
+            required
+            autofocus
+            autocomplete="name"
+            class="block mt-1 w-full rounded-md border border-gray-300 bg-[#f9fafb] text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 pr-10" />
+    </div>
+    <x-input-error :messages="$errors->get('name')" class="mt-2" />
+</div>
+
 
         <!-- Email -->
         <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full"
-                type="email"
+            <div class="relative">
+                <input type="email"
+                id="email"
                 name="email"
                 :value="old('email')"
-                required autocomplete="username" />
+                required
+                autofocus
+                autocomplete="username"
+                class="block mt-1 w-full rounded-md border border-gray-300 bg-[#f9fafb] text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 pr-10" />
+            </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
@@ -126,9 +137,19 @@
 
         <!-- Botão -->
         <div class="mt-6">
-            <x-primary-button class="w-full justify-center bg-green-600 hover:bg-green-700">
-                Registrar
-            </x-primary-button>
+            <button type="submit"
+            class="
+            bg-green-600 text-white font-semibold
+            rounded-md shadow-md
+            hover:bg-green-700 hover:shadow-lg
+            active:bg-[#38c224]
+            transition duration-200
+            w-full
+            px-4
+            py-2          
+            ">
+            Registrar
+            </button>
         </div>
 
         <!-- Link login -->

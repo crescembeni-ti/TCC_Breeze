@@ -224,7 +224,14 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
             ->name('vistorias.pendentes');
 
         Route::get('/profile', fn() => view('analista.profile'))->name('profile.edit');
+        
+        // Dentro do grupo 'pbi-analista' -> middleware 'auth:analyst'
+       Route::post('/gerar-os', [ContactController::class, 'storeServiceOrder'])
+    ->name('os.store');
     });
+
+    
+
 
 });
 

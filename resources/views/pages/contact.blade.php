@@ -93,8 +93,7 @@
                         @csrf
 
                         <div>
-                            <label for="topico" class="block text-sm font-semibold text-gray-700 mb-2">Solicitações
-                                Frequentes *</label>
+                            <label for="topico" class="block text-sm font-semibold text-gray-700 mb-2">Solicitações Frequentes *</label>
                             <select id="topico" name="topico" required
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('topico') border-red-500 @enderror">
                                 <option value="" disabled {{ old('topico') ? '' : 'selected' }}>Escolha um
@@ -112,8 +111,7 @@
                         </div>
 
                         <div>
-                            <label for="bairro" class="block text-sm font-semibold text-gray-700 mb-2">Bairro
-                                *</label>
+                            <label for="bairro" class="block text-sm font-semibold text-gray-700 mb-2">Bairro *</label>
                             <select id="bairro" name="bairro" required
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('bairro') border-red-500 @enderror">
                                 <option value="" disabled {{ old('bairro') ? '' : 'selected' }}>Escolha um
