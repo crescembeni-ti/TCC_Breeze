@@ -8,19 +8,16 @@
 
     {{-- TABS --}}
     <div class="flex space-x-4 border-b mb-4 pb-2">
-
         <a href="?type=admin"
            class="px-4 py-2 rounded 
            {{ $type === 'admin' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
             Admins
         </a>
-
         <a href="?type=analyst"
            class="px-4 py-2 rounded
            {{ $type === 'analyst' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
             Analistas
         </a>
-
         <a href="?type=service"
            class="px-4 py-2 rounded
            {{ $type === 'service' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
@@ -50,11 +47,9 @@
                 <th class="px-4 py-2 text-left">ID</th>
                 <th class="px-4 py-2 text-left">Nome</th>
                 <th class="px-4 py-2 text-left">Email</th>
-
                 @if ($type !== 'admin')
                     <th class="px-4 py-2 text-left">CPF</th>
                 @endif
-
                 <th class="px-4 py-2 text-right">Ações</th>
             </tr>
         </thead>
@@ -67,7 +62,7 @@
                     <td class="px-4 py-2 text-left">{{ $item->email }}</td>
 
                     @if ($type !== 'admin')
-                        <td class="px-4 py-2 text-left">{{ $item->cpf }}</td>
+                        <td class="px-4 py-2 text-left" id="cpf-{{ $item->id }}">{{ $item->cpf }}</td>
                     @endif
 
                     <td class="px-4 py-2 text-right space-x-2">
@@ -80,15 +75,13 @@
                         </button>
 
                         {{-- EXCLUIR --}}
-                        <form method="POST" action="{{ route('admin.accounts.destroy', [$type, $item->id]) }}" class="inline-block" onsubmit="return confirm('Excluir esta conta?')">
-                            @csrf
-                            @method('DELETE')
-
-                            <button class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-500 transition duration-200 px-3 py-1 text-xs">
-                                Excluir
-                            </button>
-                        </form>
-
+<button onclick="openDeleteModal({{ $item->id }}, '{{ $item->name }}')"
+        data-id="{{ $item->id }}" 
+        data-name="{{ $item->name }}"
+        data-url="{{ route('admin.accounts.destroy', [$type, $item->id]) }}"
+        class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-500 transition duration-200 px-3 py-1 text-xs">
+    Excluir
+</button>
                     </td>
                 </tr>
             @endforeach
@@ -103,6 +96,9 @@
 
 {{-- MODAL ADD --}}
 <dialog id="modalAdd" class="p-6 rounded-lg shadow-lg w-[420px] max-w-full">
+    <button onclick="closeModal('modalAdd')" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+        <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
     <form method="POST" action="{{ route('admin.accounts.store') }}" class="space-y-4">
         @csrf
         <input id="add_type" type="hidden" name="type" value="">
@@ -139,15 +135,13 @@
             Salvar
         </button>
     </form>
-
-<button onclick="modalAdd.close()" 
-        class="mt-2 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] transition duration-200 w-full px-4 py-2">
-    Cancelar
-</button>
 </dialog>
 
 {{-- MODAL EDIT --}}
 <dialog id="modalEdit" class="p-6 rounded-lg shadow-lg w-[420px] max-w-full">
+    <button onclick="closeModal('modalEdit')" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+        <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
     <form id="formEdit" method="POST" class="space-y-4">
         @csrf
         @method('PUT')
@@ -182,21 +176,43 @@
             Atualizar
         </button>
     </form>
-
-<button onclick="modalEdit.close()" 
-        class="mt-2 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] transition duration-200 w-full px-4 py-2">
-    Cancelar
-</button>
 </dialog>
 
-{{-- REABRIR MODAL SE HOUVER ERROS --}}
-@if ($errors->any())
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        modalAdd.showModal();
-    });
-</script>
-@endif
+{{-- MODAL EXCLUSÃO --}}
+<dialog id="modalDelete" class="p-6 rounded-lg shadow-lg w-[420px] max-w-full">
+    <button onclick="closeModal('modalDelete')" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+        <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+
+    {{-- Título do modal --}}
+    <h3 class="text-lg font-bold text-red-600 text-center">Tem certeza que deseja excluir?</h3>
+    
+    {{-- Nome da pessoa --}}
+    <div id="modalDeleteName" class="bg-gray-100 text-gray-800 font-bold px-4 py-2 rounded-md my-4 w-fit mx-auto">
+        <!-- Nome será inserido aqui via JS -->
+    </div>
+
+    {{-- Mensagem de aviso --}}
+    <p class="text-gray-700 text-center">Esta ação é irreversível.</p>
+
+    {{-- Formulário de exclusão --}}
+    <form id="formDelete" method="POST" action="" class="mt-4">
+        @csrf
+        @method('DELETE')
+
+        {{-- Centralizando os botões --}}
+        <div class="flex justify-center space-x-4">
+            <!-- Botão Cancelar -->
+            <button type="button" onclick="closeModal('modalDelete')" class="bg-gray-300 text-black font-semibold rounded-md px-4 py-2">
+                Cancelar
+            </button>
+            <!-- Botão Excluir -->
+            <button type="submit" class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-500 transition duration-200 px-4 py-2">
+                Excluir
+            </button>
+        </div>
+    </form>
+</dialog>
 
 <script>
 /* MODAL ADD */
@@ -230,6 +246,48 @@ function openEdit(id, name, email, cpf = '', type) {
     document.getElementById('formEdit').action =
         "/pbi-admin/accounts/update/" + type + "/" + id;
 }
+
+/* Fechar modal */
+function closeModal(modalId) {
+    document.getElementById(modalId).close();
+}
+
+/* Função para formatar CPF */
+function formatCPF(cpf) {
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Pega todos os CPFs na página
+    document.querySelectorAll('td[id^="cpf-"]').forEach(function(cpfElement) {
+        // Pega o CPF cru
+        let cpf = cpfElement.innerText.trim();
+        // Formata o CPF e coloca de volta no elemento
+        cpfElement.innerText = formatCPF(cpf);
+    });
+});
+
+function openDeleteModal(id, name) {
+    const modalDelete = document.getElementById('modalDelete');
+    const formDelete = document.getElementById('formDelete');
+
+    // Aqui você pega o botão específico de exclusão que foi clicado
+    const deleteButton = document.querySelector(`button[data-id='${id}']`);
+
+    // Pega a URL de exclusão
+    const url = deleteButton.getAttribute('data-url');
+
+    // Atualiza o form de exclusão com a URL correta
+    formDelete.action = url;
+
+    // Exibe o nome da pessoa no modal
+    const modalName = document.getElementById('modalDeleteName');
+    modalName.innerText = name; // Coloca o nome da pessoa no modal
+
+    // Abre o modal de exclusão
+    modalDelete.showModal();
+}
+
 </script>
 
 @endsection
