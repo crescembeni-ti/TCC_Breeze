@@ -250,7 +250,20 @@ const allBairros = @json($bairros);
 const INITIAL_VIEW = [-22.6111, -43.7089];
 const INITIAL_ZOOM = 14;
 
-const map = L.map('map').setView(INITIAL_VIEW, INITIAL_ZOOM);
+// Definindo os limites (caixa envolvente) de Paracambi com uma margem de segurança
+const PARACAMBI_BOUNDS = [
+    [-22.7000, -43.8500], // Canto Sudoeste (embaixo, esquerda)
+    [-22.5000, -43.5500]  // Canto Nordeste (cima, direita)
+];
+
+// Inicializa o mapa com as restrições
+const map = L.map('map', {
+    center: INITIAL_VIEW,
+    zoom: INITIAL_ZOOM,
+    minZoom: 12,              // Impede de afastar muito (ex: ver o estado inteiro)
+    maxBounds: PARACAMBI_BOUNDS, // Trava a área de navegação
+    maxBoundsViscosity: 1.0   // 1.0 torna a borda sólida (0.0 faria o mapa "quicar" de volta)
+});
 
 // Layer satélite
 L.tileLayer(
