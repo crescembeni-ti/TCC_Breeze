@@ -99,90 +99,61 @@
     @endpush
 
     {{-- Modal View (igual) --}}
-  <div id="modal-view" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-    <div class="bg-white w-full max-w-2xl rounded-xl shadow-xl p-6 relative">
-        <button onclick="closeViewModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+    <div id="modal-view" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
+            <button onclick="closeViewModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Detalhes da Mensagem</h2>
+
+            <div class="space-y-3">
+                <p><strong>Nome:</strong> <span id="view-nome"></span></p>
+                <p><strong>Email:</strong> <span id="view-email"></span></p>
+                <p><strong>Endereço:</strong> <span id="view-endereco"></span></p>
+
+                <div>
+                    <p class="font-semibold">Mensagem:</p>
+                    <p id="view-descricao" class="p-3 bg-gray-100 rounded-md text-sm"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Status (AJAX) --}}
+<div id="modal-status" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white w-[420px] max-w-full rounded-lg shadow-lg p-6 relative">
+        <button onclick="closeStatusModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
             <i data-lucide="x" class="w-6 h-6"></i>
         </button>
 
-        <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Detalhes da Solicitação</h2>
+        <h2 class="text-2xl font-bold text-blue-700 mb-4 text-center">Atualizar Status</h2>
 
-        <div class="space-y-3">
+        <form id="status-form" method="POST" class="space-y-3" onsubmit="return submitStatusForm(event)">
+            @csrf
+            @method('PATCH')
 
-            <p><strong>Solicitação Frequente:</strong> <span id="view-topico"></span></p>
-
-            <p><strong>Nome:</strong> <span id="view-nome"></span></p>
-            <p><strong>Email:</strong> <span id="view-email"></span></p>
-
-            <p><strong>Endereço:</strong>
-                <span id="view-endereco" class="text-gray-700"></span>
-            </p>
-
-            <div>
-                <p class="font-semibold">Descrição:</p>
-                <p id="view-descricao" class="p-3 bg-gray-100 rounded-md text-sm"></p>
-            </div>
-
-            <button 
-                onclick="openFotosModal(currentViewingId)" 
-                class="mt-4 w-full bg-[#358054] hover:bg-[#2d6947] text-white font-semibold py-2 rounded-lg shadow transition">
-                 Ver Fotos da Solicitação
-             </button>
-
-
-        </div>
-     </div>
-    </div>
-        {{-- Modal Fotos --}}
-        <div id="modal-fotos" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[9999]">
-        <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative">
-            <button onclick="closeFotosModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-
-            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Fotos da Solicitação</h2>
-
-            <div id="fotos-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-auto p-2">
-                <!-- imagens serão inseridas aqui -->
-            </div>
-        </div>
-    </div>
-
-
-
-    {{-- Modal Status (AJAX) --}}
-    <div id="modal-status" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
-            <button onclick="closeStatusModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-
-            <h2 class="text-2xl font-bold text-blue-700 mb-4">Atualizar Status</h2>
-
-            <form id="status-form" method="POST" class="space-y-3" onsubmit="return submitStatusForm(event)">
-                @csrf
-                @method('PATCH')
-
-                <label class="font-semibold">Status</label>
-                <select name="status_id" id="status-select" class="w-full rounded-md border-gray-300 shadow-sm">
-                    @foreach ($allStatuses as $status)
+            <label class="font-semibold">Status</label>
+            <select name="status_id" id="status-select" class="w-full rounded-md border-gray-300 shadow-sm">
+                @foreach ($allStatuses as $status)
                     <option value="{{ $status->id }}">{{ $status->name }}</option>
-                    @endforeach
-                </select>
+                @endforeach
+            </select>
 
-                <div id="just-box">
-                    <label class="font-semibold">Justificativa</label>
-                    <textarea name="justificativa" id="status-justificativa"
-                        class="w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea>
-                </div>
+            <div id="just-box">
+                <label class="font-semibold">Justificativa</label>
+                <textarea name="justificativa" id="status-justificativa"
+                    class="w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea>
+            </div>
 
-                <button id="status-save-btn"
-                    class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
-                    Salvar
-                </button>
-            </form>
-        </div>
+            <button id="status-save-btn"
+                class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                Salvar
+            </button>
+        </form>
     </div>
+</div>
+
 
     {{-- hidden template partial used inline to render table rows --}}
     @php
@@ -230,7 +201,7 @@
             </td>
             <td class="px-6 py-4 align-top text-right text-sm space-x-2">
                 <button onclick="openViewModal(${m.id})"
-                        class="inline-flex items-center px-3 py-1.5 bg-[#358054] text-white rounded-md text-xs font-semibold hover:bg-[#2d6947] transition">
+                        class="bg-green-700 text-white inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-green-600 transition">
                     Ver
                 </button>
                 <button onclick="openStatusModal(${m.id})"
