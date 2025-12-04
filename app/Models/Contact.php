@@ -23,16 +23,22 @@ class Contact extends Model
         'rua',
         'numero',
         'descricao',
-        'foto_path', 
+        
 
         // CAMPOS DE STATUS E GESTÃO
         'status_id',
         'justificativa',
+
+        'fotos', 
         
         // =======================================================
         //  NOVO CAMPO ADICIONADO (Para designar funcionário)
         // =======================================================
         'designated_to', 
+    ];
+
+    protected $casts = [
+    'fotos' => 'array',
     ];
 
     /**
@@ -85,6 +91,7 @@ class Contact extends Model
         // 3. Retorna a view correta dentro da pasta 'analista'
         return view('analista.vistorias-pendentes', compact('vistorias'));
     }
+
 
 
 } // Fim da classe

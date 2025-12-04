@@ -99,26 +99,56 @@
     @endpush
 
     {{-- Modal View (igual) --}}
-    <div id="modal-view" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
-            <button onclick="closeViewModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+  <div id="modal-view" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-2xl rounded-xl shadow-xl p-6 relative">
+        <button onclick="closeViewModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+
+        <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Detalhes da Solicitação</h2>
+
+        <div class="space-y-3">
+
+            <p><strong>Solicitação Frequente:</strong> <span id="view-topico"></span></p>
+
+            <p><strong>Nome:</strong> <span id="view-nome"></span></p>
+            <p><strong>Email:</strong> <span id="view-email"></span></p>
+
+            <p><strong>Endereço:</strong>
+                <span id="view-endereco" class="text-gray-700"></span>
+            </p>
+
+            <div>
+                <p class="font-semibold">Descrição:</p>
+                <p id="view-descricao" class="p-3 bg-gray-100 rounded-md text-sm"></p>
+            </div>
+
+            <button 
+                onclick="openFotosModal(currentViewingId)" 
+                class="mt-4 w-full bg-[#358054] hover:bg-[#2d6947] text-white font-semibold py-2 rounded-lg shadow transition">
+                 Ver Fotos da Solicitação
+             </button>
+
+
+        </div>
+     </div>
+    </div>
+        {{-- Modal Fotos --}}
+        <div id="modal-fotos" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[9999]">
+        <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative">
+            <button onclick="closeFotosModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
 
-            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Detalhes da Mensagem</h2>
+            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Fotos da Solicitação</h2>
 
-            <div class="space-y-3">
-                <p><strong>Nome:</strong> <span id="view-nome"></span></p>
-                <p><strong>Email:</strong> <span id="view-email"></span></p>
-                <p><strong>Endereço:</strong> <span id="view-endereco"></span></p>
-
-                <div>
-                    <p class="font-semibold">Mensagem:</p>
-                    <p id="view-descricao" class="p-3 bg-gray-100 rounded-md text-sm"></p>
-                </div>
+            <div id="fotos-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-auto p-2">
+                <!-- imagens serão inseridas aqui -->
             </div>
         </div>
     </div>
+
+
 
     {{-- Modal Status (AJAX) --}}
     <div id="modal-status" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
@@ -258,16 +288,50 @@
         });
 
         // VIEW MODAL
-        function openViewModal(id) {
-            let m = messages[id];
-            document.getElementById('view-nome').textContent = m.user?.name ?? m.nome_solicitante;
-            document.getElementById('view-email').textContent = m.user?.email ?? m.email_solicitante;
-            document.getElementById('view-endereco').textContent = `${m.bairro}, ${m.rua}, ${m.numero}`;
-            document.getElementById('view-descricao').textContent = m.descricao;
+              let currentViewingId = null;
 
-            document.getElementById('modal-view').classList.remove('hidden');
-            document.getElementById('modal-view').classList.add('flex');
-        }
+                function openViewModal(id) {
+                    currentViewingId = id;
+                    let m = messages[id];
+
+                    document.getElementById('view-nome').textContent = m.user?.name ?? m.nome_solicitante;
+                    document.getElementById('view-email').textContent = m.user?.email ?? m.email_solicitante;
+                    document.getElementById('view-endereco').textContent = `${m.bairro}, ${m.rua}, ${m.numero}`;
+                    document.getElementById('view-descricao').textContent = m.descricao;
+
+                    document.getElementById('modal-view').classList.remove('hidden');
+                    document.getElementById('modal-view').classList.add('flex');
+                }
+
+
+                function openFotosModal(id) {
+                    let m = messages[id];
+
+                    const container = document.getElementById('fotos-container');
+                    container.innerHTML = '';
+
+                    if (m.fotos && m.fotos.length > 0) {
+                        m.fotos.forEach(path => {
+                            let img = document.createElement('img');
+                            img.src = `/storage/${path}`;
+                            img.className = "w-full h-64 object-cover rounded-lg shadow";
+                            container.appendChild(img);
+                        });
+                    } else {
+                        container.innerHTML = `<p class="text-center text-gray-500 text-lg">Nenhuma foto enviada.</p>`;
+                    }
+
+                    document.getElementById('modal-fotos').classList.remove('hidden');
+                    document.getElementById('modal-fotos').classList.add('flex');
+                }
+
+                function closeFotosModal() {
+                    document.getElementById('modal-fotos').classList.add('hidden');
+                    document.getElementById('modal-fotos').classList.remove('flex');
+                }
+
+
+
         function closeViewModal() {
             document.getElementById('modal-view').classList.add('hidden');
             document.getElementById('modal-view').classList.remove('flex');
