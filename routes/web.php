@@ -114,6 +114,12 @@ Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
 | ADMIN (/pbi-admin)
 |--------------------------------------------------------------------------
 */
+
+// Lista todas as OS
+Route::prefix('admin')->middleware('auth:admin')->group(function () {
+    Route::get('os', [ContactController::class, 'adminServiceOrders'])->name('admin.os.index');
+});
+
 Route::prefix('pbi-admin')->name('admin.')->group(function () {
 
     Route::get('/', fn() => redirect()->route('admin.login'));
