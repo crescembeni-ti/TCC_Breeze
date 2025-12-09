@@ -45,7 +45,7 @@
 
             <!-- Título + Voltar -->
             <div class="flex items-center justify-between mb-8 flex-wrap gap-3">
-                <h2 class="text-3xl font-bold text-[#358054]">Editar Árvore #{{ $tree->id }} 🌳</h2>
+                <h2 class="text-3xl font-bold text-[#358054]">Editar Árvore #{{ $tree->id }}</h2>
 
                 <a href="{{ route('admin.trees.index') }}"
                     class="inline-flex items-center px-4 py-2 bg-[#358054] text-white rounded-lg text-sm font-semibold hover:bg-[#2d6947] transition">

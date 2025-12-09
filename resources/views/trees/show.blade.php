@@ -54,62 +54,65 @@
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-                <!-- INFORMAÇÕES DA ÁRVORE -->
-                <div class="bg-white p-6 tree-card">
-                    <h2 class="text-2xl font-bold text-[#358054] mb-4">Informações da Árvore</h2>
-                    @if ($tree->photo)
-                        <div class="mb-6">
-                            <img src="{{ $tree->photo }}" alt="Foto de {{ $tree->species->name }}"
-                                class="w-full h-64 object-cover rounded-lg shadow-md"
-                                onerror="this.style.display='none'">
-                        </div>
-                    @endif
-                    <div class="space-y-4">
-                        <div>
-                            <h3 class="text-sm font-semibold text-gray-600">Espécie</h3>
-                            <p class="text-lg text-gray-900">{{ $tree->species->name }}</p>
-                            @if ($tree->species->scientific_name)
-                                <p class="text-sm italic text-gray-600">{{ $tree->species->scientific_name }}</p>
-                            @endif
-                        </div>
-                        @if ($tree->species->description)
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-600">Descrição</h3>
-                                <p class="text-gray-900">{{ $tree->species->description }}</p>
-                            </div>
-                        @endif
-                        <div>
-                            <h3 class="text-sm font-semibold text-gray-600">Endereço</h3>
-                            <p class="text-gray-900">{{ $tree->address }}</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                    <div>
-                    <h3 class="text-sm font-semibold text-gray-600">Diâmetro do Tronco</h3>
-                    <p class="text-lg text-gray-900">{{ $tree->trunk_diameter }} cm</p>
-                </div>
+<div class="bg-white p-6 tree-card rounded-2xl shadow-lg flex flex-col justify-between h-full">
+  <h2 class="text-2xl font-extrabold text-[#358054] mb-0 pb-2"> <!-- Alterei para mb-4 -->
+    Informações da Árvore
+  </h2>
 
-                @auth
-                    <div>
-                <h3 class="text-sm font-semibold text-gray-600">Status de Saúde</h3>
-                <p class="text-lg text-gray-900 capitalize">{{ $tree->health_status }}</p>
-                </div>
-                    @endauth
-                    </div>
+  <!-- ESPÉCIE -->
+  <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
+    <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Espécie</h3>
+    <p class="text-lg text-gray-900">{{ $tree->species->name }}</p>
+    @if ($tree->species->scientific_name)
+      <p class="text-sm italic text-gray-600">{{ $tree->species->scientific_name }}</p>
+    @endif
+  </div>
 
-                        @if ($tree->planted_at)
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-600">Data de Plantio</h3>
-                                <p class="text-gray-900">{{ $tree->planted_at->format('d/m/Y') }}</p>
-                            </div>
-                        @endif
-                        @if ($tree->user)
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-600">Registrado por</h3>
-                                <p class="text-gray-900">{{ $tree->user->name }}</p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
+    <!-- DESCRIÇÃO -->
+    @if ($tree->species->description)
+      <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
+        <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Descrição</h3>
+        <p class="text-gray-800 leading-relaxed">{{ $tree->species->description }}</p>
+      </div>
+    @endif
+
+    <!-- ENDEREÇO -->
+    <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
+      <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Endereço</h3>
+      <p class="text-gray-900">{{ $tree->address }}</p>
+    </div>
+
+
+    <!-- DATA E AUTOR -->
+    @if ($tree->planted_at)
+      <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
+        <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Data de Plantio</h3>
+        <p class="text-gray-900">{{ $tree->planted_at->format('d/m/Y') }}</p>
+      </div>
+    @endif
+
+    @if ($tree->user)
+      <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
+        <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Registrado por</h3>
+        <p class="text-gray-900">{{ $tree->user->name }}</p>
+      </div>
+    @endif
+
+    <!-- GRID DE DETALHES -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0] text-center">
+    <p class="text-xs uppercase text-[#358054] font-bold tracking-wide">Diâmetro do Tronco</p>
+    <p class="text-lg text-gray-900">{{ $tree->trunk_diameter }} cm</p>
+  </div>
+
+  <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0] text-center">
+    <p class="text-xs uppercase text-[#358054] font-bold tracking-wide">Status de Saúde</p>
+    <p class="text-lg text-gray-900 capitalize">{{ $tree->health_status }}</p>
+  </div>
+</div>
+
+
+  </div>
 
                 <!-- MAPA -->
 <div class="bg-white p-6 pb-0 tree-card">

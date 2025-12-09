@@ -237,16 +237,6 @@
     </div>
 
     {{-- ========================================================= --}}
-    {{-- MAPA (Leaflet) --}}
-    {{-- ========================================================= --}}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-   {{-- ========================================================= --}}
-    {{-- SCRIPTS DO MAPA --}}
-    {{-- ========================================================= --}}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    {{-- ========================================================= --}}
     {{-- SCRIPTS DO MAPA --}}
     {{-- ========================================================= --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -287,6 +277,8 @@
     /* ============================================================
        LAYERS E VARIÁVEIS
        ============================================================ */
+    let currentTrees = [];    // lista de árvores atualmente exibidas
+    let treeIndexGlobal = 0;  // índice da árvore selecionada
     let allTrees = [];
     let filteredTrees = [];
     let markersLayer = L.layerGroup().addTo(map);
@@ -437,136 +429,138 @@
        ============================================================ */
 
     function exibirArvores(trees) {
-        markersLayer.clearLayers();
-        treeMarkers = {};
-        filteredTrees = trees;
+    // Limpa todos os markers antigos
+    markersLayer.clearLayers();
+    treeMarkers = {};
+    filteredTrees = trees;
+    currentTrees = trees;
+    treeIndexGlobal = 0;
 
-        trees.forEach(tree => {
-            const size = Math.max(6, (tree.trunk_diameter ?? 10) / 4);
+    trees.forEach((tree, index) => {
+    if (!tree.latitude || !tree.longitude) return; // ignora árvores sem coordenadas
 
-            const marker = L.circleMarker([tree.latitude, tree.longitude], {
-                radius: size,
-                color: "#fff",
-                weight: 2,
-                fillColor: tree.color_code,
-                fillOpacity: 0.85,
-                interactive: true
-            }).addTo(markersLayer);
+    const size = Math.max(6, (tree.trunk_diameter ?? 10) / 4);
+    const marker = L.circleMarker([tree.latitude, tree.longitude], {
+        radius: size,
+        color: "#fff",
+        weight: 2,
+        fillColor: tree.color_code || "#358054",
+        fillOpacity: 0.85,
+        interactive: true
+    }).addTo(markersLayer);
 
-            // CLIQUE INTELIGENTE
-            marker.on('click', () => {
-                // 1. Filtra árvores que estão a menos de 3 metros
-                const arvoresProximas = allTrees.filter(t => {
-                    const dist = map.distance(
-                        [tree.latitude, tree.longitude], 
-                        [t.latitude, t.longitude]
-                    );
-                    return dist < 3; 
-                });
+    // CLIQUE INTELIGENTE - mostra popup com setas
+   marker.on('click', () => {
+    currentTrees = filteredTrees;
+    treeIndexGlobal = trees.indexOf(tree);
 
-                if (arvoresProximas.length === 0) {
-                    arvoresProximas.push(tree);
-                }
+    const offsetY = -100;
+    const targetPoint = map.latLngToContainerPoint([tree.latitude, tree.longitude]).add([0, offsetY]);
+    const targetLatLng = map.containerPointToLatLng(targetPoint);
+    map.setView(targetLatLng, map.getZoom(), { animate: false });
 
-                // 2. Gera o popup com as setinhas e labels
-                const popupElement = criarConteudoPopup(arvoresProximas);
-                
-                // 3. Abre o popup
-                marker.bindPopup(popupElement).openPopup();
-            });
+    marker.bindPopup(criarConteudoPopup(currentTrees, treeIndexGlobal)).openPopup();
+});
 
-            treeMarkers[tree.id] = marker;
-        });
-    }
+
+    treeMarkers[tree.id] = marker;
+});}
+
+
 
 
     /* ============================================================
        GERADOR DE POPUP DINÂMICO (COM LABELS E NAVEGAÇÃO)
        ============================================================ */
     
-    function criarConteudoPopup(listaArvores) {
-        let indexAtual = 0;
-        const container = document.createElement('div');
-        container.className = 'p-4 font-sans relative';
+    function criarConteudoPopup(listaArvores, indexInicial) {
+    const container = document.createElement('div');
+    container.className = 'p-4 font-sans relative';
+    let indexAtual = indexInicial;
 
-        function render() {
-            const tree = listaArvores[indexAtual];
-            const total = listaArvores.length;
-            let html = '';
+    // Centraliza o mapa e abre o popup na árvore correta
+    function mostrarArvoreAtual() {
+        const tree = listaArvores[indexAtual];
+        const offsetY = -100; // desloca o popup um pouco pra cima
+        const targetPoint = map.latLngToContainerPoint([tree.latitude, tree.longitude]).add([0, offsetY]);
+        const targetLatLng = map.containerPointToLatLng(targetPoint);
 
-            // --- NAVEGAÇÃO (SE HOUVER MAIS DE 1) ---
-            if (total > 1) {
-                html += `
-                    <div class="flex items-center justify-between mb-3 bg-gray-100 rounded-lg p-1 select-none">
-                        <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        
-                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">
-                            ${indexAtual + 1} de ${total} árvores
-                        </span>
+        map.setView(targetLatLng, map.getZoom(), { animate: false });
 
-                        <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-                `;
-            }
-
-            // --- CONTEÚDO (AGORA COM RÓTULOS EXPLÍCITOS) ---
-            html += `
-                <div class="mb-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie:</p>
-                    <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">
-                        ${tree.species_name}
-                    </h3>
-
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Endereço:</p>
-                    <p class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">
-                        ${tree.address || 'Localização não informada'}
-                    </p>
-                </div>
-
-                <a href="/trees/${tree.id}" class="group flex items-center justify-between w-full bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 text-decoration-none">
-                    <span class="text-xs font-bold text-[#166534]">
-                        Ver detalhes
-                    </span>
-                    <div class="bg-[#166534] text-white rounded-full p-1 transform group-hover:translate-x-1 transition-transform duration-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
-                </a>
-            `;
-
-            container.innerHTML = html;
-
-            // --- RECONEXÃO DOS BOTÕES ---
-            if (total > 1) {
-                const btnPrev = container.querySelector('#btn-prev');
-                const btnNext = container.querySelector('#btn-next');
-
-                btnPrev.onclick = (e) => {
-                    e.stopPropagation();
-                    indexAtual = (indexAtual - 1 + total) % total; 
-                    render();
-                };
-
-                btnNext.onclick = (e) => {
-                    e.stopPropagation();
-                    indexAtual = (indexAtual + 1) % total; 
-                    render();
-                };
-            }
+        const marker = treeMarkers[tree.id];
+        if (marker) {
+            // reabre o popup atualizado
+            marker.bindPopup(container).openPopup();
         }
-
-        render();
-        return container;
     }
+
+    function render() {
+        const tree = listaArvores[indexAtual];
+        const total = listaArvores.length;
+
+        container.innerHTML = `
+            <div class="flex items-center justify-between mb-3 bg-gray-100 rounded-lg p-1 select-none">
+                <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">
+                    ${indexAtual + 1} de ${total} árvores
+                </span>
+
+                <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mb-3">
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie:</p>
+                <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">${tree.species_name}</h3>
+
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Endereço:</p>
+                <p class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">
+                    ${tree.address || 'Localização não informada'}
+                </p>
+            </div>
+
+            <a href="/trees/${tree.id}" 
+               class="group flex items-center justify-between w-full bg-[#f0fdf4] hover:bg-[#dcfce7] 
+                      border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200">
+                <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>
+            </a>
+        `;
+
+        // Liga os botões e, ao mudar, reabre o popup da nova árvore
+        const btnPrev = container.querySelector('#btn-prev');
+        const btnNext = container.querySelector('#btn-next');
+
+        btnPrev.onclick = (e) => {
+            e.stopPropagation();
+            indexAtual = (indexAtual - 1 + total) % total;
+            render();
+            mostrarArvoreAtual(); // centraliza e abre novo popup
+        };
+
+        btnNext.onclick = (e) => {
+            e.stopPropagation();
+            indexAtual = (indexAtual + 1) % total;
+            render();
+            mostrarArvoreAtual(); // idem
+        };
+    }
+
+    render();
+    return container;
+}
+
+
+
+
+
 
 
     /* ============================================================
