@@ -183,6 +183,17 @@ class ContactController extends Controller
 
         return back()->with('success', 'Status da mensagem atualizado.');
     }
+public function adminServiceOrders()
+{
+    // Filtra apenas as solicitações que já tiveram OS gerada
+    $oss = Contact::with(['user', 'status', 'responsible'])
+        ->whereNotNull('designated_to') // ou outro campo que identifique que já virou OS
+        ->latest()
+        ->get();
+
+    return view('admin.os.index', compact('oss'));
+}
+
 
 
     /**
