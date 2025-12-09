@@ -92,6 +92,15 @@ class Contact extends Model
         return view('analista.vistorias-pendentes', compact('vistorias'));
     }
 
+    /**
+     * Relação: Uma Solicitação pode ter uma ou mais Ordens de Serviço associadas.
+     * Assumindo que você pode ter múltiplas OS por Contact (mudar para hasOne se for 1:1)
+     */
+    public function serviceOrders()
+    {
+        return $this->hasMany(ServiceOrder::class);
+    }
+
 
 
 } // Fim da classe
