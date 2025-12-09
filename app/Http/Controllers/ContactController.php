@@ -341,5 +341,6 @@ class ContactController extends Controller
 
         return back()->with('success', 'Ordem de Serviço gerada com sucesso!');
     }
+    
 
 } // <--- Fim da classe ContactController
