@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Tree extends Model
 {
     protected $fillable = [
-        'species_id', 'latitude', 'longitude', 'trunk_diameter', 'health_status',
+        'species_id', 'bairro_id','latitude', 'longitude', 'trunk_diameter', 'health_status',
         'planted_at', 'address', 'photo',
         'vulgar_name', 'scientific_name', 'cap', 'height', 'crown_height',
         'crown_diameter_longitudinal', 'crown_diameter_perpendicular',
@@ -34,4 +34,10 @@ class Tree extends Model
     {
         return $this->hasMany(Activity::class);
     }
+
+    public function bairro(): BelongsTo
+    {
+        return $this->belongsTo(Bairro::class);
+    }
+
 }

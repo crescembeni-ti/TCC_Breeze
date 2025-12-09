@@ -48,6 +48,23 @@
                                required>
                     </div>
 
+                    {{-- Bairro --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Bairro *</label>
+                        <select name="bairro_id" id="bairro_id"
+                            class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-green-500" required>
+                            <option value="">Selecione um bairro</option>
+
+                            {{-- Lista carregada do backend --}}
+                            @foreach($bairros as $bairro)
+                                <option value="{{ $bairro->id }}">{{ $bairro->nome }}</option>
+                            @endforeach
+                        </select>
+
+                        <p class="text-xs text-gray-500 mt-1">Será preenchido automaticamente ao clicar no mapa, mas você pode alterar.</p>
+                    </div>
+
+
                     {{-- Espécie --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Espécie *</label>
@@ -343,40 +360,178 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
+   <script>
+document.addEventListener("DOMContentLoaded", async function () {
 
-            const map = L.map('map').setView([-22.6091, -43.7089], 14);
+    /**
+     * ==============================================================
+     * 1. CONFIGURAÇÃO DO MAPA
+     * ==============================================================
+     */
+    const map = L.map('map').setView([-22.6091, -43.7089], 14);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-            let tempMarker = null;
+    let tempMarker = null;
 
-            map.on('click', e => {
-                const lat = e.latlng.lat.toFixed(7);
-                const lng = e.latlng.lng.toFixed(7);
+    // Campos do formulário
+    const latInput = document.getElementById("latitude");
+    const lngInput = document.getElementById("longitude");
+    const addressInput = document.querySelector("input[name='address']");
+    const bairroSelect = document.getElementById("bairro_id");
 
-                document.getElementById('latitude').value = lat;
-                document.getElementById('longitude').value = lng;
 
-                if (tempMarker) map.removeLayer(tempMarker);
+    /**
+     * ==============================================================
+     * 2. CARREGAR GEOJSON DOS BAIRROS (PARA DETECTAR AUTOMÁTICO)
+     * ==============================================================
+     */
+    let bairrosPoligonos = [];
 
-                tempMarker = L.marker([lat, lng]).addTo(map)
-                    .bindPopup("Coordenada selecionada").openPopup();
+    try {
+        const geojsonResponse = await fetch("/bairros.json");
+        const geojsonData = await geojsonResponse.json();
+        bairrosPoligonos = geojsonData.features;
+
+        console.log("GeoJSON carregado:", bairrosPoligonos.length, "bairros.");
+    } catch (err) {
+        console.warn("Erro ao carregar bairros.json:", err);
+    }
+
+
+    /**
+     * ==============================================================
+     * 3. FUNÇÃO: Verifica se uma coordenada está dentro de um polígono
+     * ==============================================================
+     */
+    function pointInPolygon(lat, lng, polygon) {
+        let inside = false;
+        const x = lng, y = lat;
+
+        for (let ring of polygon.coordinates) {
+            for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+                const xi = ring[i][0], yi = ring[i][1];
+                const xj = ring[j][0], yj = ring[j][1];
+
+                const intersect = ((yi > y) !== (yj > y)) &&
+                    (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+
+                if (intersect) inside = !inside;
+            }
+        }
+        return inside;
+    }
+
+
+    /**
+     * ==============================================================
+     * 4. FUNÇÃO: Detectar Bairro baseado no polígono
+     * ==============================================================
+     */
+    function detectarBairro(lat, lng) {
+        for (let f of bairrosPoligonos) {
+            if (f.geometry && f.geometry.type === "Polygon") {
+                if (pointInPolygon(lat, lng, f.geometry)) {
+                    const id = f.properties.id_bairro;
+                    const nome = f.properties.nome;
+                    console.log("Bairro identificado via polígono:", nome);
+                    return id;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * ==============================================================
+     * 5. FUNÇÃO: Reverse Geocoding (pegar nome da rua automaticamente)
+     * ==============================================================
+     */
+    async function buscarEndereco(lat, lng) {
+        try {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+            const response = await fetch(url, {
+                headers: { "User-Agent": "Arvores-Paracambi-System" }
             });
 
-            const trees = @json($trees);
+            const data = await response.json();
 
-            trees.forEach(tree => {
-                L.marker([tree.latitude, tree.longitude]).addTo(map)
-                    .bindPopup(`
-                        <div style='font-weight:600; margin-bottom:4px;'>${tree.species.name}</div>
-                        <div style='color:#555;'>${tree.address || 'Sem endereço'}</div>
-                    `);
-            });
+            // Rua
+            const rua = data.address?.road || "";
+            console.log("Rua detectada:", rua);
 
-        });
-    </script>
+            // Retorna objeto
+            return {
+                rua,
+                sugeridoBairro: data.address?.suburb || null
+            };
+
+        } catch (e) {
+            console.warn("Erro ao consultar Nominatim:", e);
+            return { rua: "", sugeridoBairro: null };
+        }
+    }
+
+
+    /**
+     * ==============================================================
+     * 6. EVENTO: Clique no mapa → preenche tudo automaticamente
+     * ==============================================================
+     */
+    map.on("click", async e => {
+
+        const lat = e.latlng.lat.toFixed(7);
+        const lng = e.latlng.lng.toFixed(7);
+
+        // Preenche coordenadas
+        latInput.value = lat;
+        lngInput.value = lng;
+
+        // Remove marcador anterior
+        if (tempMarker) map.removeLayer(tempMarker);
+
+        tempMarker = L.marker([lat, lng]).addTo(map)
+            .bindPopup("Coordenada selecionada").openPopup();
+
+        /**
+         * 6.1 — BUSCAR ENDEREÇO AUTOMÁTICO
+         */
+        const info = await buscarEndereco(lat, lng);
+        addressInput.value = info.rua || "";
+
+
+        /**
+         * 6.2 — DETECTAR BAIRRO VIA POLÍGONO
+         */
+        const bairroId = detectarBairro(parseFloat(lat), parseFloat(lng));
+
+        if (bairroId) {
+            bairroSelect.value = bairroId; // Preenche automaticamente
+        } else {
+            console.log("Ponto fora de qualquer bairro no GeoJSON.");
+        }
+    });
+
+
+    /**
+     * ==============================================================
+     * 7. EXIBIR ÁRVORES EXISTENTES NO MAPA
+     * ==============================================================
+     */
+    const trees = @json($trees);
+
+    trees.forEach(tree => {
+        L.marker([tree.latitude, tree.longitude]).addTo(map)
+            .bindPopup(`
+                <div style='font-weight:600; margin-bottom:4px;'>${tree.species.name}</div>
+                <div style='color:#555;'>${tree.address || 'Sem endereço'}</div>
+            `);
+    });
+
+});
+</script>
+
 @endpush

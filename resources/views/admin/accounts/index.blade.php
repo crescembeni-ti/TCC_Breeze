@@ -8,19 +8,16 @@
 
     {{-- TABS --}}
     <div class="flex space-x-4 border-b mb-4 pb-2">
-
         <a href="?type=admin"
            class="px-4 py-2 rounded 
            {{ $type === 'admin' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
             Admins
         </a>
-
         <a href="?type=analyst"
            class="px-4 py-2 rounded
            {{ $type === 'analyst' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
             Analistas
         </a>
-
         <a href="?type=service"
            class="px-4 py-2 rounded
            {{ $type === 'service' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
@@ -30,23 +27,29 @@
 
     {{-- BOTÃO ADICIONAR --}}
     <button 
-        onclick="openAddModal('{{ $type }}')"
-        class="bg-[#358054] text-white px-4 py-2 rounded-lg shadow mb-4">
-        + Criar {{ ucfirst($type) }}
+    onclick="openAddModal('{{ $type }}')"
+    class="
+    bg-green-700 text-white font-semibold
+    rounded-md shadow-md
+    hover:bg-green-600 hover:shadow-lg
+    active:bg-[#38c224]
+    transition duration-200
+    px-4 py-2 inline-block
+    mb-4
+    ">
+    + Criar {{ ucfirst($type) }}
     </button>
 
     {{-- TABELA --}}
     <table class="min-w-full bg-white border border-gray-200">
         <thead class="bg-gray-100">
             <tr>
-                <th class="px-4 py-2">ID</th>
-                <th class="px-4 py-2">Nome</th>
-                <th class="px-4 py-2">Email</th>
-
+                <th class="px-4 py-2 text-left">ID</th>
+                <th class="px-4 py-2 text-left">Nome</th>
+                <th class="px-4 py-2 text-left">Email</th>
                 @if ($type !== 'admin')
-                    <th class="px-4 py-2">CPF</th>
+                    <th class="px-4 py-2 text-left">CPF</th>
                 @endif
-
                 <th class="px-4 py-2 text-right">Ações</th>
             </tr>
         </thead>
@@ -54,12 +57,12 @@
         <tbody>
             @foreach ($data as $item)
                 <tr class="border-t">
-                    <td class="px-4 py-2">{{ $item->id }}</td>
-                    <td class="px-4 py-2">{{ $item->name }}</td>
-                    <td class="px-4 py-2">{{ $item->email }}</td>
+                    <td class="px-4 py-2 text-left">{{ $item->id }}</td>
+                    <td class="px-4 py-2 text-left">{{ $item->name }}</td>
+                    <td class="px-4 py-2 text-left">{{ $item->email }}</td>
 
                     @if ($type !== 'admin')
-                        <td class="px-4 py-2">{{ $item->cpf }}</td>
+                        <td class="px-4 py-2 text-left" id="cpf-{{ $item->id }}">{{ $item->cpf }}</td>
                     @endif
 
                     <td class="px-4 py-2 text-right space-x-2">
@@ -67,24 +70,18 @@
                         {{-- EDITAR --}}
                         <button 
                             onclick="openEdit({{ $item->id }}, '{{ $item->name }}', '{{ $item->email }}', '{{ $item->cpf ?? '' }}', '{{ $type }}')"
-                            class="px-3 py-1 bg-blue-500 text-white text-xs rounded">
+                            class="bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] transition duration-200 px-3 py-1 text-xs">
                             Editar
                         </button>
 
                         {{-- EXCLUIR --}}
-                        <form method="POST" 
-                              action="{{ route('admin.accounts.destroy', [$type, $item->id]) }}"
-                              class="inline-block"
-                              onsubmit="return confirm('Excluir esta conta?')">
-
-                            @csrf
-                            @method('DELETE')
-
-                            <button class="px-3 py-1 bg-red-500 text-white text-xs rounded">
-                                Excluir
-                            </button>
-                        </form>
-
+<button onclick="openDeleteModal({{ $item->id }}, '{{ $item->name }}')"
+        data-id="{{ $item->id }}" 
+        data-name="{{ $item->name }}"
+        data-url="{{ route('admin.accounts.destroy', [$type, $item->id]) }}"
+        class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-500 transition duration-200 px-3 py-1 text-xs">
+    Excluir
+</button>
                     </td>
                 </tr>
             @endforeach
@@ -98,37 +95,53 @@
 </div>
 
 {{-- MODAL ADD --}}
-<dialog id="modalAdd" class="p-4 rounded-lg shadow-lg">
+<dialog id="modalAdd" class="p-6 rounded-lg shadow-lg w-[420px] max-w-full">
+    <button onclick="closeModal('modalAdd')" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+        <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
     <form method="POST" action="{{ route('admin.accounts.store') }}" class="space-y-4">
         @csrf
-
         <input id="add_type" type="hidden" name="type" value="">
 
         <h3 class="text-lg font-bold">Criar {{ ucfirst($type) }}</h3>
 
-        <input name="name" class="w-full border rounded p-2" placeholder="Nome" required>
-        @error('name') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
+        <input name="name"
+               placeholder="Nome"
+               required
+               class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
+                      text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2">
 
-        <input name="email" class="w-full border rounded p-2" placeholder="Email" required>
-        @error('email') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
+        <input name="email"
+               placeholder="Email"
+               required
+               class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
+                      text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2">
 
         <div id="cpf_add_container"></div>
 
-        <input name="password" type="password" class="w-full border rounded p-2" placeholder="Senha" required>
-        @error('password') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
+        <input name="password" type="password"
+               placeholder="Senha" required
+               class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
+                      text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2">
 
-        <input name="password_confirmation" type="password" class="w-full border rounded p-2" placeholder="Confirmar Senha" required>
-        @error('password_confirmation') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
+        <input name="password_confirmation" type="password"
+               placeholder="Confirmar Senha" required
+               class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
+                      text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2">
 
-        <button class="bg-[#358054] text-white px-4 py-2 rounded">Salvar</button>
+        {{-- Botão SALVAR --}}
+        <button
+            class="bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] transition duration-200 w-full px-4 py-2">
+            Salvar
+        </button>
     </form>
-
-    <button onclick="modalAdd.close()" class="mt-2 text-gray-600">Cancelar</button>
 </dialog>
 
-
 {{-- MODAL EDIT --}}
-<dialog id="modalEdit" class="p-4 rounded-lg shadow-lg">
+<dialog id="modalEdit" class="p-6 rounded-lg shadow-lg w-[420px] max-w-full">
+    <button onclick="closeModal('modalEdit')" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+        <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
     <form id="formEdit" method="POST" class="space-y-4">
         @csrf
         @method('PUT')
@@ -137,30 +150,69 @@
 
         <h3 class="text-lg font-bold">Editar</h3>
 
-        <input id="edit_name" name="name" class="w-full border rounded p-2">
-        <input id="edit_email" name="email" class="w-full border rounded p-2">
+        <input id="edit_name" name="name"
+               class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
+                      text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2">
+
+        <input id="edit_email" name="email"
+               class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
+                      text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2">
 
         <div id="cpf_container"></div>
 
-        <input name="password" type="password" class="w-full border rounded p-2" placeholder="Nova Senha (opcional)">
-        <input name="password_confirmation" type="password" class="w-full border rounded p-2" placeholder="Confirmar Nova Senha">
+        <input name="password" type="password"
+               placeholder="Nova Senha (opcional)"
+               class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
+                      text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2">
 
-        <button class="bg-[#358054] text-white px-4 py-2 rounded">Atualizar</button>
+        <input name="password_confirmation" type="password"
+               placeholder="Confirmar Nova Senha"
+               class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
+                      text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2">
+
+        {{-- Botão ATUALIZAR --}}
+        <button
+            class="bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] transition duration-200 w-full px-4 py-2">
+            Atualizar
+        </button>
     </form>
-
-    <button onclick="modalEdit.close()" class="mt-2 text-gray-600">Cancelar</button>
 </dialog>
 
+{{-- MODAL EXCLUSÃO --}}
+<dialog id="modalDelete" class="p-6 rounded-lg shadow-lg w-[420px] max-w-full">
+    <button onclick="closeModal('modalDelete')" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+        <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
 
-{{-- REABRIR MODAL SE HOUVER ERROS --}}
-@if ($errors->any())
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        modalAdd.showModal();
-    });
-</script>
-@endif
+    {{-- Título do modal --}}
+    <h3 class="text-lg font-bold text-red-600 text-center">Tem certeza que deseja excluir?</h3>
+    
+    {{-- Nome da pessoa --}}
+    <div id="modalDeleteName" class="bg-gray-100 text-gray-800 font-bold px-4 py-2 rounded-md my-4 w-fit mx-auto">
+        <!-- Nome será inserido aqui via JS -->
+    </div>
 
+    {{-- Mensagem de aviso --}}
+    <p class="text-gray-700 text-center">Esta ação é irreversível.</p>
+
+    {{-- Formulário de exclusão --}}
+    <form id="formDelete" method="POST" action="" class="mt-4">
+        @csrf
+        @method('DELETE')
+
+        {{-- Centralizando os botões --}}
+        <div class="flex justify-center space-x-4">
+            <!-- Botão Cancelar -->
+            <button type="button" onclick="closeModal('modalDelete')" class="bg-gray-300 text-black font-semibold rounded-md px-4 py-2">
+                Cancelar
+            </button>
+            <!-- Botão Excluir -->
+            <button type="submit" class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-500 transition duration-200 px-4 py-2">
+                Excluir
+            </button>
+        </div>
+    </form>
+</dialog>
 
 <script>
 /* MODAL ADD */
@@ -169,7 +221,7 @@ function openAddModal(type) {
 
     const cpfContainer = document.getElementById('cpf_add_container');
     cpfContainer.innerHTML = (type !== 'admin')
-        ? '<input name="cpf" class="w-full border rounded p-2" placeholder="CPF" required>'
+        ? '<input name="cpf" class="block w-full rounded-md border border-gray-300 bg-[#f9fafb] text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2" placeholder="CPF" required>'
         : '';
 
     modalAdd.showModal();
@@ -185,12 +237,57 @@ function openEdit(id, name, email, cpf = '', type) {
 
     const cpfDiv = document.getElementById('cpf_container');
     cpfDiv.innerHTML = (type !== 'admin')
-        ? `<input id="edit_cpf" name="cpf" class="w-full border rounded p-2" value="${cpf}">`
+        ? `<input id="edit_cpf" name="cpf"
+                  class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
+                         text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2"
+                  value="${cpf}">`
         : '';
 
     document.getElementById('formEdit').action =
         "/pbi-admin/accounts/update/" + type + "/" + id;
 }
+
+/* Fechar modal */
+function closeModal(modalId) {
+    document.getElementById(modalId).close();
+}
+
+/* Função para formatar CPF */
+function formatCPF(cpf) {
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Pega todos os CPFs na página
+    document.querySelectorAll('td[id^="cpf-"]').forEach(function(cpfElement) {
+        // Pega o CPF cru
+        let cpf = cpfElement.innerText.trim();
+        // Formata o CPF e coloca de volta no elemento
+        cpfElement.innerText = formatCPF(cpf);
+    });
+});
+
+function openDeleteModal(id, name) {
+    const modalDelete = document.getElementById('modalDelete');
+    const formDelete = document.getElementById('formDelete');
+
+    // Aqui você pega o botão específico de exclusão que foi clicado
+    const deleteButton = document.querySelector(`button[data-id='${id}']`);
+
+    // Pega a URL de exclusão
+    const url = deleteButton.getAttribute('data-url');
+
+    // Atualiza o form de exclusão com a URL correta
+    formDelete.action = url;
+
+    // Exibe o nome da pessoa no modal
+    const modalName = document.getElementById('modalDeleteName');
+    modalName.innerText = name; // Coloca o nome da pessoa no modal
+
+    // Abre o modal de exclusão
+    modalDelete.showModal();
+}
+
 </script>
 
 @endsection

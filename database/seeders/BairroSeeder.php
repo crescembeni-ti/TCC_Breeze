@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Bairro; // 1. IMPORTE O MODEL
-use Illuminate\Support\Facades\DB; // 2. IMPORTE O DB (para checagem)
+use Illuminate\Support\Facades\DB;
+use App\Models\Bairro;
 
 class BairroSeeder extends Seeder
 {
@@ -13,48 +13,68 @@ class BairroSeeder extends Seeder
      */
     public function run(): void
     {
-        // 3. Lista de bairros para adicionar
+        /**
+         * ============================================================
+         *  LISTA DOS BAIRROS OFICIAIS
+         *  A ORDEM DAQUI DEFINE O ID FINAL NO BANCO
+         * ============================================================
+         */
         $bairros = [
-        'Amapá',
-        'Barreira',
-        'BNH de Baixo',
-        'BNH de Cima',
-        'Bom Jardim',
-        'Cabral',
-        'Canoas',
-        'Capinheira',
-        'Cascata',
-        'Centro',
-        'Coroado',
-        'Costa Verde',
-        'Fábrica',
-        'Floresta',
-        'Guarajuba',
-        'Gurgel',
-        'Jardim Nova Era',
-        'Km 9',
-        'Lages',
-        'Mario Belo',
-        'Mutirão',
-        'Pacheco',
-        'Paraíso',
-        'Ponte Coberta',
-        'Quilombo',
-        'Raia',
-        'Ramalho',
-        'Sabugo',
-        'São José',
-        'São Lourenço',
-        'Saudoso',
-        'Vale da Conquista',
-        'Vila Militar',
-        'Vila Nova'
+            'Amapá',
+            'Barreira',
+            'BNH de Baixo',
+            'BNH de Cima',
+            'Boa Vista',
+            'Bom Jardim',
+            'Boqueirão',
+            'Cabral',
+            'Capinheira',
+            'Cascata',
+            'Centro',
+            'Copê',
+            'Coroado',
+            'Costa Verde',
+            'Distrito Industrial do Cabral',
+            'Fábrica',
+            'Fazenda Retiro',
+            'Floresta',
+            'Guarajuba',
+            'Gurgel',
+            'Jardim Nova Era',
+            'Lages',
+            'Lago Azul',
+            'Lanari',
+            'Mario Belo',
+            'Mutirão',
+            'Pacheco',
+            'Ponte Coberta',
+            'Quilombo',
+            'Raia',
+            'Ramalho',
+            'Sabugo',
+            'São José',
+            'São Lourenço',
+            'Saudoso',
+            'Vale da Conquista',
+            'Vila Militar',
+            'Vila Nova',
         ];
-        
-        // 4. Loop para inserir cada bairro
-        foreach ($bairros as $nomeDoBairro) {
-            // Verifica se o bairro JÁ EXISTE antes de inserir
-            Bairro::firstOrCreate(['nome' => $nomeDoBairro]);
+
+        /**
+         * ============================================================
+         *  APAGAR TUDO E RECRIAR DO ZERO
+         *  (AGORA É SEGURO, JÁ QUE VOCÊ REMOVEU AS ÁRVORES)
+         * ============================================================
+         */
+        DB::table('bairros')->truncate();
+
+        /**
+         * ============================================================
+         *  RECRIAR NA ORDEM EXATA DA LISTA (IDs reiniciam)
+         * ============================================================
+         */
+        foreach ($bairros as $nome) {
+            Bairro::create(['nome' => $nome]);
         }
     }
 }

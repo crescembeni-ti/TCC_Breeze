@@ -23,16 +23,22 @@ class Contact extends Model
         'rua',
         'numero',
         'descricao',
-        'foto_path', 
+        
 
         // CAMPOS DE STATUS E GESTÃO
         'status_id',
         'justificativa',
+
+        'fotos', 
         
         // =======================================================
         //  NOVO CAMPO ADICIONADO (Para designar funcionário)
         // =======================================================
         'designated_to', 
+    ];
+
+    protected $casts = [
+    'fotos' => 'array',
     ];
 
     /**
@@ -94,6 +100,7 @@ class Contact extends Model
     {
         return $this->hasMany(ServiceOrder::class);
     }
+
 
 
 } // Fim da classe

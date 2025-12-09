@@ -39,17 +39,28 @@
                 </div>
 
                 <!-- BOTÕES -->
-                <div class="flex gap-4">
-                    <a href="{{ route('home') }}" class="btn bg-white text-green-700 hover:bg-gray-100">
-                        Voltar ao Mapa
-                    </a>
+           <div class="flex gap-4">
 
-                    @if (!auth('admin')->check())
-                        <a href="{{ route('contact') }}" class="btn bg-green-600 hover:bg-green-700 text-white">
-                            Fazer Solicitação
-                        </a>
-                    @endif
-                </div>
+    {{-- 1. VERIFICA SE É ADMIN (Usando o guard 'admin' que você mostrou) --}}
+    @if (auth('admin')->check())
+        <a href="{{ route('admin.dashboard') }}" class="btn bg-white text-green-700 hover:bg-gray-100">
+            Voltar ao Painel
+        </a>
+
+    {{-- 2. VERIFICA SE É USUÁRIO COMUM (Usando o guard padrão) --}}
+    @elseif (auth()->check())
+        <a href="{{ route('dashboard') }}" class="btn bg-white text-green-700 hover:bg-gray-100">
+            Voltar ao Menu
+        </a>
+
+    {{-- 3. VISITANTE (Nem admin, nem usuário) --}}
+    @else
+        <a href="{{ route('home') }}" class="btn bg-white text-green-700 hover:bg-gray-100">
+            Voltar ao Mapa
+        </a>
+    @endif
+
+</div>
 
             </div>
         </header>

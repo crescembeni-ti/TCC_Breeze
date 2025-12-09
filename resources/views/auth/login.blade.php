@@ -16,13 +16,11 @@
         </a>
     </div>
 
-    <!-- Mensagem de status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <!-- Email -->
         <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
             <div class="relative">
@@ -38,36 +36,35 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <!-- Senha com validação dinâmica -->
-        <div class="mt-4" x-data="{ show: false, pass: '' }">
+        <div class="mt-4" x-data="{ show: false, pass: '', touched: false, focused: false }">
             <x-input-label for="password" :value="__('Senha')" />
 
-            <!-- Aviso dinâmico -->
             <small
-            class="block text-sm mb-1 transition-all"
-            :class="pass.length >= 8 ? 'text-green-600' : 'text-red-600'"
+                x-show="pass.length > 0"
+                x-transition
+                class="block text-sm mb-1 transition-colors duration-200"
+                :class="pass.length >= 8 ? 'text-green-600 font-medium' : (touched && !focused ? 'text-red-600' : 'text-gray-600')"
             >
-            A senha deve conter no mínimo 8 caracteres
+                A senha deve conter no mínimo 8 caracteres
             </small>
-
 
             <div class="relative">
                 <input :type="show ? 'text' : 'password'"
                     id="password"
                     name="password"
                     x-model="pass"
+                    @focus="focused = true"
+                    @blur="focused = false; touched = true"
                     required
                     autocomplete="current-password"
                     class="block mt-1 w-full rounded-md border border-gray-300 bg-[#f9fafb] text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 pr-10" />
 
-                <!-- Botão olho -->
                 <button type="button"
                         @click="show = !show"
                         class="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-green-700"
                         tabindex="-1"
                         aria-label="Mostrar ou ocultar senha">
 
-                    <!-- Ícone olho fechado -->
                     <svg x-show="!show" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -79,7 +76,6 @@
                                 -4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
 
-                    <!-- Ícone olho aberto -->
                     <svg x-show="show" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -99,7 +95,6 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <!-- Lembrar-me e Esqueceu senha -->
         <div class="flex items-center justify-between mt-4">
             <label for="remember_me" class="inline-flex items-center text-sm text-gray-600">
                 <input id="remember_me"
@@ -116,7 +111,6 @@
             @endif
         </div>
 
-        <!-- Botão -->
         <div class="mt-6">
             <button type="submit"
             class="
@@ -127,13 +121,12 @@
             transition duration-200
             w-full
             px-4
-            py-2          
+            py-2
             ">
             Entrar
             </button>
         </div>
 
-        <!-- Registro -->
         <p class="text-center text-sm text-gray-600 mt-6">
             Ainda não tem conta?
             <a href="{{ route('register') }}" class="text-green-700 hover:text-green-800 underline font-medium">

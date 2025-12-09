@@ -97,11 +97,22 @@
                                 <h3 class="mt-2 text-lg font-medium text-gray-900">Nenhuma solicitação encontrada</h3>
                                 <p class="mt-1 text-sm text-gray-500">Você ainda não fez nenhuma solicitação de
                                     intervenção.</p>
+                                    
+                                <!-- Botão -->
                                 <div class="mt-6">
-                                    <a href="{{ route('contact') }}"
-                                        class="btn bg-green-600 hover:bg-green-700">Fazer minha primeira
-                                        solicitação</a>
+                                 <a href="{{ route('contact') }}"
+                                  class="
+                                  bg-green-700 text-white font-semibold
+                                  rounded-md shadow-md
+                                  hover:bg-green-600 hover:shadow-lg
+                                  active:bg-[#38c224]
+                                  transition duration-200
+                                  px-4 py-2 inline-block
+                                  ">
+                                  Fazer minha primeira solicitação
+                                 </a>
                                 </div>
+
                             </div>
                         @else
                             <div class="space-y-4">

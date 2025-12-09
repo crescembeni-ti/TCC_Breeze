@@ -37,7 +37,7 @@ class TreeController extends Controller
      * ============================================================ */
     public function getTreesData()
     {
-        $trees = Tree::with('species')->get()->map(function ($tree) {
+        $trees = Tree::with(['species', 'bairro'])->get()->map(function ($tree) {
             return [
                 'id' => $tree->id,
                 'latitude' => (float) $tree->latitude,
@@ -45,6 +45,8 @@ class TreeController extends Controller
                 'species_name' => $tree->species->name,
                 'color_code' => $tree->species->color_code,
                 'address' => $tree->address,
+                'bairro_id' => $tree->bairro_id, // ADICIONADO
+                'bairro_nome' => $tree->bairro->nome ?? null, // ADICIONADO
                 'health_status' => $tree->health_status,
                 'trunk_diameter' => $tree->trunk_diameter,
             ];
@@ -52,6 +54,7 @@ class TreeController extends Controller
 
         return response()->json($trees);
     }
+
 
     /* ============================================================
      * VISUALIZAÇÃO DE ÁRVORE
@@ -84,48 +87,51 @@ class TreeController extends Controller
     public function adminMap()
     {
         $species = Species::all();
-        $trees = Tree::with('species')->get();
+        $trees = Tree::with(['species', 'bairro'])->get();
+        $bairros = Bairro::orderBy('nome')->get(); // ADICIONADO
 
-        return view('admin.trees.map', compact('species', 'trees'));
+        return view('admin.trees.map', compact('species', 'trees', 'bairros'));
     }
+
 
     /* ============================================================
      * CADASTRAR ÁRVORE
      * ============================================================ */
     public function storeTree(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
-            'species_name' => 'required|string|max:255',
-            'health_status' => 'required|in:good,fair,poor',
-            'planted_at' => 'required|date|before_or_equal:today',
-            'trunk_diameter' => 'required|numeric|min:0',
-            'address' => 'required|string|max:255',
+            $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'latitude' => 'required|numeric|between:-90,90',
+        'longitude' => 'required|numeric|between:-180,180',
+        'species_name' => 'required|string|max:255',
+        'health_status' => 'required|in:good,fair,poor',
+        'planted_at' => 'required|date|before_or_equal:today',
+        'trunk_diameter' => 'required|numeric|min:0',
+        'address' => 'required|string|max:255',
+        'bairro_id' => 'required|exists:bairros,id',
+        'vulgar_name' => 'required|string|max:255',
+        'scientific_name' => 'required|string|max:255',
+        'cap' => 'required|numeric|min:0',
+        'height' => 'required|numeric|min:0',
+        'crown_height' => 'required|numeric|min:0',
+        'crown_diameter_longitudinal' => 'required|numeric|min:0',
+        'crown_diameter_perpendicular' => 'required|numeric|min:0',
+        'bifurcation_type' => 'required|string|max:100',
+        'stem_balance' => 'required|string|max:100',
+        'crown_balance' => 'required|string|max:100',
+        'organisms' => 'required|string|max:255',
+        'target' => 'required|string|max:255',
+        'injuries' => 'required|string|max:255',
+        'wiring_status' => 'required|string|max:100',
+        'total_width' => 'required|numeric|min:0',
+        'street_width' => 'required|numeric|min:0',
+        'gutter_height' => 'required|numeric|min:0',
+        'gutter_width' => 'required|numeric|min:0',
+        'gutter_length' => 'required|numeric|min:0',
 
-            'vulgar_name' => 'required|string|max:255',
-            'scientific_name' => 'required|string|max:255',
-            'cap' => 'required|numeric|min:0',
-            'height' => 'required|numeric|min:0',
-            'crown_height' => 'required|numeric|min:0',
-            'crown_diameter_longitudinal' => 'required|numeric|min:0',
-            'crown_diameter_perpendicular' => 'required|numeric|min:0',
-            'bifurcation_type' => 'required|string|max:100',
-            'stem_balance' => 'required|string|max:100',
-            'crown_balance' => 'required|string|max:100',
-            'organisms' => 'required|string|max:255',
-            'target' => 'required|string|max:255',
-            'injuries' => 'required|string|max:255',
-            'wiring_status' => 'required|string|max:100',
-            'total_width' => 'required|numeric|min:0',
-            'street_width' => 'required|numeric|min:0',
-            'gutter_height' => 'required|numeric|min:0',
-            'gutter_width' => 'required|numeric|min:0',
-            'gutter_length' => 'required|numeric|min:0',
+        'no_species_case' => 'nullable|string|max:255',
+    ]);
 
-            'no_species_case' => 'nullable|string|max:255',
-        ]);
 
         // Verifica espécie
         $species = Species::firstOrCreate(
@@ -139,8 +145,10 @@ class TreeController extends Controller
         // Cria árvore
         $tree = Tree::create(array_merge($validated, [
             'species_id' => $species->id,
+            'bairro_id' => $validated['bairro_id'], // ADICIONADO
             'address' => $validated['address'] ?? $validated['name']
-        ]));
+         ]));
+
 
         // Log corrigido
         AdminLog::create([
@@ -166,11 +174,14 @@ class TreeController extends Controller
     /* ============================================================
      * EDITAR ÁRVORE
      * ============================================================ */
-    public function adminTreeEdit(Tree $tree)
+   public function adminTreeEdit(Tree $tree)
     {
         $species = Species::all();
-        return view('admin.trees.edit', compact('tree', 'species'));
+        $bairros = Bairro::orderBy('nome')->get(); // ADICIONADO
+
+        return view('admin.trees.edit', compact('tree', 'species', 'bairros'));
     }
+
 
     /* ============================================================
      * ATUALIZAR (EDITAR)
@@ -185,7 +196,7 @@ class TreeController extends Controller
             'planted_at' => 'required|date|before_or_equal:today',
             'trunk_diameter' => 'required|numeric|min:0',
             'address' => 'required|string|max:255',
-
+            'bairro_id' => 'required|exists:bairros,id',
             'vulgar_name' => 'required|string|max:255',
             'scientific_name' => 'required|string|max:255',
             'cap' => 'required|numeric|min:0',

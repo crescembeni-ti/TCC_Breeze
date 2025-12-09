@@ -32,50 +32,53 @@ class ContactController extends Controller
     /**
      * [SITE] Salva solicitação vinda do formulário web.
      */
-    public function store(Request $request)
-    {
-        $user = Auth::user(); 
-        
-        $nomesDeBairrosValidos = Bairro::pluck('nome')->toArray();
-        $nomesDeTopicosValidos = Topico::pluck('nome')->toArray(); 
+   public function store(Request $request)
+{
+    $user = Auth::user();
 
-        $validated = $request->validate([
-            'topico' => [ 
-                'required', 'string', 'max:255',
-                Rule::in($nomesDeTopicosValidos) 
-            ],
-            'bairro' => [
-                'required', 'string', 'max:255',
-                Rule::in($nomesDeBairrosValidos) 
-            ],
-            'rua' => 'required|string|max:255',
-            'numero' => 'required|string|max:10',
-            'descricao' => 'required|string',
-            'foto' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
-        ]);
-        
-        $fotoPath = null;
-        if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('solicitacoes', 'public');
+    $validated = $request->validate([
+        'topico' => 'required|string|max:255',
+        'bairro' => 'required|string|max:255',
+        'rua' => 'required|string|max:255',
+        'numero' => 'nullable|string|max:10',
+        'descricao' => 'required|string',
+
+        'fotos' => 'nullable|array|max:3',
+        'fotos.*' => 'image|mimes:jpg,png,jpeg|max:2048',
+    ]);
+
+    $caminhosFotos = [];
+
+    if ($request->hasFile('fotos')) {
+        foreach ($request->file('fotos') as $foto) {
+            $caminhosFotos[] = $foto->store('solicitacoes', 'public');
         }
-        
-        $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, function () {
-            return Status::where('name', 'Em Análise')->firstOrFail()->id;
-        });
-
-        $dataToSave = array_merge($validated, [
-            'user_id' => $user->id, 
-            'nome_solicitante' => $user->name, 
-            'email_solicitante' => $user->email,
-            'status_id' => $statusEmAnaliseId,
-            'justificativa' => null, 
-            'foto_path' => $fotoPath,
-        ]);
-
-        Contact::create($dataToSave);
-
-        return redirect()->route('contact')->with('success', 'Sua solicitação foi enviada com sucesso! Ela já está "Em Análise".');
     }
+
+    $statusEmAnaliseId = Status::where('name', 'Em Análise')->firstOrFail()->id;
+
+    Contact::create([
+        'topico' => $validated['topico'],
+        'bairro' => $validated['bairro'],
+        'rua' => $validated['rua'],
+        'numero' => $validated['numero'] ?? null,
+        'descricao' => $validated['descricao'],
+
+        // Salva JSON
+        'fotos' => $caminhosFotos,
+
+        'user_id' => $user->id,
+        'nome_solicitante' => $user->name,
+        'email_solicitante' => $user->email,
+        'status_id' => $statusEmAnaliseId,
+        'justificativa' => null,
+    ]);
+
+    return redirect()->route('contact')
+        ->with('success', 'Sua solicitação foi enviada com sucesso!');
+}
+
+
 
     /**
      * [SITE ADMIN] Lista de solicitações com filtros.
