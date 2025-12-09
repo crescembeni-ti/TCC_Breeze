@@ -5,11 +5,12 @@ use Illuminate\Support\Facades\Route;
 // Controllers Usuário
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TreeController;
-use App\Http\Controllers\PageController;
+use App\Http\Controllers\PageController; // Pode ser removido se não tiver outras funções, mas mantido por segurança.
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NoticiaController;
+use App\Http\Controllers\AboutPageController; // NOVO: Controller para a página 'Sobre'
 
 // Controllers Admin
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminLoginController;
@@ -40,7 +41,10 @@ Route::middleware('preventBack')->group(function () {
     Route::get('/', [TreeController::class, 'index'])->name('home');
     Route::get('/api/trees', [TreeController::class, 'getTreesData'])->name('trees.data');
     Route::get('/trees/{id}', [TreeController::class, 'show'])->name('trees.show');
-    Route::get('/sobre', [PageController::class, 'about'])->name('about');
+    
+    // ROTA PÚBLICA DE "SOBRE" AGORA USA AboutPageController
+    Route::get('/sobre', [AboutPageController::class, 'index'])->name('about');
+    
     Route::get('/bairros/data', fn() => response()->json(Bairro::all()))->name('bairros.data');
 });
 
@@ -124,6 +128,10 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
 
         Route::get('/dashboard', [TreeController::class, 'adminDashboard'])->name('dashboard');
+        
+        // ROTAS DE EDIÇÃO DA PÁGINA 'SOBRE' (NOVO)
+        Route::get('/about', [AboutPageController::class, 'edit'])->name('about.edit');
+        Route::put('/about', [AboutPageController::class, 'update'])->name('about.update');
 
         // Árvores
         Route::get('/map', [TreeController::class, 'adminMap'])->name('map');
