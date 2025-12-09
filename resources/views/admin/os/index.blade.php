@@ -23,7 +23,8 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4">#{{ $os->id }}</td>
                     <td class="px-6 py-4">{{ $os->contact->nome_solicitante }}</td>
-                    <td class="px-6 py-4">{{ \Carbon\Carbon::parse($os->data_vistoria)->format('d/m/Y') }}</td>
+                     <td>{{ $os->contact->topico }}</td>
+                    <td class="px-6 py-4">{{ \Carbon\Carbon::parse($os->created_at)->format('d/m/Y') }}</td>
                     <td class="px-6 py-4">
                         <a href="{{ route('dashboard.os.show', $os->id) }}" class="text-[#358054] font-bold border border-[#358054] px-3 py-1 rounded hover:bg-green-50">Visualizar</a>
                     </td>

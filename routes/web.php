@@ -118,6 +118,8 @@ Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
 // Lista todas as OS
 Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('os', [ContactController::class, 'adminServiceOrders'])->name('admin.os.index');
+     // Página individual de OS
+    Route::get('/os/{id}', [ContactController::class, 'AdminServiceOrderShow'])->name('dashboard.os.show');
 });
 
 Route::prefix('pbi-admin')->name('admin.')->group(function () {
