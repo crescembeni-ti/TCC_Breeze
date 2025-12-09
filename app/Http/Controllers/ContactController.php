@@ -185,17 +185,19 @@ class ContactController extends Controller
     }
 public function adminServiceOrders()
 {
-    // Filtra apenas as solicitações que já tiveram OS gerada
-    $oss = Contact::with(['user', 'status', 'responsible'])
-        ->whereNotNull('designated_to') // ou outro campo que identifique que já virou OS
+    $oss = ServiceOrder::with(['contact.user', 'contact.status'])
         ->latest()
         ->get();
 
     return view('admin.os.index', compact('oss'));
 }
+// Mostra uma OS específica
+public function adminServiceOrderShow($id)
+{
+    $os = ServiceOrder::with('contact.user', 'contact.status')->findOrFail($id);
 
-
-
+    return view('admin.os.show', compact('os'));
+}
     /**
      * [SITE USUÁRIO] Minhas solicitações.
      */
