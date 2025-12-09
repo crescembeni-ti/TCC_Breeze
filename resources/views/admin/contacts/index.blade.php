@@ -19,162 +19,197 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <style>
+        #lightbox-admin {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+        #lightbox-admin img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+        #lightbox-close-admin {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen">
 
-        <!-- CONTEÚDO PRINCIPAL -->
-
-        <main class="flex-1 p-10">
-            <div class="bg-white shadow-sm rounded-lg p-8">
-                <div class="flex items-center justify-center mb-6 flex-wrap gap-3 text-center">
-                    <h2 class="text-3xl font-bold text-[#358054] text-center">Mensagens de Contato</h2>
-                </div>
-
-                @if(session('success'))
-                <div class="mb-6 p-4 bg-green-100 text-green-700 rounded-md shadow-sm">
-                    {{ session('success') }}
-                </div>
-                @endif
-
-                <!-- FILTROS -->
-                <div class="flex items-center justify-center relative mb-6">
-                    <!-- Botões centralizados -->
-                    <div class="flex justify-center gap-6">
-                        <a href="{{ route('admin.contato.index') }}?filtro=todas" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
-                  {{ $filtro === 'todas' 
-                     ? 'bg-[#358054] text-white' 
-                     : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
-                            Todas
-                        </a>
-
-                        <a href="{{ route('admin.contato.index') }}?filtro=pendentes" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
-                  {{ $filtro === 'pendentes' 
-                     ? 'bg-[#358054] text-white' 
-                     : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
-                            Pendentes
-                        </a>
-
-                        <a href="{{ route('admin.contato.index') }}?filtro=resolvidas" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
-                  {{ $filtro === 'resolvidas' 
-                     ? 'bg-[#358054] text-white' 
-                     : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
-                            Resolvidas
-                        </a>
-                    </div>
-
-                    <!-- Total alinhado à direita -->
-                    <div class="absolute right-0 text-sm text-gray-600">
-                        Total: {{ $messages->count() }}
-                    </div>
-                </div>
-
-
-                <!-- AGRUPAMENTO -->
-                @php
-                $groupsPendentes = ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'];
-                $groupsResolvidas = ['Concluído', 'Indeferido', 'Sem Pendências'];
-
-                // Apenas cor do texto (sem fundo)
-                $statusColors = [
-                'Em Análise' => '#9ea3af',
-                'Deferido' => '#3850d6',
-                'Indeferido' => '#d2062a',
-                'Vistoriado' => '#8c3c14',
-                'Em Execução' => '#f4ca29',
-                'Sem Pendências' => '#ef6d22',
-                'Concluído' => '#34a54c',
-                ];
-                @endphp
-
-
-                <!-- Local onde o JS vai inserir os blocos -->
-                <div id="mensagens-container"></div>
-
+    <main class="flex-1 p-10">
+        <div class="bg-white shadow-sm rounded-lg p-8">
+            <div class="flex items-center justify-center mb-6 flex-wrap gap-3 text-center">
+                <h2 class="text-3xl font-bold text-[#358054] text-center">Mensagens de Contato</h2>
             </div>
-        </main>
 
-    {{-- Partial de lista (inline para facilitar) --}}
-    @push('partials')
-    @endpush
+            @if(session('success'))
+            <div class="mb-6 p-4 bg-green-100 text-green-700 rounded-md shadow-sm">
+                {{ session('success') }}
+            </div>
+            @endif
 
-    {{-- Modal View (igual) --}}
+            <div class="flex items-center justify-center relative mb-6">
+                <div class="flex justify-center gap-6">
+                    <a href="{{ route('admin.contato.index') }}?filtro=todas" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
+                    {{ $filtro === 'todas' 
+                        ? 'bg-[#358054] text-white' 
+                        : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
+                        Todas
+                    </a>
+
+                    <a href="{{ route('admin.contato.index') }}?filtro=pendentes" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
+                    {{ $filtro === 'pendentes' 
+                        ? 'bg-[#358054] text-white' 
+                        : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
+                        Pendentes
+                    </a>
+
+                    <a href="{{ route('admin.contato.index') }}?filtro=resolvidas" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
+                    {{ $filtro === 'resolvidas' 
+                        ? 'bg-[#358054] text-white' 
+                        : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
+                        Resolvidas
+                    </a>
+                </div>
+
+                <div class="absolute right-0 text-sm text-gray-600">
+                    Total: {{ $messages->count() }}
+                </div>
+            </div>
+
+
+            @php
+            $groupsPendentes = ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'];
+            $groupsResolvidas = ['Concluído', 'Indeferido', 'Sem Pendências'];
+
+            // Apenas cor do texto (sem fundo)
+            $statusColors = [
+            'Em Análise' => '#9ea3af',
+            'Deferido' => '#3850d6',
+            'Indeferido' => '#d2062a',
+            'Vistoriado' => '#8c3c14',
+            'Em Execução' => '#f4ca29',
+            'Sem Pendências' => '#ef6d22',
+            'Concluído' => '#34a54c',
+            ];
+            @endphp
+
+
+            <div id="mensagens-container"></div>
+
+        </div>
+    </main>
+
+    {{-- Modal View (ATUALIZADO com Topico) --}}
     <div id="modal-view" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
+        <div class="bg-white w-full max-w-2xl rounded-xl shadow-xl p-6 relative">
             <button onclick="closeViewModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
 
-            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Detalhes da Mensagem</h2>
+            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Detalhes da Solicitação</h2>
 
             <div class="space-y-3">
+                <p><strong>Tipo de Solicitação:</strong> <span id="view-topico" class="font-semibold text-[#358054]"></span></p>
+
                 <p><strong>Nome:</strong> <span id="view-nome"></span></p>
                 <p><strong>Email:</strong> <span id="view-email"></span></p>
-                <p><strong>Endereço:</strong> <span id="view-endereco"></span></p>
+
+                <p><strong>Endereço:</strong>
+                    <span id="view-endereco" class="text-gray-700"></span>
+                </p>
 
                 <div>
-                    <p class="font-semibold">Mensagem:</p>
+                    <p class="font-semibold">Descrição:</p>
                     <p id="view-descricao" class="p-3 bg-gray-100 rounded-md text-sm"></p>
                 </div>
+
+                <button 
+                    onclick="openFotosModal(currentViewingId)" 
+                    class="mt-4 w-full bg-[#358054] hover:bg-[#2d6947] text-white font-semibold py-2 rounded-lg shadow transition">
+                    Ver Fotos da Solicitação
+                </button>
+
+
             </div>
         </div>
     </div>
+    
+    {{-- Modal Fotos --}}
+    <div id="modal-fotos" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[9999]">
+        <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative">
+            <button onclick="closeFotosModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Fotos da Solicitação</h2>
+
+            <div id="fotos-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-auto p-2">
+                </div>
+        </div>
+    </div>
+    
+    {{-- Lightbox de Tela Cheia --}}
+    <div id="lightbox-admin" onclick="closeLightbox()" style="display: none;">
+        <span id="lightbox-close-admin">×</span>
+        <img id="lightbox-img-admin" src="" alt="Foto da Solicitação">
+    </div>
+
 
     {{-- Modal Status (AJAX) --}}
-<div id="modal-status" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-    <div class="bg-white w-[420px] max-w-full rounded-lg shadow-lg p-6 relative">
-        <button onclick="closeStatusModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
-            <i data-lucide="x" class="w-6 h-6"></i>
-        </button>
-
-        <h2 class="text-2xl font-bold text-blue-700 mb-4 text-center">Atualizar Status</h2>
-
-        <form id="status-form" method="POST" class="space-y-3" onsubmit="return submitStatusForm(event)">
-            @csrf
-            @method('PATCH')
-
-            <label class="font-semibold">Status</label>
-            <select name="status_id" id="status-select" class="w-full rounded-md border-gray-300 shadow-sm">
-                @foreach ($allStatuses as $status)
-                    <option value="{{ $status->id }}">{{ $status->name }}</option>
-                @endforeach
-            </select>
-
-            <div id="just-box">
-                <label class="font-semibold">Justificativa</label>
-                <textarea name="justificativa" id="status-justificativa"
-                    class="w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea>
-            </div>
-
-            <button id="status-save-btn"
-                class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
-                Salvar
+    <div id="modal-status" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
+            <button onclick="closeStatusModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+                <i data-lucide="x" class="w-6 h-6"></i>
             </button>
-        </form>
+
+            <h2 class="text-2xl font-bold text-blue-700 mb-4">Atualizar Status</h2>
+
+            <form id="status-form" method="POST" class="space-y-3" onsubmit="return submitStatusForm(event)">
+                @csrf
+                @method('PATCH')
+
+                <label class="font-semibold">Status</label>
+                <select name="status_id" id="status-select" class="w-full rounded-md border-gray-300 shadow-sm">
+                    @foreach ($allStatuses as $status)
+                    <option value="{{ $status->id }}">{{ $status->name }}</option>
+                    @endforeach
+                </select>
+
+                <div id="just-box">
+                    <label class="font-semibold">Justificativa</label>
+                    <textarea name="justificativa" id="status-justificativa"
+                        class="w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea>
+                </div>
+
+                <button id="status-save-btn"
+                    class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                    Salvar
+                </button>
+            </form>
+        </div>
     </div>
-</div>
 
-
-    {{-- hidden template partial used inline to render table rows --}}
-    @php
-    // create a small function to render rows (blade)
-    @endphp
-
-    {{-- Lista partial file (render inline) --}}
-    @once
-    @push('partials')
-    @endpush
-    @endonce
-
-    {{-- a tabela de cada bloco: partial renderizado inline --}}
-    @if(false) {{-- placeholder para evitar erro de blade ao colar --}}
-    @include('admin.contacts._lista')
-    @endif
-
-    {{-- SCRIPT --}}
+    {{-- SCRIPT (CORRIGIDO E ATUALIZADO) --}}
     <script>
         // mensagens vindas do backend
-        const messages = @json($messages -> keyBy('id'));
+        const messages = @json($messages->keyBy('id'));
+        
+        // Variável para armazenar o ID da mensagem atual
+        let currentViewingId = null;
 
         // RENDER partial (JS) - monta uma tabela HTML a partir de uma coleção
         function renderTable(itens) {
@@ -191,17 +226,20 @@
                 // garante compatibilidade com diferentes nomes de campo
                 const descricao = m.descricao ?? m.content ?? m.mensagem ?? '(sem descrição)';
                 const endereco = [m.bairro, m.rua, m.numero].filter(Boolean).join(', ');
+                const topico = m.topico ?? '(Não informado)'; // Campo TOPICO
 
                 return `
         <tr class="border-t">
             <td class="px-6 py-4 align-top text-sm text-gray-500">${escapeHtml(created)}</td>
             <td class="px-6 py-4 align-top">
-                <div class="text-sm font-medium text-gray-900">${escapeHtml(endereco)}</div>
-                <div class="text-sm text-gray-500">${escapeHtml(descricao.substring(0, 120))}</div>
+                <div class="text-sm font-medium text-gray-900">
+                    <span class="font-semibold text-sm text-[#358054]">${escapeHtml(topico)}</span> - ${escapeHtml(endereco)}
+                </div>
+                <div class="text-sm text-gray-500">${escapeHtml(descricao.substring(0, 120))}...</div>
             </td>
             <td class="px-6 py-4 align-top text-right text-sm space-x-2">
                 <button onclick="openViewModal(${m.id})"
-                        class="bg-green-700 text-white inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-green-600 transition">
+                        class="inline-flex items-center px-3 py-1.5 bg-[#358054] text-white rounded-md text-xs font-semibold hover:bg-[#2d6947] transition">
                     Ver
                 </button>
                 <button onclick="openStatusModal(${m.id})"
@@ -258,50 +296,78 @@
             }
         });
 
-        // VIEW MODAL
-              let currentViewingId = null;
 
-                function openViewModal(id) {
-                    currentViewingId = id;
-                    let m = messages[id];
+        // VIEW MODAL (Função para abrir modal de detalhes)
+        function openViewModal(id) {
+            currentViewingId = id;
+            let m = messages[id];
 
-                    document.getElementById('view-nome').textContent = m.user?.name ?? m.nome_solicitante;
-                    document.getElementById('view-email').textContent = m.user?.email ?? m.email_solicitante;
-                    document.getElementById('view-endereco').textContent = `${m.bairro}, ${m.rua}, ${m.numero}`;
-                    document.getElementById('view-descricao').textContent = m.descricao;
+            // NOVO: Preenche o tópico
+            document.getElementById('view-topico').textContent = m.topico ?? '(Não informado)';
+            
+            document.getElementById('view-nome').textContent = m.user?.name ?? m.nome_solicitante;
+            document.getElementById('view-email').textContent = m.user?.email ?? m.email_solicitante;
+            document.getElementById('view-endereco').textContent = `${m.bairro}, ${m.rua}, ${m.numero}`;
+            document.getElementById('view-descricao').textContent = m.descricao;
 
-                    document.getElementById('modal-view').classList.remove('hidden');
-                    document.getElementById('modal-view').classList.add('flex');
+            document.getElementById('modal-view').classList.remove('hidden');
+            document.getElementById('modal-view').classList.add('flex');
+        }
+
+        // FOTOS MODAL (Função para abrir modal de fotos)
+        function openFotosModal(id) {
+            let m = messages[id];
+
+            const container = document.getElementById('fotos-container');
+            container.innerHTML = '';
+            
+            // Tenta parsear o JSON de fotos, se for string
+            let fotos = m.fotos;
+            if (typeof fotos === 'string') {
+                try {
+                    fotos = JSON.parse(fotos);
+                } catch (e) {
+                    console.error("Erro ao fazer parse do JSON de fotos:", e);
+                    fotos = [];
                 }
+            } else if (!Array.isArray(fotos)) {
+                fotos = [];
+            }
 
+            if (fotos.length > 0) {
+                fotos.forEach(path => {
+                    const fullPath = `/storage/${path}`;
+                    let img = document.createElement('img');
+                    img.src = fullPath;
+                    img.className = "w-full h-64 object-cover rounded-lg shadow cursor-pointer transition hover:opacity-80";
+                    img.onclick = () => openLightbox(fullPath); // NOVO: Abre lightbox ao clicar
+                    container.appendChild(img);
+                });
+            } else {
+                container.innerHTML = `<p class="text-center text-gray-500 text-lg">Nenhuma foto enviada.</p>`;
+            }
 
-                function openFotosModal(id) {
-                    let m = messages[id];
+            document.getElementById('modal-fotos').classList.remove('hidden');
+            document.getElementById('modal-fotos').classList.add('flex');
+        }
 
-                    const container = document.getElementById('fotos-container');
-                    container.innerHTML = '';
+        function closeFotosModal() {
+            document.getElementById('modal-fotos').classList.add('hidden');
+            document.getElementById('modal-fotos').classList.remove('flex');
+        }
+        
+        // LIGHTBOX (Funções para tela cheia)
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox-admin');
+            const img = document.getElementById('lightbox-img-admin');
+            img.src = src;
+            lightbox.style.display = 'flex';
+        }
 
-                    if (m.fotos && m.fotos.length > 0) {
-                        m.fotos.forEach(path => {
-                            let img = document.createElement('img');
-                            img.src = `/storage/${path}`;
-                            img.className = "w-full h-64 object-cover rounded-lg shadow";
-                            container.appendChild(img);
-                        });
-                    } else {
-                        container.innerHTML = `<p class="text-center text-gray-500 text-lg">Nenhuma foto enviada.</p>`;
-                    }
-
-                    document.getElementById('modal-fotos').classList.remove('hidden');
-                    document.getElementById('modal-fotos').classList.add('flex');
-                }
-
-                function closeFotosModal() {
-                    document.getElementById('modal-fotos').classList.add('hidden');
-                    document.getElementById('modal-fotos').classList.remove('flex');
-                }
-
-
+        function closeLightbox() {
+            document.getElementById('lightbox-admin').style.display = 'none';
+            document.getElementById('lightbox-img-admin').src = '';
+        }
 
         function closeViewModal() {
             document.getElementById('modal-view').classList.add('hidden');
@@ -378,13 +444,8 @@
                 // atualiza a mensagem localmente
                 messages[data.contact.id] = data.contact;
 
-                // fecha modal e atualiza apenas a linha (melhor opção é recarregar o bloco)
+                // fecha modal e atualiza interface
                 closeStatusModal();
-
-                // atualiza a interface: aqui simplificamos recarregando a página
-                // mas se preferir atualizar sem reload, podemos re-renderizar os blocos.
-                // Vou re-renderizar parcialmente: for simplicity, reload page to reflect grouping.
-                // Se preferir evitar reload, substitua por lógica para atualizar dom.
                 location.reload();
 
             } catch (err) {
@@ -409,7 +470,7 @@
                 @endphp
                     (function () {
                         const block = document.createElement('div');
-                        block.setAttribute('x-data', '{ open: false }');
+                        block.setAttribute('x-data', '{ open: true }'); // Deixar aberto por padrão no filtro pendente
                         block.innerHTML = `
                     <h3 @click="open = !open" class="mt-6 text-xl font-semibold cursor-pointer" style="color: {{ $statusColors[$group] ?? '#333' }};">
                         {{ $group }}
@@ -419,7 +480,7 @@
                                   d="M19 9l-7 7-7-7" />
                         </svg>
                     </h3>
-                    <div x-show="open" class="mt-4 lista-placeholder" data-ids='{{ $jsonIds }}'></div>
+                    <div x-show="open" class="mt-4 lista-placeholder" data-ids='{!! $jsonIds !!}'></div>
                 `;
                         container.appendChild(block);
                     })();
@@ -427,14 +488,14 @@
             }
             @endphp
             @elseif($filtro === 'resolvidas')
-            @php
+                @php
             foreach($groupsResolvidas as $group){
                 $ids = $messages -> filter(fn($m)=> $m -> status && $m -> status -> name === $group) -> pluck('id') -> values();
                 $jsonIds = $ids -> toJson();
                 @endphp
                     (function () {
                         const block = document.createElement('div');
-                        block.setAttribute('x-data', '{ open: false }');
+                        block.setAttribute('x-data', '{ open: true }'); // Deixar aberto por padrão no filtro resolvido
                         block.innerHTML = `
                     <h3 @click="open = !open" class="mt-6 text-xl font-semibold cursor-pointer" style="color: {{ $statusColors[$group] ?? '#333' }};">
                         {{ $group }}
@@ -444,7 +505,7 @@
                                   d="M19 9l-7 7-7-7" />
                         </svg>
                     </h3>
-                    <div x-show="open" class="mt-4 lista-placeholder" data-ids='{{ $jsonIds }}'></div>
+                    <div x-show="open" class="mt-4 lista-placeholder" data-ids='{!! $jsonIds !!}'></div>
                 `;
                         container.appendChild(block);
                     })();

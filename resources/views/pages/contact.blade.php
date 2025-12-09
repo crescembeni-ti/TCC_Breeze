@@ -17,6 +17,7 @@
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 
     <style>
+        /* Mantido o CSS original para o preview e lightbox */
         #preview-area {
             display: flex;
             flex-wrap: wrap;
@@ -95,9 +96,6 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-            <!-- ------------------------------ -->
-            <!-- CARD ESQUERDO -->
-            <!-- ------------------------------ -->
             <div class="bg-white rounded-lg shadow-lg overflow-hidden mr-16">
                 <div class="p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
@@ -140,16 +138,12 @@
                 </div>
             </div>
 
-            <!-- ------------------------------ -->
-            <!-- FORMULÁRIO -->
-            <!-- ------------------------------ -->
             <div class="bg-white rounded-lg shadow-lg p-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Formulário de Contato</h2>
 
-                <form action="{{ route('contact.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <form x-data="fileUploader()" id="contactForm" action="{{ route('contact.store') }}" method="POST" enctype="multipart/form-data" @submit.prevent="submitForm" class="space-y-6">
                     @csrf
 
-                    <!-- ----------- SELECT TÓPICO ----------- -->
                     <div x-data="{ open: false, selected: '{{ old('topico') ?? '' }}' }" class="relative w-full">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Solicitações Frequentes *</label>
 
@@ -178,7 +172,6 @@
                         <input type="hidden" name="topico" :value="selected" required>
                     </div>
 
-                    <!-- ----------- SELECT BAIRRO ----------- -->
                     <div x-data="{ open: false, selected: '{{ old('bairro') ?? '' }}' }" class="relative w-full">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Bairro *</label>
 
@@ -208,7 +201,6 @@
                         <input type="hidden" name="bairro" :value="selected" required>
                     </div>
 
-                    <!-- RUA -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Rua *</label>
                         <input type="text" name="rua" required maxlength="255"
@@ -216,7 +208,6 @@
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                     </div>
 
-                    <!-- NUMERO -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Número</label>
                         <input type="text" name="numero" maxlength="10"
@@ -224,15 +215,13 @@
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                     </div>
 
-                    <!-- DESCRIÇÃO -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Descrição *</label>
                         <textarea name="descricao" rows="6" required
                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg">{{ old('descricao') }}</textarea>
                     </div>
 
-                    <!-- FOTOS -->
-                    <div x-data="fileUploader()" class="space-y-2">
+                    <div class="space-y-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             Anexar Fotos (Máx. 3)
                         </label>
@@ -241,7 +230,8 @@
                             type="file" 
                             class="hidden" 
                             id="inputFotos"
-                            accept="image/*"
+                            name="fotos[]" 
+                            @accept="image/*" 
                             multiple
                             @change="addFiles"
                         >
@@ -252,7 +242,6 @@
                             Selecionar Fotos
                         </button>
 
-                        <!-- preview -->
                         <div class="grid grid-cols-3 gap-4 mt-4">
                             <template x-for="(foto, index) in fotos" :key="index">
                                 <div class="relative">
@@ -269,64 +258,13 @@
                             </template>
                         </div>
 
-                        <!-- input real usado pelo Laravel -->
-                        <template x-for="(foto, index) in fotos">
-                            <input type="hidden" name="fotos[]" :value="foto.file">
-                        </template>
-
                         <p class="text-gray-500 text-sm">Máximo de 3 fotos (JPG, PNG, JPEG)</p>
                     </div>
 
-                    <script>
-                    function fileUploader() {
-                        return {
-                            fotos: [],
-
-                            addFiles(event) {
-                                let files = event.target.files;
-
-                                for (let file of files) {
-                                    if (this.fotos.length >= 3) break;
-
-                                    let reader = new FileReader();
-                                    reader.onload = e => {
-                                        this.fotos.push({
-                                            file,
-                                            url: e.target.result
-                                        });
-                                    }
-                                    reader.readAsDataURL(file);
-                                }
-                            },
-
-                            remove(index) {
-                                this.fotos.splice(index, 1);
-                            },
-
-                            openImage(url) {
-                                let img = document.createElement("img");
-                                img.src = url;
-                                img.style.maxWidth = "90vw";
-                                img.style.maxHeight = "90vh";
-
-                                let box = document.createElement("div");
-                                box.style = "position:fixed; inset:0; background:rgba(0,0,0,.8); display:flex; align-items:center; justify-content:center; z-index:99999;";
-                                box.appendChild(img);
-
-                                box.onclick = () => box.remove();
-                                document.body.appendChild(box);
-                            }
-                        }
-                    }
-</script>
-
-
-                    <!-- AVISO -->
                     <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
                         <p class="text-yellow-800 text-sm"><strong>Atenção:</strong> Todos os campos marcados com * são obrigatórios.</p>
                     </div>
 
-                    <!-- BOTÃO -->
                     <button type="submit"
                         class="bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 transition w-full py-2">
                         Enviar Mensagem
@@ -341,64 +279,77 @@
 </div>
 
 <script>
+    // Armazena os objetos File reais selecionados pelo usuário.
+    let arquivosReais = [];
 
-let arquivosSelecionados = [];
-const fileInput = document.getElementById("file-input");
-const previewArea = document.getElementById("preview-area");
-const hiddenField = document.getElementById("fotos-data");
+    function fileUploader() {
+        return {
+            fotos: [], // Usado apenas para armazenar URLs para o preview no Alpine
 
-const lightbox = document.getElementById("lightbox");
-const lightboxImg = document.getElementById("lightbox-img");
-const lightboxClose = document.getElementById("lightbox-close");
+            addFiles(event) {
+                let files = event.target.files;
+                
+                // Itera sobre os novos arquivos
+                for (let file of files) {
+                    if (arquivosReais.length >= 3) {
+                        alert("Máximo de 3 fotos permitido.");
+                        break;
+                    }
 
-fileInput.addEventListener("change", function(event) {
+                    // 1. Cria o preview
+                    let reader = new FileReader();
+                    reader.onload = e => {
+                        this.fotos.push({
+                            url: e.target.result
+                        });
+                    }
+                    reader.readAsDataURL(file);
+                    
+                    // 2. Armazena o objeto File real
+                    arquivosReais.push(file); 
+                }
+                
+                // 3. Limpa o input file após a leitura para que novos arquivos possam ser selecionados (e para evitar o erro de codificação)
+                event.target.value = ''; 
+            },
 
-    let novos = [...event.target.files];
+            remove(index) {
+                this.fotos.splice(index, 1);
+                arquivosReais.splice(index, 1); // Remove o arquivo real
+                
+                // Sincroniza o input real após a remoção (necessário para submissão)
+                this.syncFileInput(); 
+            },
 
-    if (arquivosSelecionados.length + novos.length > 3) {
-        alert("Máximo de 3 fotos.");
-        return fileInput.value = "";
+            // Função que reconstrói o FileList no input real
+            syncFileInput() {
+                const input = document.getElementById('inputFotos');
+                const dataTransfer = new DataTransfer();
+                arquivosReais.forEach(file => dataTransfer.items.add(file));
+                input.files = dataTransfer.files;
+            },
+
+            // FUNÇÃO DE SUBMISSÃO: Garante que o input real tem os arquivos antes de enviar
+            submitForm() {
+                this.syncFileInput(); // Garante que o inputFotos tem todos os arquivos que o usuário vê
+                document.getElementById('contactForm').submit();
+            },
+
+            openImage(url) {
+                let img = document.createElement("img");
+                img.src = url;
+                img.style.maxWidth = "90vw";
+                img.style.maxHeight = "90vh";
+
+                let box = document.createElement("div");
+                box.style = "position:fixed; inset:0; background:rgba(0,0,0,.8); display:flex; align-items:center; justify-content:center; z-index:99999;";
+                box.appendChild(img);
+
+                box.onclick = () => box.remove();
+                document.body.appendChild(box);
+            }
+        }
     }
-
-    arquivosSelecionados.push(...novos);
-
-    atualizarPreview();
-    fileInput.value = "";
-});
-
-function atualizarPreview() {
-    previewArea.innerHTML = "";
-
-    arquivosSelecionados.forEach((file, index) => {
-        let url = URL.createObjectURL(file);
-
-        let item = document.createElement("div");
-        item.classList.add("preview-item");
-
-        item.innerHTML = `
-            <span class="remove-btn" onclick="removerFoto(${index})">×</span>
-            <img src="${url}" onclick="abrirLightbox('${url}')">
-        `;
-
-        previewArea.appendChild(item);
-    });
-
-    hiddenField.value = arquivosSelecionados.length;
-}
-
-function removerFoto(index) {
-    arquivosSelecionados.splice(index, 1);
-    atualizarPreview();
-}
-
-function abrirLightbox(url) {
-    lightboxImg.src = url;
-    lightbox.style.display = "flex";
-}
-
-lightboxClose.onclick = () => lightbox.style.display = "none";
-lightbox.onclick = (e) => { if (e.target === lightbox) lightbox.style.display = "none"; }
-
 </script>
 
 </body>
