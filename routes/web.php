@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminLoginContr
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AccountManagementController;
 use App\Http\Controllers\Admin\AdminServiceController;
+use App\Http\Controllers\ServiceOrderController; 
 
 // Controllers Analista
 use App\Http\Controllers\Analista\AuthenticatedSessionController as AnalystLoginController;
@@ -117,10 +118,10 @@ Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
 
 // Lista todas as OS
 Route::prefix('admin')->middleware('auth:admin')->group(function () {
-    Route::get('os', [ContactController::class, 'adminServiceOrders'])->name('admin.os.index');
-     // Página individual de OS
-    Route::get('/os/{id}', [ContactController::class, 'AdminServiceOrderShow'])->name('dashboard.os.show');
+    Route::get('os', [ServiceOrderController::class, 'index'])->name('admin.os.index');
+    Route::get('os/{id}', [ServiceOrderController::class, 'show'])->name('admin.os.show');
 });
+
 
 Route::prefix('pbi-admin')->name('admin.')->group(function () {
 

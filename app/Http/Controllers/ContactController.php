@@ -351,9 +351,10 @@ public function adminServiceOrderShow($id)
         if ($statusDeferido) {
             $contact->update(['status_id' => $statusDeferido->id]);
         }
-
-        return back()->with('success', 'Ordem de Serviço gerada com sucesso!');
-    }
+         
+         return redirect()->route('analyst.vistorias.pendentes')
+              ->with('success', 'Ordem de Serviço gerada com sucesso!');
     
 
 } // <--- Fim da classe ContactController
+}
