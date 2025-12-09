@@ -210,37 +210,41 @@
                         </div>
                        {{--
                         =====================================================
-                            6. RESPONSABILIDADES E PROCEDIMENTOS (NOVO)  (Adicionei Checkboxes para salvar no banco)
-                            =====================================================
-                        --}}
-                
-                        <div class="mb-2 border-b-2 border-gray-400 pb-2 bg-gray-50 p-2 rounded">
-                            <h4 class="font-bold text-sm text-black mb-2 border-b border-gray-300">Responsabilidades e Procedimentos (Confirmação)</h4>
-                            
-                            <div class="flex flex-col gap-2 text-xs text-black">
-                                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded border-b border-dotted border-gray-300">
-                                    <input type="checkbox" name="procedimentos[]" value="Seguranca" checked class="mt-0.5 text-[#358054] focus:ring-[#358054]">
-                                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Segurança:</span><span>Utilização obrigatória de EPIs</span></div>
-                                </label>
-                                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded border-b border-dotted border-gray-300">
-                                    <input type="checkbox" name="procedimentos[]" value="Sinalizacao" checked class="mt-0.5 text-[#358054] focus:ring-[#358054]">
-                                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Sinalização:</span><span>Uso de cones e faixas de segurança</span></div>
-                                </label>
-                                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded border-b border-dotted border-gray-300">
-                                    <input type="checkbox" name="procedimentos[]" value="Descarte" checked class="mt-0.5 text-[#358054] focus:ring-[#358054]">
-                                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Descarte:</span><span>Destino adequado dos resíduos</span></div>
-                                </label>
-                                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded border-b border-dotted border-gray-300">
-                                    <input type="checkbox" name="procedimentos[]" value="Registro" checked class="mt-0.5 text-[#358054] focus:ring-[#358054]">
-                                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Registro:</span><span>Fotos antes e depois</span></div>
-                                </label>
-                                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded">
-                                    <input type="checkbox" name="procedimentos[]" value="Comunicacao" checked class="mt-0.5 text-[#358054] focus:ring-[#358054]">
-                                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Comunicação:</span><span>Informar imprevistos</span></div>
-                                </label>
-                            </div>
-                        </div>
+            6. RESPONSABILIDADES E PROCEDIMENTOS (ESTÁTICO)
+===================================================== --}}
 
+<div class="mb-2 border-b-2 border-gray-400 pb-2 bg-gray-50 p-2 rounded">
+    <h4 class="font-bold text-sm text-black mb-2 border-b border-gray-300">Responsabilidades e Procedimentos (Confirmação)</h4>
+    
+    <div class="flex flex-col gap-2 text-xs text-black">
+        
+        <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300">
+            <span class="mt-0.5 text-[#358054] font-extrabold text-sm">&#10003;</span>
+            <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Segurança:</span><span>Utilização obrigatória de EPIs</span></div>
+        </div>
+        
+        <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300">
+            <span class="mt-0.5 text-[#358054] font-extrabold text-sm">&#10003;</span>
+            <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Sinalização:</span><span>Uso de cones e faixas de segurança</span></div>
+        </div>
+        
+        <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300">
+            <span class="mt-0.5 text-[#358054] font-extrabold text-sm">&#10003;</span>
+            <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Descarte:</span><span>Destino adequado dos resíduos</span></div>
+        </div>
+        
+        <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300">
+            <span class="mt-0.5 text-[#358054] font-extrabold text-sm">&#10003;</span>
+            <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Registro:</span><span>Fotos antes e depois</span></div>
+        </div>
+        
+        <div class="flex items-start gap-2 p-1 rounded">
+            <span class="mt-0.5 text-[#358054] font-extrabold text-sm">&#10003;</span>
+            <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Comunicação:</span><span>Informar imprevistos</span></div>
+        </div>
+        
+    </div>
+</div>
                         {{-- DATAS E ASSINATURA --}}
                         <div class="grid grid-cols-2 gap-6 mt-4">
                             <div>
