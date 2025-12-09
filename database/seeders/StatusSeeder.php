@@ -19,7 +19,10 @@ class StatusSeeder extends Seeder
         Status::firstOrCreate(['name' => 'Em Análise']);
         Status::firstOrCreate(['name' => 'Deferido']);   // Aprovado
         Status::firstOrCreate(['name' => 'Concluído']);  // Realizado
-        Status::firstOrCreate(['name' => 'Indeferido']); // Rejeitado
+        Status::firstOrCreate(['name' => 'Indeferido']);
+        Status::firstOrCreate(['name' => 'Vistoriado']); // Atualizei agr
+        Status::firstOrCreate(['name' => 'Em Execução']); // Atualizei agr
+        Status::firstOrCreate(['name' => 'Sem Pendências']); // Atualizei agr
 
         // O NOVO STATUS
         Status::firstOrCreate(['name' => 'Cancelado']);
