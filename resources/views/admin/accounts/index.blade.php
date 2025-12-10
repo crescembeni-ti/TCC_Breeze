@@ -184,29 +184,21 @@
         <i data-lucide="x" class="w-6 h-6"></i>
     </button>
 
-    {{-- Título do modal --}}
     <h3 class="text-lg font-bold text-red-600 text-center">Tem certeza que deseja excluir?</h3>
     
-    {{-- Nome da pessoa --}}
-    <div id="modalDeleteName" class="bg-gray-100 text-gray-800 font-bold px-4 py-2 rounded-md my-4 w-fit mx-auto">
-        <!-- Nome será inserido aqui via JS -->
-    </div>
+    <div id="modalDeleteName" class="bg-gray-100 text-gray-800 font-bold px-4 py-2 rounded-md my-4 w-fit mx-auto"></div>
 
-    {{-- Mensagem de aviso --}}
     <p class="text-gray-700 text-center">Esta ação é irreversível.</p>
 
-    {{-- Formulário de exclusão --}}
     <form id="formDelete" method="POST" action="" class="mt-4">
         @csrf
         @method('DELETE')
 
-        {{-- Centralizando os botões --}}
         <div class="flex justify-center space-x-4">
-            <!-- Botão Cancelar -->
             <button type="button" onclick="closeModal('modalDelete')" class="bg-gray-300 text-black font-semibold rounded-md px-4 py-2">
                 Cancelar
             </button>
-            <!-- Botão Excluir -->
+
             <button type="submit" class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-500 transition duration-200 px-4 py-2">
                 Excluir
             </button>
@@ -247,22 +239,17 @@ function openEdit(id, name, email, cpf = '', type) {
         "/pbi-admin/accounts/update/" + type + "/" + id;
 }
 
-/* Fechar modal */
 function closeModal(modalId) {
     document.getElementById(modalId).close();
 }
 
-/* Função para formatar CPF */
 function formatCPF(cpf) {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Pega todos os CPFs na página
     document.querySelectorAll('td[id^="cpf-"]').forEach(function(cpfElement) {
-        // Pega o CPF cru
         let cpf = cpfElement.innerText.trim();
-        // Formata o CPF e coloca de volta no elemento
         cpfElement.innerText = formatCPF(cpf);
     });
 });
@@ -270,24 +257,40 @@ document.addEventListener('DOMContentLoaded', function() {
 function openDeleteModal(id, name) {
     const modalDelete = document.getElementById('modalDelete');
     const formDelete = document.getElementById('formDelete');
-
-    // Aqui você pega o botão específico de exclusão que foi clicado
     const deleteButton = document.querySelector(`button[data-id='${id}']`);
-
-    // Pega a URL de exclusão
     const url = deleteButton.getAttribute('data-url');
 
-    // Atualiza o form de exclusão com a URL correta
     formDelete.action = url;
 
-    // Exibe o nome da pessoa no modal
     const modalName = document.getElementById('modalDeleteName');
-    modalName.innerText = name; // Coloca o nome da pessoa no modal
+    modalName.innerText = name;
 
-    // Abre o modal de exclusão
     modalDelete.showModal();
 }
 
+/* VALIDAÇÃO DE SENHAS */
+
+// Modal ADD
+document.querySelector('#modalAdd form').addEventListener('submit', function(e) {
+    let senha = this.querySelector('input[name="password"]').value;
+    let confirmar = this.querySelector('input[name="password_confirmation"]').value;
+
+    if (senha !== confirmar) {
+        e.preventDefault();
+        alert('As senhas não coincidem.');
+    }
+});
+
+// Modal EDIT
+document.querySelector('#formEdit').addEventListener('submit', function(e) {
+    let senha = this.querySelector('input[name="password"]').value;
+    let confirmar = this.querySelector('input[name="password_confirmation"]').value;
+
+    if (senha !== '' && senha !== confirmar) {
+        e.preventDefault();
+        alert('A confirmação da senha não coincide.');
+    }
+});
 </script>
 
 @endsection

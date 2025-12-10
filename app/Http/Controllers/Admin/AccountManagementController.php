@@ -32,7 +32,7 @@ class AccountManagementController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email',
             'cpf'      => 'nullable|string',
-            'password' => 'required|min:6|confirmed', // importante!
+            'password' => 'required|min:6|confirmed',   // SENHA OBRIGATÓRIA + CONFIRMAÇÃO
         ]);
 
         $type = $request->type;
@@ -41,7 +41,7 @@ class AccountManagementController extends Controller
             'admin' => Admin::create([
                 'name'     => $request->name,
                 'email'    => $request->email,
-                'password' => Hash::make($request->password), // faltava!
+                'password' => Hash::make($request->password),
             ]),
 
             'analyst' => Analyst::create([
@@ -69,9 +69,9 @@ class AccountManagementController extends Controller
             'email' => 'required|email',
         ];
 
-        // Validação de senha APENAS se o usuário quiser alterar
+        // Validação da senha SOMENTE SE o usuário tentar alterar
         if ($request->filled('password')) {
-            $rules['password'] = 'confirmed|min:6';
+            $rules['password'] = 'confirmed|min:6'; // senha tem que bater com password_confirmation
         }
 
         $request->validate($rules);
@@ -85,7 +85,7 @@ class AccountManagementController extends Controller
             $model->cpf = $request->cpf;
         }
 
-        // Só atualiza senha se preenchida
+        // Atualiza senha somente se for enviada
         if ($request->filled('password')) {
             $model->password = Hash::make($request->password);
         }
