@@ -10,11 +10,17 @@ class RedirectIfAuthenticatedInAnotherGuard
 {
     public function handle(Request $request, Closure $next, $guard)
     {
-        // Se está logado em OUTRO guard → deve ser deslogado automaticamente
         foreach (['web', 'admin', 'analyst', 'service'] as $g) {
+
+            // Se estiver autenticado em outro guard → desloga para evitar conflito
             if ($g !== $guard && Auth::guard($g)->check()) {
                 Auth::guard($g)->logout();
             }
+        }
+
+        // Se JÁ estiver logado no guard correto, apenas segue
+        if (Auth::guard($guard)->check()) {
+            return $next($request);
         }
 
         return $next($request);
