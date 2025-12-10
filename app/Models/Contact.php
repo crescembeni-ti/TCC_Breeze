@@ -14,6 +14,8 @@ class Contact extends Model
     protected $fillable = [
         // CAMPOS DO USUÁRIO (Cidadão)
         'user_id', 
+        'analyst_id',
+        'service_id',
         'nome_solicitante', 
         'email_solicitante',
         
