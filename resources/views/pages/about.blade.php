@@ -142,27 +142,38 @@
                     </a>
                 </div>
                 <div class="flex gap-4">
-                    @if (auth('admin')->check())
-                        <button @click="toggleEditMode()" class="action-button font-semibold transition flex items-center gap-2"
-                            :class="editing ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-green-600 text-white hover:bg-green-700'">
-                            <span x-show="!editing" class="flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                Editar Página
-                            </span>
-                            <span x-show="editing" class="flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                Sair da Edição
-                            </span>
-                        </button>
-                        <a href="{{ route('admin.dashboard') }}" class="action-button bg-green-600 text-white hover:bg-green-700 font-semibold flex items-center gap-2">
-                            Voltar ao Painel
-                        </a>
-                    @else
-                        <a href="{{ auth()->check() ? route('dashboard') : route('home') }}" class="action-button bg-white text-green-700 hover:bg-gray-100 font-semibold">
-                            Voltar ao Mapa
-                        </a>
-                    @endif
-                </div>
+    @if (auth('admin')->check())
+        <!-- Botão de Editar/Sair da Edição -->
+        <button @click="toggleEditMode()" class="btn font-semibold transition inline-flex items-center gap-2"
+                :class="editing ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'">
+            <!-- Quando não está editando -->
+            <span x-show="!editing" class="flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+                Editar Página
+            </span>
+            <!-- Quando está editando -->
+            <span x-show="editing" class="flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                Sair da Edição
+            </span>
+        </button>
+
+        <!-- Botão de Voltar ao Painel -->
+        <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-white font-semibold inline-flex items-center gap-2">
+            Voltar ao Painel
+        </a>
+    @else
+        <!-- Botão de Voltar ao Mapa -->
+        <a href="{{ auth()->check() ? route('dashboard') : route('home') }}" class="btn bg-white text-green-700 hover:bg-gray-100 font-semibold inline-flex items-center gap-2">
+            Voltar ao Mapa
+        </a>
+    @endif
+</div>
+
             </div>
         </header>
 
