@@ -307,8 +307,16 @@ class ContactController extends Controller
             'servico' => 'nullable|array',
             'equip' => 'nullable|array',
             'procedimentos' => 'nullable|array',
-            'observacoes' => 'nullable|string'
+            'observacoes' => 'nullable|string',
+            'especies' => 'nullable|string|max:255',
+            'quantidade' => 'nullable|integer',
+            'lat_long_lat' => 'nullable|string|max:50', // Assumindo renomeado na view
+            'lat_long_lon' => 'nullable|string|max:50', // Assumindo renomeado na view
         ]);
+
+       
+     
+
 
         ServiceOrder::create([
             'contact_id' => $request->contact_id,
@@ -320,6 +328,10 @@ class ContactController extends Controller
             'equipamentos' => $request->equip,
             'procedimentos' => $request->procedimentos,
             'observacoes' => $request->observacoes,
+            'especies' => $request->especies,
+            'quantidade' => $request->quantidade,
+            'latitude' => $request->lat_long_lat, // Salvando Latitude
+            'longitude' => $request->lat_long_lon, // Salvando Longitude
         ]);
 
         // Mantém o status como "Deferido"

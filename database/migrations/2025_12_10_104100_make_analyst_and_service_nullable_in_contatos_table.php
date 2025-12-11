@@ -11,7 +11,7 @@ return new class extends Migration
      */
    public function up()
 {
-    Schema::table('contatos', function (Blueprint $table) {
+    Schema::table('contacts', function (Blueprint $table) {
         // O segredo é o ->nullable()->change();
         // Obs: Você precisa do pacote doctrine/dbal instalado.
         // Se der erro de dependência, apenas apague a migration anterior e rode de novo com ->nullable() na definição original.
@@ -26,7 +26,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('contatos', function (Blueprint $table) {
+        Schema::table('contacts', function (Blueprint $table) {
             //
         });
     }

@@ -13,6 +13,10 @@ class ServiceOrder extends Model
         'contact_id',
         'data_vistoria',
         'data_execucao',
+        'especies', 
+        'quantidade', 
+        'latitude', 
+        'longitude',
         'motivos',
         'servicos',
         'equipamentos',
@@ -29,6 +33,8 @@ class ServiceOrder extends Model
         'procedimentos' => 'array',
         'data_vistoria' => 'date',
         'data_execucao' => 'date',
+        // 'especies', 'quantidade', 'latitude', e 'longitude' são strings/inteiros
+        // e não precisam ser casted, a menos que você queira garantir um tipo específico.
     ];
 
     // Relacionamento inverso
