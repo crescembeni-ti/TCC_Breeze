@@ -4,41 +4,42 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\SendVerificationCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\Support\Carbon;
-use App\Notifications\SendVerificationCode;
+use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
     /**
-     * Tela de registro.
+     * Exibe a tela de registro.
      */
-    public function create()
+    public function create(): View
     {
         return view('auth.register');
     }
 
     /**
-     * Registra o usuário, gera o código e envia para a tela de verificação.
+     * Processa o registro, envia o código e redireciona para verificação.
      */
     public function store(Request $request): RedirectResponse
     {
-
-        // Validação
+        // 1. Validação dos dados
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email:rfc,dns', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email:rfc,dns', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Código para verificação
+        // 2. Geração do código de 6 dígitos
         $code = rand(100000, 999999);
         $expires_at = Carbon::now()->addMinutes(5);
 
-        // Criando usuário
+        // 3. Criação do Usuário
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -47,21 +48,22 @@ class RegisteredUserController extends Controller
             'email_verification_code_expires_at' => $expires_at,
         ]);
 
-        // Envia o código por e-mail — mas NÃO deixa quebrar o fluxo
+        // 4. Envio do E-mail (Try/Catch para não travar se o SMTP falhar)
         try {
             $user->notify(new SendVerificationCode($code));
         } catch (\Exception $e) {
-            // Aqui evita erro 500 se o Gmail estiver com problema
-            // Você pode logar se quiser:
-            // \Log::error("Erro ao enviar email: " . $e->getMessage());
+            // Se quiser logar o erro: \Log::error('Erro ao enviar email: '.$e->getMessage());
         }
 
-        // DESLOGA para permitir acessar a rota guest
-        \Auth::guard('web')->logout();
+        // 5. CRÍTICO: Deslogar o usuário
+        // Isso é necessário porque a rota 'verification.code.show' está no middleware 'guest'
+        Auth::guard('web')->logout();
+        
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Agora abre a tela de código
+        // 6. Redirecionamento passando o e-mail na URL (Query String)
+        // Isso vai gerar uma URL tipo: /verificar-codigo?email=usuario@exemplo.com
         return redirect()->route('verification.code.show', ['email' => $user->email]);
     }
 }
