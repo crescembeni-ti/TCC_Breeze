@@ -44,7 +44,7 @@
 
             <a href="{{ route('home') }}"
             class="btn bg-green-600 hover:bg-[#38c224] transition-all duration-300 transform hover:scale-105">
-            ← Voltar ao Mapa
+            Voltar ao Mapa
             </a>
 
         </div>
@@ -105,10 +105,12 @@
     <p class="text-lg text-gray-900">{{ $tree->trunk_diameter }} cm</p>
   </div>
 
-  <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0] text-center">
-    <p class="text-xs uppercase text-[#358054] font-bold tracking-wide">Status de Saúde</p>
-    <p class="text-lg text-gray-900 capitalize">{{ $tree->health_status }}</p>
-  </div>
+  @if (Auth::guard('admin')->check() || Auth::guard('analyst')->check() || Auth::guard('service')->check())
+        <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0] text-center">
+            <p class="text-xs uppercase text-[#358054] font-bold tracking-wide">Status de Saúde</p>
+            <p class="text-lg text-gray-900 capitalize">{{ $tree->health_status }}</p>
+        </div>
+    @endif
 </div>
 
 
