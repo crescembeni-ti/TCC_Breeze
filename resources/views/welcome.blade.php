@@ -440,7 +440,13 @@
     trees.forEach((tree, index) => {
     if (!tree.latitude || !tree.longitude) return; // ignora árvores sem coordenadas
 
-    const size = Math.max(6, (tree.trunk_diameter ?? 10) / 4);
+    // Garante que é número
+    const diametro = parseFloat(tree.trunk_diameter);
+    // Se não tiver diâmetro, usa 10 como base.
+    const valorReal = (!isNaN(diametro) && diametro > 0) ? diametro : 10;
+    
+    // Divide por 2 pra bolinha crescer mais, e define o mínimo como 4
+    const size = Math.max(4, valorReal / 2);
     const marker = L.circleMarker([tree.latitude, tree.longitude], {
         radius: size,
         color: "#fff",
