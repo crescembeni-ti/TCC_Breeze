@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Contact;
 use App\Models\Status;
-use App\Models\Bairro; 
-use App\Models\Topico; 
-use Illuminate\Support\Facades\Auth; 
+use App\Models\Bairro;
+use App\Models\Topico;
+use App\Models\User;
+use App\Models\Analyst; // <--- IMPORTANTE: Model da tabela analysts
+use App\Models\Service; // <--- IMPORTANTE: Model da tabela services
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Storage; 
-use Illuminate\Support\Facades\Log; // Mantido caso precise de logs no site
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Models\ServiceOrder;
-// Imports do Firebase (Mantidos caso o site também envie notificações no futuro)
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 
@@ -32,88 +34,118 @@ class ContactController extends Controller
     /**
      * [SITE] Salva solicitação vinda do formulário web.
      */
-   public function store(Request $request)
-{
-    $user = Auth::user();
+    public function store(Request $request)
+    {
+        $user = Auth::user();
 
-    $validated = $request->validate([
-        'topico' => 'required|string|max:255',
-        'bairro' => 'required|string|max:255',
-        'rua' => 'required|string|max:255',
-        'numero' => 'nullable|string|max:10',
-        'descricao' => 'required|string',
+        $validated = $request->validate([
+            'topico' => 'required|string|max:255',
+            'bairro' => 'required|string|max:255',
+            'rua' => 'required|string|max:255',
+            'numero' => 'nullable|string|max:10',
+            'descricao' => 'required|string',
+            'fotos' => 'nullable|array|max:3',
+            'fotos.*' => 'image|mimes:jpg,png,jpeg|max:2048',
+        ]);
 
-        'fotos' => 'nullable|array|max:3',
-        'fotos.*' => 'image|mimes:jpg,png,jpeg|max:2048',
-    ]);
+        $caminhosFotos = [];
 
-    $caminhosFotos = [];
-
-    if ($request->hasFile('fotos')) {
-        foreach ($request->file('fotos') as $foto) {
-            $caminhosFotos[] = $foto->store('solicitacoes', 'public');
+        if ($request->hasFile('fotos')) {
+            foreach ($request->file('fotos') as $foto) {
+                $caminhosFotos[] = $foto->store('solicitacoes', 'public');
+            }
         }
+
+        $statusEmAnaliseId = Status::where('name', 'Em Análise')->firstOrFail()->id;
+
+        Contact::create([
+            'topico' => $validated['topico'],
+            'bairro' => $validated['bairro'],
+            'rua' => $validated['rua'],
+            'numero' => $validated['numero'] ?? null,
+            'descricao' => $validated['descricao'],
+            'fotos' => $caminhosFotos,
+            'user_id' => $user->id,
+            'nome_solicitante' => $user->name,
+            'email_solicitante' => $user->email,
+            'status_id' => $statusEmAnaliseId,
+            'justificativa' => null,
+            'analyst_id' => null,
+            'service_id' => null,
+        ]);
+
+        return redirect()->route('contact')
+            ->with('success', 'Sua solicitação foi enviada com sucesso!');
     }
-
-    $statusEmAnaliseId = Status::where('name', 'Em Análise')->firstOrFail()->id;
-
-    Contact::create([
-        'topico' => $validated['topico'],
-        'bairro' => $validated['bairro'],
-        'rua' => $validated['rua'],
-        'numero' => $validated['numero'] ?? null,
-        'descricao' => $validated['descricao'],
-
-        // Salva JSON
-        'fotos' => $caminhosFotos,
-
-        'user_id' => $user->id,
-        'nome_solicitante' => $user->name,
-        'email_solicitante' => $user->email,
-        'status_id' => $statusEmAnaliseId,
-        'justificativa' => null,
-    ]);
-
-    return redirect()->route('contact')
-        ->with('success', 'Sua solicitação foi enviada com sucesso!');
-}
-
-
 
     /**
      * [SITE ADMIN] Lista de solicitações com filtros.
+     * ADAPTADO: Busca Analistas e Serviços em suas respectivas tabelas.
      */
     public function adminContactList(Request $request)
     {
-        // filtro: todas | pendentes | resolvidas
+        // 1. Filtros de Status
         $filtro = $request->query('filtro', 'todas');
-
-        // grupos de status (nomes)
         $pendentes = ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'];
         $resolvidas = ['Concluído', 'Indeferido', 'Sem Pendências'];
 
+        // Carrega relacionamentos. Se você tiver 'analyst' e 'service' no model Contact, adicione no array.
+        $query = Contact::with(['status', 'user']); 
+
         if ($filtro === 'pendentes') {
-            $messages = Contact::with('status', 'user')
-                ->whereHas('status', fn($q) => $q->whereIn('name', $pendentes))
-                ->latest()
-                ->get();
+            $query->whereHas('status', fn($q) => $q->whereIn('name', $pendentes));
         } elseif ($filtro === 'resolvidas') {
-            $messages = Contact::with('status', 'user')
-                ->whereHas('status', fn($q) => $q->whereIn('name', $resolvidas))
-                ->latest()
-                ->get();
-        } else {
-            $messages = Contact::with('status', 'user')->latest()->get();
+            $query->whereHas('status', fn($q) => $q->whereIn('name', $resolvidas));
         }
 
-        // pego todos os statuses exceto 'Cancelado' (admin não pode cancelar)
+        $messages = $query->latest()->get();
         $allStatuses = Status::where('name', '!=', 'Cancelado')->get();
 
-        return view('admin.contacts.index', compact('messages', 'allStatuses', 'filtro'));
+        // 2. BUSCAR DADOS DAS TABELAS SEPARADAS
+        
+        // Tabela: analysts
+        try {
+            $analistas = Analyst::orderBy('name', 'asc')->get();
+        } catch (\Exception $e) {
+            $analistas = []; // Evita crash se a tabela não existir
+        }
+
+        // Tabela: services
+        try {
+            $servicos = Service::orderBy('name', 'asc')->get();
+        } catch (\Exception $e) {
+            $servicos = []; // Evita crash se a tabela não existir
+        }
+
+        return view('admin.contacts.index', compact('messages', 'allStatuses', 'filtro', 'analistas', 'servicos'));
     }
 
     /**
-     * [SITE ADMIN] Atualiza status e envia notificação (se FCM existir).
+     * [NOVO] Método para Encaminhar Solicitação
+     * Valida IDs nas tabelas 'analysts' e 'services'
+     */
+    public function forward(Request $request, Contact $contact)
+    {
+        $validated = $request->validate([
+            'analyst_id' => 'nullable|exists:analysts,id', // Valida na tabela analysts
+            'service_id' => 'nullable|exists:services,id', // Valida na tabela services
+        ]);
+
+        $contact->update([
+            'analyst_id' => $request->input('analyst_id'),
+            'service_id' => $request->input('service_id'),
+        ]);
+
+        $contact->load(['status', 'user']); 
+
+        return response()->json([
+            'message' => 'Solicitação encaminhada com sucesso!',
+            'contact' => $contact,
+        ]);
+    }
+
+    /**
+     * [SITE ADMIN] Atualiza status e envia notificação.
      */
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
@@ -125,7 +157,6 @@ class ContactController extends Controller
             return Status::where('name', 'Indeferido')->first()->id;
         });
 
-        // NÃO PERMITIR admin setar 'Cancelado'
         if ($request->status_id == $statusCancelado) {
             return $request->wantsJson()
                 ? response()->json(['error' => 'Administrador não pode cancelar solicitações.'], 403)
@@ -146,7 +177,6 @@ class ContactController extends Controller
             'justificativa' => $validated['justificativa'] ?? null,
         ];
 
-        // só mantem justificativa quando indeferido
         if ($validated['status_id'] != $statusIndeferidoId) {
             $dataToSave['justificativa'] = null;
         }
@@ -154,7 +184,7 @@ class ContactController extends Controller
         $contact->update($dataToSave);
         $contact->load('status', 'user');
 
-        // Tenta enviar push (se tiver FCM token) — mas não quebra o site se falhar
+        // Notificação Firebase
         try {
             $user = $contact->user;
             $fcmToken = $user->fcm_token ?? null;
@@ -166,14 +196,12 @@ class ContactController extends Controller
                 );
                 $message = CloudMessage::withTarget('token', $fcmToken)
                     ->withNotification($notification);
-
                 $messaging->send($message);
             }
         } catch (\Exception $e) {
             Log::error('Falha ao enviar notificação FCM (Site): ' . $e->getMessage());
         }
 
-        // Se for uma requisição JSON (Ajax do site), retorna JSON
         if ($request->wantsJson() || $request->isJson()) {
             return response()->json([
                 'message' => 'Status atualizado com sucesso!',
@@ -183,21 +211,21 @@ class ContactController extends Controller
 
         return back()->with('success', 'Status da mensagem atualizado.');
     }
-public function adminServiceOrders()
-{
-    $oss = ServiceOrder::with(['contact.user', 'contact.status'])
-        ->latest()
-        ->get();
 
-    return view('admin.os.index', compact('oss'));
-}
-// Mostra uma OS específica
-public function adminServiceOrderShow($id)
-{
-    $os = ServiceOrder::with('contact.user', 'contact.status')->findOrFail($id);
+    public function adminServiceOrders()
+    {
+        $oss = ServiceOrder::with(['contact.user', 'contact.status'])
+            ->latest()
+            ->get();
+        return view('admin.os.index', compact('oss'));
+    }
 
-    return view('admin.os.show', compact('os'));
-}
+    public function adminServiceOrderShow($id)
+    {
+        $os = ServiceOrder::with('contact.user', 'contact.status')->findOrFail($id);
+        return view('admin.os.show', compact('os'));
+    }
+
     /**
      * [SITE USUÁRIO] Minhas solicitações.
      */
@@ -222,37 +250,24 @@ public function adminServiceOrderShow($id)
      */
     public function cancelRequest(Request $request, Contact $contact)
     {
-        // garantir que só o dono pode cancelar
         if (Auth::id() !== $contact->user_id) {
             abort(403);
         }
 
-        // buscar IDs dos status
-        $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, fn() =>
-            Status::where('name', 'Em Análise')->firstOrFail()->id
-        );
+        $statusEmAnaliseId = Cache::remember('status_em_analise_id', 3600, fn() => Status::where('name', 'Em Análise')->firstOrFail()->id);
+        $statusDeferidoId = Cache::remember('status_deferido_id', 3600, fn() => Status::where('name', 'Deferido')->firstOrFail()->id);
+        $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, fn() => Status::where('name', 'Cancelado')->firstOrFail()->id);
 
-        $statusDeferidoId = Cache::remember('status_deferido_id', 3600, fn() =>
-            Status::where('name', 'Deferido')->firstOrFail()->id
-        );
-
-        $statusCanceladoId = Cache::remember('status_cancelado_id', 3600, fn() =>
-            Status::where('name', 'Cancelado')->firstOrFail()->id
-        );
-
-        // VERIFICA SE O STATUS ATUAL PERMITE CANCELAMENTO
         if (!in_array($contact->status_id, [$statusEmAnaliseId, $statusDeferidoId])) {
             return back()->withErrors([
                 'cancel_error' => 'Esta solicitação não pode mais ser cancelada.'
             ]);
         }
 
-        // validar motivo opcional
         $request->validate([
             'justificativa_cancelamento' => 'nullable|string|max:500'
         ]);
 
-        // realizar cancelamento
         $contact->update([
             'status_id' => $statusCanceladoId,
             'justificativa' => $request->justificativa_cancelamento
@@ -263,24 +278,17 @@ public function adminServiceOrderShow($id)
         return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada com sucesso.');
     }
 
-
-
- // ... (outros códigos do seu controller, store, update, etc) ...
-
     /**
-     * [1] DASHBOARD (Tela Inicial com Cards)
-     * Rota: /pbi-analista/dashboard
+     * [1] DASHBOARD (Analista)
      */
     public function analystDashboard()
     {
         $statusPendentes = ['Deferido', 'Em Análise', 'Em Execução'];
         $statusConcluidos = ['Concluído', 'Vistoriado', 'Indeferido', 'Sem Pendências'];
 
-        // Contadores
         $countPendentes = Contact::whereHas('status', fn($q) => $q->whereIn('name', $statusPendentes))->count();
         $countConcluidas = Contact::whereHas('status', fn($q) => $q->whereIn('name', $statusConcluidos))->count();
 
-        // Lista Resumida (5 últimas)
         $vistorias = Contact::with(['status', 'user'])
             ->whereHas('status', fn($q) => $q->whereIn('name', $statusPendentes))
             ->latest()
@@ -292,12 +300,9 @@ public function adminServiceOrderShow($id)
 
     /**
      * [2] LISTA COMPLETA (Página de 'Gerar OS')
-     * Rota: /pbi-analista/vistorias-pendentes
-     * É ESTA FUNÇÃO QUE ESTAVA FALTANDO E GERANDO O ERRO
      */
     public function vistoriasPendentes()
     {
-        // Aqui pegamos todas, sem limite de quantidade
         $statusPendentes = ['Deferido', 'Em Análise', 'Em Execução'];
 
         $vistorias = Contact::with(['status', 'user'])
@@ -315,12 +320,10 @@ public function adminServiceOrderShow($id)
      */
     public function storeServiceOrder(Request $request)
     {
-        // 1. Validação simples
         $request->validate([
             'contact_id' => 'required|exists:contacts,id',
             'data_vistoria' => 'required|date',
             'data_execucao' => 'nullable|date',
-            // Arrays (checkboxes)
             'motivo' => 'nullable|array',
             'servico' => 'nullable|array',
             'equip' => 'nullable|array',
@@ -328,14 +331,11 @@ public function adminServiceOrderShow($id)
             'observacoes' => 'nullable|string'
         ]);
 
-        // 2. Cria a Ordem de Serviço
         ServiceOrder::create([
             'contact_id' => $request->contact_id,
             'supervisor_id' => Auth::guard('analyst')->id(),
             'data_vistoria' => $request->data_vistoria,
             'data_execucao' => $request->data_execucao,
-            
-            // Salvando os arrays (o Model cuida do JSON)
             'motivos' => $request->motivo,
             'servicos' => $request->servico,
             'equipamentos' => $request->equip,
@@ -343,18 +343,14 @@ public function adminServiceOrderShow($id)
             'observacoes' => $request->observacoes,
         ]);
 
-        // 3. Atualiza o status da solicitação principal para "Deferido" (ou Em Execução)
-        // Busque o ID do status que você quer. Ex: Deferido.
         $contact = Contact::find($request->contact_id);
         $statusDeferido = Status::where('name', 'Deferido')->first();
-        
+
         if ($statusDeferido) {
             $contact->update(['status_id' => $statusDeferido->id]);
         }
-         
-         return redirect()->route('analyst.vistorias.pendentes')
-              ->with('success', 'Ordem de Serviço gerada com sucesso!');
-    
 
-} // <--- Fim da classe ContactController
+        return redirect()->route('analyst.vistorias.pendentes')
+            ->with('success', 'Ordem de Serviço gerada com sucesso!');
+    }
 }

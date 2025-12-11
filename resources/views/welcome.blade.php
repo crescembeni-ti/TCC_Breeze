@@ -258,7 +258,7 @@
     const map = L.map('map', {
         center: INITIAL_VIEW,
         zoom: INITIAL_ZOOM,
-        minZoom: 12,
+        minZoom: 13,
         maxBounds: PARACAMBI_BOUNDS,
         maxBoundsViscosity: 1.0
     });

@@ -154,8 +154,14 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::get('/contacts', [ContactController::class, 'adminContactList'])->name('contato.index');
+        
+        // ROTA ADICIONADA: Atualização de Status
         Route::patch('/contacts/{contact}', [ContactController::class, 'adminContactUpdateStatus'])
             ->name('contacts.updateStatus');
+
+        // ROTA ADICIONADA: Encaminhamento para Analista/Serviço (Forward)
+        Route::patch('/contacts/{contact}/forward', [ContactController::class, 'forward'])
+            ->name('contacts.forward');
 
         /*
         |--------------------------------------------------------------------------

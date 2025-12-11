@@ -22,27 +22,14 @@
 
     <style>
         #lightbox-admin {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.95);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 99999;
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
+            display: none; align-items: center; justify-content: center; z-index: 99999;
         }
         #lightbox-admin img {
-            max-width: 90vw;
-            max-height: 90vh;
-            border-radius: 8px;
-            object-fit: contain;
+            max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain;
         }
         #lightbox-close-admin {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 40px;
-            color: white;
-            cursor: pointer;
+            position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer;
         }
     </style>
 </head>
@@ -61,481 +48,422 @@
             </div>
             @endif
 
+            {{-- Botões de Filtro --}}
             <div class="flex items-center justify-center relative mb-6">
                 <div class="flex justify-center gap-6">
                     <a href="{{ route('admin.contato.index') }}?filtro=todas" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
-                    {{ $filtro === 'todas' 
-                        ? 'bg-[#358054] text-white' 
-                        : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
+                    {{ $filtro === 'todas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
                         Todas
                     </a>
-
                     <a href="{{ route('admin.contato.index') }}?filtro=pendentes" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
-                    {{ $filtro === 'pendentes' 
-                        ? 'bg-[#358054] text-white' 
-                        : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
+                    {{ $filtro === 'pendentes' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
                         Pendentes
                     </a>
-
                     <a href="{{ route('admin.contato.index') }}?filtro=resolvidas" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
-                    {{ $filtro === 'resolvidas' 
-                        ? 'bg-[#358054] text-white' 
-                        : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
+                    {{ $filtro === 'resolvidas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
                         Resolvidas
                     </a>
                 </div>
-
                 <div class="absolute right-0 text-sm text-gray-600">
                     Total: {{ $messages->count() }}
                 </div>
             </div>
 
-
             @php
             $groupsPendentes = ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'];
             $groupsResolvidas = ['Concluído', 'Indeferido', 'Sem Pendências'];
-
-            // Apenas cor do texto (sem fundo)
             $statusColors = [
-            'Em Análise' => '#9ea3af',
-            'Deferido' => '#3850d6',
-            'Indeferido' => '#d2062a',
-            'Vistoriado' => '#8c3c14',
-            'Em Execução' => '#f4ca29',
-            'Sem Pendências' => '#ef6d22',
-            'Concluído' => '#34a54c',
+                'Em Análise' => '#9ea3af', 'Deferido' => '#3850d6', 'Indeferido' => '#d2062a',
+                'Vistoriado' => '#8c3c14', 'Em Execução' => '#f4ca29',
+                'Sem Pendências' => '#ef6d22', 'Concluído' => '#34a54c',
             ];
             @endphp
 
-
+            {{-- Container onde as tabelas serão desenhadas --}}
             <div id="mensagens-container"></div>
-
         </div>
     </main>
 
-    {{-- Modal View (ATUALIZADO com Topico) --}}
+    {{-- MODAIS --}}
+
     <div id="modal-view" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-2xl rounded-xl shadow-xl p-6 relative">
-            <button onclick="closeViewModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-
-            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Detalhes da Solicitação</h2>
-
+            <button onclick="closeViewModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"><i data-lucide="x"></i></button>
+            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Detalhes</h2>
             <div class="space-y-3">
-                <p><strong>Tipo de Solicitação:</strong> <span id="view-topico" class="font-semibold text-[#358054]"></span></p>
-
+                <p><strong>Tipo:</strong> <span id="view-topico" class="font-semibold text-[#358054]"></span></p>
                 <p><strong>Nome:</strong> <span id="view-nome"></span></p>
                 <p><strong>Email:</strong> <span id="view-email"></span></p>
-
-                <p><strong>Endereço:</strong>
-                    <span id="view-endereco" class="text-gray-700"></span>
-                </p>
-
-                <div>
-                    <p class="font-semibold">Descrição:</p>
-                    <p id="view-descricao" class="p-3 bg-gray-100 rounded-md text-sm"></p>
-                </div>
-
-                <button 
-                    onclick="openFotosModal(currentViewingId)" 
-                    class="mt-4 w-full bg-[#358054] hover:bg-[#2d6947] text-white font-semibold py-2 rounded-lg shadow transition">
-                    Ver Fotos da Solicitação
-                </button>
-
-
+                <p><strong>Endereço:</strong> <span id="view-endereco"></span></p>
+                <div class="bg-gray-100 p-3 rounded"><p id="view-descricao"></p></div>
+                <button onclick="openFotosModal(currentViewingId)" class="mt-4 w-full bg-[#358054] text-white py-2 rounded-lg">Ver Fotos</button>
             </div>
         </div>
     </div>
     
-    {{-- Modal Fotos --}}
     <div id="modal-fotos" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[9999]">
         <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative">
-            <button onclick="closeFotosModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-
-            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Fotos da Solicitação</h2>
-
-            <div id="fotos-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-auto p-2">
-                </div>
+            <button onclick="closeFotosModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"><i data-lucide="x"></i></button>
+            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Fotos</h2>
+            <div id="fotos-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-auto p-2"></div>
         </div>
     </div>
-    
-    {{-- Lightbox de Tela Cheia --}}
+
     <div id="lightbox-admin" onclick="closeLightbox()" style="display: none;">
         <span id="lightbox-close-admin">×</span>
-        <img id="lightbox-img-admin" src="" alt="Foto da Solicitação">
+        <img id="lightbox-img-admin" src="">
     </div>
 
-
-    {{-- Modal Status (AJAX) --}}
     <div id="modal-status" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
-            <button onclick="closeStatusModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-
+            <button onclick="closeStatusModal()" class="absolute top-3 right-3 text-gray-600"><i data-lucide="x"></i></button>
             <h2 class="text-2xl font-bold text-blue-700 mb-4">Atualizar Status</h2>
-
-            <form id="status-form" method="POST" class="space-y-3" onsubmit="return submitStatusForm(event)">
-                @csrf
-                @method('PATCH')
-
+            <form id="status-form" onsubmit="return submitStatusForm(event)" class="space-y-3">
+                @csrf @method('PATCH')
                 <label class="font-semibold">Status</label>
                 <select name="status_id" id="status-select" class="w-full rounded-md border-gray-300 shadow-sm">
                     @foreach ($allStatuses as $status)
                     <option value="{{ $status->id }}">{{ $status->name }}</option>
                     @endforeach
                 </select>
+                <div id="just-box"><label class="font-semibold">Justificativa</label><textarea name="justificativa" id="status-justificativa" class="w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea></div>
+                <button class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Salvar</button>
+            </form>
+        </div>
+    </div>
 
-                <div id="just-box">
-                    <label class="font-semibold">Justificativa</label>
-                    <textarea name="justificativa" id="status-justificativa"
-                        class="w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea>
-                </div>
+    <div id="modal-forward" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
+            <button onclick="closeForwardModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"><i data-lucide="x"></i></button>
+            
+            <h2 id="forward-title" class="text-2xl font-bold text-orange-700 mb-4">Encaminhar Solicitação</h2>
 
-                <button id="status-save-btn"
-                    class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
-                    Salvar
+            <form id="forward-form" onsubmit="return submitForwardForm(event)" class="space-y-3">
+                @csrf @method('PATCH')
+                
+                <input type="hidden" name="forward_type" id="forward-type-input">
+                
+                <label id="forward-label" class="font-semibold">Selecione:</label>
+                <select name="user_id" id="forward-user-select" class="w-full rounded-md border-gray-300 shadow-sm" required>
+                    <option value="">Carregando...</option>
+                </select>
+
+                <button id="forward-save-btn" class="w-full px-3 py-2 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700">
+                    Confirmar Encaminhamento
                 </button>
             </form>
         </div>
     </div>
 
-    {{-- SCRIPT (CORRIGIDO E ATUALIZADO) --}}
+    {{-- SCRIPTS JS --}}
     <script>
-        // mensagens vindas do backend
+        // Dados PHP -> JS
         const messages = @json($messages->keyBy('id'));
-        
-        // Variável para armazenar o ID da mensagem atual
+        // Agora recebemos as listas das tabelas específicas
+        const analistas = @json($analistas ?? []);
+        const servicos = @json($servicos ?? []);
+
+        // Controle de IDs
         let currentViewingId = null;
+        let currentEditingId = null;
+        let currentForwardingId = null;
 
-        // RENDER partial (JS) - monta uma tabela HTML a partir de uma coleção
-        function renderTable(itens) {
-            if (!itens || itens.length === 0) {
-                return `<p class="text-gray-400 mt-2">Nenhuma solicitação aqui.</p>`;
-            }
-
-            let rows = itens.map(m => {
-                const nome = (m.user && m.user.name) ? m.user.name : (m.nome_solicitante ?? '');
-                const email = (m.user && m.user.email) ? m.user.email : (m.email_solicitante ?? '');
-                const statusName = m.status ? m.status.name : '';
-                const created = new Date(m.created_at).toLocaleString();
-
-                // garante compatibilidade com diferentes nomes de campo
-                const descricao = m.descricao ?? m.content ?? m.mensagem ?? '(sem descrição)';
-                const endereco = [m.bairro, m.rua, m.numero].filter(Boolean).join(', ');
-                const topico = m.topico ?? '(Não informado)'; // Campo TOPICO
-
-                return `
-        <tr class="border-t">
-            <td class="px-6 py-4 align-top text-sm text-gray-500">${escapeHtml(created)}</td>
-            <td class="px-6 py-4 align-top">
-                <div class="text-sm font-medium text-gray-900">
-                    <span class="font-semibold text-sm text-[#358054]">${escapeHtml(topico)}</span> - ${escapeHtml(endereco)}
-                </div>
-                <div class="text-sm text-gray-500">${escapeHtml(descricao.substring(0, 120))}...</div>
-            </td>
-            <td class="px-6 py-4 align-top text-right text-sm space-x-2">
-                <button onclick="openViewModal(${m.id})"
-                        class="inline-flex items-center px-3 py-1.5 bg-[#358054] text-white rounded-md text-xs font-semibold hover:bg-[#2d6947] transition">
-                    Ver
-                </button>
-                <button onclick="openStatusModal(${m.id})"
-                        class="inline-flex items-center px-3 py-1.5 bg-blue-700 text-white rounded-md text-xs font-semibold hover:bg-blue-600 transition-colors">
-                    Atualizar
-                </button>
-            </td>
-        </tr>
-        `;
-            }).join('');
-
-            return `<div class="overflow-x-auto">
-    <table class="min-w-full table-fixed divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 w-1/4 text-left text-xs font-medium text-gray-600 uppercase">Data</th>
-                <th class="px-6 py-3 w-2/4 text-left text-xs font-medium text-gray-600 uppercase">Solicitação</th>
-                <th class="px-6 py-3 w-1/4 text-right text-xs font-medium text-gray-600 uppercase">Ações</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white">${rows}</tbody>
-    </table>
-</div>`;
-        }
-
-        // utility
         function escapeHtml(unsafe) {
             if (unsafe === null || unsafe === undefined) return '';
-            return String(unsafe)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+            return String(unsafe).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // monta os blocos já renderizados do blade — substitui include
-        document.addEventListener('DOMContentLoaded', function () {
-            // para cada grupo presente na página (h3 + placeholder), vamos renderizar dinamicamente
-            document.querySelectorAll('h3').forEach(function (h) {
-                const next = h.nextElementSibling;
-                if (next && next.classList.contains('lista-placeholder')) {
-                    // já vem do blade com data-group contendo os ids
-                    const ids = JSON.parse(next.getAttribute('data-ids') || '[]');
-                    const itens = ids.map(i => messages[i]).filter(Boolean);
-                    next.innerHTML = renderTable(itens);
+        // RENDERIZA A TABELA (Aqui é onde o botão aparece)
+        function renderTable(itens) {
+            if (!itens || itens.length === 0) return `<p class="text-gray-400 mt-2 ml-2">Nenhuma solicitação neste grupo.</p>`;
+
+            let rows = itens.map(m => {
+                const created = new Date(m.created_at).toLocaleString();
+                const topico = m.topico ?? '';
+                const endereco = [m.bairro, m.rua, m.numero].filter(Boolean).join(', ');
+                const descricao = m.descricao ?? '';
+                const statusName = m.status ? m.status.name.trim() : '';
+
+                // Lógica dos Botões (LARANJA)
+                let forwardButton = '';
+                
+                // Se Deferido -> Analista
+                if (statusName.toLowerCase().includes('deferido')) {
+                    forwardButton = `
+                        <button onclick="openForwardModal(${m.id}, 'analista')" 
+                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2" title="Encaminhar para Analista">
+                            <i data-lucide="user-check" class="w-3 h-3 mr-1"></i> Analista
+                        </button>`;
+                } 
+                // Se Vistoriado -> Serviço
+                else if (statusName.toLowerCase().includes('vistoriado')) {
+                    forwardButton = `
+                        <button onclick="openForwardModal(${m.id}, 'servico')" 
+                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2" title="Encaminhar para Serviço">
+                            <i data-lucide="hammer" class="w-3 h-3 mr-1"></i> Serviço
+                        </button>`;
                 }
-            });
 
-            // para o bloco "todas", se existir um placeholder com data-all="true"
-            const allPlaceholder = document.querySelector('[data-all="true"]');
-            if (allPlaceholder) {
-                allPlaceholder.innerHTML = renderTable(Object.values(messages));
-            }
-        });
+                return `
+                <tr class="border-t hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 align-top text-sm text-gray-500">${escapeHtml(created)}</td>
+                    <td class="px-6 py-4 align-top">
+                        <div class="text-sm font-medium text-gray-900">
+                            <span class="font-semibold text-[#358054]">${escapeHtml(topico)}</span> - ${escapeHtml(endereco)}
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">${escapeHtml(descricao.substring(0,100))}...</div>
+                    </td>
+                    <td class="px-6 py-4 align-top text-right text-sm">
+                        <div class="flex justify-end gap-2 items-center">
+                            ${forwardButton}
+                            <button onclick="openViewModal(${m.id})" class="px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947]">Ver</button>
+                            <button onclick="openStatusModal(${m.id})" class="px-3 py-1.5 bg-blue-700 text-white rounded text-xs font-semibold hover:bg-blue-600">Atualizar</button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
 
-
-        // VIEW MODAL (Função para abrir modal de detalhes)
-        function openViewModal(id) {
-            currentViewingId = id;
-            let m = messages[id];
-
-            // NOVO: Preenche o tópico
-            document.getElementById('view-topico').textContent = m.topico ?? '(Não informado)';
-            
-            document.getElementById('view-nome').textContent = m.user?.name ?? m.nome_solicitante;
-            document.getElementById('view-email').textContent = m.user?.email ?? m.email_solicitante;
-            document.getElementById('view-endereco').textContent = `${m.bairro}, ${m.rua}, ${m.numero}`;
-            document.getElementById('view-descricao').textContent = m.descricao;
-
-            document.getElementById('modal-view').classList.remove('hidden');
-            document.getElementById('modal-view').classList.add('flex');
+            return `<div class="overflow-x-auto"><table class="min-w-full table-fixed divide-y divide-gray-200">
+                <thead class="bg-gray-50"><tr>
+                    <th class="px-6 py-3 w-1/4 text-left text-xs text-gray-500 uppercase">Data</th>
+                    <th class="px-6 py-3 w-2/4 text-left text-xs text-gray-500 uppercase">Solicitação</th>
+                    <th class="px-6 py-3 w-1/4 text-right text-xs text-gray-500 uppercase">Ações</th>
+                </tr></thead>
+                <tbody class="bg-white">${rows}</tbody>
+            </table></div>`;
         }
 
-        // FOTOS MODAL (Função para abrir modal de fotos)
-        function openFotosModal(id) {
-            let m = messages[id];
-
-            const container = document.getElementById('fotos-container');
-            container.innerHTML = '';
+        // --- LÓGICA DO MODAL DE ENCAMINHAMENTO ---
+        function openForwardModal(id, type) {
+            currentForwardingId = id;
+            const title = document.getElementById('forward-title');
+            const label = document.getElementById('forward-label');
+            const select = document.getElementById('forward-user-select');
+            const inputType = document.getElementById('forward-type-input');
             
-            // Tenta parsear o JSON de fotos, se for string
-            let fotos = m.fotos;
-            if (typeof fotos === 'string') {
-                try {
-                    fotos = JSON.parse(fotos);
-                } catch (e) {
-                    console.error("Erro ao fazer parse do JSON de fotos:", e);
-                    fotos = [];
-                }
-            } else if (!Array.isArray(fotos)) {
-                fotos = [];
+            let users = [];
+            
+            // Aqui decidimos qual lista usar (Analistas ou Serviços)
+            if (type === 'analista') {
+                title.textContent = 'Encaminhar para Analista';
+                label.textContent = 'Selecione o Analista:';
+                inputType.value = 'analista';
+                users = analistas;
+            } else if (type === 'servico') {
+                title.textContent = 'Encaminhar para Equipe de Serviço';
+                label.textContent = 'Selecione a Equipe:';
+                inputType.value = 'servico';
+                users = servicos; // Usa a lista de serviços correta
             }
 
-            if (fotos.length > 0) {
-                fotos.forEach(path => {
-                    const fullPath = `/storage/${path}`;
-                    let img = document.createElement('img');
-                    img.src = fullPath;
-                    img.className = "w-full h-64 object-cover rounded-lg shadow cursor-pointer transition hover:opacity-80";
-                    img.onclick = () => openLightbox(fullPath); // NOVO: Abre lightbox ao clicar
-                    container.appendChild(img);
+            select.innerHTML = '<option value="" disabled selected>Selecione...</option>';
+            if(users.length === 0) {
+                const opt = document.createElement('option');
+                opt.text = "Nenhum cadastrado encontrado";
+                select.add(opt);
+            } else {
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = u.name;
+                    select.appendChild(opt);
                 });
-            } else {
-                container.innerHTML = `<p class="text-center text-gray-500 text-lg">Nenhuma foto enviada.</p>`;
             }
 
-            document.getElementById('modal-fotos').classList.remove('hidden');
-            document.getElementById('modal-fotos').classList.add('flex');
-        }
-
-        function closeFotosModal() {
-            document.getElementById('modal-fotos').classList.add('hidden');
-            document.getElementById('modal-fotos').classList.remove('flex');
-        }
-        
-        // LIGHTBOX (Funções para tela cheia)
-        function openLightbox(src) {
-            const lightbox = document.getElementById('lightbox-admin');
-            const img = document.getElementById('lightbox-img-admin');
-            img.src = src;
-            lightbox.style.display = 'flex';
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox-admin').style.display = 'none';
-            document.getElementById('lightbox-img-admin').src = '';
-        }
-
-        function closeViewModal() {
-            document.getElementById('modal-view').classList.add('hidden');
-            document.getElementById('modal-view').classList.remove('flex');
-        }
-
-        // STATUS MODAL: abre e preenche
-        let currentEditingId = null;
-        function openStatusModal(id) {
-            currentEditingId = id;
+            // Pré-selecionar (se já houver encaminhamento)
             const m = messages[id];
+            if (type === 'analista' && m.analyst_id) select.value = m.analyst_id;
+            if (type === 'servico' && m.service_id) select.value = m.service_id;
 
-            // preenche select e justificativa
-            document.getElementById('status-select').value = m.status_id ?? '';
-            document.getElementById('status-justificativa').value = m.justificativa ?? '';
-
-            // esconder justificativa por padrão e só mostrar para Indef/ Sem Pendencias
-            toggleJustificativaVisibility();
-
-            document.getElementById('modal-status').classList.remove('hidden');
-            document.getElementById('modal-status').classList.add('flex');
+            document.getElementById('modal-forward').classList.remove('hidden');
+            document.getElementById('modal-forward').classList.add('flex');
         }
 
-        function closeStatusModal() {
-            document.getElementById('modal-status').classList.add('hidden');
-            document.getElementById('modal-status').classList.remove('flex');
-            currentEditingId = null;
+        function closeForwardModal() {
+            document.getElementById('modal-forward').classList.add('hidden');
+            document.getElementById('modal-forward').classList.remove('flex');
+            currentForwardingId = null;
         }
 
-        // quando change no select
-        document.getElementById('status-select').addEventListener('change', toggleJustificativaVisibility);
-        function toggleJustificativaVisibility() {
-            const select = document.getElementById('status-select');
-            const justBox = document.getElementById('just-box');
-            const chosen = select.options[select.selectedIndex].text;
-            if (chosen === 'Indeferido' || chosen === 'Sem Pendências') {
-                justBox.style.display = 'block';
-            } else {
-                justBox.style.display = 'none';
-                document.getElementById('status-justificativa').value = '';
-            }
-        }
-
-        // submit do form: envia via AJAX PATCH para /pbi-admin/contacts/{id}
-        async function submitStatusForm(e) {
+        async function submitForwardForm(e) {
             e.preventDefault();
-            if (!currentEditingId) return;
+            if (!currentForwardingId) return;
 
-            const url = `/pbi-admin/contacts/${currentEditingId}`; // sua rota PATCH
+            const url = `/pbi-admin/contacts/${currentForwardingId}/forward`;
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            const form = document.getElementById('status-form');
+            const form = document.getElementById('forward-form');
             const fd = new FormData(form);
-            // _method = PATCH (laravel)
+            
+            // Tratamento Manual para enviar para o campo certo do Banco
+            const type = fd.get('forward_type');
+            const userId = fd.get('user_id');
+            
+            if (type === 'analista') fd.append('analyst_id', userId);
+            if (type === 'servico') fd.append('service_id', userId);
+            
             fd.append('_method', 'PATCH');
 
             try {
                 const res = await fetch(url, {
-                    method: 'POST', // usamos POST + _method=PATCH para compatibilidade
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                        'Accept': 'application/json'
-                    },
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
                     body: fd
                 });
 
                 if (!res.ok) {
-                    const err = await res.json().catch(() => null);
-                    alert(err?.message || 'Erro ao atualizar status.');
+                    alert('Erro ao encaminhar.');
                     return;
                 }
 
-                const data = await res.json();
-                // atualiza a mensagem localmente
-                messages[data.contact.id] = data.contact;
-
-                // fecha modal e atualiza interface
-                closeStatusModal();
+                alert('Encaminhado com sucesso!');
                 location.reload();
-
             } catch (err) {
                 console.error(err);
-                alert('Erro de rede ao atualizar status.');
+                alert('Erro de conexão.');
             }
-            return false;
         }
 
-        lucide.createIcons();
+        // --- MANIPULAÇÃO DOS OUTROS MODAIS (View, Fotos, Status) ---
+        function openViewModal(id) {
+            currentViewingId = id;
+            let m = messages[id];
+            document.getElementById('view-topico').textContent = m.topico ?? '';
+            document.getElementById('view-nome').textContent = m.user?.name ?? m.nome_solicitante;
+            document.getElementById('view-email').textContent = m.user?.email ?? m.email_solicitante;
+            document.getElementById('view-endereco').textContent = `${m.bairro}, ${m.rua}, ${m.numero}`;
+            document.getElementById('view-descricao').textContent = m.descricao;
+            document.getElementById('modal-view').classList.remove('hidden');
+            document.getElementById('modal-view').classList.add('flex');
+        }
+        function closeViewModal() { document.getElementById('modal-view').classList.add('hidden'); document.getElementById('modal-view').classList.remove('flex'); }
+
+        function openFotosModal(id) {
+            let m = messages[id];
+            const container = document.getElementById('fotos-container');
+            container.innerHTML = '';
+            let fotos = m.fotos;
+            if (typeof fotos === 'string') { try { fotos = JSON.parse(fotos); } catch(e){ fotos=[]; } }
+            if (!Array.isArray(fotos)) fotos = [];
+            if (fotos.length > 0) {
+                fotos.forEach(path => {
+                    let img = document.createElement('img');
+                    img.src = `/storage/${path}`;
+                    img.className = "w-full h-64 object-cover rounded-lg shadow cursor-pointer hover:opacity-80";
+                    img.onclick = () => { document.getElementById('lightbox-img-admin').src = img.src; document.getElementById('lightbox-admin').style.display = 'flex'; };
+                    container.appendChild(img);
+                });
+            } else { container.innerHTML = `<p class="text-gray-500">Sem fotos.</p>`; }
+            document.getElementById('modal-fotos').classList.remove('hidden');
+            document.getElementById('modal-fotos').classList.add('flex');
+        }
+        function closeFotosModal() { document.getElementById('modal-fotos').classList.add('hidden'); document.getElementById('modal-fotos').classList.remove('flex'); }
+        function closeLightbox() { document.getElementById('lightbox-admin').style.display = 'none'; }
+
+        function openStatusModal(id) {
+            currentEditingId = id;
+            const m = messages[id];
+            document.getElementById('status-select').value = m.status_id ?? '';
+            document.getElementById('status-justificativa').value = m.justificativa ?? '';
+            toggleJustificativaVisibility();
+            document.getElementById('modal-status').classList.remove('hidden');
+            document.getElementById('modal-status').classList.add('flex');
+        }
+        function closeStatusModal() { document.getElementById('modal-status').classList.add('hidden'); document.getElementById('modal-status').classList.remove('flex'); }
+        document.getElementById('status-select').addEventListener('change', toggleJustificativaVisibility);
+        function toggleJustificativaVisibility() {
+            const select = document.getElementById('status-select');
+            const justBox = document.getElementById('just-box');
+            const chosen = select.options[select.selectedIndex]?.text || '';
+            justBox.style.display = (chosen === 'Indeferido' || chosen === 'Sem Pendências') ? 'block' : 'none';
+        }
+        async function submitStatusForm(e) {
+            e.preventDefault();
+            const url = `/pbi-admin/contacts/${currentEditingId}`;
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const fd = new FormData(document.getElementById('status-form'));
+            fd.append('_method', 'PATCH');
+            await fetch(url, { method: 'POST', headers: {'X-CSRF-TOKEN': token}, body: fd }).then(()=>{ location.reload() });
+        }
+        
+        if(window.lucide) lucide.createIcons();
     </script>
 
-    {{-- placeholders preenchidos pelo blade com data (facilita render JS) --}}
+    {{-- SCRIPT CRÍTICO: GERA OS GRUPOS (Accordion) NO HTML --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const container = document.getElementById('mensagens-container');
+            
             @if ($filtro === 'pendentes')
                 @php
-            foreach($groupsPendentes as $group){
-                $ids = $messages -> filter(fn($m)=> $m -> status && $m -> status -> name === $group) -> pluck('id') -> values();
-                $jsonIds = $ids -> toJson();
+                foreach($groupsPendentes as $group){
+                    $ids = $messages->filter(fn($m) => $m->status && $m->status->name === $group)->pluck('id')->values();
+                    $jsonIds = $ids->toJson();
                 @endphp
                     (function () {
                         const block = document.createElement('div');
-                        block.setAttribute('x-data', '{ open: true }'); // Deixar aberto por padrão no filtro pendente
+                        block.setAttribute('x-data', '{ open: true }');
                         block.innerHTML = `
                     <h3 @click="open = !open" class="mt-6 text-xl font-semibold cursor-pointer" style="color: {{ $statusColors[$group] ?? '#333' }};">
                         {{ $group }}
                         <svg class="w-4 h-4 ml-1 inline-block transform transition-transform"
                              :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M19 9l-7 7-7-7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </h3>
-                    <div x-show="open" class="mt-4 lista-placeholder" data-ids='{!! $jsonIds !!}'></div>
-                `;
+                    <div x-show="open" class="mt-4 lista-placeholder" data-ids='{!! $jsonIds !!}'></div>`;
                         container.appendChild(block);
                     })();
                 @php
-            }
-            @endphp
+                }
+                @endphp
+
             @elseif($filtro === 'resolvidas')
                 @php
-            foreach($groupsResolvidas as $group){
-                $ids = $messages -> filter(fn($m)=> $m -> status && $m -> status -> name === $group) -> pluck('id') -> values();
-                $jsonIds = $ids -> toJson();
+                foreach($groupsResolvidas as $group){
+                    $ids = $messages->filter(fn($m) => $m->status && $m->status->name === $group)->pluck('id')->values();
+                    $jsonIds = $ids->toJson();
                 @endphp
                     (function () {
                         const block = document.createElement('div');
-                        block.setAttribute('x-data', '{ open: true }'); // Deixar aberto por padrão no filtro resolvido
+                        block.setAttribute('x-data', '{ open: true }');
                         block.innerHTML = `
                     <h3 @click="open = !open" class="mt-6 text-xl font-semibold cursor-pointer" style="color: {{ $statusColors[$group] ?? '#333' }};">
                         {{ $group }}
                         <svg class="w-4 h-4 ml-1 inline-block transform transition-transform"
                              :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M19 9l-7 7-7-7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </h3>
-                    <div x-show="open" class="mt-4 lista-placeholder" data-ids='{!! $jsonIds !!}'></div>
-                `;
+                    <div x-show="open" class="mt-4 lista-placeholder" data-ids='{!! $jsonIds !!}'></div>`;
                         container.appendChild(block);
                     })();
                 @php
-            }
-            @endphp
+                }
+                @endphp
+
             @else
-            const allDiv = document.createElement('div');
-            allDiv.className = 'lista-placeholder';
-            allDiv.setAttribute('data-all', 'true');
-            container.appendChild(allDiv);
+                // Filtro "Todas"
+                const allDiv = document.createElement('div');
+                allDiv.className = 'lista-placeholder';
+                allDiv.setAttribute('data-all', 'true');
+                container.appendChild(allDiv);
             @endif
 
-            // renderiza as tabelas depois que os blocos estão prontos
+            // Renderiza as tabelas dentro dos grupos criados acima
             setTimeout(() => {
                 document.querySelectorAll('.lista-placeholder').forEach(div => {
                     const ids = JSON.parse(div.getAttribute('data-ids') || '[]');
                     const itens = ids.map(i => messages[i]).filter(Boolean);
                     div.innerHTML = renderTable(itens);
                 });
-
                 const allPlaceholder = document.querySelector('[data-all="true"]');
-                if (allPlaceholder) {
-                    allPlaceholder.innerHTML = renderTable(Object.values(messages));
-                }
+                if (allPlaceholder) allPlaceholder.innerHTML = renderTable(Object.values(messages));
+                
+                if(window.lucide) lucide.createIcons();
             }, 200);
         });
     </script>
 
 </body>
-
 </html>
 @endsection

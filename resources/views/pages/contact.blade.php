@@ -217,6 +217,7 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Descrição *</label>
+                        <small class="text-gray-500 mt-1 block">Descreva a situação da árvore e forneça um ponto de referência para facilitar a localização.</small>
                         <textarea name="descricao" rows="6" required
                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg">{{ old('descricao') }}</textarea>
                     </div>

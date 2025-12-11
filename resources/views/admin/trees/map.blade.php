@@ -1,9 +1,12 @@
 @extends('layouts.dashboard')
 
 @section('content')
-    <h2 class="text-3xl font-bold text-[#358054] mb-8">
+<div class="perfil-box inline-block">
+<h2 class="text-3xl font-bold text-[#358054] mb-0">
         Painel de Administração – Mapa de Árvores
     </h2>
+</div>
+    
 
     {{-- ALERTAS --}}
     @if (session('success'))
