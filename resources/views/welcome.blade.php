@@ -263,10 +263,11 @@
         maxBoundsViscosity: 1.0
     });
 
-    L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        { attribution: "Tiles © Esri" }
-    ).addTo(map);
+    L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    maxZoom: 22,
+    attribution: 'Google'
+}).addTo(map);
+
 
     L.tileLayer(
         "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png",
