@@ -78,10 +78,25 @@
                     </p>
                 </div>
                 <div>
-                    <span class="text-gray-600">Coordenadas Geográficas:</span>
+                    <span class="font-bold underline mb-1">Coordenadas Geográficas:</span>
+                      <div class="grid grid-cols-2 gap-4"> 
                     {{-- Usando observações para lat_long como placeholder, se não houver campos dedicados --}}
-                    <p class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50">
-                        {{ $os->latitude ?? 'Não registrado' }} (Latitude) / {{ $os->longitude ?? 'Não registrado' }} (Longitude)
+                    {{-- ALTERAÇÃO AQUI: Dividir Latitude e Longitude em dois campos visuais --}}
+              
+                    <div>
+                        <span class="text-gray-600">Latitude:</span>
+                        <p class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50">
+                            {{ $os->latitude ?? 'Não registrado' }}
+                        </p>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Longitude:</span>
+                        <p class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50">
+                            {{ $os->longitude ?? 'Não registrado' }}
+                        </p>
+                    </div>
+                </div>
+                {{-- FIM DA ALTERAÇÃO --}}
                     </p>
                 </div>
             </div>
