@@ -21,16 +21,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <style>
-        #lightbox-admin {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
-            display: none; align-items: center; justify-content: center; z-index: 99999;
-        }
-        #lightbox-admin img {
-            max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain;
-        }
-        #lightbox-close-admin {
-            position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer;
-        }
+        #lightbox-admin { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); display: none; align-items: center; justify-content: center; z-index: 99999; }
+        #lightbox-admin img { max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
+        #lightbox-close-admin { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer; }
     </style>
 </head>
 
@@ -51,22 +44,11 @@
             {{-- Botões de Filtro --}}
             <div class="flex items-center justify-center relative mb-6">
                 <div class="flex justify-center gap-6">
-                    <a href="{{ route('admin.contato.index') }}?filtro=todas" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
-                    {{ $filtro === 'todas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
-                        Todas
-                    </a>
-                    <a href="{{ route('admin.contato.index') }}?filtro=pendentes" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
-                    {{ $filtro === 'pendentes' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
-                        Pendentes
-                    </a>
-                    <a href="{{ route('admin.contato.index') }}?filtro=resolvidas" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all
-                    {{ $filtro === 'resolvidas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
-                        Resolvidas
-                    </a>
+                    <a href="{{ route('admin.contato.index') }}?filtro=todas" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all {{ $filtro === 'todas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Todas</a>
+                    <a href="{{ route('admin.contato.index') }}?filtro=pendentes" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all {{ $filtro === 'pendentes' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Pendentes</a>
+                    <a href="{{ route('admin.contato.index') }}?filtro=resolvidas" class="px-6 py-3 min-w-[140px] text-center rounded-lg font-semibold shadow-sm transition-all {{ $filtro === 'resolvidas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Resolvidas</a>
                 </div>
-                <div class="absolute right-0 text-sm text-gray-600">
-                    Total: {{ $messages->count() }}
-                </div>
+                <div class="absolute right-0 text-sm text-gray-600">Total: {{ $messages->count() }}</div>
             </div>
 
             @php
@@ -79,13 +61,13 @@
             ];
             @endphp
 
-            {{-- Container onde as tabelas serão desenhadas --}}
             <div id="mensagens-container"></div>
         </div>
     </main>
 
     {{-- MODAIS --}}
 
+    {{-- Modal Detalhes (Visualizar) --}}
     <div id="modal-view" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-2xl rounded-xl shadow-xl p-6 relative">
             <button onclick="closeViewModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"><i data-lucide="x"></i></button>
@@ -101,6 +83,7 @@
         </div>
     </div>
     
+    {{-- Modal Fotos --}}
     <div id="modal-fotos" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[9999]">
         <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative">
             <button onclick="closeFotosModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"><i data-lucide="x"></i></button>
@@ -108,12 +91,12 @@
             <div id="fotos-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-auto p-2"></div>
         </div>
     </div>
-
     <div id="lightbox-admin" onclick="closeLightbox()" style="display: none;">
         <span id="lightbox-close-admin">×</span>
         <img id="lightbox-img-admin" src="">
     </div>
 
+    {{-- Modal Atualizar Status --}}
     <div id="modal-status" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
             <button onclick="closeStatusModal()" class="absolute top-3 right-3 text-gray-600"><i data-lucide="x"></i></button>
@@ -132,6 +115,7 @@
         </div>
     </div>
 
+    {{-- MODAL DE ENCAMINHAMENTO --}}
     <div id="modal-forward" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
             <button onclick="closeForwardModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"><i data-lucide="x"></i></button>
@@ -141,10 +125,12 @@
             <form id="forward-form" onsubmit="return submitForwardForm(event)" class="space-y-3">
                 @csrf @method('PATCH')
                 
-                <input type="hidden" name="forward_type" id="forward-type-input">
-                
+                {{-- Campo oculto para saber se é 'analista' ou 'servico' --}}
+                <input type="hidden" name="forward_type" id="forward_type">
+
+                {{-- Select Único --}}
                 <label id="forward-label" class="font-semibold">Selecione:</label>
-                <select name="user_id" id="forward-user-select" class="w-full rounded-md border-gray-300 shadow-sm" required>
+                <select id="forward-user-select" class="w-full rounded-md border-gray-300 shadow-sm" required>
                     <option value="">Carregando...</option>
                 </select>
 
@@ -157,13 +143,10 @@
 
     {{-- SCRIPTS JS --}}
     <script>
-        // Dados PHP -> JS
         const messages = @json($messages->keyBy('id'));
-        // Agora recebemos as listas das tabelas específicas
         const analistas = @json($analistas ?? []);
         const servicos = @json($servicos ?? []);
 
-        // Controle de IDs
         let currentViewingId = null;
         let currentEditingId = null;
         let currentForwardingId = null;
@@ -173,7 +156,7 @@
             return String(unsafe).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // RENDERIZA A TABELA (Aqui é onde o botão aparece)
+        // RENDERIZA A TABELA (COM A NOVA LÓGICA DE BOTÕES)
         function renderTable(itens) {
             if (!itens || itens.length === 0) return `<p class="text-gray-400 mt-2 ml-2">Nenhuma solicitação neste grupo.</p>`;
 
@@ -184,25 +167,31 @@
                 const descricao = m.descricao ?? '';
                 const statusName = m.status ? m.status.name.trim() : '';
 
-                // Lógica dos Botões (LARANJA)
+                // --- LÓGICA DOS BOTÕES DE ENCAMINHAMENTO ---
                 let forwardButton = '';
                 
-                // Se Deferido -> Analista
-                if (statusName.toLowerCase().includes('deferido')) {
+                // 1. Botão Analista: SÓ SE ESTIVER "DEFERIDO"
+                if (statusName === 'Deferido') {
                     forwardButton = `
                         <button onclick="openForwardModal(${m.id}, 'analista')" 
                             class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2" title="Encaminhar para Analista">
                             <i data-lucide="user-check" class="w-3 h-3 mr-1"></i> Analista
                         </button>`;
                 } 
-                // Se Vistoriado -> Serviço
-                else if (statusName.toLowerCase().includes('vistoriado')) {
+                // 2. Botão Serviço: SÓ SE ESTIVER "VISTORIADO"
+                else if (statusName === 'Vistoriado') {
                     forwardButton = `
                         <button onclick="openForwardModal(${m.id}, 'servico')" 
                             class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2" title="Encaminhar para Serviço">
                             <i data-lucide="hammer" class="w-3 h-3 mr-1"></i> Serviço
                         </button>`;
                 }
+
+                // 3. Botão Status: COR AZUL e TEXTO "ATUALIZAR STATUS"
+                const btnStatus = `
+                    <button onclick="openStatusModal(${m.id})" class="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700">
+                        Atualizar Status
+                    </button>`;
 
                 return `
                 <tr class="border-t hover:bg-gray-50 transition">
@@ -217,7 +206,7 @@
                         <div class="flex justify-end gap-2 items-center">
                             ${forwardButton}
                             <button onclick="openViewModal(${m.id})" class="px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947]">Ver</button>
-                            <button onclick="openStatusModal(${m.id})" class="px-3 py-1.5 bg-blue-700 text-white rounded text-xs font-semibold hover:bg-blue-600">Atualizar</button>
+                            ${btnStatus}
                         </div>
                     </td>
                 </tr>`;
@@ -233,47 +222,40 @@
             </table></div>`;
         }
 
-        // --- LÓGICA DO MODAL DE ENCAMINHAMENTO ---
+        // --- MODAL ENCAMINHAMENTO ---
         function openForwardModal(id, type) {
             currentForwardingId = id;
             const title = document.getElementById('forward-title');
             const label = document.getElementById('forward-label');
             const select = document.getElementById('forward-user-select');
-            const inputType = document.getElementById('forward-type-input');
+            const inputType = document.getElementById('forward_type');
             
-            let users = [];
+            inputType.value = type;
+            select.innerHTML = '<option value="" disabled selected>Selecione...</option>';
             
-            // Aqui decidimos qual lista usar (Analistas ou Serviços)
+            let lista = [];
             if (type === 'analista') {
                 title.textContent = 'Encaminhar para Analista';
                 label.textContent = 'Selecione o Analista:';
-                inputType.value = 'analista';
-                users = analistas;
-            } else if (type === 'servico') {
+                lista = analistas;
+            } else {
                 title.textContent = 'Encaminhar para Equipe de Serviço';
                 label.textContent = 'Selecione a Equipe:';
-                inputType.value = 'servico';
-                users = servicos; // Usa a lista de serviços correta
+                lista = servicos;
             }
 
-            select.innerHTML = '<option value="" disabled selected>Selecione...</option>';
-            if(users.length === 0) {
+            if(lista.length === 0) {
                 const opt = document.createElement('option');
                 opt.text = "Nenhum cadastrado encontrado";
                 select.add(opt);
             } else {
-                users.forEach(u => {
+                lista.forEach(u => {
                     const opt = document.createElement('option');
                     opt.value = u.id;
                     opt.textContent = u.name;
                     select.appendChild(opt);
                 });
             }
-
-            // Pré-selecionar (se já houver encaminhamento)
-            const m = messages[id];
-            if (type === 'analista' && m.analyst_id) select.value = m.analyst_id;
-            if (type === 'servico' && m.service_id) select.value = m.service_id;
 
             document.getElementById('modal-forward').classList.remove('hidden');
             document.getElementById('modal-forward').classList.add('flex');
@@ -289,41 +271,49 @@
             e.preventDefault();
             if (!currentForwardingId) return;
 
-            const url = `/pbi-admin/contacts/${currentForwardingId}/forward`;
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const form = document.getElementById('forward-form');
-            const fd = new FormData(form);
-            
-            // Tratamento Manual para enviar para o campo certo do Banco
-            const type = fd.get('forward_type');
-            const userId = fd.get('user_id');
-            
-            if (type === 'analista') fd.append('analyst_id', userId);
-            if (type === 'servico') fd.append('service_id', userId);
-            
+            const url = `/pbi-admin/contacts/${currentForwardingId}/forward`;
+
+            const type = document.getElementById('forward_type').value;
+            const selectedId = document.getElementById('forward-user-select').value;
+
+            if(!selectedId) {
+                alert("Selecione um responsável.");
+                return;
+            }
+
+            const fd = new FormData();
             fd.append('_method', 'PATCH');
 
+            if (type === 'analista') {
+                fd.append('analyst_id', selectedId);
+            } else {
+                fd.append('service_id', selectedId);
+            }
+
             try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                const req = await fetch(url, {
+                    method: "POST",
+                    headers: { "X-CSRF-TOKEN": token, 'Accept': 'application/json' },
                     body: fd
                 });
 
-                if (!res.ok) {
-                    alert('Erro ao encaminhar.');
-                    return;
-                }
+                const res = await req.json();
 
-                alert('Encaminhado com sucesso!');
-                location.reload();
+                if (req.ok) {
+                    alert('Encaminhado com sucesso!');
+                    location.reload();
+                } else {
+                    console.error(res);
+                    alert("Erro ao encaminhar: " + (res.message || 'Verifique o console'));
+                }
             } catch (err) {
                 console.error(err);
                 alert('Erro de conexão.');
             }
         }
 
-        // --- MANIPULAÇÃO DOS OUTROS MODAIS (View, Fotos, Status) ---
+        // --- MANIPULAÇÃO DOS OUTROS MODAIS ---
         function openViewModal(id) {
             currentViewingId = id;
             let m = messages[id];
@@ -388,7 +378,6 @@
         if(window.lucide) lucide.createIcons();
     </script>
 
-    {{-- SCRIPT CRÍTICO: GERA OS GRUPOS (Accordion) NO HTML --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const container = document.getElementById('mensagens-container');
@@ -442,14 +431,12 @@
                 @endphp
 
             @else
-                // Filtro "Todas"
                 const allDiv = document.createElement('div');
                 allDiv.className = 'lista-placeholder';
                 allDiv.setAttribute('data-all', 'true');
                 container.appendChild(allDiv);
             @endif
 
-            // Renderiza as tabelas dentro dos grupos criados acima
             setTimeout(() => {
                 document.querySelectorAll('.lista-placeholder').forEach(div => {
                     const ids = JSON.parse(div.getAttribute('data-ids') || '[]');
