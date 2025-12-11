@@ -1,80 +1,239 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Ordem de Serviço')
+@section('title', 'Ordem de Serviço #' . $os->id)
 
 @section('content')
-<div class="bg-white shadow rounded-lg p-6">
 
-    {{-- Cabeçalho --}}
+{{-- Define as listas completas de opções para MOTIVOS, SERVIÇOS e EQUIPAMENTOS --}}
+@php
+    // Estas listas devem ser idênticas às usadas no formulário do Analista
+    $todosMotivos = [
+        'Risco de Queda' => 'Risco de queda',
+        'Conflito rede eletrica' => 'Conflito com rede elétrica',
+        'Danos infraestrutura' => 'Danos à infraestrutura',
+        'Outras' => 'Outras razões',
+    ];
+
+    $todosServicos = [
+        'Levantamento copa' => 'Poda de levantamento de copa',
+        'Desobstrucao' => 'Poda de desobstrução de rede',
+        'Limpeza' => 'Poda de limpeza',
+        'Adequacao' => 'Poda de adequação',
+        'Remocao Total' => 'Remoção total da árvore',
+        'Outras' => 'Outras intervenções',
+    ];
+
+    $todosEquipamentos = [
+        'Motosserra' => 'Motosserra',
+        'Motopoda' => 'Motopoda',
+        'EPIs' => 'EPIs',
+        'Cordas' => 'Cordas',
+        'Cones' => 'Cones',
+        'Caminhão' => 'Caminhão',
+    ];
+@endphp
+
+<div class="max-w-4xl mx-auto bg-white p-8 shadow-2xl rounded-lg border-t-8 border-[#358054]">
+
+    {{-- TÍTULO DO DOCUMENTO --}}
     <div class="flex justify-between items-center mb-6 border-b pb-4">
         <div class="flex items-center gap-2">
             <img src="{{ asset('images/Brasao_Verde.png') }}" class="h-16 w-auto" alt="Logo">
             <div class="text-xs text-gray-600 leading-tight font-bold uppercase">
-                Estado do Rio de Janeiro<br>
-                Município de Paracambi<br>
-                Secretaria Municipal de Meio Ambiente
+                ESTADO DO RIO DE JANEIRO<br>
+                MUNICÍPIO DE PARACAMBI<br>
+                SECRETARIA MUNICIPAL DE MEIO AMBIENTE
             </div>
         </div>
         <div class="text-right">
-            <h3 class="text-lg font-bold text-gray-800 uppercase border-b-2 border-black">Ordem de Serviço</h3>
+            <h3 class="text-lg font-bold text-gray-800 uppercase border-b-2 border-black">ORDEM DE SERVIÇO</h3>
             <p class="text-sm font-bold mt-1">Poda e Remoção de Árvores</p>
+            <p class="text-xl font-bold text-black">#OS-{{ $os->id }}</p>
         </div>
     </div>
 
-    {{-- Dados da OS --}}
-    <div class="grid grid-cols-2 gap-4 mb-2 border-b border-gray-300 pb-2">
-        <div>
-            <label class="font-bold block text-gray-700">Nº Solicitação:</label>
-            <input type="text" class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1" value="{{ $os->contact->id }}" readonly>
-        </div>
-        <div>
-            <label class="font-bold block text-gray-700">Data:</label>
-            <input type="text" class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1" value="{{ \Carbon\Carbon::parse($os->created_at)->format('d/m/Y') }}" readonly>
-        </div>
-    </div>
+    {{-- INÍCIO DA REPLICAÇÃO DO FORMULÁRIO --}}
+    <div class="text-sm">
 
-    {{-- Identificação da Área --}}
-    <div class="mb-2 border-b border-gray-300 pb-2">
-        <h4 class="font-bold underline mb-1">Identificação da Área</h4>
-        <div class="grid grid-cols-1 gap-2">
+        {{-- DADOS DA SOLICITAÇÃO --}}
+        <div class="grid grid-cols-2 gap-4 mb-4 border-b border-gray-300 pb-2">
             <div>
-                <span class="text-gray-600">Endereço:</span>
-                <input type="text" class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50" value="{{ $os->contact->rua }}, {{ $os->contact->numero ?? '' }} - {{ $os->contact->bairro }}" readonly>
+                <label class="font-bold block text-gray-700">Nº Solicitação:</label>
+                <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1">{{ $os->contact->id }}</p>
             </div>
             <div>
-                <span class="text-gray-600">Coordenadas:</span>
-                <input type="text" class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50" value="{{ $os->contact->lat_long ?? '' }}" readonly>
+                <label class="font-bold block text-gray-700">Data:</label>
+                <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1">{{ \Carbon\Carbon::parse($os->contact->created_at)->format('d/m/Y') }}</p>
             </div>
         </div>
-    </div>
 
-    {{-- Serviços, Motivos e Equipamentos --}}
-    <div class="grid grid-cols-3 gap-4 mb-2 border-b border-gray-300 pb-2">
-        <div class="col-span-2">
-            <label class="font-bold block">Serviços:</label>
-            <input type="text" class="w-full border-0 border-b border-gray-400 p-1" value="{{ implode(', ', $os->servicos ?? []) }}" readonly>
+        {{-- IDENTIFICAÇÃO DA ÁREA --}}
+        <div class="mb-4 border-b border-gray-300 pb-2">
+            <h4 class="font-bold underline mb-1">Identificação da Área</h4>
+            <div class="grid grid-cols-1 gap-2">
+                <div>
+                    <span class="text-gray-600">Endereço:</span>
+                    <p class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50">
+                        {{ $os->contact->rua ?? 'N/A' }}{{ $os->contact->numero ? ', ' . $os->contact->numero : '' }} - {{ $os->contact->bairro ?? 'N/A' }}
+                    </p>
+                </div>
+                <div>
+                    <span class="text-gray-600">Coordenadas Geográficas:</span>
+                    {{-- Usando observações para lat_long como placeholder, se não houver campos dedicados --}}
+                    <p class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50">
+                        {{ $os->latitude ?? 'Não registrado' }} (Latitude) / {{ $os->longitude ?? 'Não registrado' }} (Longitude)
+                    </p>
+                </div>
+            </div>
         </div>
-        <div>
-            <label class="font-bold block">Equipamentos:</label>
-            <input type="text" class="w-full border-0 border-b border-gray-400 p-1" value="{{ implode(', ', $os->equipamentos ?? []) }}" readonly>
+
+        {{-- IDENTIFICAÇÃO DAS ÁRVORES --}}
+        <div class="grid grid-cols-3 gap-4 mb-4 border-b border-gray-300 pb-2">
+            <div class="col-span-2">
+                <label class="font-bold block">Espécie(s):</label>
+                {{-- DADO ESTÁTICO (Ajuste se o Analista salvou em observações) --}}
+                <p class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50">{{ $os->especies ?? 'Não informado' }}</p>
+            </div>
+            <div>
+                <label class="font-bold block">Quantidade:</label>
+                {{-- DADO ESTÁTICO --}}
+                <p class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50">{{ $os->quantidade ?? 'Não informado' }}</p>
+            </div>
+        </div>
+
+        {{-- MOTIVO DA INTERVENÇÃO --}}
+        <div class="mb-4 border-b border-gray-300 pb-2 bg-gray-50 p-2 rounded">
+            <h4 class="font-bold underline mb-1">Motivo da Intervenção</h4>
+            <div class="grid grid-cols-2 gap-y-1">
+                @foreach ($todosMotivos as $value => $label)
+                    @php
+                        // Verifica se o valor está no array de motivos salvos na OS
+                        $checked = in_array($value, $os->motivos ?? []);
+                    @endphp
+                    <div class="flex items-center gap-2 text-gray-700">
+                        <i data-lucide="{{ $checked ? 'check-square' : 'square' }}" class="w-4 h-4 text-{{ $checked ? '[#358054]' : 'gray-400' }}"></i>
+                        {{ $label }}
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- SERVIÇOS A SEREM EXECUTADOS --}}
+        <div class="mb-4 border-b border-gray-300 pb-2 bg-gray-50 p-2 rounded">
+            <h4 class="font-bold underline mb-1">Serviços a serem executados</h4>
+            <div class="grid grid-cols-2 gap-y-1">
+                @foreach ($todosServicos as $value => $label)
+                    @php
+                        $checked = in_array($value, $os->servicos ?? []);
+                    @endphp
+                    <div class="flex items-center gap-2 text-gray-700">
+                        <i data-lucide="{{ $checked ? 'check-square' : 'square' }}" class="w-4 h-4 text-{{ $checked ? '[#358054]' : 'gray-400' }}"></i>
+                        {{ $label }}
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- EQUIPAMENTOS E MATERIAIS --}}
+        <div class="mb-4 border-b border-gray-300 pb-2">
+            <h4 class="font-bold underline mb-1">Equipamentos Necessários</h4>
+            <div class="flex flex-wrap gap-4">
+                @foreach ($todosEquipamentos as $value => $label)
+                    @php
+                        $checked = in_array($value, $os->equipamentos ?? []);
+                    @endphp
+                    <div class="flex items-center gap-1 text-gray-700">
+                        <i data-lucide="{{ $checked ? 'check-square' : 'square' }}" class="w-4 h-4 text-{{ $checked ? '[#358054]' : 'gray-400' }}"></i>
+                        {{ $label }}
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- RESPONSABILIDADES E PROCEDIMENTOS (ESTÁTICO) --}}
+        <div class="mb-4 border-b-2 border-gray-400 pb-2 bg-gray-50 p-2 rounded">
+            <h4 class="font-bold text-sm text-black mb-2 border-b border-gray-300">Responsabilidades e Procedimentos (Confirmação)</h4>
+            <div class="flex flex-col gap-2 text-xs text-black">
+                <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300">
+                    <span class="mt-0.5 text-[#358054] font-extrabold text-sm">&#10003;</span>
+                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Segurança:</span><span>Utilização obrigatória de EPIs</span></div>
+                </div>
+                <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300">
+                    <span class="mt-0.5 text-[#358054] font-extrabold text-sm">&#10003;</span>
+                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Sinalização:</span><span>Uso de cones e faixas de segurança</span></div>
+                </div>
+                <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300">
+                    <span class="mt-0.5 text-[#358054] font-extrabold text-sm">&#10003;</span>
+                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Descarte:</span><span>Destino adequado dos resíduos</span></div>
+                </div>
+                <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300">
+                    <span class="mt-0.5 text-[#358054] font-extrabold text-sm">&#10003;</span>
+                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Registro:</span><span>Fotos antes e depois</span></div>
+                </div>
+                <div class="flex items-start gap-2 p-1 rounded">
+                    <span class="mt-0.5 text-[#358054] font-extrabold text-sm">&#10003;</span>
+                    <div class="flex-1 flex"><span class="font-bold w-32 shrink-0">Comunicação:</span><span>Informar imprevistos</span></div>
+                </div>
+            </div>
+        </div>
+
+        {{-- DATAS E OBSERVAÇÕES --}}
+        <div class="grid grid-cols-2 gap-6 mt-4">
+            <div>
+                <label class="font-bold block text-xs uppercase">DATA VISTORIA:</label>
+                <p class="w-full border p-1 rounded bg-gray-50">{{ $os->data_vistoria ? \Carbon\Carbon::parse($os->data_vistoria)->format('d/m/Y') : 'N/A' }}</p>
+            </div>
+            <div>
+                <label class="font-bold block text-xs uppercase">PREVISÃO EXECUÇÃO:</label>
+                <p class="w-full border p-1 rounded bg-gray-50">{{ $os->data_execucao ? \Carbon\Carbon::parse($os->data_execucao)->format('d/m/Y') : 'N/A' }}</p>
+            </div>
+            
+            @if ($os->observacoes)
+            <div class="mt-4 col-span-2">
+                <label class="font-bold block text-xs uppercase">Observações do Analista:</label>
+                <p class="bg-gray-100 p-2 rounded whitespace-pre-wrap">{{ $os->observacoes }}</p>
+            </div>
+            @endif
+        </div>
+
+        {{-- BOTÕES (SOMENTE VOLTAR/IMPRIMIR) --}}
+        <div class="mt-6 flex flex-row-reverse gap-2 col-span-2">
+            <a href="{{ route('admin.os.index') }}" class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:w-auto">
+                <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Voltar para Ordens de Serviço
+            </a>
+            
+            <button onclick="window.print()" class="inline-flex w-full justify-center rounded-md bg-[#beffb4] px-3 py-2 text-sm font-semibold text-black shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-[#a0c520] sm:w-auto print:hidden">
+                <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Imprimir OS
+            </button>
         </div>
     </div>
-
-    <div class="mb-2 border-b border-gray-300 pb-2 bg-gray-50 p-2 rounded">
-        <h4 class="font-bold underline mb-1">Motivos</h4>
-        <p>{{ implode(', ', $os->motivos ?? []) }}</p>
-    </div>
-
-    <div class="grid grid-cols-2 gap-6 mt-4">
-        <div>
-            <label class="font-bold block text-xs uppercase">Data Vistoria:</label>
-            <input type="text" class="w-full border p-1 rounded" value="{{ \Carbon\Carbon::parse($os->data_vistoria)->format('d/m/Y') }}" readonly>
-        </div>
-        <div>
-            <label class="font-bold block text-xs uppercase">Previsão Execução:</label>
-            <input type="text" class="w-full border p-1 rounded" value="{{ $os->data_execucao ? \Carbon\Carbon::parse($os->data_execucao)->format('d/m/Y') : '-' }}" readonly>
-        </div>
-    </div>
-
 </div>
+
+<script>lucide.createIcons();</script>
+
 @endsection
+
+@push('scripts')
+<style>
+@media print {
+    /* Esconde elementos não essenciais na impressão */
+    .site-header, .sidebar, footer {
+        display: none !important;
+    }
+    /* Otimiza a visualização */
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100%;
+        max-width: none !important;
+    }
+    .shadow-2xl, .border-t-8 {
+        box-shadow: none !important;
+        border: none !important;
+    }
+    .print\:hidden {
+        display: none !important;
+    }
+}
+</style>
+@endpush
