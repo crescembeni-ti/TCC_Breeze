@@ -276,3 +276,13 @@ footer {
   left: 20px;
   margin-left: 0;
 }
+
+/* MAPA */
+#map {
+    height: 600px;
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 2px solid #358054;
+    box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.15),
+        0 1px 3px rgba(0, 0, 0, 0.1);
+}

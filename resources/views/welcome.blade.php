@@ -52,13 +52,14 @@
                             {{-- USUÁRIO LOGADO --}}
                         @elseif(auth()->check())
                             <div class="relative group flex items-center">
-                            <a href="{{ route('dashboard') }}"
-                        class="btn bg-green-600 hover:bg-green-700 hidden sm:block px-6 py-3 text-lg rounded-lg">
-                            Menu
-                        </a>
+                                <a href="{{ route('dashboard') }}"
+                                    class="btn bg-green-600 hover:bg-green-700 hidden sm:block px-6 py-3 text-lg rounded-lg">
+                                    Menu
+                                </a>
 
-                        <!-- Tooltip verde no estilo do layout -->
-                    <div class="
+                                <!-- Tooltip verde no estilo do layout -->
+                                <div
+                                    class="
                         absolute 
                         bottom-[-55px]
                         left-1/2
@@ -71,10 +72,11 @@
                         transition-all duration-200
                         whitespace-nowrap
                 ">
-                    Acesse seu painel e opções da conta
+                                    Acesse seu painel e opções da conta
 
-                    <!-- Setinha combinando -->
-                    <span class="
+                                    <!-- Setinha combinando -->
+                                    <span
+                                        class="
                         absolute 
                         top-[-6px] left-1/2 transform -translate-x-1/2
                         w-0 h-0
@@ -82,8 +84,8 @@
                         border-r-[6px] border-r-transparent
                         border-b-[6px] border-b-[#358054]
                         "></span>
-                </div>
-            </div>
+                                </div>
+                            </div>
 
 
 
@@ -242,98 +244,100 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-    /* ============================================================
-       CONFIGURAÇÃO INICIAL DO MAPA
-       ============================================================ */
+        /* ============================================================
+           CONFIGURAÇÃO INICIAL DO MAPA
+           ============================================================ */
 
-    const allBairros = @json($bairros);
-    const INITIAL_VIEW = [-22.6111, -43.7089];
-    const INITIAL_ZOOM = 14;
+        const allBairros = @json($bairros);
+        const INITIAL_VIEW = [-22.6111, -43.7089];
+        const INITIAL_ZOOM = 14;
 
-    const PARACAMBI_BOUNDS = [
-        [-22.7000, -43.8500], 
-        [-22.5000, -43.5500] 
-    ];
+        const PARACAMBI_BOUNDS = [
+            [-22.7000, -43.8500],
+            [-22.5000, -43.5500]
+        ];
 
-    const map = L.map('map', {
-        center: INITIAL_VIEW,
-        zoom: INITIAL_ZOOM,
-        minZoom: 13,
-        maxBounds: PARACAMBI_BOUNDS,
-        maxBoundsViscosity: 1.0
-    });
-
-    L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-    maxZoom: 22,
-    attribution: 'Google'
-}).addTo(map);
-
-
-    L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png",
-        { subdomains: "abcd", maxZoom: 20 }
-    ).addTo(map);
-
-
-    /* ============================================================
-       LAYERS E VARIÁVEIS
-       ============================================================ */
-    let currentTrees = [];    // lista de árvores atualmente exibidas
-    let treeIndexGlobal = 0;  // índice da árvore selecionada
-    let allTrees = [];
-    let filteredTrees = [];
-    let markersLayer = L.layerGroup().addTo(map);
-    let treeMarkers = {};
-
-
-    /* ============================================================
-       BAIRROS (FUNDO)
-       ============================================================ */
-    const bairrosIndex = {};
-    allBairros.forEach(b => bairrosIndex[b.nome.toUpperCase()] = b.id);
-
-    let bairrosGeoLayer = null;
-
-    fetch("/bairros.json")
-        .then(r => r.json())
-        .then(geo => {
-            const cleanedGeo = {
-                type: "FeatureCollection",
-                features: geo.features.filter(f =>
-                    f.geometry.type === "Polygon" ||
-                    f.geometry.type === "MultiPolygon"
-                )
-            };
-
-            cleanedGeo.features.forEach(f => {
-                const nome = (f.properties.BAIRRO || "").toUpperCase();
-                f.properties.id_bairro = bairrosIndex[nome] ?? null;
-            });
-
-            bairrosGeoLayer = L.geoJSON(cleanedGeo, {
-                style: {
-                    color: "#00000020",
-                    weight: 1,
-                    fillOpacity: 0.02,
-                    interactive: false // Importante: deixa clicar através do bairro
-                },
-                onEachFeature: (feature, layer) => {
-                    layer.unbindTooltip();
-                    layer.unbindPopup();
-                }
-            }).addTo(map);
-
-            bairrosGeoLayer.bringToBack();
+        const map = L.map('map', {
+            center: INITIAL_VIEW,
+            zoom: INITIAL_ZOOM,
+            minZoom: 13,
+            maxBounds: PARACAMBI_BOUNDS,
+            maxBoundsViscosity: 1.0
         });
 
+        L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 22,
+            attribution: 'Google'
+        }).addTo(map);
 
-    /* ============================================================
-       UI: PAINEL DE FILTROS E ESTILOS
-       ============================================================ */
-    
-    // Estilos extras para o Popup ficar bonito
-    const customStyles = document.createElement("style");
-    customStyles.innerHTML = `
+
+        L.tileLayer(
+            "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png", {
+                subdomains: "abcd",
+                maxZoom: 20
+            }
+        ).addTo(map);
+
+
+        /* ============================================================
+           LAYERS E VARIÁVEIS
+           ============================================================ */
+        let currentTrees = []; // lista de árvores atualmente exibidas
+        let treeIndexGlobal = 0; // índice da árvore selecionada
+        let allTrees = [];
+        let filteredTrees = [];
+        let markersLayer = L.layerGroup().addTo(map);
+        let treeMarkers = {};
+
+
+        /* ============================================================
+           BAIRROS (FUNDO)
+           ============================================================ */
+        const bairrosIndex = {};
+        allBairros.forEach(b => bairrosIndex[b.nome.toUpperCase()] = b.id);
+
+        let bairrosGeoLayer = null;
+
+        fetch("/bairros.json")
+            .then(r => r.json())
+            .then(geo => {
+                const cleanedGeo = {
+                    type: "FeatureCollection",
+                    features: geo.features.filter(f =>
+                        f.geometry.type === "Polygon" ||
+                        f.geometry.type === "MultiPolygon"
+                    )
+                };
+
+                cleanedGeo.features.forEach(f => {
+                    const nome = (f.properties.BAIRRO || "").toUpperCase();
+                    f.properties.id_bairro = bairrosIndex[nome] ?? null;
+                });
+
+                bairrosGeoLayer = L.geoJSON(cleanedGeo, {
+                    style: {
+                        color: "#00000020",
+                        weight: 1,
+                        fillOpacity: 0.02,
+                        interactive: false // Importante: deixa clicar através do bairro
+                    },
+                    onEachFeature: (feature, layer) => {
+                        layer.unbindTooltip();
+                        layer.unbindPopup();
+                    }
+                }).addTo(map);
+
+                bairrosGeoLayer.bringToBack();
+            });
+
+
+        /* ============================================================
+           UI: PAINEL DE FILTROS E ESTILOS
+           ============================================================ */
+
+        // Estilos extras para o Popup ficar bonito
+        const customStyles = document.createElement("style");
+        customStyles.innerHTML = `
         .bairro-tooltip {
             background: rgba(0,0,0,0.65); color: white; padding: 2px 6px;
             border-radius: 4px; font-size: 11px; font-weight: 600; border: none;
@@ -342,14 +346,14 @@
         .leaflet-popup-content-wrapper { padding: 0; overflow: hidden; }
         .leaflet-popup-content { margin: 0; width: 260px !important; }
     `;
-    document.head.appendChild(customStyles);
+        document.head.appendChild(customStyles);
 
-    const toggleBtn = L.DomUtil.create('button', 'map-filter-toggle');
-    toggleBtn.innerHTML = "Filtros";
-    map.getContainer().appendChild(toggleBtn);
+        const toggleBtn = L.DomUtil.create('button', 'map-filter-toggle');
+        toggleBtn.innerHTML = "Filtros";
+        map.getContainer().appendChild(toggleBtn);
 
-    const panel = L.DomUtil.create("div", "map-filter-panel");
-    panel.innerHTML = `
+        const panel = L.DomUtil.create("div", "map-filter-panel");
+        panel.innerHTML = `
         <label>Pesquisar espécie</label>
         <input type="text" id="search" placeholder="Ex: ipê, pau brasil..." />
         <label>Bairro</label>
@@ -359,10 +363,10 @@
         <button id="aplicarFiltro" class="btn-filter">Filtrar</button>
         <button id="limparFiltro" class="btn-clear">Limpar</button>
     `;
-    map.getContainer().appendChild(panel);
+        map.getContainer().appendChild(panel);
 
-    const css = document.createElement("style");
-    css.innerHTML = `
+        const css = document.createElement("style");
+        css.innerHTML = `
         .map-filter-toggle {
             position: absolute; top: 10px; right: 10px;
             background: #2d7a44; color: white; padding: 8px 16px;
@@ -388,48 +392,48 @@
             background: #777; color: white; font-weight: 600;
         }
     `;
-    document.head.appendChild(css);
+        document.head.appendChild(css);
 
-    toggleBtn.addEventListener("click", () => panel.classList.toggle("open"));
+        toggleBtn.addEventListener("click", () => panel.classList.toggle("open"));
 
 
-    /* ============================================================
-       LÓGICA DAS ÁRVORES E POPUP
-       ============================================================ */
+        /* ============================================================
+           LÓGICA DAS ÁRVORES E POPUP
+           ============================================================ */
 
-    fetch("/api/trees")
-        .then(r => r.json())
-        .then(data => {
-            allTrees = data;
-            popularFiltros(allTrees);
-            exibirArvores(allTrees);
-        });
+        fetch("/api/trees")
+            .then(r => r.json())
+            .then(data => {
+                allTrees = data;
+                popularFiltros(allTrees);
+                exibirArvores(allTrees);
+            });
 
-    function popularFiltros(trees) {
-        const especieSelect = document.getElementById("especie");
-        const bairroSelect = document.getElementById("bairro");
+        function popularFiltros(trees) {
+            const especieSelect = document.getElementById("especie");
+            const bairroSelect = document.getElementById("bairro");
 
-        allBairros.forEach(b => {
-            const opt = document.createElement("option");
-            opt.value = b.id;
-            opt.textContent = b.nome;
-            bairroSelect.appendChild(opt);
-        });
+            allBairros.forEach(b => {
+                const opt = document.createElement("option");
+                opt.value = b.id;
+                opt.textContent = b.nome;
+                bairroSelect.appendChild(opt);
+            });
 
-        const especies = [...new Set(trees.map(t => t.species_name))].sort();
-        especies.forEach(e => {
-            const opt = document.createElement("option");
-            opt.value = e;
-            opt.textContent = e;
-            especieSelect.appendChild(opt);
-        });
-    }
+            const especies = [...new Set(trees.map(t => t.species_name))].sort();
+            especies.forEach(e => {
+                const opt = document.createElement("option");
+                opt.value = e;
+                opt.textContent = e;
+                especieSelect.appendChild(opt);
+            });
+        }
 
-    /* ============================================================
-       EXIBIR ÁRVORES (COM CLIQUE AGRUPADO)
-       ============================================================ */
+        /* ============================================================
+           EXIBIR ÁRVORES (COM CLIQUE AGRUPADO)
+           ============================================================ */
 
-    function exibirArvores(trees) {
+        function exibirArvores(trees) {
     // Limpa todos os markers antigos
     markersLayer.clearLayers();
     treeMarkers = {};
@@ -437,75 +441,90 @@
     currentTrees = trees;
     treeIndexGlobal = 0;
 
-    trees.forEach((tree, index) => {
-    if (!tree.latitude || !tree.longitude) return; // ignora árvores sem coordenadas
+    // Define o tamanho mínimo e máximo da bolinha
+    const MIN_RADIUS = 3; // menor bolinha
+    const MAX_RADIUS = 5; // maior bolinha
 
-    // Garante que é número
-    const diametro = parseFloat(tree.trunk_diameter);
-    // Se não tiver diâmetro, usa 10 como base.
-    const valorReal = (!isNaN(diametro) && diametro > 0) ? diametro : 10;
-    
-    // Divide por 2 pra bolinha crescer mais, e define o mínimo como 4
-    const size = Math.max(4, valorReal / 2);
-    const marker = L.circleMarker([tree.latitude, tree.longitude], {
-        radius: size,
-        color: "#fff",
-        weight: 2,
-        fillColor: tree.color_code || "#358054",
-        fillOpacity: 0.85,
-        interactive: true
-    }).addTo(markersLayer);
+    // Pega todos os diâmetros existentes para calcular escala
+    const diameters = trees.map(t => parseFloat(t.trunk_diameter) || 0);
+    const minDiameter = Math.min(...diameters);
+    const maxDiameter = Math.max(...diameters);
 
-    // CLIQUE INTELIGENTE - mostra popup com setas
-   marker.on('click', () => {
-    currentTrees = filteredTrees;
-    treeIndexGlobal = trees.indexOf(tree);
-
-    const offsetY = -100;
-    const targetPoint = map.latLngToContainerPoint([tree.latitude, tree.longitude]).add([0, offsetY]);
-    const targetLatLng = map.containerPointToLatLng(targetPoint);
-    map.setView(targetLatLng, map.getZoom(), { animate: false });
-
-    marker.bindPopup(criarConteudoPopup(currentTrees, treeIndexGlobal)).openPopup();
-});
-
-
-    treeMarkers[tree.id] = marker;
-});}
-
-
-
-
-    /* ============================================================
-       GERADOR DE POPUP DINÂMICO (COM LABELS E NAVEGAÇÃO)
-       ============================================================ */
-    
-    function criarConteudoPopup(listaArvores, indexInicial) {
-    const container = document.createElement('div');
-    container.className = 'p-4 font-sans relative';
-    let indexAtual = indexInicial;
-
-    // Centraliza o mapa e abre o popup na árvore correta
-    function mostrarArvoreAtual() {
-        const tree = listaArvores[indexAtual];
-        const offsetY = -100; // desloca o popup um pouco pra cima
-        const targetPoint = map.latLngToContainerPoint([tree.latitude, tree.longitude]).add([0, offsetY]);
-        const targetLatLng = map.containerPointToLatLng(targetPoint);
-
-        map.setView(targetLatLng, map.getZoom(), { animate: false });
-
-        const marker = treeMarkers[tree.id];
-        if (marker) {
-            // reabre o popup atualizado
-            marker.bindPopup(container).openPopup();
-        }
+    // Função para mapear diâmetro para radius
+    function scaleDiameter(d) {
+        if (maxDiameter === minDiameter) return (MIN_RADIUS + MAX_RADIUS) / 2; // evita divisão por zero
+        return MIN_RADIUS + (d - minDiameter) / (maxDiameter - minDiameter) * (MAX_RADIUS - MIN_RADIUS);
     }
 
-    function render() {
-        const tree = listaArvores[indexAtual];
-        const total = listaArvores.length;
+    // Dentro do loop que cria os markers
+    trees.forEach((tree, index) => {
+        if (!tree.latitude || !tree.longitude) return;
 
-        container.innerHTML = `
+        const diametro = parseFloat(tree.trunk_diameter) || 0;
+        const size = scaleDiameter(diametro);
+
+        const marker = L.circleMarker([tree.latitude, tree.longitude], {
+            radius: size,
+            color: "#fff",
+            weight: 2,
+            fillColor: tree.color_code || "#358054",
+            fillOpacity: 0.85,
+            interactive: true
+        }).addTo(markersLayer);
+
+        // CLIQUE INTELIGENTE - mostra popup com setas
+        marker.on('click', () => {
+            currentTrees = filteredTrees;
+            treeIndexGlobal = trees.indexOf(tree);
+
+            const offsetY = -100;
+            const targetPoint = map.latLngToContainerPoint([tree.latitude, tree.longitude]).add([0, offsetY]);
+            const targetLatLng = map.containerPointToLatLng(targetPoint);
+            map.setView(targetLatLng, map.getZoom(), { animate: false });
+
+            marker.bindPopup(criarConteudoPopup(currentTrees, treeIndexGlobal)).openPopup();
+        });
+
+        treeMarkers[tree.id] = marker;
+    });
+}
+
+
+
+
+
+        /* ============================================================
+           GERADOR DE POPUP DINÂMICO (COM LABELS E NAVEGAÇÃO)
+           ============================================================ */
+
+        function criarConteudoPopup(listaArvores, indexInicial) {
+            const container = document.createElement('div');
+            container.className = 'p-4 font-sans relative';
+            let indexAtual = indexInicial;
+
+            // Centraliza o mapa e abre o popup na árvore correta
+            function mostrarArvoreAtual() {
+                const tree = listaArvores[indexAtual];
+                const offsetY = -100; // desloca o popup um pouco pra cima
+                const targetPoint = map.latLngToContainerPoint([tree.latitude, tree.longitude]).add([0, offsetY]);
+                const targetLatLng = map.containerPointToLatLng(targetPoint);
+
+                map.setView(targetLatLng, map.getZoom(), {
+                    animate: false
+                });
+
+                const marker = treeMarkers[tree.id];
+                if (marker) {
+                    // reabre o popup atualizado
+                    marker.bindPopup(container).openPopup();
+                }
+            }
+
+            function render() {
+                const tree = listaArvores[indexAtual];
+                const total = listaArvores.length;
+
+                container.innerHTML = `
             <div class="flex items-center justify-between mb-3 bg-gray-100 rounded-lg p-1 select-none">
                 <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -541,83 +560,94 @@
             </a>
         `;
 
-        // Liga os botões e, ao mudar, reabre o popup da nova árvore
-        const btnPrev = container.querySelector('#btn-prev');
-        const btnNext = container.querySelector('#btn-next');
+                // Liga os botões e, ao mudar, reabre o popup da nova árvore
+                const btnPrev = container.querySelector('#btn-prev');
+                const btnNext = container.querySelector('#btn-next');
 
-        btnPrev.onclick = (e) => {
-            e.stopPropagation();
-            indexAtual = (indexAtual - 1 + total) % total;
-            render();
-            mostrarArvoreAtual(); // centraliza e abre novo popup
-        };
+                btnPrev.onclick = (e) => {
+                    e.stopPropagation();
+                    indexAtual = (indexAtual - 1 + total) % total;
+                    render();
+                    mostrarArvoreAtual(); // centraliza e abre novo popup
+                };
 
-        btnNext.onclick = (e) => {
-            e.stopPropagation();
-            indexAtual = (indexAtual + 1) % total;
-            render();
-            mostrarArvoreAtual(); // idem
-        };
-    }
-
-    render();
-    return container;
-}
-
-
-
-
-
-
-
-    /* ============================================================
-       FILTRAGEM
-       ============================================================ */
-
-    function destacarBairro(bairroId) {
-        if (!bairrosGeoLayer) return;
-        bairrosGeoLayer.eachLayer(layer => {
-            const props = layer.feature.properties;
-            if (props.id_bairro == bairroId) {
-                layer.setStyle({ color: "#0084ff", weight: 3, fillOpacity: 0.08 });
-                map.fitBounds(layer.getBounds());
-            } else {
-                layer.setStyle({ color: "#00000040", weight: 1, fillOpacity: 0.02 });
+                btnNext.onclick = (e) => {
+                    e.stopPropagation();
+                    indexAtual = (indexAtual + 1) % total;
+                    render();
+                    mostrarArvoreAtual(); // idem
+                };
             }
-        });
-    }
 
-    function aplicarFiltro() {
-        const bairro = document.getElementById("bairro").value;
-        const especie = document.getElementById("especie").value;
-        const busca = document.getElementById("search").value.toLowerCase();
+            render();
+            return container;
+        }
 
-        const filtradas = allTrees.filter(tree => {
-            const okBairro = bairro ? tree.bairro_id == bairro : true;
-            const okEspecie = especie ? tree.species_name === especie : true;
-            const okBusca = busca ? tree.species_name.toLowerCase().includes(busca) : true;
-            return okBairro && okEspecie && okBusca;
-        });
 
-        exibirArvores(filtradas);
-        if (bairro) destacarBairro(bairro);
-    }
 
-    document.getElementById("aplicarFiltro").addEventListener("click", aplicarFiltro);
 
-    document.getElementById("limparFiltro").addEventListener("click", () => {
-        document.getElementById("bairro").value = "";
-        document.getElementById("especie").value = "";
-        document.getElementById("search").value = "";
-        exibirArvores(allTrees);
-        if (bairrosGeoLayer) {
+
+
+
+        /* ============================================================
+           FILTRAGEM
+           ============================================================ */
+
+        function destacarBairro(bairroId) {
+            if (!bairrosGeoLayer) return;
             bairrosGeoLayer.eachLayer(layer => {
-                layer.setStyle({ color: "#00000040", weight: 1, fillOpacity: 0.02 });
+                const props = layer.feature.properties;
+                if (props.id_bairro == bairroId) {
+                    layer.setStyle({
+                        color: "#0084ff",
+                        weight: 3,
+                        fillOpacity: 0.08
+                    });
+                    map.fitBounds(layer.getBounds());
+                } else {
+                    layer.setStyle({
+                        color: "#00000040",
+                        weight: 1,
+                        fillOpacity: 0.02
+                    });
+                }
             });
         }
-        map.setView(INITIAL_VIEW, INITIAL_ZOOM);
-    });
 
+        function aplicarFiltro() {
+            const bairro = document.getElementById("bairro").value;
+            const especie = document.getElementById("especie").value;
+            const busca = document.getElementById("search").value.toLowerCase();
+
+            const filtradas = allTrees.filter(tree => {
+                const okBairro = bairro ? tree.bairro_id == bairro : true;
+                const okEspecie = especie ? tree.species_name === especie : true;
+                const okBusca = busca ? tree.species_name.toLowerCase().includes(busca) : true;
+                return okBairro && okEspecie && okBusca;
+            });
+
+            exibirArvores(filtradas);
+            if (bairro) destacarBairro(bairro);
+        }
+
+        document.getElementById("aplicarFiltro").addEventListener("click", aplicarFiltro);
+
+        document.getElementById("limparFiltro").addEventListener("click", () => {
+            document.getElementById("bairro").value = "";
+            document.getElementById("especie").value = "";
+            document.getElementById("search").value = "";
+            exibirArvores(allTrees);
+            if (bairrosGeoLayer) {
+                bairrosGeoLayer.eachLayer(layer => {
+                    layer.setStyle({
+                        color: "#00000040",
+                        weight: 1,
+                        fillOpacity: 0.02
+                    });
+                });
+            }
+            map.setView(INITIAL_VIEW, INITIAL_ZOOM);
+        });
     </script>
 
 

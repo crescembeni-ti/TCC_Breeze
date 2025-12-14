@@ -12,7 +12,8 @@
     </p>
 
     <button type="submit"
-            class="bg-red-600 text-white px-6 py-2 rounded-lg shadow hover:bg-red-700 transition">
-        Excluir Conta
-    </button>
+    class="bg-red-600 text-white text-lg rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-800 active:scale-95 transition px-6 py-3">
+    Excluir Conta
+</button>
+
 </form>

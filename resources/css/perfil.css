@@ -56,22 +56,23 @@
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 10px 20px; /* Mantido do original */
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(53, 128, 84, 0.3);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(53, 128, 84, 0.3); /* sombra original */
 }
 
 .perfil-box button:hover {
-  background-color: #38c224; /* Verde mais vibrante */
+  background-color: #2f6f47; /* verde médio */
   box-shadow: 0 4px 10px rgba(53, 128, 84, 0.4);
   transform: translateY(-1px);
 }
 
 .perfil-box button:active {
-  background-color: #2c6b47;
-  transform: translateY(0);
+  background-color: #38c224; /* verde claro */
+  box-shadow: 0 2px 5px rgba(53, 128, 84, 0.3);
+  transform: scale(0.95);
 }
 
 /* BOTÃO PERIGOSO (DELETAR CONTA) */
@@ -83,6 +84,11 @@
 .perfil-box button.btn-danger:hover {
   background-color: #b52b27;
   box-shadow: 0 4px 10px rgba(217, 83, 79, 0.4);
+}
+
+.perfil-box button.btn-danger:active {
+  background-color: #e74c3c;
+  transform: scale(0.95);
 }
 
 /* RESPONSIVIDADE */
