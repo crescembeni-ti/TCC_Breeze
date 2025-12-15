@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Hash; // IMPORTANTE
 
 class ProfileController extends Controller
 {
-    protected $code;
-
     /**
-     * Exibe o formulário de edição do perfil.
+     * Exibe o formulário de perfil
      */
     public function edit(Request $request)
     {
@@ -21,7 +20,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Atualiza as informações do perfil.
+     * Atualiza nome e email
      */
     public function update(Request $request)
     {
@@ -39,7 +38,44 @@ class ProfileController extends Controller
     }
 
     /**
-     * Exclui a conta do usuário autenticado.
+     * 🔐 TROCA DE SENHA DO USUÁRIO LOGADO
+     */
+    public function updatePassword(Request $request)
+    {
+        $user = $request->user();
+
+        // =========================
+        // VALIDAÇÃO DOS CAMPOS
+        // =========================
+        $request->validate([
+            'current_password' => ['required'],              // senha atual obrigatória
+            'password' => ['required', 'confirmed', 'min:8'],// nova senha
+        ], [
+            'current_password.required' => 'Informe sua senha atual.',
+            'password.min' => 'A nova senha deve conter pelo menos 8 caracteres.',
+            'password.confirmed' => 'As senhas não conferem.',
+        ]);
+
+        // =========================
+        // CONFERE A SENHA ATUAL
+        // =========================
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors([
+                'current_password' => 'A senha atual está incorreta.',
+            ]);
+        }
+
+        // =========================
+        // ATUALIZA A SENHA
+        // =========================
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return back()->with('success', 'Senha alterada com sucesso!');
+    }
+
+    /**
+     * Exclui a conta
      */
     public function destroy(Request $request)
     {

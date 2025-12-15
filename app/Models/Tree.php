@@ -15,7 +15,7 @@ class Tree extends Model
         'crown_diameter_longitudinal', 'crown_diameter_perpendicular',
         'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms',
         'target', 'injuries', 'wiring_status', 'total_width', 'street_width',
-        'gutter_height', 'gutter_width', 'gutter_length', 'no_species_case',
+        'gutter_height', 'gutter_width', 'gutter_length', 'no_species_case', 'description',
     ];
 
     protected $casts = [

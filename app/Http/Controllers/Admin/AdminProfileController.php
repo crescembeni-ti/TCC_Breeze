@@ -14,27 +14,41 @@ class AdminProfileController extends Controller
         return view('admin.profile.edit', compact('admin'));
     }
 
-    public function update(Request $request)
+
+public function updatePassword(Request $request)
     {
-        $admin = $request->user('admin');
+    $admin = $request->user('admin');
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:admins,email,' . $admin->id,
-            'password' => 'nullable|string|min:8|confirmed',
+    // =========================
+    // VALIDAÇÃO
+    // =========================
+    $request->validate([
+        'current_password' => ['required'],
+        'password' => ['required', 'confirmed', 'min:8'],
+    ], [
+        'current_password.required' => 'Informe sua senha atual.',
+        'password.min' => 'A nova senha deve conter pelo menos 8 caracteres.',
+        'password.confirmed' => 'As senhas não conferem.',
+    ]);
+
+    // =========================
+    // CONFERE SENHA ATUAL
+    // =========================
+    if (!Hash::check($request->current_password, $admin->password)) {
+        return back()->withErrors([
+            'current_password' => 'A senha atual está incorreta.',
         ]);
-
-        $admin->name = $request->name;
-        $admin->email = $request->email;
-
-        if ($request->filled('password')) {
-            $admin->password = Hash::make($request->password);
-        }
-
-        $admin->save();
-
-        return back()->with('success', 'Perfil atualizado com sucesso!');
     }
+
+    // =========================
+    // ATUALIZA SENHA
+    // =========================
+    $admin->password = Hash::make($request->password);
+    $admin->save();
+
+    return back()->with('success', 'Senha alterada com sucesso!');
+    }
+
 
     public function destroy(Request $request)
     {

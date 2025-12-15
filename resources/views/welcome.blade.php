@@ -208,25 +208,6 @@
                 <h2 class="text-2xl font-bold text-gray-900 mb-4">Mapa Interativo</h2>
                 <div id="map"></div>
             </div>
-
-            {{-- Atividades recentes --}}
-            <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Atividades Recentes</h2>
-                <div class="space-y-4">
-                    @forelse($recentActivities as $activity)
-                        <div class="pl-4 py-2 activity-item">
-                            <p class="text-sm text-gray-600">{{ $activity->activity_date->format('d/m/Y H:i') }}</p>
-                            <p class="text-gray-900">
-                                A árvore <strong>{{ $activity->tree->species->name }}</strong>
-                                em <strong>{{ $activity->tree->address }}</strong>
-                                foi <strong>{{ $activity->type }}</strong>
-                                por {{ $activity->user->name }}.
-                            </p>
-                        </div>
-                    @empty
-                        <p class="text-gray-600">Nenhuma atividade registrada ainda.</p>
-                    @endforelse
-                </div>
             </div>
         </main>
 

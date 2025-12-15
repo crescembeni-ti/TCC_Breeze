@@ -1,387 +1,411 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@extends('layouts.dashboard')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Editar Árvore - Árvores de Paracambi</title>
+@section('content')
+    <div class="perfil-box inline-block">
+        <h2 class="text-3xl font-bold text-[#358054] mb-0">
+            Painel de Administração – Editar Árvore
+        </h2>
+    </div>
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @vite('resources/css/dashboard.css')
-
-    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
-    <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-
-<body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen">
-
-    <!-- HEADER -->
-    <header class="site-header">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
-
-            <!-- LOGOS E TÍTULO -->
-            <div class="flex items-center gap-4 flex-shrink-0">
-                <a href="{{ route('home') }}" class="flex items-center gap-4">
-                    <img src="{{ asset('images/Brasao_Verde.png') }}" alt="Logo Brasão de Paracambi"
-                        class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi"
-                        class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                    <h1 class="text-3xl sm:text-4xl font-bold">
-                        <span class="text-[#358054]">Árvores de</span>
-                        <span class="text-[#a0c520]">Paracambi</span>
-                    </h1>
-                </a>
-            </div>
+    {{-- ALERTAS --}}
+    @if (session('success'))
+        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+            <strong>Sucesso!</strong> {{ session('success') }}
         </div>
-    </header>
+    @endif
 
-    <!-- CONTEÚDO -->
-    <main class="flex-1 p-10">
+    @if ($errors->any())
+        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            <strong>Erro!</strong> Verifique os campos abaixo.
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-        <div class="bg-white shadow-sm rounded-lg p-8">
+    {{-- 
+        FORMULÁRIO OCULTO DE EXCLUSÃO 
+        (Necessário para que o botão "Excluir" funcione, mesmo estando longe deste bloco)
+    --}}
+    <form id="form-delete" action="{{ route('admin.trees.destroy', $tree->id) }}" method="POST"
+          onsubmit="return confirm('ATENÇÃO: Tem certeza que deseja excluir esta árvore permanentemente?');">
+        @csrf
+        @method('DELETE')
+    </form>
 
-            <!-- Título + Voltar -->
-            <div class="flex items-center justify-between mb-8 flex-wrap gap-3">
-                <h2 class="text-3xl font-bold text-[#358054]">Editar Árvore #{{ $tree->id }}</h2>
+    {{-- CARD PRINCIPAL --}}
+    <div class="bg-white border border-gray-200 shadow rounded-xl mb-10 p-8">
 
-                <a href="{{ route('admin.trees.index') }}"
-                    class="inline-flex items-center px-4 py-2 bg-[#358054] text-white rounded-lg text-sm font-semibold hover:bg-[#2d6947] transition">
-                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                    Voltar
-                </a>
-            </div>
+        <h3 class="text-2xl font-bold mb-6 text-gray-800">
+            Editando: <span class="text-[#358054]">
+                {{-- Tenta mostrar o nome da árvore, se não tiver, mostra o da espécie --}}
+                {{ $tree->name ?: optional($tree->species)->name ?: 'Árvore sem nome' }}
+            </span>
+        </h3>
 
-            {{-- ERROS --}}
-            @if ($errors->any())
-                <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
-                    <strong>Ops! Algo deu errado:</strong>
-                    <ul class="list-disc list-inside mt-2">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+        {{-- FORMULÁRIO DE EDIÇÃO --}}
+        <form id="form-edit" method="POST" action="{{ route('admin.trees.update', $tree->id) }}" class="space-y-10">
+            @csrf
+            {{-- CORREÇÃO DEFINITIVA DO ERRO 405: Método PATCH --}}
+            @method('PATCH')
+
+            {{-- SEÇÃO 1: IDENTIFICAÇÃO --}}
+            <div>
+                <div class="flex items-center gap-2 mb-4 border-b pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h4 class="text-xl font-bold text-gray-700">Identificação</h4>
                 </div>
-            @endif
 
-            <!-- FORMULÁRIO -->
-            <form action="{{ route('admin.trees.update', $tree) }}" method="POST" class="space-y-10">
-                @csrf
-                @method('PATCH')
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+                    {{-- Nome --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Nome <span class="text-red-500">*</span></label>
+                        {{-- 
+                            LÓGICA DE PREENCHIMENTO:
+                            1. old('name'): Se houve erro de validação, mantém o que digitou.
+                            2. $tree->name: Se a árvore tem nome salvo.
+                            3. $tree->species->name: Se a árvore não tem nome, usa o da espécie.
+                        --}}
+                        <input type="text" id="name" name="name" required maxlength="255" 
+                            value="{{ old('name', $tree->name ?: optional($tree->species)->name) }}"
+                            class="block w-full rounded-md border border-gray-300 bg-gray-50 text-gray-800 shadow-sm px-3 py-2 focus:ring-green-500 focus:border-green-500" />
+                    </div>
 
-                <!-- SESSÃO: ESPÉCIE -->
-                <div>
-                    <h3 class="text-xl font-semibold text-[#358054] mb-4 flex items-center gap-2">
-                        <i data-lucide="leaf" class="w-5 h-5"></i>
-                        Informações da Espécie
-                    </h3>
+                    {{-- Endereço --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Endereço <span class="text-red-500">*</span></label>
+                        <input type="text" id="address" name="address" required maxlength="255" 
+                            value="{{ old('address', $tree->address) }}"
+                            class="block w-full rounded-md border border-gray-300 bg-gray-50 text-gray-800 shadow-sm px-3 py-2 focus:ring-green-500 focus:border-green-500" />
+                        <p class="text-xs text-gray-500 mt-1">Clique no mapa para atualizar</p>
+                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{-- Bairro --}}
+                    <div x-data="{ 
+                            open: false, 
+                            selected: '{{ old('bairro_id', $tree->bairro_id) }}', 
+                            selectedName: '{{ optional($tree->bairro)->nome ?? 'Selecione um bairro' }}' 
+                        }" 
+                        @set-bairro-map.window="selected = $event.detail.id; selectedName = $event.detail.nome"
+                        class="relative w-full">
+                        
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Bairro <span class="text-red-500">*</span></label>
+                        <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500">
+                            <span x-text="selectedName"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <ul x-show="open" @click.outside="open = false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
+                            @foreach ($bairros as $bairro)
+                                <li @click="selected='{{ $bairro->id }}'; selectedName='{{ $bairro->nome }}'; open=false"
+                                    class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm"
+                                    :class="selected == '{{ $bairro->id }}' ? 'bg-[#358054] text-white' : ''">
+                                    {{ $bairro->nome }}
+                                </li>
+                            @endforeach
+                        </ul>
+                        <input type="hidden" name="bairro_id" :value="selected" required>
+                    </div>
 
-                        <div>
-                            <label class="font-medium">Espécie</label>
-                            <select name="species_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                @foreach ($species as $spec)
-                                    <option value="{{ $spec->id }}"
-                                        {{ $tree->species_id == $spec->id ? 'selected' : '' }}>
-                                        {{ $spec->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                    {{-- Espécie --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Espécie <span class="text-red-500">*</span></label>
+                        {{-- Preenche com o nome da espécie vinculada --}}
+                        <input type="text" name="species_name" required
+                            value="{{ old('species_name', $tree->species_name ?: optional($tree->species)->name) }}"
+                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
 
-                        <div>
-                            <label class="font-medium">Caso não tenha espécie</label>
+                    {{-- Nome vulgar --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome vulgar <span class="text-red-500">*</span></label>
+                        {{-- Prioriza tabela tree, depois tabela species --}}
+                        <input type="text" name="vulgar_name" required
+                            value="{{ old('vulgar_name', $tree->vulgar_name ?: optional($tree->species)->vulgar_name) }}"
+                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+
+                    {{-- Nome científico --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome científico <span class="text-red-500">*</span></label>
+                        {{-- Prioriza tabela tree, depois tabela species --}}
+                        <input type="text" name="scientific_name" required
+                            value="{{ old('scientific_name', $tree->scientific_name ?: optional($tree->species)->scientific_name) }}"
+                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+
+                    {{-- Descrição --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição da Árvore</label>
+                        {{-- Prioriza descrição da árvore, depois descrição da espécie --}}
+                        <textarea name="description" rows="5"
+                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500 placeholder-gray-400"
+                            placeholder="Detalhes sobre a saúde, poda, entorno ou observações...">{{ old('description', $tree->description ?: optional($tree->species)->description) }}</textarea>
+                    </div>
+
+                    {{-- Caso não tenha espécie --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Caso não tenha espécie</label>
+                        <div class="flex flex-col h-full justify-start">
                             <input type="text" name="no_species_case"
                                 value="{{ old('no_species_case', $tree->no_species_case) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500"
+                                placeholder="Informe se não identificada">
+                            <p class="text-xs text-gray-500 mt-2">Utilize este campo apenas se a espécie não foi encontrada.</p>
                         </div>
-
                     </div>
                 </div>
+            </div>
 
-
-                <!-- SESSÃO: DIMENSÕES -->
-                <div>
-                    <h3 class="text-xl font-semibold text-[#358054] mb-4 flex items-center gap-2">
-                        <i data-lucide="ruler" class="w-5 h-5"></i>
-                        Dimensões da Árvore
-                    </h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                        @php
-                            $dimFields = [
-                                'Diâmetro do Tronco (cm)' => 'trunk_diameter',
-                                'CAP (cm)' => 'cap',
-                                'Altura (m)' => 'height',
-                                'Altura da Copa (m)' => 'crown_height',
-                                'Copa Longitudinal (m)' => 'crown_diameter_longitudinal',
-                                'Copa Perpendicular (m)' => 'crown_diameter_perpendicular',
-                                'Largura total (m)' => 'total_width',
-                                'Largura da rua (m)' => 'street_width',
-                                'Altura da gola (m)' => 'gutter_height',
-                                'Largura da gola (m)' => 'gutter_width',
-                                'Comprimento da gola (m)' => 'gutter_length',
-                            ];
-                        @endphp
-
-                        @foreach ($dimFields as $label => $name)
-                            <div>
-                                <label class="font-medium">{{ $label }}</label>
-                                <input type="number" step="0.01" name="{{ $name }}"
-                                    value="{{ old($name, $tree->$name) }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                            </div>
-                        @endforeach
-
+            {{-- SEÇÃO 2: COORDENADAS --}}
+            <div>
+                <div class="flex items-center gap-2 mb-4 border-b pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <h4 class="text-xl font-bold text-gray-700">Localização</h4>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Latitude <span class="text-red-500">*</span></label>
+                        <input type="number" step="0.0000001" id="latitude" name="latitude" required value="{{ old('latitude', $tree->latitude) }}"
+                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Longitude <span class="text-red-500">*</span></label>
+                        <input type="number" step="0.0000001" id="longitude" name="longitude" required value="{{ old('longitude', $tree->longitude) }}"
+                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
                 </div>
+            </div>
 
-
-                <!-- SESSÃO: CONDIÇÕES BIOLÓGICAS -->
-                <div>
-                    <h3 class="text-xl font-semibold text-[#358054] mb-4 flex items-center gap-2">
-                        <i data-lucide="activity" class="w-5 h-5"></i>
-                        Condições Biológicas
-                    </h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                        {{-- Tipo de bifurcação --}}
-                        <div>
-                            <label class="font-medium">Tipo de Bifurcação</label>
-                            <select name="bifurcation_type"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                <option value="">Selecione</option>
-                                <option value="ausente" {{ $tree->bifurcation_type == 'ausente' ? 'selected' : '' }}>
-                                    Ausente</option>
-                                <option value="U" {{ $tree->bifurcation_type == 'U' ? 'selected' : '' }}>U
-                                </option>
-                                <option value="V" {{ $tree->bifurcation_type == 'V' ? 'selected' : '' }}>V
-                                </option>
-                            </select>
-                        </div>
-
-                        {{-- Equilíbrio fuste --}}
-                        <div>
-                            <label class="font-medium">Equilíbrio do Fuste (Inclinação)</label>
-                            <select name="stem_balance" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                <option value="">Selecione</option>
-                                <option value="ausente" {{ $tree->stem_balance == 'ausente' ? 'selected' : '' }}>
-                                    Ausente</option>
-                                <option value="maior_45" {{ $tree->stem_balance == 'maior_45' ? 'selected' : '' }}>
-                                    Maior que 45°</option>
-                                <option value="menor_45" {{ $tree->stem_balance == 'menor_45' ? 'selected' : '' }}>
-                                    Menor que 45°</option>
-                            </select>
-                        </div>
-
-                        {{-- Equilíbrio da copa --}}
-                        <div>
-                            <label class="font-medium">Equilíbrio da copa</label>
-                            <select name="crown_balance" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                <option value="">Selecione</option>
-                                <option value="equilibrada"
-                                    {{ $tree->crown_balance == 'equilibrada' ? 'selected' : '' }}>Equilibrada</option>
-                                <option value="medianamente_desequilibrada"
-                                    {{ $tree->crown_balance == 'medianamente_desequilibrada' ? 'selected' : '' }}>
-                                    Medianamente desequilibrada
-                                </option>
-                                <option value="desequilibrada"
-                                    {{ $tree->crown_balance == 'desequilibrada' ? 'selected' : '' }}>Desequilibrada
-                                </option>
-                                <option value="muito_desequilibrada"
-                                    {{ $tree->crown_balance == 'muito_desequilibrada' ? 'selected' : '' }}>
-                                    Muito desequilibrada
-                                </option>
-                            </select>
-                        </div>
-
-                        {{-- Organismos --}}
-                        <div>
-                            <label class="font-medium">Organismos xilófagos/patogênicos</label>
-                            <select name="organisms" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                <option value="">Selecione</option>
-                                <option value="ausente" {{ $tree->organisms == 'ausente' ? 'selected' : '' }}>Ausente
-                                </option>
-                                <option value="infestacao_inicial"
-                                    {{ $tree->organisms == 'infestacao_inicial' ? 'selected' : '' }}>
-                                    Infestação Inicial
-                                </option>
-                            </select>
-                        </div>
-
-                        {{-- Fiação --}}
-                        <div>
-                            <label class="font-medium">Estado da fiação</label>
-                            <select name="wiring_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                <option value="">Selecione</option>
-                                <option value="pode_interferir"
-                                    {{ $tree->wiring_status == 'pode_interferir' ? 'selected' : '' }}>Pode interferir
-                                </option>
-                                <option value="interfere" {{ $tree->wiring_status == 'interfere' ? 'selected' : '' }}>
-                                    Interfere</option>
-                                <option value="nao_interfere"
-                                    {{ $tree->wiring_status == 'nao_interfere' ? 'selected' : '' }}>Não interfere
-                                </option>
-                            </select>
-                        </div>
-
+            {{-- SEÇÃO 3: DADOS GERAIS --}}
+            <div>
+                <div class="flex items-center gap-2 mb-4 border-b pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    <h4 class="text-xl font-bold text-gray-700">Status da Árvore</h4>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div x-data="{ open: false, selected: '{{ old('health_status', $tree->health_status) }}', selectedName: '{{ old('health_status', $tree->health_status) == 'good' ? 'Boa' : (old('health_status', $tree->health_status) == 'fair' ? 'Regular' : (old('health_status', $tree->health_status) == 'poor' ? 'Ruim' : 'Selecione...')) }}' }" class="relative w-full">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado de Saúde <span class="text-red-500">*</span></label>
+                        <button @click="open = !open" type="button" class="w-full border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between px-3 py-2 shadow-sm focus:ring-green-500 focus:border-green-500">
+                            <span x-text="selectedName"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                        <ul x-show="open" @click.outside="open = false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
+                            <li @click="selected='good'; selectedName='Boa'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white" :class="selected === 'good' ? 'bg-[#358054] text-white' : ''">Boa</li>
+                            <li @click="selected='fair'; selectedName='Regular'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white" :class="selected === 'fair' ? 'bg-[#358054] text-white' : ''">Regular</li>
+                            <li @click="selected='poor'; selectedName='Ruim'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white" :class="selected === 'poor' ? 'bg-[#358054] text-white' : ''">Ruim</li>
+                        </ul>
+                        <input type="hidden" name="health_status" :value="selected" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data de Plantio <span class="text-red-500">*</span></label>
+                        <input type="date" name="planted_at" max="{{ now()->format('Y-m-d') }}" required value="{{ old('planted_at', optional($tree->planted_at)->format('Y-m-d')) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Diâmetro do Tronco (cm) <span class="text-red-500">*</span></label>
+                        <input type="number" step="0.01" name="trunk_diameter" required value="{{ old('trunk_diameter', $tree->trunk_diameter) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
                 </div>
+            </div>
 
+            {{-- SEÇÃO 4: DIMENSÕES --}}
+            <div>
+                <div class="flex items-center gap-2 mb-4 border-b pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <h4 class="text-xl font-bold text-gray-700">Dimensões</h4>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    @foreach(['cap' => 'CAP (cm)', 'height' => 'Altura (m)', 'crown_height' => 'Altura da Copa (m)', 'crown_diameter_longitudinal' => 'Copa Longitudinal (m)', 'crown_diameter_perpendicular' => 'Copa Perpendicular (m)'] as $field => $label)
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ $label }} <span class="text-red-500">*</span></label>
+                        <input type="number" step="0.01" name="{{ $field }}" required value="{{ old($field, $tree->$field) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    @endforeach
+                </div>
+            </div>
 
-                <!-- SESSÃO: INFORMAÇÕES ADICIONAIS -->
-                <div>
-                    <h3 class="text-xl font-semibold text-[#358054] mb-4 flex items-center gap-2">
-                        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
-                        Informações Adicionais
-                    </h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        <div>
-                            <label class="font-medium">Nome vulgar / Gola</label>
-                            <input type="text" name="vulgar_name"
-                                value="{{ old('vulgar_name', $tree->vulgar_name) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        </div>
-
-                        <div>
-                            <label class="font-medium">Nome científico</label>
-                            <input type="text" name="scientific_name"
-                                value="{{ old('scientific_name', $tree->scientific_name) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        </div>
-
-                        <div>
-                            <label class="font-medium">Alvo</label>
-                            <input type="text" name="target" value="{{ old('target', $tree->target) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        </div>
-
-                        <div>
-                            <label class="font-medium">Injúrias mecânicas e cavidades</label>
-                            <input type="text" name="injuries" value="{{ old('injuries', $tree->injuries) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        </div>
-
+            {{-- SEÇÃO 5: CARACTERÍSTICAS --}}
+            <div>
+                <div class="flex items-center gap-2 mb-4 border-b pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <h4 class="text-xl font-bold text-gray-700">Condições Biológicas</h4>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {{-- Bifurcação --}}
+                    <div x-data="{ open: false, selected: '{{ old('bifurcation_type', $tree->bifurcation_type) }}', selectedName: '{{ old('bifurcation_type', $tree->bifurcation_type) == 'ausente' ? 'Ausente' : (old('bifurcation_type', $tree->bifurcation_type) == 'U' ? 'U' : (old('bifurcation_type', $tree->bifurcation_type) == 'V' ? 'V' : 'Selecione...')) }}' }" class="relative w-full">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Bifurcação <span class="text-red-500">*</span></label>
+                        <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                        <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10"><li @click="selected='ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'ausente' ? 'bg-[#358054] text-white' : ''">Ausente</li><li @click="selected='U'; selectedName='U'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'U' ? 'bg-[#358054] text-white' : ''">U</li><li @click="selected='V'; selectedName='V'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'V' ? 'bg-[#358054] text-white' : ''">V</li></ul>
+                        <input type="hidden" name="bifurcation_type" :value="selected" required>
+                    </div>
+                    {{-- Fuste --}}
+                    <div x-data="{ open: false, selected: '{{ old('stem_balance', $tree->stem_balance) }}', selectedName: '{{ old('stem_balance', $tree->stem_balance) == 'ausente' ? 'Ausente' : (old('stem_balance', $tree->stem_balance) == 'maior_45' ? 'Maior que 45°' : (old('stem_balance', $tree->stem_balance) == 'menor_45' ? 'Menor que 45°' : 'Selecione...')) }}' }" class="relative w-full">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio Fuste (Inclinação) <span class="text-red-500">*</span></label>
+                        <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                        <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10"><li @click="selected='ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'ausente' ? 'bg-[#358054] text-white' : ''">Ausente</li><li @click="selected='maior_45'; selectedName='Maior que 45°'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'maior_45' ? 'bg-[#358054] text-white' : ''">Maior que 45°</li><li @click="selected='menor_45'; selectedName='Menor que 45°'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'menor_45' ? 'bg-[#358054] text-white' : ''">Menor que 45°</li></ul>
+                        <input type="hidden" name="stem_balance" :value="selected" required>
+                    </div>
+                    {{-- Copa --}}
+                    <div x-data="{ open: false, selected: '{{ old('crown_balance', $tree->crown_balance) }}', selectedName: '{{ old('crown_balance', $tree->crown_balance) == 'equilibrada' ? 'Equilibrada' : (old('crown_balance', $tree->crown_balance) == 'medianamente_desequilibrada' ? 'Medianamente Desequilibrada' : (old('crown_balance', $tree->crown_balance) == 'desequilibrada' ? 'Desequilibrada' : (old('crown_balance', $tree->crown_balance) == 'muito_desequilibrada' ? 'Muito Desequilibrada' : 'Selecione...'))) }}' }" class="relative w-full">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio da copa <span class="text-red-500">*</span></label>
+                        <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                        <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10"><li @click="selected='equilibrada'; selectedName='Equilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'equilibrada' ? 'bg-[#358054] text-white' : ''">Equilibrada</li><li @click="selected='medianamente_desequilibrada'; selectedName='Medianamente Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'medianamente_desequilibrada' ? 'bg-[#358054] text-white' : ''">Medianamente Desequilibrada</li><li @click="selected='desequilibrada'; selectedName='Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'desequilibrada' ? 'bg-[#358054] text-white' : ''">Desequilibrada</li><li @click="selected='muito_desequilibrada'; selectedName='Muito Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'muito_desequilibrada' ? 'bg-[#358054] text-white' : ''">Muito Desequilibrada</li></ul>
+                        <input type="hidden" name="crown_balance" :value="selected" required>
                     </div>
                 </div>
+            </div>
 
-
-                <!-- SESSÃO: LOCALIZAÇÃO -->
-                <div>
-                    <h3 class="text-xl font-semibold text-[#358054] mb-4 flex items-center gap-2">
-                        <i data-lucide="map-pin" class="w-5 h-5"></i>
-                        Localização
-                    </h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        <div class="md:col-span-2">
-                            <label class="font-medium">Endereço</label>
-                            <input type="text" name="address" value="{{ old('address', $tree->address) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        </div>
-
-                        <div>
-                            <label class="font-medium">Latitude</label>
-                            <input type="text" name="latitude" value="{{ old('latitude', $tree->latitude) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        </div>
-
-                        <div>
-                            <label class="font-medium">Longitude</label>
-                            <input type="text" name="longitude" value="{{ old('longitude', $tree->longitude) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        </div>
-
+            {{-- SEÇÃO 6: AMBIENTE --}}
+            <div>
+                <div class="flex items-center gap-2 mb-4 border-b pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0a8.1 8.1 0 001-8c0-4.42-3.58-8-8-8a8.1 8.1 0 00-1 8m6 8a2 2 0 11-4 0M6 8a2 2 0 11-4 0" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14c-4 0-6-4-6-4m6 4c4 0 6-4 6-4" />
+                    </svg>
+                    <h4 class="text-xl font-bold text-gray-700">Ambiente e Entorno</h4>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div x-data="{ open: false, selected: '{{ old('organisms', $tree->organisms) }}', selectedName: '{{ old('organisms', $tree->organisms) == 'ausente' ? 'Ausente' : (old('organisms', $tree->organisms) == 'infestacao_inicial' ? 'Infestação Inicial' : 'Selecione...') }}' }" class="relative w-full">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Organismos <span class="text-red-500">*</span></label>
+                        <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                        <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10"><li @click="selected='ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'ausente' ? 'bg-[#358054] text-white' : ''">Ausente</li><li @click="selected='infestacao_inicial'; selectedName='Infestação Inicial'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'infestacao_inicial' ? 'bg-[#358054] text-white' : ''">Infestação Inicial</li></ul>
+                        <input type="hidden" name="organisms" :value="selected" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Alvo <span class="text-red-500">*</span></label>
+                        <input type="text" name="target" required value="{{ old('target', $tree->target) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Injúrias mecânicas e cavidades <span class="text-red-500">*</span></label>
+                        <input type="text" name="injuries" required value="{{ old('injuries', $tree->injuries) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div x-data="{ open: false, selected: '{{ old('wiring_status', $tree->wiring_status) }}', selectedName: '{{ old('wiring_status', $tree->wiring_status) == 'pode_interferir' ? 'Pode interferir' : (old('wiring_status', $tree->wiring_status) == 'interfere' ? 'Interfere' : (old('wiring_status', $tree->wiring_status) == 'nao_interfere' ? 'Não interfere' : 'Selecione...')) }}' }" class="relative w-full">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado da fiação <span class="text-red-500">*</span></label>
+                        <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                        <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10"><li @click="selected='pode_interferir'; selectedName='Pode interferir'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'pode_interferir' ? 'bg-[#358054] text-white' : ''">Pode interferir</li><li @click="selected='interfere'; selectedName='Interfere'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'interfere' ? 'bg-[#358054] text-white' : ''">Interfere</li><li @click="selected='nao_interfere'; selectedName='Não interfere'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'nao_interfere' ? 'bg-[#358054] text-white' : ''">Não interfere</li></ul>
+                        <input type="hidden" name="wiring_status" :value="selected" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura total (m) <span class="text-red-500">*</span></label>
+                        <input type="number" step="0.01" name="total_width" required value="{{ old('total_width', $tree->total_width) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura da rua (m) <span class="text-red-500">*</span></label>
+                        <input type="number" step="0.01" name="street_width" required value="{{ old('street_width', $tree->street_width) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura da gola (m) <span class="text-red-500">*</span></label>
+                        <input type="number" step="0.01" name="gutter_height" required value="{{ old('gutter_height', $tree->gutter_height) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura da gola (m) <span class="text-red-500">*</span></label>
+                        <input type="number" step="0.01" name="gutter_width" required value="{{ old('gutter_width', $tree->gutter_width) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Comprimento da gola (m) <span class="text-red-500">*</span></label>
+                        <input type="number" step="0.01" name="gutter_length" required value="{{ old('gutter_length', $tree->gutter_length) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
                 </div>
+            </div>
 
+            {{-- 
+                ==========================================================
+                RODAPÉ COM BOTÕES ALINHADOS
+                ========================================================== 
+            --}}
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-10 border-t border-gray-100 mt-8">
+                
+                {{-- Botão Excluir (Lado Esquerdo, Vermelho) --}}
+                <button type="submit" form="form-delete"
+                    class="w-full sm:w-auto px-6 py-2.5 bg-red-100 text-red-700 border border-red-200 rounded-lg font-semibold hover:bg-red-200 transition flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Excluir Árvore
+                </button>
 
-                <!-- SESSÃO: STATUS -->
-                <div>
-                    <h3 class="text-xl font-semibold text-[#358054] mb-4 flex items-center gap-2">
-                        <i data-lucide="heart-pulse" class="w-5 h-5"></i>
-                        Status da Árvore
-                    </h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        <div>
-                            <label class="font-medium">Status de Saúde</label>
-                            <select name="health_status"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                <option value="good" {{ $tree->health_status == 'good' ? 'selected' : '' }}>Boa
-                                </option>
-                                <option value="fair" {{ $tree->health_status == 'fair' ? 'selected' : '' }}>Razoável
-                                </option>
-                                <option value="poor" {{ $tree->health_status == 'poor' ? 'selected' : '' }}>Ruim
-                                </option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="font-medium">Data de plantio</label>
-                            <input type="date" name="planted_at"
-                                value="{{ old('planted_at', $tree->planted_at?->format('Y-m-d')) }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        </div>
-
-                    </div>
-                </div>
-
-
-                <!-- BOTÕES -->
-                <div class="flex justify-between pt-8">
-
-                    <a href="{{ route('admin.trees.index') }}"
-                        class="px-4 py-2 bg-gray-200 rounded-lg font-semibold hover:bg-gray-300 transition">
-                        Voltar
+                {{-- Botões de Ação (Lado Direito) --}}
+                <div class="flex gap-4 w-full sm:w-auto">
+                    <a href="{{ route('admin.trees.index') }}" 
+                       class="flex-1 sm:flex-none text-center px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
+                        Cancelar
                     </a>
 
-                    <button type="submit"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                    <button type="submit" form="form-edit"
+                        class="flex-1 sm:flex-none px-8 py-2.5 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 shadow-md transition transform active:scale-95">
                         Salvar Alterações
                     </button>
                 </div>
+            </div>
 
-            </form>
+        </form>
+    </div>
 
+    {{-- MAPA --}}
+    <div class="bg-white border border-gray-200 shadow rounded-xl p-8">
+        <h3 class="text-2xl font-bold mb-4 text-gray-800">Localização no Mapa</h3>
+        <p class="text-sm text-gray-600 mb-4">Arraste o marcador ou clique em outro local para alterar a posição.</p>
+        <div id="map" class="rounded-xl overflow-hidden" style="height: 500px;"></div>
+    </div>
+@endsection
 
-            <!-- EXCLUIR -->
-            <form action="{{ route('admin.trees.destroy', $tree) }}" method="POST" class="mt-6"
-                onsubmit="return confirm('Tem certeza que deseja excluir esta árvore?');">
-                @csrf
-                @method('DELETE')
-
-                <button type="submit"
-                    class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
-                    Excluir Árvore
-                </button>
-            </form>
-
-        </div>
-
-    </main>
-
-    <!-- RODAPÉ -->
-    <footer class="bg-gray-800 shadow mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
-        </div>
-    </footer>
-
+@push('scripts')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        lucide.createIcons();
+        document.addEventListener("DOMContentLoaded", async function() {
+            const initialLat = {{ $tree->latitude ?? -22.6091 }};
+            const initialLng = {{ $tree->longitude ?? -43.7089 }};
+            const map = L.map('map').setView([initialLat, initialLng], 17);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+            let tempMarker = L.marker([initialLat, initialLng], { draggable: true }).addTo(map).bindPopup("Localização Atual").openPopup();
+            
+            const latInput = document.getElementById("latitude");
+            const lngInput = document.getElementById("longitude");
+            
+            async function buscarEndereco(lat, lng) {
+                try {
+                    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+                    const response = await fetch(url, { headers: { "User-Agent": "Arvores-Paracambi-System" } });
+                    const data = await response.json();
+                    return { rua: data.address?.road || "" };
+                } catch (e) { return { rua: "" }; }
+            }
+            
+            map.on("click", async e => {
+                const lat = e.latlng.lat.toFixed(7);
+                const lng = e.latlng.lng.toFixed(7);
+                latInput.value = lat;
+                lngInput.value = lng;
+                tempMarker.setLatLng(e.latlng).bindPopup("Nova Localização").openPopup();
+                const addressInput = document.getElementById("address");
+                const info = await buscarEndereco(lat, lng);
+                if(addressInput && info.rua) addressInput.value = info.rua;
+            });
+            
+            tempMarker.on('dragend', async e => {
+                const pos = tempMarker.getLatLng();
+                latInput.value = pos.lat.toFixed(7);
+                lngInput.value = pos.lng.toFixed(7);
+                const addressInput = document.getElementById("address");
+                const info = await buscarEndereco(pos.lat, pos.lng);
+                if(addressInput && info.rua) addressInput.value = info.rua;
+            });
+        });
     </script>
-
-</body>
-
-</html>
+@endpush

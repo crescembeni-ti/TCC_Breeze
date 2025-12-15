@@ -128,7 +128,7 @@ class TreeController extends Controller
         'gutter_height' => 'required|numeric|min:0',
         'gutter_width' => 'required|numeric|min:0',
         'gutter_length' => 'required|numeric|min:0',
-
+        'description' => 'nullable|string|max:1000',      
         'no_species_case' => 'nullable|string|max:255',
     ]);
 
