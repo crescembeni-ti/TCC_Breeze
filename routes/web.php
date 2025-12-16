@@ -45,6 +45,13 @@ use App\Http\Controllers\Servico\ServiceDashboardController;
 
 /*
 |--------------------------------------------------------------------------
+| CONTROLLERS - ESPÉCIES (ADICIONADO)
+|--------------------------------------------------------------------------
+*/
+use App\Http\Controllers\SpeciesController;
+
+/*
+|--------------------------------------------------------------------------
 | CONTROLLERS - VERIFICAÇÃO
 |--------------------------------------------------------------------------
 */
@@ -95,25 +102,15 @@ Route::post('/contato/denuncia', [ReportController::class, 'store'])
 
 /*
 |--------------------------------------------------------------------------
-| PERFIL DO USUÁRIO (DADOS BÁSICOS)
+| PERFIL DO USUÁRIO
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:web', 'preventBack'])->group(function () {
 
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
-
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
-
-    /*
-    |--------------------------------------------------------------------------
-    | 🔐 TROCA DE SENHA - USER LOGADO (ADICIONADO)
-    |--------------------------------------------------------------------------
-    */
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])
         ->name('profile.password.update');
 });
@@ -125,14 +122,10 @@ Route::middleware(['auth:web', 'preventBack'])->group(function () {
 */
 Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/contato', [ContactController::class, 'index'])
-        ->name('contact');
-
-    Route::post('/contato', [ContactController::class, 'store'])
-        ->name('contact.store');
+    Route::get('/contato', [ContactController::class, 'index'])->name('contact');
+    Route::post('/contato', [ContactController::class, 'store'])->name('contact.store');
 
     Route::get('/minhas-solicitacoes', [ContactController::class, 'userRequestList'])
         ->name('contact.myrequests');
@@ -157,11 +150,8 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
     */
     Route::middleware(['guest:admin', 'guard.only:admin'])->group(function () {
 
-        Route::get('/login', [AdminLoginController::class, 'create'])
-            ->name('login');
-
-        Route::post('/login', [AdminLoginController::class, 'store'])
-            ->name('login.store');
+        Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
+        Route::post('/login', [AdminLoginController::class, 'store'])->name('login.store');
     });
 
     /*
@@ -171,33 +161,29 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
     */
     Route::middleware(['auth:admin', 'preventBack'])->group(function () {
 
-        Route::post('/logout', [AdminLoginController::class, 'destroy'])
-            ->name('logout');
+        Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
 
-        Route::get('/dashboard', [TreeController::class, 'adminDashboard'])
-            ->name('dashboard');
+        Route::get('/dashboard', [TreeController::class, 'adminDashboard'])->name('dashboard');
 
         /*
         |--------------------------------------------------------------------------
-        | PERFIL ADMIN (DADOS)
+        | PERFIL ADMIN
         |--------------------------------------------------------------------------
         */
-        Route::get('/profile', [AdminProfileController::class, 'edit'])
-            ->name('profile.edit');
+        Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [AdminProfileController::class, 'destroy'])->name('profile.destroy');
 
-        Route::patch('/profile', [AdminProfileController::class, 'update'])
-            ->name('profile.update');
-
-        Route::delete('/profile', [AdminProfileController::class, 'destroy'])
-            ->name('profile.destroy');
-
-        /*
-        |--------------------------------------------------------------------------
-        | 🔐 TROCA DE SENHA - ADMIN LOGADO (ADICIONADO)
-        |--------------------------------------------------------------------------
-        */
         Route::patch('/profile/password', [AdminProfileController::class, 'updatePassword'])
             ->name('profile.password.update');
+
+        /*
+        |--------------------------------------------------------------------------
+        | ESPÉCIES (AJAX / MODAL)  ✅ ADICIONADO
+        |--------------------------------------------------------------------------
+        */
+        Route::post('/species', [SpeciesController::class, 'store'])
+            ->name('species.store');
 
         /*
         |--------------------------------------------------------------------------
@@ -234,9 +220,14 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         Route::get('/os', [ServiceOrderController::class, 'index'])->name('os.index');
         Route::get('/os/{id}', [ServiceOrderController::class, 'show'])->name('os.show');
 
-        Route::get('/os/pendentes', [AdminServiceController::class, 'ordensPendentes'])->name('os.pendentes');
-        Route::post('/os/{id}/enviar-servico', [AdminServiceController::class, 'enviarParaServico'])->name('os.enviar');
-        Route::get('/os/resultados', [AdminServiceController::class, 'resultados'])->name('os.resultados');
+        Route::get('/os/pendentes', [AdminServiceController::class, 'ordensPendentes'])
+            ->name('os.pendentes');
+
+        Route::post('/os/{id}/enviar-servico', [AdminServiceController::class, 'enviarParaServico'])
+            ->name('os.enviar');
+
+        Route::get('/os/resultados', [AdminServiceController::class, 'resultados'])
+            ->name('os.resultados');
 
         /*
         |--------------------------------------------------------------------------
@@ -287,8 +278,7 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
         Route::post('/gerar-os', [ContactController::class, 'storeServiceOrder'])
             ->name('os.store');
 
-        Route::get('/profile', fn () => view('analista.profile'))
-            ->name('profile.edit');
+        Route::get('/profile', fn () => view('analista.profile'))->name('profile.edit');
     });
 });
 
@@ -316,8 +306,7 @@ Route::prefix('pbi-servico')->name('service.')->group(function () {
         Route::post('/tarefas/{id}/concluir', [ServiceExecutionController::class, 'concluir'])->name('tasks.concluir');
         Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])->name('tasks.falha');
 
-        Route::get('/profile', fn () => view('servico.profile'))
-            ->name('profile.edit');
+        Route::get('/profile', fn () => view('servico.profile'))->name('profile.edit');
     });
 });
 

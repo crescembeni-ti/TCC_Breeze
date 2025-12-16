@@ -113,14 +113,57 @@
                         <input type="hidden" name="bairro_id" :value="selected" required>
                     </div>
 
-                    {{-- Espécie --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Espécie <span class="text-red-500">*</span></label>
-                        {{-- Preenche com o nome da espécie vinculada --}}
-                        <input type="text" name="species_name" required
-                            value="{{ old('species_name', $tree->species_name ?: optional($tree->species)->name) }}"
-                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                   {{-- Espécie --}}
+<div x-data="speciesSelect()">
+    <label class="block text-sm font-medium text-gray-700 mb-1">
+        Espécie <span class="text-red-500">*</span>
+    </label>
+
+    <select name="species_id" required @change="handleChange($event)"
+        class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+        
+        <option value="">Selecione...</option>
+
+        @foreach ($species as $sp)
+            <option value="{{ $sp->id }}"
+                {{ old('species_id', $tree->species_id) == $sp->id ? 'selected' : '' }}>
+                {{ $sp->name }}
+            </option>
+        @endforeach
+
+        <option value="__new__">➕ Cadastrar nova espécie</option>
+    </select>
+
+                        {{-- MODAL NOVA ESPÉCIE --}}
+                        <div x-show="open" x-cloak
+                            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                            <div class="bg-white p-6 rounded-xl w-full max-w-md">
+                                <h3 class="text-lg font-bold mb-4">Nova Espécie</h3>
+
+                                <input x-model="name" placeholder="Nome da espécie"
+                                    class="w-full border rounded-lg px-3 py-2 mb-3">
+
+                                <input x-model="vulgar_name" placeholder="Nome vulgar"
+                                    class="w-full border rounded-lg px-3 py-2 mb-3">
+
+                                <input x-model="scientific_name" placeholder="Nome científico"
+                                    class="w-full border rounded-lg px-3 py-2 mb-3">
+
+                                <div class="flex justify-end gap-3 mt-4">
+                                    <button @click="open=false" type="button"
+                                        class="px-4 py-2 bg-gray-200 rounded-lg">
+                                        Cancelar
+                                    </button>
+
+                                    <button @click="save()" type="button"
+                                        class="px-4 py-2 bg-green-600 text-white rounded-lg">
+                                        Salvar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
 
                     {{-- Nome vulgar --}}
                     <div>
@@ -407,5 +450,48 @@
                 if(addressInput && info.rua) addressInput.value = info.rua;
             });
         });
+
+        function speciesSelect() {
+    return {
+        open: false,
+        name: '',
+        vulgar_name: '',
+        scientific_name: '',
+
+        handleChange(e) {
+            if (e.target.value === '__new__') {
+                this.open = true;
+                e.target.value = '';
+            }
+        },
+
+        async save() {
+            const res = await fetch("{{ route('admin.species.store') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: this.name,
+                    vulgar_name: this.vulgar_name,
+                    scientific_name: this.scientific_name
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.id) {
+                const select = document.querySelector('[name="species_id"]');
+                select.add(new Option(data.name, data.id, true, true));
+                this.open = false;
+
+                this.name = '';
+                this.vulgar_name = '';
+                this.scientific_name = '';
+            }
+        }
+    }
+}
     </script>
 @endpush
