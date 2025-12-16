@@ -215,96 +215,64 @@
             </div>
         </div>
 
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1">
-            <div class="bg-white rounded-lg shadow-lg content-box relative" :class="{'ring-4 ring-green-100 ring-offset-2': editing}">
-                
-                <h2 class="text-3xl font-bold text-gray-900 mb-6" 
-                    :contenteditable="editing" 
-                    x-ref="pageTitle"
-                    @blur="editing && (editingTitle = $event.target.innerText)">
-                    {{ $pageContent->title }}
-                </h2>
-                
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="bg-white rounded-lg shadow-lg p-8 info-column">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">Árvores de Paracambi</h2>
+
                 <div class="prose max-w-none">
-                    
-                    <template x-for="(block, index) in contentBlocks" :key="block.id">
-                        <div class="block-wrapper transition-all duration-300" :class="{'relative p-4 rounded-xl border-2 border-dashed border-gray-300 hover:border-green-400 hover:bg-gray-50': editing}">
-                            
-                            <div x-show="editing" class="absolute -top-3 right-4 flex bg-white shadow-md border border-gray-200 rounded-full overflow-hidden z-10 items-center">
-                                <button @click.prevent="moveBlock(index, 'up')" class="p-1.5 hover:bg-gray-100 text-gray-600 border-r border-gray-100" title="Subir">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
-                                </button>
-                                <button @click.prevent="moveBlock(index, 'down')" class="p-1.5 hover:bg-gray-100 text-gray-600 border-r border-gray-100" title="Descer">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </button>
-                                <button @click.prevent="removeBlock(index)" class="p-1.5 hover:bg-red-50 text-red-500" title="Excluir">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            </div>
+                    <p>
+                        Árvores de Paracambi é uma iniciativa dedicada ao mapeamento e preservação do patrimônio arbóreo
+                        da cidade de Paracambi, localizada no estado do Rio de Janeiro. Este projeto tem como objetivo
+                        principal criar um inventário completo das árvores urbanas do município, permitindo que
+                        cidadãos, gestores públicos e pesquisadores acompanhem a saúde e o desenvolvimento da floresta
+                        urbana local.
+                    </p>
 
-                            <template x-if="block.type === 'text'">
-                                <div class="text-editor-field min-h-[40px]" 
-                                    :id="'editor-' + block.id"
-                                    :contenteditable="editing"
-                                    x-html="block.data.html"
-                                    @blur="updateBlockData(index, 'html', $event.target.innerHTML)">
-                                </div>
-                            </template>
-                            
-                            <template x-if="block.type === 'image'">
-                                <div class="flex flex-col gap-2">
-                                    <div class="relative group">
-                                        <img :src="'/storage/' + block.data.url" 
-                                             @click="editing && openImageSelectorForEdit(index)"
-                                             class="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-sm" 
-                                             :class="{'cursor-pointer hover:opacity-90': editing}"
-                                             alt="Imagem">
-                                        <div x-show="editing" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <span class="bg-black/60 text-white px-4 py-2 rounded-full text-sm backdrop-blur flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                                Trocar Foto
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="text-sm text-gray-500 italic text-center" :contenteditable="editing" @blur="updateBlockData(index, 'caption', $event.target.innerHTML)" x-html="block.data.caption"></div>
-                                </div>
-                            </template>
+                    <h3>Nossa Missão</h3>
+                    <p>
+                        Nossa missão é promover a conscientização ambiental e facilitar a gestão sustentável das Árvores
+                        Urbanas de Paracambi. Através deste mapa interativo, buscamos engajar a comunidade local no
+                        cuidado e na preservação das árvores, reconhecendo sua importância fundamental para a qualidade
+                        de vida, o equilíbrio ecológico e o bem-estar da população.
+                    </p>
 
-                            <template x-if="block.type === 'youtube'">
-                                <div class="flex flex-col gap-2">
-                                    <div class="w-full aspect-video bg-black rounded-lg shadow-lg overflow-hidden relative">
-                                        <iframe x-show="block.data.subType === 'yt'" :src="'https://www.youtube.com/embed/' + block.data.url" frameborder="0" allowfullscreen class="w-full h-full"></iframe>
-                                        <video x-show="block.data.subType === 'local'" :src="'/storage/' + block.data.url" controls class="w-full h-full object-cover"></video>
-                                        
-                                        <div x-show="editing" class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
-                                            VÍDEO
-                                        </div>
-                                    </div>
-                                    <div class="text-lg font-semibold" :contenteditable="editing" @blur="updateBlockData(index, 'title', $event.target.innerHTML)" x-html="block.data.title"></div>
-                                </div>
-                            </template>
-                            
-                            <div x-show="editing" class="mt-4 pt-2 border-t border-dashed border-gray-200 flex justify-center items-center gap-3 opacity-50 hover:opacity-100 transition-opacity">
-                                <span class="text-[10px] text-gray-400 uppercase tracking-widest">Inserir:</span>
-                                
-                                <button @click.prevent="addBlock('text', index + 1)" class="p-1.5 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 hover:scale-110 transition-transform" title="Texto">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
-                                </button>
-                                
-                                <button @click.prevent="openImageSelector(index + 1)" class="p-1.5 bg-purple-50 text-purple-600 rounded-full hover:bg-purple-100 hover:scale-110 transition-transform" title="Imagem">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
-                                </button>
-                                
-                                <button @click.prevent="openVideoSelectionModal(index + 1)" class="p-1.5 bg-red-50 text-red-600 rounded-full hover:bg-red-100 hover:scale-110 transition-transform" title="Vídeo">
-                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
-                                    </svg>
-                                </button>
-                            </div>
+                    <h3>Como Funciona</h3>
+                    <p>
+                        O sistema permite que usuários cadastrados registrem árvores encontradas pela cidade, incluindo
+                        informações detalhadas como:
+                    </p>
+                    <ul>
+                        <li>Localização geográfica precisa (latitude e longitude)</li>
+                        <li>Espécie da árvore (nome comum e científico)</li>
+                        <li>Diâmetro do tronco e estado de saúde</li>
+                        <li>Histórico de atividades de manutenção</li>
+                        <li>Fotografias das árvores</li>
+                    </ul>
 
-                        </div>
-                    </template>
-                    
+                    <h3>Benefícios das Árvores Urbanas</h3>
+                    <p>
+                        As árvores urbanas desempenham um papel crucial no ambiente urbano, proporcionando diversos
+                        benefícios:
+                    </p>
+                    <ul>
+                        <li><strong>Qualidade do Ar:</strong> Filtram poluentes e produzem oxigênio</li>
+                        <li><strong>Conforto Térmico:</strong> Reduzem a temperatura ambiente através da sombra e
+                            evapotranspiração</li>
+                        <li><strong>Gestão de Águas Pluviais:</strong> Interceptam a água da chuva, reduzindo o
+                            escoamento superficial</li>
+                        <li><strong>Biodiversidade:</strong> Fornecem habitat para diversas espécies de fauna</li>
+                        <li><strong>Bem-estar Social:</strong> Melhoram a estética urbana e proporcionam espaços de
+                            convivência</li>
+                    </ul>
+
+                    <h3>Participe</h3>
+                    <p>
+                        Convidamos todos os moradores de Paracambi a participarem deste projeto. Cadastre-se no sistema,
+                        registre as árvores do seu bairro, acompanhe as atividades de manutenção e contribua para a
+                        preservação do nosso patrimônio verde. Juntos, podemos construir uma cidade mais verde, saudável
+                        e sustentável para as futuras gerações.
+                    </p>
+
                     <div class="bg-green-50 border-l-4 border-green-500 p-6 mt-8">
                         <p class="text-green-800 font-semibold">
                             Para mais informações ou para reportar problemas, entre em contato conosco através da <a
