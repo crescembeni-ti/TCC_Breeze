@@ -466,6 +466,45 @@ main {
     stroke-width: 2;
 }
 
+/* Cabeçalho do Filtro - Novo Estilo Destacado */
+.filter-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background-color: #dcfce7; /* Verde bem claro */
+    color: #166534; /* Verde escuro */
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.header-text h3 {
+    color: #1f2937; /* Cinza escuro quase preto para leitura */
+    font-size: 18px;
+    margin: 0;
+    font-weight: 800; /* Extra bold */
+    text-transform: uppercase; /* Caixa alta para destaque */
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+}
+
+.header-text p {
+    color: #6b7280;
+    font-size: 11px;
+    margin: 4px 0 0 0;
+    font-weight: 500;
+}
+
 /* MAIN */
 main {
     animation: fadeIn 0.8s ease-out;

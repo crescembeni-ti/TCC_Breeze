@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,20 +9,21 @@ class AboutPage extends Model
 {
     use HasFactory;
 
+    /**
+     * Os atributos que podem ser atribuídos em massa.
+     * Isso deve bater exatamente com os nomes das colunas na sua Migration
+     * e os 'name' dos inputs no seu formulário.
+     */
     protected $fillable = [
         'title',
-        'content_blocks', // NOVO: Campo para armazenar o JSON dos blocos
+        'content',              // Introdução / Visão Geral
+        'mission_title',        // Título da missão (opcional)
+        'mission_content',      // Conteúdo da missão
+        'how_it_works_content', // Como funciona
+        'benefits_content',     // Benefícios
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        // O Laravel converterá automaticamente o JSON da coluna em um array PHP
-        'content_blocks' => 'array', 
-    ];
-
-    // As colunas antigas (content, mission_title, etc.) foram removidas de $fillable.
+    // O $casts para 'content_blocks' foi removido porque
+    // agora estamos usando colunas de texto simples (longText)
+    // em vez de um JSON complexo.
 }

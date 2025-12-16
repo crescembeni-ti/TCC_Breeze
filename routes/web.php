@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AccountManagementController;
 use App\Http\Controllers\Admin\AdminServiceController;
 use App\Http\Controllers\ServiceOrderController;
+// --- ADICIONADO: Controller para editar o Sobre ---
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +46,7 @@ use App\Http\Controllers\Servico\ServiceDashboardController;
 
 /*
 |--------------------------------------------------------------------------
-| CONTROLLERS - ESPÉCIES (ADICIONADO)
+| CONTROLLERS - ESPÉCIES
 |--------------------------------------------------------------------------
 */
 use App\Http\Controllers\SpeciesController;
@@ -176,10 +177,18 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
 
         Route::patch('/profile/password', [AdminProfileController::class, 'updatePassword'])
             ->name('profile.password.update');
+        
+        /*
+        |--------------------------------------------------------------------------
+        | PÁGINA SOBRE (EDIÇÃO)  ✅ ADICIONADO AQUI
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/sobre', [AboutPageController::class, 'edit'])->name('about.edit');
+        Route::put('/sobre', [AboutPageController::class, 'update'])->name('about.update');
 
         /*
         |--------------------------------------------------------------------------
-        | ESPÉCIES (AJAX / MODAL)  ✅ ADICIONADO
+        | ESPÉCIES (AJAX / MODAL)
         |--------------------------------------------------------------------------
         */
         Route::post('/species', [SpeciesController::class, 'store'])
@@ -307,8 +316,15 @@ Route::prefix('pbi-servico')->name('service.')->group(function () {
         Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])->name('tasks.falha');
 
         Route::get('/profile', fn () => view('servico.profile'))->name('profile.edit');
+
+         Route::post('/tarefas/{id}/concluir', [ServiceExecutionController::class, 'concluir'])->name('tasks.concluir');
+Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])->name('tasks.falha');
+
+
     });
-});
+
+    });
+
 
 /*
 |--------------------------------------------------------------------------
