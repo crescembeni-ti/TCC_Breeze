@@ -168,24 +168,27 @@
                 const statusName = m.status ? m.status.name.trim() : '';
 
                 // --- LÓGICA DOS BOTÕES DE ENCAMINHAMENTO ---
+                // --- BOTÕES CONFORME STATUS ---
                 let forwardButton = '';
-                
-                // 1. Botão Analista: SÓ SE ESTIVER "DEFERIDO"
+
+                // DEFERIDO → encaminhar para ANALISTA
                 if (statusName === 'Deferido') {
                     forwardButton = `
                         <button onclick="openForwardModal(${m.id}, 'analista')" 
-                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2" title="Encaminhar para Analista">
+                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2">
                             <i data-lucide="user-check" class="w-3 h-3 mr-1"></i> Analista
                         </button>`;
-                } 
-                // 2. Botão Serviço: SÓ SE ESTIVER "VISTORIADO"
-                else if (statusName === 'Vistoriado') {
+                }
+
+                // VISTORIADO → encaminhar para SERVIÇO
+                if (statusName === 'Vistoriado') {
                     forwardButton = `
                         <button onclick="openForwardModal(${m.id}, 'servico')" 
-                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2" title="Encaminhar para Serviço">
+                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2">
                             <i data-lucide="hammer" class="w-3 h-3 mr-1"></i> Serviço
                         </button>`;
                 }
+
 
                 // 3. Botão Status: COR AZUL e TEXTO "ATUALIZAR STATUS"
                 const btnStatus = `
