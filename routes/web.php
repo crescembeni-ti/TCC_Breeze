@@ -27,7 +27,6 @@ use App\Http\Controllers\Admin\AccountManagementController;
 use App\Http\Controllers\Admin\AdminServiceController;
 use App\Http\Controllers\ServiceOrderController;
 // --- ADICIONADO: Controller para editar o Sobre ---
-use App\Http\Controllers\Admin\AboutController; 
 
 /*
 |--------------------------------------------------------------------------
@@ -184,8 +183,8 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         | PÁGINA SOBRE (EDIÇÃO)  ✅ ADICIONADO AQUI
         |--------------------------------------------------------------------------
         */
-        Route::get('/sobre', [AboutController::class, 'edit'])->name('about.edit');
-        Route::put('/sobre', [AboutController::class, 'update'])->name('about.update');
+        Route::get('/sobre', [AboutPageController::class, 'edit'])->name('about.edit');
+        Route::put('/sobre', [AboutPageController::class, 'update'])->name('about.update');
 
         /*
         |--------------------------------------------------------------------------
