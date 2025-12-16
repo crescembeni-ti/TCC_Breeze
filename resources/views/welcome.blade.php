@@ -423,8 +423,8 @@
     treeIndexGlobal = 0;
 
     // Define o tamanho mínimo e máximo da bolinha
-    const MIN_RADIUS = 3; // menor bolinha
-    const MAX_RADIUS = 5; // maior bolinha
+    const MIN_RADIUS = 8;  // Antes era 3
+    const MAX_RADIUS = 15; // Antes era 5
 
     // Pega todos os diâmetros existentes para calcular escala
     const diameters = trees.map(t => parseFloat(t.trunk_diameter) || 0);
@@ -433,9 +433,10 @@
 
     // Função para mapear diâmetro para radius
     function scaleDiameter(d) {
-        if (maxDiameter === minDiameter) return (MIN_RADIUS + MAX_RADIUS) / 2; // evita divisão por zero
-        return MIN_RADIUS + (d - minDiameter) / (maxDiameter - minDiameter) * (MAX_RADIUS - MIN_RADIUS);
-    }
+    if (maxDiameter === minDiameter) return MIN_RADIUS; 
+    // Cálculo de escala linear
+    return MIN_RADIUS + (d - minDiameter) / (maxDiameter - minDiameter) * (MAX_RADIUS - MIN_RADIUS);
+}
 
     // Dentro do loop que cria os markers
     trees.forEach((tree, index) => {
