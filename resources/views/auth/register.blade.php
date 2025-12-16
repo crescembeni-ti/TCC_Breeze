@@ -6,7 +6,7 @@
 
     <div class="flex justify-end mb-4">
         <a href="{{ route('home') }}" class="text-sm text-green-700 hover:text-green-800 font-medium underline">
-            ← Voltar ao início
+            Voltar ao início
         </a>
     </div>
 
