@@ -316,8 +316,15 @@ Route::prefix('pbi-servico')->name('service.')->group(function () {
         Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])->name('tasks.falha');
 
         Route::get('/profile', fn () => view('servico.profile'))->name('profile.edit');
+
+         Route::post('/tarefas/{id}/concluir', [ServiceExecutionController::class, 'concluir'])->name('tasks.concluir');
+Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])->name('tasks.falha');
+
+
     });
-});
+
+    });
+
 
 /*
 |--------------------------------------------------------------------------

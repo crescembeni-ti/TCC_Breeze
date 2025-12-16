@@ -6,52 +6,50 @@ use App\Http\Controllers\Controller;
 use App\Models\Contact;
 use App\Models\Status;
 use Illuminate\Http\Request;
+use App\Models\ServiceOrder;
+
 
 class ServiceExecutionController extends Controller
 {
     public function index()
     {
-        // TAREFAS = OS que o admin enviou para o serviço (pelo designated_to)
-        $tarefas = Contact::where('designated_to', 'service')
-                          ->whereHas('status', fn($q) =>
-                              $q->where('name', 'Deferido')
-                          )
-                          ->get();
+       // Recupera todas as ordens de serviço atribuídas ao usuário autenticado
+        $ordensDeServico = ServiceOrder::with('contact')  // Inclui dados relacionados ao contato
+            ->where('supervisor_id', auth()->id())  // Filtra as ordens de serviço do usuário autenticado
+            ->whereNull('data_execucao')  // Somente as ordens que ainda não foram executadas
+            ->get();
 
-        return view('servico.tarefas', compact('tarefas'));
+        return view('servico.tarefas', compact('ordensDeServico'));
     }
 
     // Serviço concluiu
     public function concluir($id)
     {
-        $contact = Contact::findOrFail($id);
+       $os = ServiceOrder::findOrFail($id);
 
-        $status = Status::where('name', 'Concluído')->firstOrFail();
+    // Marca a ordem de serviço como concluída, e registra a data de execução
+    $os->data_execucao = now();
+    $os->save();
 
-        $contact->update([
-            'status_id' => $status->id,
-            'data_execucao' => now(),
-        ]);
+    // Redireciona para a lista de ordens de serviço
+    return redirect()->route('service.tasks.index');
 
-        return back()->with('success', 'Serviço concluído com sucesso.');
+        //return back()->with('success', 'Serviço concluído com sucesso.');
     }
 
     // Serviço não conseguiu fazer
     public function falha(Request $request, $id)
     {
-        $request->validate([
-            'motivo_falha' => 'required|min:5'
-        ]);
+        $os = ServiceOrder::findOrFail($id);
 
-        $contact = Contact::findOrFail($id);
+    // Marca a ordem de serviço como falha, e registra o motivo
+    $os->motivos[] = $request->input('motivo_falha');
+    $os->save();
 
-        $status = Status::where('name', 'Indeferido')->firstOrFail();
+    // Redireciona para a lista de ordens de serviço
+    return redirect()->route('servico.dashboard');
 
-        $contact->update([
-            'status_id' => $status->id,
-            'justificativa' => $request->motivo_falha,
-        ]);
-
-        return back()->with('warning', 'Falha registrada.');
+        //return back()->with('warning', 'Falha registrada.');
     }
+
 }

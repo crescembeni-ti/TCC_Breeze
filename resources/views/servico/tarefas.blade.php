@@ -10,67 +10,60 @@
         Minhas Tarefas
     </h2>
 
-    @if($tarefas->isEmpty())
+    {{-- 🔑 CORREÇÃO 1: Usar a variável $ordensDeServico --}}
+    @if($ordensDeServico->isEmpty()) 
         <p class="text-gray-600 text-lg">Não há tarefas atribuídas no momento.</p>
     @else
 
         <div class="grid grid-cols-1 gap-6">
 
-            @foreach($tarefas as $tarefa)
+            {{-- 🔑 CORREÇÃO 2: Iterar como $os --}}
+            @foreach($ordensDeServico as $os)
             <div class="border rounded-lg shadow p-6">
-
                 <h3 class="text-2xl font-semibold text-[#358054] mb-3">
-                    {{ $tarefa->topico }}
+                    Ordem de Serviço #OS-{{ $os->id }}
                 </h3>
 
-                <p><strong>Solicitante:</strong> {{ $tarefa->nome_solicitante }}</p>
+                <p><strong>Solicitante:</strong> {{ $os->contact->nome_solicitante }}</p>
 
                 <p><strong>Endereço:</strong>
-                    {{ $tarefa->rua }}, {{ $tarefa->numero }} - {{ $tarefa->bairro }}
+                    {{ $os->contact->rua }}, {{ $os->contact->numero }} - {{ $os->contact->bairro }}
                 </p>
 
-                <p class="mt-2"><strong>Descrição:</strong><br>
-                    {{ $tarefa->descricao }}
+                <p><strong>Serviços:</strong>
+                    @foreach ($os->servicos as $servico)
+                        <span class="bg-blue-200 text-blue-800 px-2 py-1 rounded-md">{{ $servico }}</span>
+                    @endforeach
                 </p>
 
-                <p class="mt-2"><strong>Observações do Analista:</strong><br>
-                    {{ $tarefa->observacoes ?? '---' }}
+                <p><strong>Observações:</strong><br>
+                    {{ $os->observacoes ?? 'Nenhuma observação.' }}
                 </p>
-
 
                 <div class="mt-6 flex gap-4">
-
-                    {{-- CONCLUIR --}}
-                    <form method="POST" action="{{ route('service.tasks.concluir', $tarefa->id) }}">
+                    {{-- Usar $os->id na rota agora está correto --}}
+                    <form method="POST" action="{{ route('service.tasks.concluir', $os->id) }}">
                         @csrf
-
                         <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow">
-                            Concluir Serviço
+                            Concluir Ordem de Serviço
                         </button>
                     </form>
 
-                    {{-- FALHA --}}
-                    <form method="POST" action="{{ route('service.tasks.falha', $tarefa->id) }}">
+                    <form method="POST" action="{{ route('service.tasks.falha', $os->id) }}">
                         @csrf
-
                         <input name="motivo_falha" required minlength="5"
-                               placeholder="Motivo da falha"
-                               class="border rounded-lg px-3 py-2">
-
+                            placeholder="Motivo da falha"
+                            class="border rounded-lg px-3 py-2">
                         <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow">
                             Não Executado
                         </button>
                     </form>
-
                 </div>
-
             </div>
             @endforeach
-
         </div>
 
     @endif
-
 </div>
 
 @endsection
