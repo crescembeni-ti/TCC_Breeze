@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Admin;
 
 class Tree extends Model
 {
@@ -16,6 +17,7 @@ class Tree extends Model
         'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms',
         'target', 'injuries', 'wiring_status', 'total_width', 'street_width',
         'gutter_height', 'gutter_width', 'gutter_length', 'no_species_case', 'description',
+        'admin_id',
     ];
 
     protected $casts = [
@@ -38,6 +40,10 @@ class Tree extends Model
     public function bairro(): BelongsTo
     {
         return $this->belongsTo(Bairro::class);
+    }
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class, 'admin_id');
     }
 
 }

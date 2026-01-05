@@ -8,6 +8,7 @@ use App\Models\Activity;
 use App\Models\AdminLog;
 use App\Models\Bairro;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; 
 
 class TreeController extends Controller
 {
@@ -37,7 +38,8 @@ class TreeController extends Controller
      * ============================================================ */
     public function getTreesData()
     {
-        return Tree::with(['species', 'bairro'])->get()->map(fn ($tree) => [
+        // Adicionei 'admin' no with() caso queira mostrar no mapa quem cadastrou
+        return Tree::with(['species', 'bairro', 'admin'])->get()->map(fn ($tree) => [
             'id' => $tree->id,
             'latitude' => (float) $tree->latitude,
             'longitude' => (float) $tree->longitude,
@@ -48,6 +50,8 @@ class TreeController extends Controller
             'bairro_nome' => $tree->bairro->nome ?? null,
             'health_status' => $tree->health_status,
             'trunk_diameter' => $tree->trunk_diameter,
+            // Opcional: retornar nome do admin para o mapa
+            'registered_by' => $tree->admin ? $tree->admin->name : 'Sistema',
         ]);
     }
 
@@ -56,23 +60,46 @@ class TreeController extends Controller
      * ============================================================ */
     public function show($id)
     {
-        $tree = Tree::with(['species', 'activities.user'])->findOrFail($id);
+        // Carrega também o relacionamento 'admin' para mostrar na tela
+        $tree = Tree::with(['species', 'activities.user', 'admin'])->findOrFail($id);
         return view('trees.show', compact('tree'));
     }
 
     /* ============================================================
-     * DASHBOARD ADMIN
+     * DASHBOARD ADMIN (COM FILTRO DE LOGS)
      * ============================================================ */
-    public function adminDashboard()
+    public function adminDashboard(Request $request)
     {
-        return view('admin.dashboard', [
-            'stats' => [
-                'total_trees' => Tree::count(),
-                'total_activities' => Activity::count(),
-                'total_species' => Species::count(),
-            ],
-            'adminLogs' => AdminLog::latest()->take(10)->get(),
-        ]);
+        // 1. Estatísticas (Mantém igual)
+        $stats = [
+            'total_trees' => Tree::count(),
+            'total_activities' => Activity::count(),
+            'total_species' => Species::count(),
+        ];
+
+        // 2. Query dos Logs
+        $query = AdminLog::with('admin')->latest();
+
+        // 3. Aplica o Filtro se houver
+        if ($request->has('filter') && $request->filter != '') {
+            $filter = $request->filter;
+
+            if ($filter == 'cadastro') {
+                // Busca ações que tenham "create" no nome (ex: create_tree)
+                $query->where('action', 'like', '%create%');
+            } elseif ($filter == 'atualizacao') {
+                // Busca ações que tenham "update"
+                $query->where('action', 'like', '%update%');
+            } elseif ($filter == 'exclusao') {
+                // Busca ações que tenham "delete"
+                $query->where('action', 'like', '%delete%');
+            }
+        }
+
+        // 4. Paginação (Pega 10 por página e mantém o filtro na URL ao mudar de página)
+        $adminLogs = $query->paginate(10)->appends($request->all());
+
+        return view('admin.dashboard', compact('stats', 'adminLogs'));
     }
 
     /* ============================================================
@@ -88,7 +115,7 @@ class TreeController extends Controller
     }
 
     /* ============================================================
-     * CADASTRAR ÁRVORE (SELECT + NOVA ESPÉCIE)
+     * CADASTRAR ÁRVORE (COM ADMIN RESPONSÁVEL)
      * ============================================================ */
     public function storeTree(Request $request)
     {
@@ -129,7 +156,7 @@ class TreeController extends Controller
             'description' => 'nullable|string|max:1000',
         ]);
 
-        // resolve espécie
+        // Resolve a espécie (Existente ou Nova)
         if ($validated['species_id']) {
             $speciesId = $validated['species_id'];
         } else {
@@ -143,18 +170,29 @@ class TreeController extends Controller
             $speciesId = $species->id;
         }
 
-        $tree = Tree::create(array_merge(
-            collect($validated)->except(['species_id', 'new_species_name'])->toArray(),
-            ['species_id' => $speciesId]
-        ));
+        // Prepara os dados para salvar
+        $treeData = collect($validated)
+            ->except(['species_id', 'new_species_name']) // Remove campos auxiliares
+            ->toArray();
+        
+        // Adiciona IDs vinculados
+        $treeData['species_id'] = $speciesId;
+        
+        // === AQUI ESTÁ A MUDANÇA: SALVA QUEM CADASTROU ===
+        $treeData['admin_id'] = auth('admin')->id(); 
+        // =================================================
 
+        // Cria a árvore no banco
+        $tree = Tree::create($treeData);
+
+        // Gera Log de atividade
         AdminLog::create([
             'admin_id' => auth('admin')->id(),
             'action' => 'create_tree',
             'description' => 'Árvore criada (ID ' . $tree->id . ')',
         ]);
 
-        return redirect()->route('admin.map')->with('success', 'Árvore cadastrada!');
+        return redirect()->route('admin.map')->with('success', 'Árvore cadastrada com sucesso!');
     }
 
     /* ============================================================
@@ -162,8 +200,9 @@ class TreeController extends Controller
      * ============================================================ */
     public function adminTreeList()
     {
+        // Carrega o 'admin' para mostrar na lista quem criou
         return view('admin.trees.index', [
-            'trees' => Tree::with('species')->latest()->get(),
+            'trees' => Tree::with(['species', 'admin'])->latest()->get(),
         ]);
     }
 
@@ -217,6 +256,10 @@ class TreeController extends Controller
         ]);
 
         $tree->update($validated);
+
+        // OBS: Não atualizamos o admin_id aqui, pois o responsável
+        // é quem CRIOU a árvore, não quem editou.
+        // Quem editou fica salvo apenas no AdminLog abaixo.
 
         AdminLog::create([
             'admin_id' => auth('admin')->id(),
