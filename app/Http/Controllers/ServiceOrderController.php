@@ -8,13 +8,13 @@ use Illuminate\Http\Request;
 class ServiceOrderController extends Controller
 {
     /**
-     * ADMIN → LISTA OS
-     * recebidas = criadas pelo analista
-     * enviadas  = admin já mandou para equipe
+     * ADMIN -> LISTA OS
+     * Enviadas  = Admin enviou p/ Analista (status 'enviada')
+     * Recebidas = Analista preencheu e devolveu (status 'recebida')
      */
     public function index(Request $request)
     {
-        $tipo = $request->get('tipo', 'recebidas');
+        $tipo = $request->get('tipo', 'recebidas'); // Padrão recebidas
 
         $oss = ServiceOrder::with(['contact.user', 'contact.status'])
             ->when($tipo === 'recebidas', fn($q) => $q->where('status', 'recebida'))
