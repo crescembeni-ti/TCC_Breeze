@@ -9,23 +9,32 @@ class ServiceOrder extends Model
 {
     use HasFactory;
 
+    /**
+     * Campos liberados para mass assignment
+     */
     protected $fillable = [
         'contact_id',
+        'supervisor_id',
+        'analyst_id',
+        'service_id',
+        'flow',
         'data_vistoria',
         'data_execucao',
-        'especies', 
-        'quantidade', 
-        'latitude', 
-        'longitude',
         'motivos',
         'servicos',
         'equipamentos',
         'procedimentos',
         'observacoes',
-        'supervisor_id'
+        'especies',
+        'quantidade',
+        'latitude',
+        'longitude',
     ];
 
-    // O segredo está aqui: Converte JSON do banco para Array no PHP automaticamente
+    /**
+     * Casts automáticos
+     * Converte JSON do banco em array no PHP
+     */
     protected $casts = [
         'motivos' => 'array',
         'servicos' => 'array',
@@ -33,13 +42,29 @@ class ServiceOrder extends Model
         'procedimentos' => 'array',
         'data_vistoria' => 'date',
         'data_execucao' => 'date',
-        // 'especies', 'quantidade', 'latitude', e 'longitude' são strings/inteiros
-        // e não precisam ser casted, a menos que você queira garantir um tipo específico.
     ];
 
-    // Relacionamento inverso
+    /**
+     * =============================
+     * RELACIONAMENTOS
+     * =============================
+     */
+
+    // Solicitação original do usuário
     public function contact()
     {
         return $this->belongsTo(Contact::class);
+    }
+
+    // Analista responsável (destino atual ou criador)
+    public function analyst()
+    {
+        return $this->belongsTo(Analyst::class);
+    }
+
+    // Equipe de serviço responsável
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
     }
 }

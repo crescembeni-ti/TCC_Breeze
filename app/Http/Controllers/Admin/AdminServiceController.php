@@ -3,43 +3,80 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Contact;
+use App\Models\ServiceOrder;
 use App\Models\Status;
+use Illuminate\Http\Request;
 
 class AdminServiceController extends Controller
 {
-    // OS prontas para enviar
-    public function ordensPendentes()
+    /**
+     * LISTAGEM PRINCIPAL
+     * - Filtro por destino: analista | servico
+     */
+    public function index(Request $request)
     {
-        $os = Contact::whereNotNull('data_vistoria')
-                     ->whereHas('status', fn($q) =>
-                         $q->where('name', 'Deferido')
-                     )
-                     ->get();
+        // analista é o filtro padrão
+        $destino = $request->get('destino', 'analista');
 
-        return view('admin.os.pendentes', compact('os'));
+        // Segurança: só aceita valores válidos
+        if (!in_array($destino, ['analista', 'servico'])) {
+            abort(404);
+        }
+
+        $oss = ServiceOrder::with('contact.user')
+            ->where('flow', $destino)
+            ->orderByDesc('id')
+            ->get();
+
+        return view('admin.os.index', compact('oss', 'destino'));
     }
 
-    // Admin envia ao serviço
-    public function enviarParaServico($id)
+    /**
+     * VISUALIZAÇÃO DA OS
+     */
+    public function show(ServiceOrder $os)
     {
-        $contact = Contact::findOrFail($id);
-
-        // Mantém DEFERIDO, apenas registra que foi enviado
-        $contact->update([
-            'designated_to' => 'service', // ou id do funcionário, se desejar
-        ]);
-
-        return back()->with('success', 'Ordem de serviço enviada à equipe.');
+        return view('admin.os.show', compact('os'));
     }
 
-    // Admin recebe os resultados do Serviço
-    public function resultados()
+    /**
+     * CANCELAR ENVIO DA OS
+     *
+     * - Analista → volta para DEFERIDO
+     * - Serviço  → volta para VISTORIADO
+     */
+    public function cancelar(ServiceOrder $os)
     {
-        $os = Contact::whereHas('status', fn($q) =>
-            $q->whereIn('name', ['Concluído','Indeferido'])
-        )->get();
+        // Cancelamento de OS enviada ao ANALISTA
+        if ($os->flow === 'analista') {
 
-        return view('admin.os.resultados', compact('os'));
+            $status = Status::where('name', 'Deferido')->firstOrFail();
+
+            $os->update([
+                'analyst_id' => null,
+                'flow' => null, // remove do filtro
+            ]);
+
+            $os->contact->update([
+                'status_id' => $status->id,
+            ]);
+        }
+
+        // Cancelamento de OS enviada ao SERVIÇO
+        if ($os->flow === 'servico') {
+
+            $status = Status::where('name', 'Vistoriado')->firstOrFail();
+
+            $os->update([
+                'service_id' => null,
+                'flow' => null, // remove do filtro
+            ]);
+
+            $os->contact->update([
+                'status_id' => $status->id,
+            ]);
+        }
+
+        return back()->with('success', 'Ordem de serviço cancelada com sucesso.');
     }
 }

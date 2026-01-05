@@ -7,199 +7,186 @@ use App\Models\Contact;
 use App\Models\Status;
 use App\Models\Bairro;
 use App\Models\Topico;
-use App\Models\User;
 use App\Models\Analyst;
 use App\Models\Service;
+use App\Models\ServiceOrder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
-use App\Models\ServiceOrder;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 
 class ContactController extends Controller
 {
     /* ============================================================
-     * FORMULÁRIO DO SITE
+     * FORMULÁRIO – USUÁRIO
      * ============================================================ */
     public function index()
     {
-        $bairros = Bairro::orderBy('nome', 'asc')->get();
-        $topicos = Topico::orderBy('nome', 'asc')->get();
-        return view('pages.contact', compact('bairros', 'topicos'));
+        return view('pages.contact', [
+            'bairros' => Bairro::orderBy('nome')->get(),
+            'topicos' => Topico::orderBy('nome')->get(),
+        ]);
     }
 
     /* ============================================================
-     * SALVAR SOLICITAÇÃO (NASCE SEM ANALISTA)
+     * USUÁRIO → CRIA SOLICITAÇÃO
+     * Status inicial: Em Análise
      * ============================================================ */
     public function store(Request $request)
     {
-        $user = Auth::user();
-
-        $validated = $request->validate([
+        $request->validate([
             'topico' => 'required|string|max:255',
             'bairro' => 'required|string|max:255',
             'rua' => 'required|string|max:255',
-            'numero' => 'nullable|string|max:10',
+            'numero' => 'nullable|string|max:20',
             'descricao' => 'required|string',
             'fotos' => 'nullable|array|max:3',
-            'fotos.*' => 'image|mimes:jpg,png,jpeg|max:2048',
+            'fotos.*' => 'image|max:2048',
         ]);
 
-        $caminhosFotos = [];
-
+        $paths = [];
         if ($request->hasFile('fotos')) {
             foreach ($request->file('fotos') as $foto) {
-                $caminhosFotos[] = $foto->store('solicitacoes', 'public');
+                $paths[] = $foto->store('solicitacoes', 'public');
             }
         }
 
-        $statusEmAnalise = Status::where('name', 'Em Análise')->firstOrFail();
-
         Contact::create([
-            'topico' => $validated['topico'],
-            'bairro' => $validated['bairro'],
-            'rua' => $validated['rua'],
-            'numero' => $validated['numero'] ?? null,
-            'descricao' => $validated['descricao'],
-            'fotos' => $caminhosFotos,
-            'user_id' => $user->id,
-            'nome_solicitante' => $user->name,
-            'email_solicitante' => $user->email,
-            'status_id' => $statusEmAnalise->id,
-            'analyst_id' => null,
-            'service_id' => null,
-            'justificativa' => null,
+            'topico' => $request->topico,
+            'bairro' => $request->bairro,
+            'rua' => $request->rua,
+            'numero' => $request->numero,
+            'descricao' => $request->descricao,
+            'fotos' => $paths,
+            'user_id' => Auth::id(),
+            'nome_solicitante' => Auth::user()->name,
+            'email_solicitante' => Auth::user()->email,
+            'status_id' => Status::where('name', 'Em Análise')->first()->id,
         ]);
 
-        return redirect()->route('contact')
-            ->with('success', 'Sua solicitação foi enviada com sucesso!');
+        return redirect()->route('contact')->with('success', 'Solicitação enviada.');
     }
 
     /* ============================================================
-     * LISTAGEM DO ADMIN (VÊ TUDO)
+     * ADMIN → LISTA DE SOLICITAÇÕES
      * ============================================================ */
     public function adminContactList(Request $request)
     {
-        $filtro = $request->query('filtro', 'todas');
-        $pendentes = ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'];
-        $resolvidas = ['Concluído', 'Indeferido', 'Sem Pendências'];
+        $filtro = $request->get('filtro', 'pendentes');
 
-        $query = Contact::with(['status', 'user']);
+        $query = Contact::with('status', 'user');
 
         if ($filtro === 'pendentes') {
-            $query->whereHas('status', fn($q) => $q->whereIn('name', $pendentes));
-        } elseif ($filtro === 'resolvidas') {
-            $query->whereHas('status', fn($q) => $q->whereIn('name', $resolvidas));
+            $query->whereHas('status', fn ($q) =>
+                $q->whereIn('name', [
+                    'Em Análise',
+                    'Deferido',
+                    'Vistoriado',
+                    'Em Execução'
+                ])
+            );
         }
 
-        $messages = $query->latest()->get();
-        $allStatuses = Status::where('name', '!=', 'Cancelado')->get();
+        if ($filtro === 'resolvidas') {
+            $query->whereHas('status', fn ($q) =>
+                $q->whereIn('name', [
+                    'Concluído',
+                    'Indeferido',
+                    'Sem Pendências'
+                ])
+            );
+        }
 
-        $analistas = Analyst::orderBy('name')->get();
-        $servicos = Service::orderBy('name')->get();
-
-        return view('admin.contacts.index', compact('messages', 'allStatuses', 'filtro', 'analistas', 'servicos'));
+        return view('admin.contacts.index', [
+            'messages' => $query->latest()->get(),
+            'allStatuses' => Status::where('name', '!=', 'Cancelado')->get(),
+            'analistas' => Analyst::orderBy('name')->get(),
+            'servicos' => Service::orderBy('name')->get(),
+            'filtro' => $filtro,
+        ]);
     }
 
     /* ============================================================
-     * ENCAMINHAR (ADMIN) → DEFINE ANALYST + SERVICE + STATUS DEFERIDO
+     * ADMIN → ENVIA PARA ANALISTA
+     * (NÃO altera status, só cria OS)
      * ============================================================ */
-    public function forward(Request $request, Contact $contact)
+    public function sendToAnalyst(Request $request, Contact $contact)
     {
-        // 1. Validação: Agora aceita nulo (nullable)
-        $validated = $request->validate([
-            'analyst_id' => 'nullable|exists:analysts,id',
-            'service_id' => 'nullable|exists:services,id',
+        $request->validate([
+            'analyst_id' => 'required|exists:analysts,id',
         ]);
 
-        // 2. Prepara os dados para salvar
-        $dataToUpdate = [];
-        
-        if ($request->has('analyst_id')) {
-            $dataToUpdate['analyst_id'] = $request->analyst_id;
-        }
-        
-        if ($request->has('service_id')) {
-            $dataToUpdate['service_id'] = $request->service_id;
-        }
-
-        // 3. Atualiza o Contato
-        $contact->update($dataToUpdate);
-
-        // 4. Lógica de Status
-        if ($request->filled('analyst_id')) {
-            $status = Status::where('name', 'Deferido')->first();
-            if($status) $contact->update(['status_id' => $status->id]);
-        } 
-        elseif ($request->filled('service_id')) {
-            $status = Status::where('name', 'Vistoriado')->first();
-            if($status) $contact->update(['status_id' => $status->id]);
-        }
-
-        return response()->json([
-            'message' => 'Solicitação encaminhada com sucesso!',
-            'contact' => $contact->fresh(['status', 'user']),
+        // Só associa analista
+        $contact->update([
+            'analyst_id' => $request->analyst_id,
         ]);
+
+        // Cria ou reaproveita OS
+        ServiceOrder::firstOrCreate(
+            ['contact_id' => $contact->id],
+            [
+                'analyst_id' => $request->analyst_id,
+                'flow' => 'analista',
+            ]
+        );
+
+        return back()->with('success', 'Solicitação enviada ao analista.');
     }
 
     /* ============================================================
-     * UPDATE DE STATUS (ADMIN)
+     * ADMIN → ENVIA OS PARA SERVIÇO
+     * ============================================================ */
+    public function sendToService(Request $request, ServiceOrder $os)
+    {
+        $request->validate([
+            'service_id' => 'required|exists:services,id',
+        ]);
+
+        $os->update([
+            'service_id' => $request->service_id,
+            'flow' => 'servico',
+        ]);
+
+        $os->contact->update([
+            'status_id' => Status::where('name', 'Em Execução')->first()->id,
+        ]);
+
+        return back()->with('success', 'Enviado para equipe de serviço.');
+    }
+
+    /* ============================================================
+     * ADMIN → ATUALIZA STATUS MANUAL (ÚNICO LUGAR QUE DEFERE)
      * ============================================================ */
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
-        $statusCancelado = Status::where('name', 'Cancelado')->first()->id ?? null;
-        $statusIndeferidoId = Status::where('name', 'Indeferido')->first()->id;
+        $indeferido = Status::where('name', 'Indeferido')->first()->id;
 
-        if ($request->status_id == $statusCancelado) {
-            return back()->withErrors(['error' => 'Administrador não pode cancelar solicitações.']);
-        }
-
-        $validated = $request->validate([
+        $request->validate([
             'status_id' => 'required|exists:statuses,id',
-            'justificativa' => [Rule::requiredIf($request->status_id == $statusIndeferidoId)],
+            'justificativa' => Rule::requiredIf($request->status_id == $indeferido),
         ]);
 
-        $contact->update([
-            'status_id' => $validated['status_id'],
-            'justificativa' => $validated['justificativa'] ?? null
-        ]);
+        $contact->update($request->only('status_id', 'justificativa'));
 
-        // Notificação Firebase
+        // 🔔 Notificação usuário
         try {
-            $user = $contact->user;
-            if ($user && $user->fcm_token) {
-                $messaging = app('firebase.messaging');
-                $notification = Notification::create(
-                    'Sua solicitação foi atualizada!',
-                    'O status agora é: ' . $contact->status->name
+            if ($contact->user?->fcm_token) {
+                app('firebase.messaging')->send(
+                    CloudMessage::withTarget('token', $contact->user->fcm_token)
+                        ->withNotification(
+                            Notification::create(
+                                'Solicitação atualizada',
+                                'Novo status: ' . $contact->status->name
+                            )
+                        )
                 );
-                $message = CloudMessage::withTarget('token', $user->fcm_token)
-                    ->withNotification($notification);
-
-                $messaging->send($message);
             }
         } catch (\Exception $e) {
-            Log::error('Erro ao enviar notificação FCM: ' . $e->getMessage());
+            Log::error($e->getMessage());
         }
 
         return back()->with('success', 'Status atualizado.');
-    }
-
-    /* ============================================================
-     * ADMIN → LISTA E MOSTRA ORDENS
-     * ============================================================ */
-    public function adminServiceOrders()
-    {
-        $oss = ServiceOrder::with(['contact.user', 'contact.status'])->latest()->get();
-        return view('admin.os.index', compact('oss'));
-    }
-
-    public function adminServiceOrderShow($id)
-    {
-        $os = ServiceOrder::with('contact.user', 'contact.status')->findOrFail($id);
-        return view('admin.os.show', compact('os'));
     }
 
     /* ============================================================
@@ -207,106 +194,29 @@ class ContactController extends Controller
      * ============================================================ */
     public function userRequestList()
     {
-        $statusCanceladoId = Status::where('name', 'Cancelado')->first()->id;
-        $myRequests = Auth::user()->contacts()
-            ->with('status')
-            ->where('status_id', '!=', $statusCanceladoId)
-            ->latest()->get();
-
-        return view('pages.my-requests', compact('myRequests'));
-    }
-
-    public function cancelRequest(Request $request, Contact $contact)
-    {
-        if (Auth::id() !== $contact->user_id) abort(403);
-
-        $statusEmAnaliseId = Status::where('name', 'Em Análise')->first()->id;
-        $statusDeferidoId = Status::where('name', 'Deferido')->first()->id;
-        $statusCanceladoId = Status::where('name', 'Cancelado')->first()->id;
-
-        if (!in_array($contact->status_id, [$statusEmAnaliseId, $statusDeferidoId])) {
-            return back()->withErrors(['cancel_error' => 'Esta solicitação não pode mais ser cancelada.']);
-        }
-
-        $request->validate(['justificativa_cancelamento' => 'nullable|string|max:500']);
-
-        $contact->update([
-            'status_id' => $statusCanceladoId,
-            'justificativa' => $request->justificativa_cancelamento
-                ? 'Cancelado pelo usuário: ' . $request->justificativa_cancelamento
-                : 'Cancelado pelo usuário.'
+        return view('pages.my-requests', [
+            'myRequests' => Auth::user()
+                ->contacts()
+                ->with('status')
+                ->whereHas('status', fn ($q) => $q->where('name', '!=', 'Cancelado'))
+                ->latest()
+                ->get(),
         ]);
-
-        return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada.');
     }
 
     /* ============================================================
-     * ANALISTA → DASHBOARD
-     * ============================================================ */
-    public function analystDashboard()
-    {
-        $analystId = Auth::guard('analyst')->id() ?? 0;
-
-        $statusPendentes = ['Deferido', 'Em Execução'];
-        $statusConcluidos = ['Concluído', 'Vistoriado', 'Indeferido', 'Sem Pendências'];
-
-        $countPendentes = Contact::where('analyst_id', $analystId)
-            ->whereHas('status', fn($q) => $q->whereIn('name', $statusPendentes))
-            ->count();
-
-        $countConcluidas = Contact::where('analyst_id', $analystId)
-            ->whereHas('status', fn($q) => $q->whereIn('name', $statusConcluidos))
-            ->count();
-
-        $vistorias = Contact::with(['status', 'user'])
-            ->where('analyst_id', $analystId)
-            ->whereHas('status', fn($q) => $q->whereIn('name', $statusPendentes))
-            ->latest()
-            ->take(5)
-            ->get();
-
-        return view('analista.dashboard', compact('vistorias', 'countPendentes', 'countConcluidas'));
-    }
-
-    /* ============================================================
-     * ANALISTA → LISTA DE VISTORIAS
-     * ============================================================ */
-    public function vistoriasPendentes()
-    {
-        $analystId = Auth::guard('analyst')->id() ?? 0;
-
-        $statusPermitidos = ['Deferido', 'Em Execução'];
-
-        $vistorias = Contact::with(['status', 'user'])
-            ->where('analyst_id', $analystId)
-            ->whereHas('status', fn($q) => $q->whereIn('name', $statusPermitidos))
-            ->latest()
-            ->get();
-
-        return view('analista.vistorias-pendentes', compact('vistorias'));
-    }
-
-    /* ============================================================
-     * ANALISTA → GERAR ORDEM DE SERVIÇO
+     * ANALISTA → FINALIZA VISTORIA
      * ============================================================ */
     public function storeServiceOrder(Request $request)
     {
         $request->validate([
             'contact_id' => 'required|exists:contacts,id',
             'data_vistoria' => 'required|date',
-            'data_execucao' => 'nullable|date',
-            'motivo' => 'nullable|array',
-            'servico' => 'nullable|array',
-            'equip' => 'nullable|array',
-            'procedimentos' => 'nullable|array',
-            'observacoes' => 'nullable|string',
-            'especies' => 'nullable|string|max:255',
-            'quantidade' => 'nullable|integer',
-            'lat_long' => 'nullable|string|max:100',
         ]);
 
-        ServiceOrder::create([
-            'contact_id' => $request->contact_id,
+        $os = ServiceOrder::where('contact_id', $request->contact_id)->firstOrFail();
+
+        $os->update([
             'supervisor_id' => Auth::guard('analyst')->id(),
             'data_vistoria' => $request->data_vistoria,
             'data_execucao' => $request->data_execucao,
@@ -317,32 +227,16 @@ class ContactController extends Controller
             'observacoes' => $request->observacoes,
             'especies' => $request->especies,
             'quantidade' => $request->quantidade,
-            'latitude' => $request->lat_long,
-            'longitude' => $request->lat_long,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'flow' => 'finalizada',
         ]);
 
-        // MUDANÇA: Atualiza o status para "Vistoriado"
-        $statusVistoriado = Status::where('name', 'Vistoriado')->first();
-        Contact::find($request->contact_id)->update(['status_id' => $statusVistoriado->id]);
+        $os->contact->update([
+            'status_id' => Status::where('name', 'Vistoriado')->first()->id,
+        ]);
 
-        // MUDANÇA: Redireciona para a tela de ordens enviadas
-        return redirect()->route('analyst.os.enviadas')
-            ->with('success', 'Ordem de Serviço gerada e enviada com sucesso!');
-    }
-
-    /* ============================================================
-     * ANALISTA → ORDENS ENVIADAS (NOVO MÉTODO)
-     * ============================================================ */
-    public function ordensEnviadas()
-    {
-        $analystId = Auth::guard('analyst')->id() ?? 0;
-
-        // Busca todas as OS criadas por este analista
-        $ordensEnviadas = ServiceOrder::with(['contact.status', 'contact.user'])
-            ->where('supervisor_id', $analystId)
-            ->latest()
-            ->get();
-
-        return view('analista.ordens-enviadas', compact('ordensEnviadas'));
+        return redirect()->route('analyst.dashboard')
+            ->with('success', 'OS devolvida ao administrador.');
     }
 }
