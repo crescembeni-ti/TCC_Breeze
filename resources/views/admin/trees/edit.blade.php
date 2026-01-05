@@ -2,6 +2,7 @@
 
 @section('content')
     <div class="perfil-box inline-block">
+        {{-- Título principal mantém o verde da identidade visual --}}
         <h2 class="text-3xl font-bold text-[#358054] mb-0">
             Painel de Administração – Editar Árvore
         </h2>
@@ -51,7 +52,7 @@
             {{-- CORREÇÃO DEFINITIVA DO ERRO 405: Método PATCH --}}
             @method('PATCH')
 
-            {{-- SEÇÃO 1: IDENTIFICAÇÃO --}}
+            {{-- SEÇÃO 1: IDENTIFICAÇÃO (LAYOUT CORRIGIDO) --}}
             <div>
                 <div class="flex items-center gap-2 mb-4 border-b pb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -62,19 +63,6 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                    {{-- Nome --}}
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Nome <span class="text-red-500">*</span></label>
-                        {{-- 
-                            LÓGICA DE PREENCHIMENTO:
-                            1. old('name'): Se houve erro de validação, mantém o que digitou.
-                            2. $tree->name: Se a árvore tem nome salvo.
-                            3. $tree->species->name: Se a árvore não tem nome, usa o da espécie.
-                        --}}
-                        <input type="text" id="name" name="name" required maxlength="255" 
-                            value="{{ old('name', $tree->name ?: optional($tree->species)->name) }}"
-                            class="block w-full rounded-md border border-gray-300 bg-gray-50 text-gray-800 shadow-sm px-3 py-2 focus:ring-green-500 focus:border-green-500" />
-                    </div>
 
                     {{-- Endereço --}}
                     <div>
@@ -113,48 +101,48 @@
                         <input type="hidden" name="bairro_id" :value="selected" required>
                     </div>
 
-                   {{-- Espécie --}}
-<div x-data="speciesSelect()">
-    <label class="block text-sm font-medium text-gray-700 mb-1">
-        Espécie <span class="text-red-500">*</span>
-    </label>
-
-    <select name="species_id" required @change="handleChange($event)"
-        class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
-        
-        <option value="">Selecione...</option>
-
-        @foreach ($species as $sp)
-            <option value="{{ $sp->id }}"
-                {{ old('species_id', $tree->species_id) == $sp->id ? 'selected' : '' }}>
-                {{ $sp->name }}
-            </option>
-        @endforeach
-
-        <option value="__new__">➕ Cadastrar nova espécie</option>
-    </select>
-
+                    {{-- Espécie --}}
+                    <div x-data="speciesSelect()">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Espécie <span class="text-red-500">*</span>
+                        </label>
+                    
+                        <select name="species_id" required @change="handleChange($event)"
+                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                            
+                            <option value="">Selecione...</option>
+                    
+                            @foreach ($species as $sp)
+                                <option value="{{ $sp->id }}"
+                                    {{ old('species_id', $tree->species_id) == $sp->id ? 'selected' : '' }}>
+                                    {{ $sp->name }}
+                                </option>
+                            @endforeach
+                    
+                            <option value="__new__">➕ Cadastrar nova espécie</option>
+                        </select>
+                    
                         {{-- MODAL NOVA ESPÉCIE --}}
                         <div x-show="open" x-cloak
                             class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                             <div class="bg-white p-6 rounded-xl w-full max-w-md">
                                 <h3 class="text-lg font-bold mb-4">Nova Espécie</h3>
-
+                    
                                 <input x-model="name" placeholder="Nome da espécie"
                                     class="w-full border rounded-lg px-3 py-2 mb-3">
-
+                    
                                 <input x-model="vulgar_name" placeholder="Nome vulgar"
                                     class="w-full border rounded-lg px-3 py-2 mb-3">
-
+                    
                                 <input x-model="scientific_name" placeholder="Nome científico"
                                     class="w-full border rounded-lg px-3 py-2 mb-3">
-
+                    
                                 <div class="flex justify-end gap-3 mt-4">
                                     <button @click="open=false" type="button"
                                         class="px-4 py-2 bg-gray-200 rounded-lg">
                                         Cancelar
                                     </button>
-
+                    
                                     <button @click="save()" type="button"
                                         class="px-4 py-2 bg-green-600 text-white rounded-lg">
                                         Salvar
@@ -163,7 +151,6 @@
                             </div>
                         </div>
                     </div>
-
 
                     {{-- Nome vulgar --}}
                     <div>
@@ -183,16 +170,7 @@
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
 
-                    {{-- Descrição --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição da Árvore</label>
-                        {{-- Prioriza descrição da árvore, depois descrição da espécie --}}
-                        <textarea name="description" rows="5"
-                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500 placeholder-gray-400"
-                            placeholder="Detalhes sobre a saúde, poda, entorno ou observações...">{{ old('description', $tree->description ?: optional($tree->species)->description) }}</textarea>
-                    </div>
-
-                    {{-- Caso não tenha espécie --}}
+                    {{-- Caso não tenha espécie (MOVIDO PARA ALINHAR) --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Caso não tenha espécie</label>
                         <div class="flex flex-col h-full justify-start">
@@ -203,6 +181,16 @@
                             <p class="text-xs text-gray-500 mt-2">Utilize este campo apenas se a espécie não foi encontrada.</p>
                         </div>
                     </div>
+
+                    {{-- Descrição (AGORA OCUPA A LARGURA TOTAL - md:col-span-2) --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição da Árvore</label>
+                        {{-- Prioriza descrição da árvore, depois descrição da espécie --}}
+                        <textarea name="description" rows="5"
+                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500 placeholder-gray-400"
+                            placeholder="Detalhes sobre a saúde, poda, entorno ou observações...">{{ old('description', $tree->description ?: optional($tree->species)->description) }}</textarea>
+                    </div>
+
                 </div>
             </div>
 
