@@ -261,6 +261,7 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
     });
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | ANALISTA (/pbi-analista)
@@ -279,7 +280,8 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
 
         Route::post('/logout', [AnalystLoginController::class, 'destroy'])->name('logout');
 
-        Route::get('/dashboard', [ContactController::class, 'analystDashboard'])->name('dashboard');
+        Route::get('/dashboard', [ContactController::class, 'analystDashboard'])
+            ->name('dashboard');
 
         Route::get('/vistorias-pendentes', [ContactController::class, 'vistoriasPendentes'])
             ->name('vistorias.pendentes');
@@ -287,7 +289,12 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
         Route::post('/gerar-os', [ContactController::class, 'storeServiceOrder'])
             ->name('os.store');
 
-        Route::get('/profile', fn () => view('analista.profile'))->name('profile.edit');
+        // ✅ NOVA ROTA – ORDENS ENVIADAS
+        Route::get('/ordens-enviadas', [ContactController::class, 'ordensEnviadas'])
+            ->name('os.enviadas');
+
+        Route::get('/profile', fn () => view('analista.profile'))
+            ->name('profile.edit');
     });
 });
 

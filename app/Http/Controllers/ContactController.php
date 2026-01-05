@@ -104,23 +104,17 @@ class ContactController extends Controller
     }
 
     /* ============================================================
-     * ENCaminhar (ADMIN) → DEFINE ANALYST + SERVICE + STATUS DEFERIDO
-     * ============================================================ */
-   /* ============================================================
-     * ENCAMINHAR (ADMIN)
+     * ENCAMINHAR (ADMIN) → DEFINE ANALYST + SERVICE + STATUS DEFERIDO
      * ============================================================ */
     public function forward(Request $request, Contact $contact)
     {
         // 1. Validação: Agora aceita nulo (nullable)
-        // Assim, se você mandar só serviço, não dá erro no analista.
         $validated = $request->validate([
             'analyst_id' => 'nullable|exists:analysts,id',
             'service_id' => 'nullable|exists:services,id',
         ]);
 
         // 2. Prepara os dados para salvar
-        // Usamos array_filter para remover campos vazios/nulos se quiser manter o anterior,
-        // mas aqui vamos salvar o que vier.
         $dataToUpdate = [];
         
         if ($request->has('analyst_id')) {
@@ -135,20 +129,18 @@ class ContactController extends Controller
         $contact->update($dataToUpdate);
 
         // 4. Lógica de Status
-        // Se encaminhou para Analista -> Status "Deferido"
-        // Se encaminhou para Serviço -> Status "Vistoriado" (ou outro que preferir)
         if ($request->filled('analyst_id')) {
             $status = Status::where('name', 'Deferido')->first();
             if($status) $contact->update(['status_id' => $status->id]);
         } 
         elseif ($request->filled('service_id')) {
-            $status = Status::where('name', 'Vistoriado')->first(); // Exemplo
+            $status = Status::where('name', 'Vistoriado')->first();
             if($status) $contact->update(['status_id' => $status->id]);
         }
 
         return response()->json([
             'message' => 'Solicitação encaminhada com sucesso!',
-            'contact' => $contact->fresh(['status', 'user']), // Recarrega com status novo
+            'contact' => $contact->fresh(['status', 'user']),
         ]);
     }
 
@@ -310,13 +302,8 @@ class ContactController extends Controller
             'observacoes' => 'nullable|string',
             'especies' => 'nullable|string|max:255',
             'quantidade' => 'nullable|integer',
-            'lat_long_lat' => 'nullable|string|max:50', // Assumindo renomeado na view
-            'lat_long_lon' => 'nullable|string|max:50', // Assumindo renomeado na view
+            'lat_long' => 'nullable|string|max:100',
         ]);
-
-       
-     
-
 
         ServiceOrder::create([
             'contact_id' => $request->contact_id,
@@ -330,15 +317,32 @@ class ContactController extends Controller
             'observacoes' => $request->observacoes,
             'especies' => $request->especies,
             'quantidade' => $request->quantidade,
-            'latitude' => $request->lat_long_lat, // Salvando Latitude
-            'longitude' => $request->lat_long_lon, // Salvando Longitude
+            'latitude' => $request->lat_long,
+            'longitude' => $request->lat_long,
         ]);
 
-        // Mantém o status como "Deferido"
-        $statusDeferido = Status::where('name', 'Deferido')->first();
-        Contact::find($request->contact_id)->update(['status_id' => $statusDeferido->id]);
+        // MUDANÇA: Atualiza o status para "Vistoriado"
+        $statusVistoriado = Status::where('name', 'Vistoriado')->first();
+        Contact::find($request->contact_id)->update(['status_id' => $statusVistoriado->id]);
 
-        return redirect()->route('analyst.vistorias.pendentes')
-            ->with('success', 'Ordem de Serviço gerada com sucesso!');
+        // MUDANÇA: Redireciona para a tela de ordens enviadas
+        return redirect()->route('analyst.os.enviadas')
+            ->with('success', 'Ordem de Serviço gerada e enviada com sucesso!');
+    }
+
+    /* ============================================================
+     * ANALISTA → ORDENS ENVIADAS (NOVO MÉTODO)
+     * ============================================================ */
+    public function ordensEnviadas()
+    {
+        $analystId = Auth::guard('analyst')->id() ?? 0;
+
+        // Busca todas as OS criadas por este analista
+        $ordensEnviadas = ServiceOrder::with(['contact.status', 'contact.user'])
+            ->where('supervisor_id', $analystId)
+            ->latest()
+            ->get();
+
+        return view('analista.ordens-enviadas', compact('ordensEnviadas'));
     }
 }
