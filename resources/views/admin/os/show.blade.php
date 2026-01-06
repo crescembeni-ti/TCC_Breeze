@@ -213,7 +213,7 @@
 
         {{-- BOTÕES (SOMENTE VOLTAR/IMPRIMIR) --}}
         <div class="mt-6 flex flex-row-reverse gap-2 col-span-2">
-            <a href="{{ route('admin.os.index') }}" class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:w-auto">
+            <a href="{{ route('analyst.os.enviadas') }}" class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:w-auto">
                 <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Voltar para Ordens de Serviço
             </a>
             
