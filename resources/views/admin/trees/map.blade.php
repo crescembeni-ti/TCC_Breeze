@@ -26,6 +26,20 @@
 
         <h3 class="text-2xl font-bold mb-6 text-gray-800">Adicionar Nova Árvore</h3>
 
+        {{-- BLOCO DE ERROS DE VALIDAÇÃO --}}
+    @if ($errors->any())
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
+            <p class="font-bold">Ops! Corrija os erros abaixo:</p>
+            <ul class="list-disc list-inside text-sm mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- AQUI COMEÇA SEU FORMULÁRIO --}}
+
         <form method="POST" action="{{ route('admin.map.store') }}" class="space-y-10">
             @csrf
 

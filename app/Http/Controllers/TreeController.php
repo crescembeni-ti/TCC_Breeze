@@ -114,26 +114,24 @@ class TreeController extends Controller
         ]);
     }
 
-    /* ============================================================
-     * CADASTRAR ÁRVORE (COM ADMIN RESPONSÁVEL)
+  /* ============================================================
+     * CADASTRAR ÁRVORE (AUTO-DETECTAR OU CRIAR ESPÉCIE)
      * ============================================================ */
     public function storeTree(Request $request)
     {
+        // 1. Validação (Agora validamos o TEXTO do nome, não o ID)
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            // Campo de texto simples para o nome da espécie
+            'species_name' => 'required|string|max:255', 
+            
+            // Demais campos
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-
-            // espécie
-            'species_id' => 'nullable|exists:species,id',
-            'new_species_name' => 'nullable|string|max:255',
-
             'health_status' => 'required|in:good,fair,poor',
             'planted_at' => 'required|date|before_or_equal:today',
             'trunk_diameter' => 'required|numeric|min:0',
             'address' => 'required|string|max:255',
             'bairro_id' => 'required|exists:bairros,id',
-
             'vulgar_name' => 'required|string|max:255',
             'scientific_name' => 'required|string|max:255',
             'cap' => 'required|numeric|min:0',
@@ -156,40 +154,37 @@ class TreeController extends Controller
             'description' => 'nullable|string|max:1000',
         ]);
 
-        // Resolve a espécie (Existente ou Nova)
-        if ($validated['species_id']) {
-            $speciesId = $validated['species_id'];
-        } else {
-            $species = Species::firstOrCreate(
-                ['name' => $validated['new_species_name']],
-                [
-                    'color_code' => '#' . substr(md5($validated['new_species_name']), 0, 6),
-                    'description' => 'Cadastrada via mapa admin',
-                ]
-            );
-            $speciesId = $species->id;
-        }
+        // 2. Lógica Inteligente: Busca ou Cria a Espécie
+        // Remove espaços extras do nome digitado
+        $speciesName = trim($validated['species_name']);
 
-        // Prepara os dados para salvar
-        $treeData = collect($validated)
-            ->except(['species_id', 'new_species_name']) // Remove campos auxiliares
-            ->toArray();
-        
-        // Adiciona IDs vinculados
-        $treeData['species_id'] = $speciesId;
-        
-        // === AQUI ESTÁ A MUDANÇA: SALVA QUEM CADASTROU ===
-        $treeData['admin_id'] = auth('admin')->id(); 
-        // =================================================
+        $species = Species::firstOrCreate(
+            ['name' => $speciesName], // Procura por este nome
+            [
+                // Se não achar, cria com estes dados padrão:
+                'vulgar_name' => $validated['vulgar_name'], // Aproveita o nome vulgar digitado
+                'scientific_name' => $validated['scientific_name'], // Aproveita o científico
+                // Gera uma cor aleatória baseada no nome para ficar bonito no mapa
+                'color_code' => '#' . substr(md5($speciesName), 0, 6),
+                'description' => 'Cadastrada automaticamente pelo mapa.',
+            ]
+        );
 
-        // Cria a árvore no banco
+        // 3. Prepara os dados da Árvore
+        // Remove o campo 'species_name' pois na tabela trees usamos 'species_id'
+        $treeData = collect($validated)->except(['species_name'])->toArray();
+        
+        $treeData['species_id'] = $species->id; // Usa o ID (existente ou novo)
+        $treeData['admin_id'] = auth('admin')->id(); // Vincula ao ADM logado
+
+        // 4. Salva a Árvore
         $tree = Tree::create($treeData);
 
-        // Gera Log de atividade
+        // 5. Gera Log
         AdminLog::create([
             'admin_id' => auth('admin')->id(),
             'action' => 'create_tree',
-            'description' => 'Árvore criada (ID ' . $tree->id . ')',
+            'description' => 'Árvore criada (ID ' . $tree->id . ') - Espécie: ' . $species->name,
         ]);
 
         return redirect()->route('admin.map')->with('success', 'Árvore cadastrada com sucesso!');
