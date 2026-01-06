@@ -295,6 +295,9 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
 
         Route::get('/profile', fn () => view('analista.profile'))
             ->name('profile.edit');
+
+            // ADICIONE ESTA LINHA:
+        Route::get('/os/{id}', [ServiceOrderController::class, 'show'])->name('os.show');
     });
 });
 

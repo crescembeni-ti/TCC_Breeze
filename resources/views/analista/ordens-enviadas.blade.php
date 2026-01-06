@@ -87,7 +87,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('admin.os.show', $os->id) }}" 
+                                <a href="{{ route('analyst.os.show', $os->id) }}" 
                                    class="text-[#358054] hover:text-green-900 font-bold border border-[#358054] px-3 py-1 rounded hover:bg-green-50 transition">
                                     Ver Detalhes
                                 </a>
