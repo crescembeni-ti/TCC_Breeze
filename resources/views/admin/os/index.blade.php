@@ -43,7 +43,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#OS</th>
                         
-                        {{-- CABEÇALHO DINÂMICO --}}
+                        {{-- CABEÇALHO 1: RESPONSÁVEL --}}
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             @if($destino === 'analista')
                                 Analista Responsável
@@ -55,7 +55,12 @@
                         </th>
 
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destino</th>
+                        
+                        {{-- CABEÇALHO 2: DATA DE ENVIO (ALTERADO AQUI) --}}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Data de Envio
+                        </th>
+
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                     </tr>
                 </thead>
@@ -65,23 +70,17 @@
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 font-semibold text-gray-700">#{{ $os->id }}</td>
 
-                        {{-- CÉLULA DINÂMICA COM O NOME DA PESSOA --}}
+                        {{-- COLUNA 1: RESPONSÁVEL --}}
                         <td class="px-6 py-4">
                             @if($destino === 'analista')
-                                {{-- Nome do Analista --}}
                                 <span class="font-bold text-[#358054]">
                                     {{ $os->analyst->name ?? 'Aguardando Atribuição' }}
                                 </span>
-
                             @elseif($destino === 'servico')
-                                {{-- Nome do Responsável pelo Serviço (CORRIGIDO) --}}
                                 <span class="font-bold text-blue-600">
-                                    {{-- Usa o relacionamento 'service' do seu Model --}}
                                     {{ $os->service->name ?? 'Aguardando Atribuição' }}
                                 </span>
-
                             @else
-                                {{-- Nome do Cidadão (Visão Geral) --}}
                                 <div class="text-sm font-medium text-gray-900">
                                     {{ $os->contact->nome_solicitante }}
                                 </div>
@@ -95,16 +94,14 @@
                             {{ $os->contact->topico }}
                         </td>
 
-                        <td class="px-6 py-4 text-sm font-semibold">
-                            @if($os->flow === 'analista')
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    Analista
-                                </span>
-                            @elseif($os->flow === 'servico')
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                    Serviço
-                                </span>
-                            @endif
+                        {{-- COLUNA 2: DATA DE ENVIO (ALTERADO AQUI) --}}
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {{ $os->created_at->format('d/m/Y') }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                às {{ $os->created_at->format('H:i') }}
+                            </div>
                         </td>
 
                         <td class="px-6 py-4 flex gap-2">
