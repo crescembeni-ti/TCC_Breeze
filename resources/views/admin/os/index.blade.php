@@ -48,7 +48,7 @@
                             @if($destino === 'analista')
                                 Analista Responsável
                             @elseif($destino === 'servico')
-                                Equipe / Serviço
+                                Responsável Serviço
                             @else
                                 Solicitante (Cidadão)
                             @endif
@@ -65,18 +65,23 @@
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 font-semibold text-gray-700">#{{ $os->id }}</td>
 
-                        {{-- CÉLULA DINÂMICA --}}
+                        {{-- CÉLULA DINÂMICA COM O NOME DA PESSOA --}}
                         <td class="px-6 py-4">
                             @if($destino === 'analista')
+                                {{-- Nome do Analista --}}
                                 <span class="font-bold text-[#358054]">
-                                    {{ $os->analyst->name ?? 'Aguardando' }}
+                                    {{ $os->analyst->name ?? 'Aguardando Atribuição' }}
                                 </span>
+
                             @elseif($destino === 'servico')
+                                {{-- Nome do Responsável pelo Serviço (CORRIGIDO) --}}
                                 <span class="font-bold text-blue-600">
-                                    {{-- Se tiver relacionamento com equipe, use aqui. Ex: $os->equipe->nome --}}
-                                    Equipe Operacional
+                                    {{-- Usa o relacionamento 'service' do seu Model --}}
+                                    {{ $os->service->name ?? 'Aguardando Atribuição' }}
                                 </span>
+
                             @else
+                                {{-- Nome do Cidadão (Visão Geral) --}}
                                 <div class="text-sm font-medium text-gray-900">
                                     {{ $os->contact->nome_solicitante }}
                                 </div>
