@@ -307,6 +307,7 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('pbi-servico')->name('service.')->group(function () {
+    
 
     Route::get('/', fn () => redirect()->route('service.login'));
 
