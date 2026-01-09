@@ -48,7 +48,8 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OS Nº</th>
+                            {{-- REMOVIDO: <th OS Nº> --}}
+                            
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Protocolo</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Local</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
@@ -60,12 +61,16 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach ($ordensEnviadas as $os)
                         <tr class="hover:bg-gray-50 transition-colors">
+                            
+                            {{-- REMOVIDO: <td OS Nº> --}}
+
+                            {{-- PROTOCOLO (Agora é a primeira coluna e com destaque) --}}
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm font-bold text-[#358054]">#OS-{{ $os->id }}</span>
+                                <span class="text-sm font-bold text-[#358054]">
+                                    #{{ $os->contact->id }}
+                                </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                #{{ $os->contact->id }}
-                            </td>
+
                             <td class="px-6 py-4">
                                 <div class="text-sm font-bold text-gray-900">{{ $os->contact->bairro }}</div>
                                 <div class="text-sm text-gray-500">{{ $os->contact->rua }}</div>

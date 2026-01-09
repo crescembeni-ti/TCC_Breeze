@@ -48,7 +48,6 @@
         <div class="text-right">
             <h3 class="text-lg font-bold text-gray-800 uppercase border-b-2 border-black">ORDEM DE SERVIÇO</h3>
             <p class="text-sm font-bold mt-1">Poda e Remoção de Árvores</p>
-            <p class="text-xl font-bold text-black">#OS-{{ $os->id }}</p>
         </div>
     </div>
 
