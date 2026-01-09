@@ -211,6 +211,11 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('pbi-servico')->name('service.')->group(function () {
+<<<<<<< HEAD
+=======
+    
+
+>>>>>>> 9e54227733d51fa5b5e515d078279fe304f86c41
     Route::get('/', fn () => redirect()->route('service.login'));
 
     Route::middleware(['guest:service', 'guard.only:service'])->group(function () {
