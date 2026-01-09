@@ -48,7 +48,7 @@
                             @if($destino === 'analista')
                                 Analista Responsável
                             @elseif($destino === 'servico')
-                                Responsável Serviço
+                                Responsável pelo Serviço
                             @else
                                 Solicitante (Cidadão)
                             @endif
