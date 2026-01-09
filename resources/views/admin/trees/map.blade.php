@@ -26,17 +26,29 @@
 
         <h3 class="text-2xl font-bold mb-6 text-gray-800">Adicionar Nova Árvore</h3>
 
+        {{-- BLOCO DE ERROS DE VALIDAÇÃO --}}
+    @if ($errors->any())
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
+            <p class="font-bold">Ops! Corrija os erros abaixo:</p>
+            <ul class="list-disc list-inside text-sm mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- AQUI COMEÇA SEU FORMULÁRIO --}}
+
         <form method="POST" action="{{ route('admin.map.store') }}" class="space-y-10">
             @csrf
 
             {{-- 
                 ==========================================================
-                SEÇÃO 1: IDENTIFICAÇÃO 
-                (Ícone: Documento/Lista)
+                SEÇÃO 1: IDENTIFICAÇÃO (LAYOUT CORRIGIDO)
                 ========================================================== 
             --}}
             <div>
-                {{-- Título: Texto CINZA (text-gray-700), Ícone VERDE --}}
                 <div class="flex items-center gap-2 mb-4 border-b pb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -46,13 +58,6 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                    {{-- Nome --}}
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Nome <span class="text-red-500">*</span></label>
-                        <input type="text" id="name" name="name" required maxlength="255" value="{{ old('name') }}"
-                            class="block w-full rounded-md border border-gray-300 bg-gray-50 text-gray-800 shadow-sm px-3 py-2 focus:ring-green-500 focus:border-green-500" />
-                    </div>
-
                     {{-- Endereço --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Endereço <span class="text-red-500">*</span></label>
@@ -61,7 +66,7 @@
                         <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher automaticamente</p>
                     </div>
 
-                    {{-- Bairro (COM CORREÇÃO DO AUTO-FILL VIA EVENTO) --}}
+                    {{-- Bairro --}}
                     <div x-data="{ open: false, selected: '{{ old('bairro_id') ?? '' }}', selectedName: '{{ old('bairro_name') ?? '' }}' }" 
                          @set-bairro-map.window="selected = $event.detail.id; selectedName = $event.detail.nome"
                          class="relative w-full">
@@ -112,31 +117,31 @@
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
 
-                    {{-- Descrição --}}
+                    {{-- Caso não tenha espécie (MOVIDO PARA CÁ PARA ALINHAR COM NOME CIENTÍFICO) --}}
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Caso não tenha espécie</label>
+                        <div class="flex flex-col justify-start">
+                            <input type="text" name="no_species_case"
+                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500"
+                                placeholder="Informe se não identificada">
+                            <p class="text-xs text-gray-500 mt-1">Utilize este campo apenas se a espécie não foi encontrada ou definida acima.</p>
+                        </div>
+                    </div>
+
+                    {{-- Descrição (AGORA OCUPA A LARGURA TOTAL - md:col-span-2) --}}
+                    <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Descrição da Árvore</label>
-                        <textarea name="description" rows="5"
+                        <textarea name="description" rows="4"
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500 placeholder-gray-400"
                             placeholder="Detalhes sobre a saúde, poda, entorno ou observações...">{{ old('description') }}</textarea>
                     </div>
 
-                    {{-- Caso não tenha espécie --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Caso não tenha espécie</label>
-                        <div class="flex flex-col h-full justify-start">
-                            <input type="text" name="no_species_case"
-                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500"
-                                placeholder="Informe se não identificada">
-                            <p class="text-xs text-gray-500 mt-2">Utilize este campo apenas se a espécie não foi encontrada ou definida acima.</p>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             {{-- 
                 ==========================================================
                 SEÇÃO 2: COORDENADAS 
-                (Ícone: Pin de Mapa)
                 ========================================================== 
             --}}
             <div>
@@ -167,7 +172,6 @@
             {{-- 
                 ==========================================================
                 SEÇÃO 3: DADOS GERAIS 
-                (Ícone: Coração/Saúde)
                 ========================================================== 
             --}}
             <div>
@@ -214,7 +218,6 @@
             {{-- 
                 ==========================================================
                 SEÇÃO 4: DIMENSÕES 
-                (Ícone: Régua)
                 ========================================================== 
             --}}
             <div>
@@ -257,7 +260,6 @@
             {{-- 
                 ==========================================================
                 SEÇÃO 5: CARACTERÍSTICAS 
-                (Ícone: Atividade/Linha)
                 ========================================================== 
             --}}
             <div>
@@ -329,7 +331,6 @@
             {{-- 
                 ==========================================================
                 SEÇÃO 6: AMBIENTE 
-                (Ícone: Sol/Nuvem ou Folha de novo)
                 ========================================================== 
             --}}
             <div>

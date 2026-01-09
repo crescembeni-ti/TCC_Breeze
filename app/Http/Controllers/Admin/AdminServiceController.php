@@ -11,20 +11,22 @@ class AdminServiceController extends Controller
 {
     /**
      * LISTAGEM PRINCIPAL
-     * - Filtro por destino: analista | servico
+     * - Filtro por DESTINO: analista | servico
      */
     public function index(Request $request)
     {
-        // analista é o filtro padrão
+        // 1. Define o destino padrão
         $destino = $request->get('destino', 'analista');
 
-        // Segurança: só aceita valores válidos
+        // 2. Segurança
         if (!in_array($destino, ['analista', 'servico'])) {
-            abort(404);
+            $destino = 'analista';
         }
 
+        // 3. Busca as Ordens de Serviço filtrando pela coluna 'destino'
+        // CORREÇÃO: Usamos 'destino' em vez de 'flow' para bater com seu banco
         $oss = ServiceOrder::with('contact.user')
-            ->where('flow', $destino)
+            ->where('destino', $destino) 
             ->orderByDesc('id')
             ->get();
 
@@ -34,46 +36,42 @@ class AdminServiceController extends Controller
     /**
      * VISUALIZAÇÃO DA OS
      */
-    public function show(ServiceOrder $os)
+    public function show($id)
     {
+        $os = ServiceOrder::with('contact')->findOrFail($id);
         return view('admin.os.show', compact('os'));
     }
 
     /**
      * CANCELAR ENVIO DA OS
-     *
-     * - Analista → volta para DEFERIDO
-     * - Serviço  → volta para VISTORIADO
      */
-    public function cancelar(ServiceOrder $os)
+    public function cancelar($id)
     {
-        // Cancelamento de OS enviada ao ANALISTA
-        if ($os->flow === 'analista') {
+        $os = ServiceOrder::findOrFail($id);
 
-            $status = Status::where('name', 'Deferido')->firstOrFail();
+        // Cancelamento de OS enviada ao ANALISTA
+        if ($os->destino === 'analista') {
+            $statusDeferido = Status::where('name', 'Deferido')->first();
+            if($statusDeferido) {
+                $os->contact->update(['status_id' => $statusDeferido->id]);
+            }
 
             $os->update([
                 'analyst_id' => null,
-                'flow' => null, // remove do filtro
-            ]);
-
-            $os->contact->update([
-                'status_id' => $status->id,
+                'destino' => null, // Limpa o destino
             ]);
         }
 
         // Cancelamento de OS enviada ao SERVIÇO
-        if ($os->flow === 'servico') {
-
-            $status = Status::where('name', 'Vistoriado')->firstOrFail();
+        if ($os->destino === 'servico') {
+            $statusVistoriado = Status::where('name', 'Vistoriado')->first();
+             if($statusVistoriado) {
+                $os->contact->update(['status_id' => $statusVistoriado->id]);
+            }
 
             $os->update([
                 'service_id' => null,
-                'flow' => null, // remove do filtro
-            ]);
-
-            $os->contact->update([
-                'status_id' => $status->id,
+                'destino' => null, // Limpa o destino
             ]);
         }
 

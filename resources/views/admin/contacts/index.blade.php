@@ -124,11 +124,7 @@
 
             <form id="forward-form" onsubmit="return submitForwardForm(event)" class="space-y-3">
                 @csrf @method('PATCH')
-                
-                {{-- Campo oculto para saber se é 'analista' ou 'servico' --}}
                 <input type="hidden" name="forward_type" id="forward_type">
-
-                {{-- Select Único --}}
                 <label id="forward-label" class="font-semibold">Selecione:</label>
                 <select id="forward-user-select" class="w-full rounded-md border-gray-300 shadow-sm" required>
                     <option value="">Carregando...</option>
@@ -156,7 +152,6 @@
             return String(unsafe).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // RENDERIZA A TABELA (COM A NOVA LÓGICA DE BOTÕES)
         function renderTable(itens) {
             if (!itens || itens.length === 0) return `<p class="text-gray-400 mt-2 ml-2">Nenhuma solicitação neste grupo.</p>`;
 
@@ -167,33 +162,49 @@
                 const descricao = m.descricao ?? '';
                 const statusName = m.status ? m.status.name.trim() : '';
 
-                // --- LÓGICA DOS BOTÕES DE ENCAMINHAMENTO ---
-                // --- BOTÕES CONFORME STATUS ---
-                let forwardButton = '';
+                // --- LÓGICA DOS BOTÕES ---
+                let actionButtons = '';
 
-                // DEFERIDO → encaminhar para ANALISTA
+                // 1. DEFERIDO → ANALISTA
                 if (statusName === 'Deferido') {
-                    forwardButton = `
+                    actionButtons += `
                         <button onclick="openForwardModal(${m.id}, 'analista')" 
-                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2">
+                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2" title="Encaminhar para Analista">
                             <i data-lucide="user-check" class="w-3 h-3 mr-1"></i> Analista
                         </button>`;
-                }
-
-                // VISTORIADO → encaminhar para SERVIÇO
-                if (statusName === 'Vistoriado') {
-                    forwardButton = `
+                } 
+                // 2. VISTORIADO → SERVIÇO (ACEITA VARIAÇÕES DE NOME)
+                else if (statusName.toLowerCase().includes('vistoriado')) {
+                    actionButtons += `
                         <button onclick="openForwardModal(${m.id}, 'servico')" 
-                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2">
+                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 mr-2" title="Encaminhar para Serviço">
                             <i data-lucide="hammer" class="w-3 h-3 mr-1"></i> Serviço
                         </button>`;
                 }
 
+                // 3. BOTÃO VER INTELIGENTE
+                let btnVer = '';
+                // Se tiver OS e status for vistoriado, mostra Ver OS
+                if (statusName.toLowerCase().includes('vistoriado') && m.service_order && m.service_order.id) {
+                    const urlOS = `/pbi-admin/os/${m.service_order.id}`;
+                    btnVer = `
+                        <a href="${urlOS}" 
+                           class="inline-flex items-center justify-center px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947] mr-2">
+                           <i data-lucide="file-text" class="w-3 h-3 mr-1"></i> Ver OS
+                        </a>`;
+                } else {
+                    btnVer = `
+                        <button onclick="openViewModal(${m.id})" 
+                            class="px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947] mr-2">
+                            Ver
+                        </button>`;
+                }
+                actionButtons += btnVer;
 
-                // 3. Botão Status: COR AZUL e TEXTO "ATUALIZAR STATUS"
-                const btnStatus = `
+                // 4. BOTÃO STATUS
+                actionButtons += `
                     <button onclick="openStatusModal(${m.id})" class="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700">
-                        Atualizar Status
+                        Status
                     </button>`;
 
                 return `
@@ -202,14 +213,13 @@
                     <td class="px-6 py-4 align-top">
                         <div class="text-sm font-medium text-gray-900">
                             <span class="font-semibold text-[#358054]">${escapeHtml(topico)}</span> - ${escapeHtml(endereco)}
+                            <br><span class="text-xs bg-gray-200 px-1 rounded text-gray-600">Status atual: ${statusName}</span>
                         </div>
                         <div class="text-xs text-gray-500 mt-1">${escapeHtml(descricao.substring(0,100))}...</div>
                     </td>
                     <td class="px-6 py-4 align-top text-right text-sm">
-                        <div class="flex justify-end gap-2 items-center">
-                            ${forwardButton}
-                            <button onclick="openViewModal(${m.id})" class="px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947]">Ver</button>
-                            ${btnStatus}
+                        <div class="flex justify-end gap-2 items-center flex-wrap">
+                            ${actionButtons}
                         </div>
                     </td>
                 </tr>`;
@@ -225,7 +235,7 @@
             </table></div>`;
         }
 
-        // --- MODAL ENCAMINHAMENTO ---
+        // --- FUNÇÕES MODAIS (PADRÃO) ---
         function openForwardModal(id, type) {
             currentForwardingId = id;
             const title = document.getElementById('forward-title');
@@ -316,7 +326,6 @@
             }
         }
 
-        // --- MANIPULAÇÃO DOS OUTROS MODAIS ---
         function openViewModal(id) {
             currentViewingId = id;
             let m = messages[id];
@@ -379,15 +388,16 @@
         }
         
         if(window.lucide) lucide.createIcons();
-    </script>
 
-    <script>
+        // --- INICIALIZAÇÃO E GRUPOS (PHP -> JS) ---
         document.addEventListener('DOMContentLoaded', function () {
             const container = document.getElementById('mensagens-container');
             
             @if ($filtro === 'pendentes')
                 @php
                 foreach($groupsPendentes as $group){
+                    // CORREÇÃO: USANDO SETINHA -> EM VEZ DE PONTO .
+                    // Isso evita o erro "Undefined constant status"
                     $ids = $messages->filter(fn($m) => $m->status && $m->status->name === $group)->pluck('id')->values();
                     $jsonIds = $ids->toJson();
                 @endphp

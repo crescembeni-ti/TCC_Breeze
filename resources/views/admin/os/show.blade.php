@@ -212,11 +212,22 @@
         </div>
 
         {{-- BOTÕES (SOMENTE VOLTAR/IMPRIMIR) --}}
-        <div class="mt-6 flex flex-row-reverse gap-2 col-span-2">
-            <a href="{{ route('admin.os.index') }}" class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:w-auto">
-                <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Voltar para Ordens de Serviço
-            </a>
-            
+        <div class="mt-6 flex flex-row-reverse gap-2 col-span-2 print:hidden">
+            @php
+        // Define a rota de volta baseada no guard logado
+        if (auth()->guard('analyst')->check()) {
+            $rotaVoltar = route('analyst.os.enviadas');
+            $textoBotao = 'Voltar para Ordens Enviadas';
+        } else {
+            $rotaVoltar = route('admin.os.index');
+            $textoBotao = 'Voltar para Gestão de OS';
+        }
+    @endphp
+    <a href="{{ $rotaVoltar }}" class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:w-auto">
+        <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> {{ $textoBotao }}
+    </a>
+           
+        
             <button onclick="window.print()" class="inline-flex w-full justify-center rounded-md bg-[#beffb4] px-3 py-2 text-sm font-semibold text-black shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-[#a0c520] sm:w-auto print:hidden">
                 <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Imprimir OS
             </button>

@@ -14,7 +14,9 @@
     <div class="space-y-8">
         
         {{-- CARD DE VISÃO GERAL --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {{-- CORREÇÃO AQUI: Alterado de md:grid-cols-3 para md:grid-cols-2 --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
             {{-- CONTADOR PENDENTES --}}
             <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
                 <p class="text-sm font-medium text-gray-500">Vistorias Pendentes</p>
@@ -26,6 +28,7 @@
                 <p class="text-sm font-medium text-gray-500">Vistorias Concluídas</p>
                 <p class="text-3xl font-bold text-gray-900 mt-1">{{ $countConcluidas }}</p>
             </div>
+
         </div>
 
         {{-- TABELA PRINCIPAL DE VISTORIAS --}}
@@ -46,7 +49,6 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Protocolo</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Solicitação</th>
-                                  
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -63,7 +65,6 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $vistoria->created_at->format('d/m/Y') }}
                                     </td>
-                              
                                 </tr>
                                 @endforeach
                             </tbody>

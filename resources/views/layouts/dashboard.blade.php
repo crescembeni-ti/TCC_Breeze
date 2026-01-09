@@ -43,7 +43,6 @@
                 </a>
             </div>
 
-            <!-- BOTÃO DO MENU MOBILE -->
             <button @click="open = !open"
                 class="md:hidden bg-[#358054] text-white px-4 py-2 rounded-lg shadow font-medium">
                 Menu
@@ -51,13 +50,13 @@
         </div>
     </header>
 
-    <!-- ======================== CONTAINER PRINCIPAL =========================== -->
+    <!-- ======================== CONTAINER =========================== -->
     <div x-data="{ open: false }" class="flex flex-1">
 
         <!-- ====================== SIDEBAR ========================= -->
         <aside :class="open ? 'translate-x-0' : '-translate-x-full'"
             class="sidebar bg-[#358054] text-white flex flex-col py-8 px-4 transform transition-transform duration-300 md:translate-x-0 rounded-br-2xl md:rounded-none flex-shrink-0">
-            
+
             <nav class="space-y-4">
                 @if (auth('admin')->check())
                     <a href="{{ route('admin.dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Painel Admin</a>
@@ -67,35 +66,44 @@
                     <a href="{{ route('admin.os.index') }}" class="sidebar-link"><i data-lucide="file-text" class="icon"></i> Ordens de Serviço</a>
                     <a href="{{ route('admin.profile.edit') }}" class="sidebar-link"><i data-lucide="user" class="icon"></i> Meu Perfil</a>
                     <a href="{{ route('admin.accounts.index') }}" class="sidebar-link"><i data-lucide="users" class="icon"></i> Gerenciar Contas</a>
-                     <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
+                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
+
                 @elseif (auth('analyst')->check())
-                    <a href="{{ route('analyst.dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Painel Analista</a>
-                    <a href="{{ route('analyst.vistorias.pendentes') }}" class="sidebar-link"><i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes</a>
+                    <a href="{{ route('analyst.dashboard') }}" class="sidebar-link">
+                        <i data-lucide="layout-dashboard" class="icon"></i> Painel Analista
+                    </a>
+
+                    <a href="{{ route('analyst.vistorias.pendentes') }}" class="sidebar-link">
+                        <i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes
+                    </a>
+
+                    <a href="{{ url('/pbi-analista/ordens-enviadas') }}" class="sidebar-link">
+                        <i data-lucide="file-text" class="icon"></i> OS Enviadas
+                    </a>
+
                 @elseif (auth('service')->check())
                     <a href="{{ route('service.dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Painel Serviço</a>
                     <a href="{{ route('service.tasks.index') }}" class="sidebar-link"><i data-lucide="tool" class="icon"></i> Minhas Tarefas</a>
+
                 @elseif (auth('web')->check())
                     <a href="{{ route('dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Menu</a>
                     <a href="{{ route('contact') }}" class="sidebar-link"><i data-lucide="send" class="icon"></i> Nova Solicitação</a>
                     <a href="{{ route('contact.myrequests') }}" class="sidebar-link"><i data-lucide="clipboard-list" class="icon"></i> Minhas Solicitações</a>
                     <a href="{{ route('profile.edit') }}" class="sidebar-link"><i data-lucide="user" class="icon"></i> Meu Perfil</a>
-                     <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
+                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
                 @endif
-
-               
             </nav>
-        
-           <!-- ================== LOGOUT ======================= -->
+
+            <!-- ================== LOGOUT ======================= -->
             <hr class="border-t-2 border-green-400 my-6 opacity-80">
 
-            {{-- Mostrar "Voltar ao Mapa" só para admin e usuário comum --}}
             @if(auth('admin')->check() || auth('web')->check())
                 <a href="{{ route('home') }}" class="sidebar-link">
                     <i data-lucide="arrow-left-circle" class="icon"></i> Voltar ao Mapa
                 </a>
             @endif
 
-            {{-- Logout multi-guard --}}
+            {{-- LOGOUT MULTI-GUARD --}}
             @if (auth('admin')->check())
                 <form method="POST" action="{{ route('admin.logout') }}" class="mt-2">
                     @csrf
@@ -104,7 +112,7 @@
                     </a>
                 </form>
 
-            @elseif(auth('analyst')->check())
+            @elseif (auth('analyst')->check())
                 <form method="POST" action="{{ route('analyst.logout') }}" class="mt-2">
                     @csrf
                     <a href="#" class="sidebar-link logout-btn">
@@ -112,7 +120,7 @@
                     </a>
                 </form>
 
-            @elseif(auth('service')->check())
+            @elseif (auth('service')->check())
                 <form method="POST" action="{{ route('service.logout') }}" class="mt-2">
                     @csrf
                     <a href="#" class="sidebar-link logout-btn">
@@ -120,7 +128,7 @@
                     </a>
                 </form>
 
-            @elseif(auth('web')->check())
+            @elseif (auth('web')->check())
                 <form method="POST" action="{{ route('logout') }}" class="mt-2">
                     @csrf
                     <a href="#" class="sidebar-link logout-btn">
@@ -129,7 +137,6 @@
                 </form>
             @endif
 
-            
         </aside>
 
         <!-- ================= CONTEÚDO ===================== -->
@@ -139,14 +146,12 @@
 
     </div>
 
-    <!-- ================== FOOTER ======================== -->
     <footer class="bg-gray-800 text-white shadow mt-auto py-4 text-center">
         © {{ date('Y') }} Árvores de Paracambi.
     </footer>
 
     <script>lucide.createIcons();</script>
 
-    <!-- SweetAlert Logout -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll(".logout-btn").forEach(btn => {

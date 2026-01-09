@@ -9,62 +9,63 @@ class ServiceOrder extends Model
 {
     use HasFactory;
 
-    /**
-     * Campos liberados para mass assignment
-     */
+    protected $table = 'service_orders';
+
     protected $fillable = [
         'contact_id',
-        'supervisor_id',
         'analyst_id',
         'service_id',
-        'flow',
+        'supervisor_id',
+        
+        // Datas
         'data_vistoria',
         'data_execucao',
-        'motivos',
-        'servicos',
-        'equipamentos',
-        'procedimentos',
-        'observacoes',
+        
+        // Dados Técnicos (Texto simples ou Números)
         'especies',
         'quantidade',
         'latitude',
         'longitude',
+        
+        // Arrays (Listas de seleção múltipla)
+        'motivos',
+        'servicos',
+        'equipamentos',
+        'procedimentos',
+        
+        // Textos Longos
+        'observacoes',
+        'laudo_tecnico',
+
+        // Controle de Fluxo (CRUCIAL PARA SEU PROBLEMA)
+        'status',
+        'destino', 
     ];
 
-    /**
-     * Casts automáticos
-     * Converte JSON do banco em array no PHP
-     */
+    // AQUI ESTÁ A CORREÇÃO DO ERRO DA TELA
+    // Isso converte automaticamente o JSON do banco para Array no PHP
     protected $casts = [
-        'motivos' => 'array',
-        'servicos' => 'array',
-        'equipamentos' => 'array',
-        'procedimentos' => 'array',
         'data_vistoria' => 'date',
         'data_execucao' => 'date',
+        'motivos'       => 'array',
+        'servicos'      => 'array',
+        'equipamentos'  => 'array',
+        'procedimentos' => 'array',
+        'especies'      => 'array', // Se você salvar múltiplas espécies, mantenha. Se for texto único, remova.
     ];
 
-    /**
-     * =============================
-     * RELACIONAMENTOS
-     * =============================
-     */
-
-    // Solicitação original do usuário
     public function contact()
     {
-        return $this->belongsTo(Contact::class);
+        return $this->belongsTo(Contact::class, 'contact_id');
     }
 
-    // Analista responsável (destino atual ou criador)
     public function analyst()
     {
-        return $this->belongsTo(Analyst::class);
+        return $this->belongsTo(Analyst::class, 'analyst_id');
     }
 
-    // Equipe de serviço responsável
     public function service()
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Service::class, 'service_id');
     }
 }

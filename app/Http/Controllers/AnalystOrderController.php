@@ -40,21 +40,31 @@ class AnalystOrderController extends Controller
 
     // SALVA E DEVOLVE PARA O ADMIN (Muda status para 'recebida')
     public function update(Request $request, $id)
-    {
+{
         $os = ServiceOrder::findOrFail($id);
 
         $request->validate([
-            'laudo_tecnico' => 'required|string|min:10',
-            // Adicione validações para fotos ou outros dados técnicos aqui
+            'laudo_tecnico' => 'required|string|min:5', // Ajuste a validação conforme precisar
         ]);
 
+        // 1. Atualiza a OS com o laudo
         $os->update([
             'laudo_tecnico' => $request->laudo_tecnico,
-            // 'dados_extras' => $request->dados_extras,
-            
-            'status' => 'recebida' // <--- IMPORTANTE: Isso faz aparecer na aba 'Recebidas' do Admin
+            'status' => 'analise_concluida', // Status interno da OS
+            'flow' => null // Remove do painel do analista
         ]);
 
-        return redirect()->route('analista.os.index')->with('success', 'Laudo enviado ao Administrador!');
+        // 2. ATUALIZA O CONTATO PARA "VISTORIADO" (CRUCIAL PARA A PARTE 2)
+        // Isso faz ele reaparecer na lista de solicitações do Admin
+        $statusVistoriado = \App\Models\Status::where('name', 'Vistoriado')->first();
+        
+        if ($statusVistoriado) {
+            $os->contact->update([
+                'status_id' => $statusVistoriado->id
+            ]);
+        }
+
+        return redirect()->route('analyst.dashboard')
+            ->with('success', 'Laudo enviado! Solicitação retornada ao Admin como Vistoriado.');
     }
 }

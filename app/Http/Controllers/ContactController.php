@@ -12,15 +12,12 @@ use App\Models\Service;
 use App\Models\ServiceOrder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Log;
-use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification;
 
 class ContactController extends Controller
 {
-    /* ============================================================
-     * FORMULÁRIO – USUÁRIO
-     * ============================================================ */
+    // ==========================================
+    // ÁREA DO CIDADÃO
+    // ==========================================
     public function index()
     {
         return view('pages.contact', [
@@ -29,17 +26,12 @@ class ContactController extends Controller
         ]);
     }
 
-    /* ============================================================
-     * USUÁRIO → CRIA SOLICITAÇÃO
-     * Status inicial: Em Análise
-     * ============================================================ */
     public function store(Request $request)
     {
         $request->validate([
             'topico' => 'required|string|max:255',
             'bairro' => 'required|string|max:255',
             'rua' => 'required|string|max:255',
-            'numero' => 'nullable|string|max:20',
             'descricao' => 'required|string',
             'fotos' => 'nullable|array|max:3',
             'fotos.*' => 'image|max:2048',
@@ -68,130 +60,6 @@ class ContactController extends Controller
         return redirect()->route('contact')->with('success', 'Solicitação enviada.');
     }
 
-    /* ============================================================
-     * ADMIN → LISTA DE SOLICITAÇÕES
-     * ============================================================ */
-    public function adminContactList(Request $request)
-    {
-        $filtro = $request->get('filtro', 'pendentes');
-
-        $query = Contact::with('status', 'user');
-
-        if ($filtro === 'pendentes') {
-            $query->whereHas('status', fn ($q) =>
-                $q->whereIn('name', [
-                    'Em Análise',
-                    'Deferido',
-                    'Vistoriado',
-                    'Em Execução'
-                ])
-            );
-        }
-
-        if ($filtro === 'resolvidas') {
-            $query->whereHas('status', fn ($q) =>
-                $q->whereIn('name', [
-                    'Concluído',
-                    'Indeferido',
-                    'Sem Pendências'
-                ])
-            );
-        }
-
-        return view('admin.contacts.index', [
-            'messages' => $query->latest()->get(),
-            'allStatuses' => Status::where('name', '!=', 'Cancelado')->get(),
-            'analistas' => Analyst::orderBy('name')->get(),
-            'servicos' => Service::orderBy('name')->get(),
-            'filtro' => $filtro,
-        ]);
-    }
-
-    /* ============================================================
-     * ADMIN → ENVIA PARA ANALISTA
-     * (NÃO altera status, só cria OS)
-     * ============================================================ */
-    public function sendToAnalyst(Request $request, Contact $contact)
-    {
-        $request->validate([
-            'analyst_id' => 'required|exists:analysts,id',
-        ]);
-
-        // Só associa analista
-        $contact->update([
-            'analyst_id' => $request->analyst_id,
-        ]);
-
-        // Cria ou reaproveita OS
-        ServiceOrder::firstOrCreate(
-            ['contact_id' => $contact->id],
-            [
-                'analyst_id' => $request->analyst_id,
-                'flow' => 'analista',
-            ]
-        );
-
-        return back()->with('success', 'Solicitação enviada ao analista.');
-    }
-
-    /* ============================================================
-     * ADMIN → ENVIA OS PARA SERVIÇO
-     * ============================================================ */
-    public function sendToService(Request $request, ServiceOrder $os)
-    {
-        $request->validate([
-            'service_id' => 'required|exists:services,id',
-        ]);
-
-        $os->update([
-            'service_id' => $request->service_id,
-            'flow' => 'servico',
-        ]);
-
-        $os->contact->update([
-            'status_id' => Status::where('name', 'Em Execução')->first()->id,
-        ]);
-
-        return back()->with('success', 'Enviado para equipe de serviço.');
-    }
-
-    /* ============================================================
-     * ADMIN → ATUALIZA STATUS MANUAL (ÚNICO LUGAR QUE DEFERE)
-     * ============================================================ */
-    public function adminContactUpdateStatus(Request $request, Contact $contact)
-    {
-        $indeferido = Status::where('name', 'Indeferido')->first()->id;
-
-        $request->validate([
-            'status_id' => 'required|exists:statuses,id',
-            'justificativa' => Rule::requiredIf($request->status_id == $indeferido),
-        ]);
-
-        $contact->update($request->only('status_id', 'justificativa'));
-
-        // 🔔 Notificação usuário
-        try {
-            if ($contact->user?->fcm_token) {
-                app('firebase.messaging')->send(
-                    CloudMessage::withTarget('token', $contact->user->fcm_token)
-                        ->withNotification(
-                            Notification::create(
-                                'Solicitação atualizada',
-                                'Novo status: ' . $contact->status->name
-                            )
-                        )
-                );
-            }
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-        }
-
-        return back()->with('success', 'Status atualizado.');
-    }
-
-    /* ============================================================
-     * USUÁRIO → MINHAS SOLICITAÇÕES
-     * ============================================================ */
     public function userRequestList()
     {
         return view('pages.my-requests', [
@@ -204,39 +72,137 @@ class ContactController extends Controller
         ]);
     }
 
-    /* ============================================================
-     * ANALISTA → FINALIZA VISTORIA
-     * ============================================================ */
-    public function storeServiceOrder(Request $request)
+    // ==========================================
+    // ÁREA DO ADMIN (CORRIGIDA: destino em vez de flow)
+    // ==========================================
+    public function adminContactList(Request $request)
+    {
+        $filtro = $request->get('filtro', 'pendentes');
+
+        // Carrega serviceOrder para o botão "Ver OS"
+        $query = Contact::with(['status', 'user', 'serviceOrder']);
+
+        if ($filtro === 'pendentes') {
+            $query->whereHas('status', fn ($q) =>
+                $q->whereIn('name', ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'])
+            );
+
+            // CORREÇÃO: Esconde se 'destino' for 'analista' ou 'servico'
+            // Isso garante que saia da lista de solicitações enquanto viaja
+            $query->whereDoesntHave('serviceOrder', function ($q) {
+                $q->whereIn('destino', ['analista', 'servico']);
+            });
+        }
+
+        if ($filtro === 'resolvidas') {
+            $query->whereHas('status', fn ($q) =>
+                $q->whereIn('name', ['Concluído', 'Indeferido', 'Sem Pendências'])
+            );
+        }
+
+        return view('admin.contacts.index', [
+            'messages' => $query->latest()->get(),
+            'allStatuses' => Status::where('name', '!=', 'Cancelado')->get(),
+            'analistas' => Analyst::orderBy('name')->get(),
+            'servicos' => Service::orderBy('name')->get(),
+            'filtro' => $filtro,
+        ]);
+    }
+
+    public function adminContactUpdateStatus(Request $request, Contact $contact)
+    {
+        $indeferido = Status::where('name', 'Indeferido')->first()->id;
+        $request->validate([
+            'status_id' => 'required|exists:statuses,id',
+            'justificativa' => Rule::requiredIf($request->status_id == $indeferido),
+        ]);
+        $contact->update($request->only('status_id', 'justificativa'));
+        return back()->with('success', 'Status atualizado.');
+    }
+
+    // ==========================================
+    // ENCAMINHAMENTO (ADMIN -> ANALISTA/SERVIÇO)
+    // ==========================================
+    public function forward(Request $request, $id)
+    {
+        $contact = Contact::findOrFail($id);
+
+        if ($request->has('analyst_id')) return $this->sendToAnalyst($request, $contact);
+        if ($request->has('service_id')) {
+            $os = ServiceOrder::firstOrCreate(['contact_id' => $contact->id]);
+            return $this->sendToService($request, $os);
+        }
+
+        return response()->json(['message' => 'Nenhum destino selecionado.'], 400);
+    }
+
+    public function sendToAnalyst(Request $request, Contact $contact)
+    {
+        $request->validate(['analyst_id' => 'required|exists:analysts,id']);
+        
+        $contact->update(['analyst_id' => $request->analyst_id]);
+        
+        // Define destino='analista' -> Some da lista principal e vai para OS
+        ServiceOrder::updateOrCreate(
+            ['contact_id' => $contact->id],
+            [
+                'analyst_id' => $request->analyst_id,
+                'destino' => 'analista', // CORRIGIDO (era flow)
+                'status' => 'enviada',
+                'service_id' => null 
+            ]
+        );
+
+        return response()->json(['success' => true, 'message' => 'Enviado para o analista!']);
+    }
+
+    public function sendToService(Request $request, ServiceOrder $os)
+    {
+        $request->validate(['service_id' => 'required|exists:services,id']);
+        
+        // Define destino='servico' -> Some da lista principal
+        $os->update([
+            'service_id' => $request->service_id,
+            'destino' => 'servico', // CORRIGIDO (era flow)
+            'status' => 'pendente_aceite' 
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Enviado para equipe de serviço.']);
+    }
+
+    // ==========================================
+    // ANALISTA SALVA VISTORIA
+    // ==========================================
+   public function storeServiceOrder(Request $request)
     {
         $request->validate([
             'contact_id' => 'required|exists:contacts,id',
-            'data_vistoria' => 'required|date',
         ]);
 
         $os = ServiceOrder::where('contact_id', $request->contact_id)->firstOrFail();
 
+        // 1. Atualiza OS e LIMPA O DESTINO (sai da lista de OS)
         $os->update([
+            'laudo_tecnico' => $request->laudo_tecnico ?? $os->laudo_tecnico,
+            'motivos' => $request->motivo ?? null,
+            'servicos' => $request->servico ?? null,
+            'equipamentos' => $request->equip ?? null,
+            'observacoes' => $request->observacoes ?? null,
             'supervisor_id' => Auth::guard('analyst')->id(),
-            'data_vistoria' => $request->data_vistoria,
-            'data_execucao' => $request->data_execucao,
-            'motivos' => $request->motivo,
-            'servicos' => $request->servico,
-            'equipamentos' => $request->equip,
-            'procedimentos' => $request->procedimentos,
-            'observacoes' => $request->observacoes,
-            'especies' => $request->especies,
-            'quantidade' => $request->quantidade,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'flow' => 'finalizada',
+            'data_vistoria' => now(),
+            
+            'destino' => null, // <--- ISSO TIRA DA LISTA DE OS
+            'status' => 'analise_concluida'
         ]);
 
-        $os->contact->update([
-            'status_id' => Status::where('name', 'Vistoriado')->first()->id,
-        ]);
+        // 2. Muda Status para VISTORIADO (Entra na lista de Vistoriados)
+        $statusVistoriado = Status::where('name', 'vistoriado')->first();
+        
+        if ($statusVistoriado) {
+            $os->contact->update(['status_id' => $statusVistoriado->id]);
+        }
 
         return redirect()->route('analyst.dashboard')
-            ->with('success', 'OS devolvida ao administrador.');
+            ->with('success', 'Vistoria concluída! Enviado para Vistoriado.');
     }
-}
+  }
