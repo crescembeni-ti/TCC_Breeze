@@ -183,24 +183,38 @@
                 }
 
                 // 3. BOTÃO VER INTELIGENTE
+                // 3. BOTÃO VER INTELIGENTE (ATUALIZADO)
                 let btnVer = '';
-                // Se tiver OS e status for vistoriado, mostra Ver OS
-                if (statusName.toLowerCase().includes('vistoriado') && m.service_order && m.service_order.id) {
+                
+                // Verifica se existe uma OS vinculada
+                const temOS = m.service_order && m.service_order.id;
+
+                // Lista de status que devem abrir a tela da OS em vez do modal simples
+                // Adicionei os status de 'Resolvidas' aqui
+                const statusQueAbremOS = ['Vistoriado', 'Em Execução', 'Concluído', 'Indeferido', 'Sem Pendências'];
+
+                // Verifica se o status atual está na lista (ou contém a palavra, ex: 'Vistoriado ')
+                const deveAbrirOS = statusQueAbremOS.some(s => statusName.includes(s));
+
+                if (temOS && deveAbrirOS) {
+                    // SE TIVER OS E O STATUS FOR ADEQUADO -> BOTÃO LEVA PARA A PÁGINA DA OS
                     const urlOS = `/pbi-admin/os/${m.service_order.id}`;
                     btnVer = `
                         <a href="${urlOS}" 
-                           class="inline-flex items-center justify-center px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947] mr-2">
+                           class="inline-flex items-center justify-center px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947] mr-2"
+                           title="Visualizar Ordem de Serviço Completa">
                            <i data-lucide="file-text" class="w-3 h-3 mr-1"></i> Ver OS
                         </a>`;
                 } else {
+                    // CASO CONTRÁRIO (ex: Em Análise) -> ABRE O MODAL SIMPLES
                     btnVer = `
                         <button onclick="openViewModal(${m.id})" 
-                            class="px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947] mr-2">
+                            class="px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947] mr-2"
+                            title="Ver Detalhes da Solicitação">
                             Ver
                         </button>`;
                 }
                 actionButtons += btnVer;
-
                 // 4. BOTÃO STATUS
                 actionButtons += `
                     <button onclick="openStatusModal(${m.id})" class="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700">

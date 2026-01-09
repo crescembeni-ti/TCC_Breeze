@@ -23,20 +23,22 @@ class ServiceExecutionController extends Controller
     }
 
     // --- NOVO: CONFIRMAR RECEBIMENTO (VISTO) ---
+   // --- NOVO: CONFIRMAR RECEBIMENTO (VISTO) ---
     public function confirmarRecebimento($id)
     {
         $os = ServiceOrder::with('contact')->findOrFail($id);
 
-        // Busca o status "Em Execução"
+        // 1. Busca o ID do status "Em Execução"
         $statusExecucao = Status::where('name', 'Em Execução')->first();
 
         if ($statusExecucao) {
-            // Atualiza o status do contato para o Admin ver que começou
+            // 2. Atualiza o status do contato para o Admin ver que começou
             $os->contact->update(['status_id' => $statusExecucao->id]);
         }
 
+        // NÃO limpamos o 'destino' aqui, pois a tarefa continua com a equipe
         return redirect()->route('service.tasks.index')
-            ->with('success', 'Ordem de Serviço iniciada! Status atualizado para "Em Execução".');
+            ->with('success', 'Confirmado! Solicitação movida para "Em Execução".');
     }
 
     // Serviço concluiu a tarefa

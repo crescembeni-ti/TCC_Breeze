@@ -93,10 +93,12 @@ class ContactController extends Controller
                 $q->whereIn('name', ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'])
             );
 
-            // IMPORTANTE: Esconde itens que estão "viajando" (com Analista ou Serviço)
-            // Se 'destino' estiver preenchido, o item sai desta lista e vai para a lista de OS
+            // CORREÇÃO AQUI: 
+            // Antes escondíamos ['analista', 'servico']. 
+            // Agora escondemos SÓ 'analista'.
+            // Assim, se estiver com o 'servico' (Em Execução), o Admin CONSEGUE ver.
             $query->whereDoesntHave('serviceOrder', function ($q) {
-                $q->whereIn('destino', ['analista', 'servico']);
+                $q->where('destino', 'analista'); 
             });
         }
 
@@ -114,7 +116,6 @@ class ContactController extends Controller
             'filtro' => $filtro,
         ]);
     }
-
     // 5. Atualizar Status Manualmente
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
@@ -241,6 +242,7 @@ class ContactController extends Controller
     }
 
     // 12. Salvar Vistoria (Devolver para Admin)
+    // 12. Salvar Vistoria (CORRIGIDO: CAPTURA TODOS OS CAMPOS)
     public function storeServiceOrder(Request $request)
     {
         $request->validate([
@@ -249,28 +251,44 @@ class ContactController extends Controller
 
         $os = ServiceOrder::where('contact_id', $request->contact_id)->firstOrFail();
 
-        // ATUALIZA OS DADOS E LIMPA O DESTINO
-        // Removi a linha 'laudo_tecnico' que estava causando o erro
+        // Tratamento para Especies (se o seu Model espera array, mas o form manda string)
+        $especies = $request->especies;
+        if (is_string($especies) && !empty($especies)) {
+            // Transforma "Ipê, Mangueira" em ["Ipê", "Mangueira"] para evitar erro de Array
+            $especies = array_map('trim', explode(',', $especies));
+        }
+
+        // ATUALIZA TODOS OS DADOS VINDOS DO FORMULÁRIO
         $os->update([
-            // 'laudo_tecnico' => ...,  <-- REMOVIDO
-            'motivos' => $request->motivo ?? null,
-            'servicos' => $request->servico ?? null,
-            'equipamentos' => $request->equip ?? null,
-            'observacoes' => $request->observacoes ?? null,
-            'supervisor_id' => Auth::guard('analyst')->id(),
-            'data_vistoria' => now(),
+            // 1. Dados Técnicos (Estavam faltando!)
+            'latitude'      => $request->latitude,
+            'longitude'     => $request->longitude,
+            'especies'      => $especies, 
+            'quantidade'    => $request->quantidade,
+
+            // 2. Datas (Agora pega o que o analista digitou)
+            'data_vistoria' => $request->data_vistoria ?? now(), // Usa o input ou data atual se falhar
+            'data_execucao' => $request->data_execucao,
+
+            // 3. Checkboxes e Textos
+            'motivos'       => $request->motivo ?? null,
+            'servicos'      => $request->servico ?? null,
+            'equipamentos'  => $request->equip ?? null,
+            'observacoes'   => $request->observacoes ?? null,
             
-            'destino' => null, // Tira da lista de OS
-            'status' => 'analise_concluida'
+            // 4. Controle de Fluxo
+            'supervisor_id' => Auth::guard('analyst')->id(),
+            'destino'       => null, 
+            'status'        => 'analise_concluida'
         ]);
 
-        // ATUALIZA O STATUS DO CONTATO PARA 'VISTORIADO'
+        // ATUALIZA O STATUS DO CONTATO
         $statusVistoriado = Status::where('name', 'Vistoriado')->first();
         if ($statusVistoriado) {
             $os->contact->update(['status_id' => $statusVistoriado->id]);
         }
 
         return redirect()->route('analyst.dashboard')
-            ->with('success', 'Vistoria concluída! Devolvido ao Administrador.');
+            ->with('success', 'Vistoria concluída! Dados salvos com sucesso.');
     }
 }
