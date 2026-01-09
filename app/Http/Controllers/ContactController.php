@@ -15,9 +15,11 @@ use Illuminate\Validation\Rule;
 
 class ContactController extends Controller
 {
-    // ==========================================
-    // ÁREA DO CIDADÃO
-    // ==========================================
+    /* ============================================================
+     * ÁREA DO CIDADÃO (USUÁRIO COMUM)
+     * ============================================================ */
+    
+    // 1. Formulário de Contato
     public function index()
     {
         return view('pages.contact', [
@@ -26,6 +28,7 @@ class ContactController extends Controller
         ]);
     }
 
+    // 2. Salvar Solicitação
     public function store(Request $request)
     {
         $request->validate([
@@ -60,6 +63,7 @@ class ContactController extends Controller
         return redirect()->route('contact')->with('success', 'Solicitação enviada.');
     }
 
+    // 3. Minhas Solicitações
     public function userRequestList()
     {
         return view('pages.my-requests', [
@@ -72,23 +76,25 @@ class ContactController extends Controller
         ]);
     }
 
-    // ==========================================
-    // ÁREA DO ADMIN (CORRIGIDA: destino em vez de flow)
-    // ==========================================
+    /* ============================================================
+     * ÁREA DO ADMIN (GESTÃO)
+     * ============================================================ */
+
+    // 4. Listagem Principal (Admin)
     public function adminContactList(Request $request)
     {
         $filtro = $request->get('filtro', 'pendentes');
 
-        // Carrega serviceOrder para o botão "Ver OS"
         $query = Contact::with(['status', 'user', 'serviceOrder']);
 
         if ($filtro === 'pendentes') {
+            // Filtra pelos status básicos
             $query->whereHas('status', fn ($q) =>
                 $q->whereIn('name', ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'])
             );
 
-            // CORREÇÃO: Esconde se 'destino' for 'analista' ou 'servico'
-            // Isso garante que saia da lista de solicitações enquanto viaja
+            // IMPORTANTE: Esconde itens que estão "viajando" (com Analista ou Serviço)
+            // Se 'destino' estiver preenchido, o item sai desta lista e vai para a lista de OS
             $query->whereDoesntHave('serviceOrder', function ($q) {
                 $q->whereIn('destino', ['analista', 'servico']);
             });
@@ -109,6 +115,7 @@ class ContactController extends Controller
         ]);
     }
 
+    // 5. Atualizar Status Manualmente
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
         $indeferido = Status::where('name', 'Indeferido')->first()->id;
@@ -120,9 +127,11 @@ class ContactController extends Controller
         return back()->with('success', 'Status atualizado.');
     }
 
-    // ==========================================
-    // ENCAMINHAMENTO (ADMIN -> ANALISTA/SERVIÇO)
-    // ==========================================
+    /* ============================================================
+     * ENCAMINHAMENTO (ADMIN -> OUTROS)
+     * ============================================================ */
+
+    // 6. Rota Central do Modal de Encaminhamento
     public function forward(Request $request, $id)
     {
         $contact = Contact::findOrFail($id);
@@ -136,18 +145,19 @@ class ContactController extends Controller
         return response()->json(['message' => 'Nenhum destino selecionado.'], 400);
     }
 
+    // 7. Enviar para Analista
     public function sendToAnalyst(Request $request, Contact $contact)
     {
         $request->validate(['analyst_id' => 'required|exists:analysts,id']);
         
         $contact->update(['analyst_id' => $request->analyst_id]);
         
-        // Define destino='analista' -> Some da lista principal e vai para OS
+        // Define destino='analista' -> Some da lista principal e vai para a tela de OS
         ServiceOrder::updateOrCreate(
             ['contact_id' => $contact->id],
             [
                 'analyst_id' => $request->analyst_id,
-                'destino' => 'analista', // CORRIGIDO (era flow)
+                'destino' => 'analista', 
                 'status' => 'enviada',
                 'service_id' => null 
             ]
@@ -156,24 +166,82 @@ class ContactController extends Controller
         return response()->json(['success' => true, 'message' => 'Enviado para o analista!']);
     }
 
+    // 8. Enviar para Serviço
     public function sendToService(Request $request, ServiceOrder $os)
     {
         $request->validate(['service_id' => 'required|exists:services,id']);
         
-        // Define destino='servico' -> Some da lista principal
+        // Define destino='servico' -> Vai para a tela de OS
         $os->update([
             'service_id' => $request->service_id,
-            'destino' => 'servico', // CORRIGIDO (era flow)
+            'destino' => 'servico',
             'status' => 'pendente_aceite' 
         ]);
 
         return response()->json(['success' => true, 'message' => 'Enviado para equipe de serviço.']);
     }
 
-    // ==========================================
-    // ANALISTA SALVA VISTORIA
-    // ==========================================
-   public function storeServiceOrder(Request $request)
+    /* ============================================================
+     * ÁREA DO ANALISTA
+     * ============================================================ */
+    
+    // 9. Dashboard do Analista
+    public function analystDashboard()
+    {
+        $analystId = Auth::guard('analyst')->id();
+
+        // Contadores
+        $countPendentes = ServiceOrder::where('analyst_id', $analystId)
+            ->where('destino', 'analista')
+            ->count();
+
+        $countConcluidas = ServiceOrder::where('analyst_id', $analystId)
+            ->where('status', 'analise_concluida')
+            ->count();
+
+        // Lista recente para a tabela no Dashboard (CORRIGIDO: variavel $vistorias)
+        $vistorias = ServiceOrder::with(['contact.user']) 
+            ->where('analyst_id', $analystId)
+            ->where('destino', 'analista')
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('analista.dashboard', compact('countPendentes', 'countConcluidas', 'vistorias'));
+    }
+
+    // 10. Lista Completa de Vistorias Pendentes
+    public function vistoriasPendentes()
+    {
+        $analystId = Auth::guard('analyst')->id();
+
+        // Carrega contact.user e contact.status para exibir na tabela
+        $vistorias = ServiceOrder::with(['contact.user', 'contact.status'])
+            ->where('analyst_id', $analystId)
+            ->where('destino', 'analista')
+            ->latest()
+            ->get();
+
+        return view('analista.vistorias-pendentes', compact('vistorias'));
+    }
+
+    // 11. Histórico de Ordens Enviadas
+    public function ordensEnviadas()
+    {
+        $analystId = Auth::guard('analyst')->id();
+
+        // CORRIGIDO: Nome da variável deve ser $ordensEnviadas para bater com a View
+        $ordensEnviadas = ServiceOrder::with(['contact', 'service'])
+            ->where('analyst_id', $analystId)
+            ->where('status', 'analise_concluida')
+            ->latest('updated_at')
+            ->get();
+
+        return view('analista.ordens-enviadas', compact('ordensEnviadas'));
+    }
+
+    // 12. Salvar Vistoria (Devolver para Admin)
+    public function storeServiceOrder(Request $request)
     {
         $request->validate([
             'contact_id' => 'required|exists:contacts,id',
@@ -181,9 +249,10 @@ class ContactController extends Controller
 
         $os = ServiceOrder::where('contact_id', $request->contact_id)->firstOrFail();
 
-        // 1. Atualiza OS e LIMPA O DESTINO (sai da lista de OS)
+        // ATUALIZA OS DADOS E LIMPA O DESTINO
+        // Removi a linha 'laudo_tecnico' que estava causando o erro
         $os->update([
-            'laudo_tecnico' => $request->laudo_tecnico ?? $os->laudo_tecnico,
+            // 'laudo_tecnico' => ...,  <-- REMOVIDO
             'motivos' => $request->motivo ?? null,
             'servicos' => $request->servico ?? null,
             'equipamentos' => $request->equip ?? null,
@@ -191,18 +260,17 @@ class ContactController extends Controller
             'supervisor_id' => Auth::guard('analyst')->id(),
             'data_vistoria' => now(),
             
-            'destino' => null, // <--- ISSO TIRA DA LISTA DE OS
+            'destino' => null, // Tira da lista de OS
             'status' => 'analise_concluida'
         ]);
 
-        // 2. Muda Status para VISTORIADO (Entra na lista de Vistoriados)
-        $statusVistoriado = Status::where('name', 'vistoriado')->first();
-        
+        // ATUALIZA O STATUS DO CONTATO PARA 'VISTORIADO'
+        $statusVistoriado = Status::where('name', 'Vistoriado')->first();
         if ($statusVistoriado) {
             $os->contact->update(['status_id' => $statusVistoriado->id]);
         }
 
         return redirect()->route('analyst.dashboard')
-            ->with('success', 'Vistoria concluída! Enviado para Vistoriado.');
+            ->with('success', 'Vistoria concluída! Devolvido ao Administrador.');
     }
-  }
+}
