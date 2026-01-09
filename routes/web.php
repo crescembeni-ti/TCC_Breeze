@@ -210,21 +210,46 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
 | SERVIÇO (/pbi-servico)
 |--------------------------------------------------------------------------
 */
+/*
+|--------------------------------------------------------------------------
+| SERVIÇO (/pbi-servico)
+|--------------------------------------------------------------------------
+*/
 Route::prefix('pbi-servico')->name('service.')->group(function () {
+    
+    // Rota de redirecionamento inicial
     Route::get('/', fn () => redirect()->route('service.login'));
 
+    // Rota de Login
     Route::middleware(['guest:service', 'guard.only:service'])->group(function () {
         Route::get('/login', [ServiceLoginController::class, 'create'])->name('login');
         Route::post('/login', [ServiceLoginController::class, 'store'])->name('login.store');
     });
 
+    // ÁREA LOGADA DA EQUIPE TÉCNICA
     Route::middleware(['auth:service', 'preventBack'])->group(function () {
         Route::post('/logout', [ServiceLoginController::class, 'destroy'])->name('logout');
+        
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/tarefas', [ServiceExecutionController::class, 'index'])->name('tasks.index');
-        Route::post('/tarefas/{id}/concluir', [ServiceExecutionController::class, 'concluir'])->name('tasks.concluir');
-        Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])->name('tasks.falha');
         Route::get('/profile', fn () => view('servico.profile'))->name('profile.edit');
+
+        // --- ROTAS DE TAREFAS (AQUI ESTAVAM FALTANDO) ---
+        
+        // 1. Listar Tarefas
+        Route::get('/tarefas', [ServiceExecutionController::class, 'index'])
+            ->name('tasks.index'); // Gera: service.tasks.index
+
+        // 2. Confirmar Recebimento (Botão Visto) - NOVA ROTA
+        Route::post('/tarefas/{id}/confirmar', [ServiceExecutionController::class, 'confirmarRecebimento'])
+            ->name('tasks.confirmar'); // Gera: service.tasks.confirmar
+
+        // 3. Concluir Tarefa
+        Route::post('/tarefas/{id}/concluir', [ServiceExecutionController::class, 'concluir'])
+            ->name('tasks.concluir'); // Gera: service.tasks.concluir
+
+        // 4. Registrar Falha
+        Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])
+            ->name('tasks.falha'); // Gera: service.tasks.falha
     });
 });
 
