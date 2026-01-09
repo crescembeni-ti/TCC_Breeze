@@ -6,15 +6,17 @@
 @section('content')
 
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-pt-BR.min.js"></script>
 
 <div class="p-6 bg-gray-100 min-h-screen">
     <div class="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
         
         <div class="bg-[#358054] p-6 flex justify-between items-center">
             <h2 class="text-2xl font-bold text-white">🌿 Editar Página: Sobre o Projeto</h2>
-            <a href="{{ route('dashboard') }}" class="text-white hover:text-gray-200 text-sm underline">
+            <a href="{{ route('admin.dashboard') }}" class="text-white hover:text-gray-200 text-sm underline">
                 Voltar ao Painel
             </a>
         </div>
@@ -71,14 +73,14 @@
             placeholder: 'Digite o conteúdo aqui...',
             tabsize: 2,
             height: 200,
-            lang: 'pt-BR', // Tenta colocar em português se disponível
+            lang: 'pt-BR', // AGORA VAI FUNCIONAR POIS IMPORTAMOS O SCRIPT ACIMA
             toolbar: [
                 ['style', ['style']],
                 ['font', ['bold', 'underline', 'clear']],
                 ['color', ['color']],
                 ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link', 'picture', 'video']], // Botões que funcionam!
-                ['view', ['fullscreen', 'codeview']]
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']] // Adicionei 'help' pra ver atalhos
             ]
         });
     });
