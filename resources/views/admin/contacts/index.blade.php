@@ -213,7 +213,6 @@
                     <td class="px-6 py-4 align-top">
                         <div class="text-sm font-medium text-gray-900">
                             <span class="font-semibold text-[#358054]">${escapeHtml(topico)}</span> - ${escapeHtml(endereco)}
-                            <br><span class="text-xs bg-gray-200 px-1 rounded text-gray-600">Status atual: ${statusName}</span>
                         </div>
                         <div class="text-xs text-gray-500 mt-1">${escapeHtml(descricao.substring(0,100))}...</div>
                     </td>
