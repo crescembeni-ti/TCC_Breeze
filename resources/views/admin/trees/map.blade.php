@@ -97,11 +97,93 @@
                     </div>
 
                     {{-- Espécie --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Espécie <span class="text-red-500">*</span></label>
-                        <input type="text" name="species_name" required
-                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
-                    </div>
+                   {{-- Espécie (COMBOBOX HÍBRIDO) --}}
+<div x-data="{
+        query: '{{ old('species_name') }}',
+        selectedId: null,
+        open: false,
+        allSpecies: {{ $species->toJson() }}, // Pega as espécies do PHP
+        
+        get filteredSpecies() {
+            if (this.query === '') {
+                return this.allSpecies;
+            }
+            return this.allSpecies.filter(s => 
+                s.name.toLowerCase().includes(this.query.toLowerCase())
+            );
+        },
+        
+        selectSpecies(item) {
+            this.query = item.name;
+            this.selectedId = item.id;
+            this.open = false;
+        },
+
+        checkSelection() {
+            // Se o que está escrito não bate exatamente com nenhuma espécie existente pelo nome,
+            // limpa o ID para forçar criação de nova.
+            let match = this.allSpecies.find(s => s.name.toLowerCase() === this.query.toLowerCase());
+            if (match) {
+                this.selectedId = match.id;
+            } else {
+                this.selectedId = null; // Vai criar nova
+            }
+        }
+    }" 
+    class="relative w-full">
+
+    <label class="block text-sm font-medium text-gray-700 mb-1">Espécie <span class="text-red-500">*</span></label>
+    
+    {{-- Input visível para digitação --}}
+    <div class="relative">
+        <input type="text" 
+               x-model="query"
+               @input="open = true; selectedId = null"
+               @click="open = true"
+               @click.outside="open = false; checkSelection()"
+               name="species_name" 
+               autocomplete="off"
+               placeholder="Selecione ou digite uma nova..."
+               class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500"
+               required>
+
+        {{-- Ícone de seta para indicar que é lista também --}}
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        </div>
+    </div>
+
+    {{-- Input oculto para enviar o ID se for existente --}}
+    <input type="hidden" name="species_id" :value="selectedId">
+
+    {{-- Lista Dropdown --}}
+    <ul x-show="open" 
+        x-transition
+        class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none"
+        style="display: none;">
+        
+        {{-- Loop das espécies filtradas --}}
+        <template x-for="specie in filteredSpecies" :key="specie.id">
+            <li @click="selectSpecies(specie)"
+                class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-[#358054] hover:text-white text-gray-900">
+                <span x-text="specie.name" class="block truncate"></span>
+            </li>
+        </template>
+
+        {{-- Opção de 'Nenhum resultado' que incentiva o cadastro --}}
+        <li x-show="filteredSpecies.length === 0 && query !== ''" 
+            @click="open = false; selectedId = null"
+            class="cursor-pointer select-none relative py-2 pl-3 pr-9 text-green-700 font-semibold hover:bg-green-50">
+            <span class="block truncate">
+                Cadastrar nova: "<span x-text="query"></span>"
+            </span>
+        </li>
+    </ul>
+    
+    <p class="text-xs text-gray-500 mt-1">Selecione da lista ou digite para criar uma nova.</p>
+</div>
 
                     {{-- Nome vulgar --}}
                     <div>

@@ -193,17 +193,31 @@
                             </div>
                         </div>
 
+                      {{-- DATAS E ASSINATURA --}}
                         <div class="grid grid-cols-2 gap-6 mt-4">
                             <div>
                                 <label class="font-bold block text-xs uppercase">Data Vistoria:</label>
-                                <input type="date" name="data_vistoria" class="w-full border p-1 rounded" required>
+                                {{-- 
+                                    max="{{ date('Y-m-d') }}" -> Impede selecionar datas futuras 
+                                --}}
+                                <input type="date" name="data_vistoria" 
+                                       class="w-full border p-1 rounded focus:ring-[#358054] focus:border-[#358054]" 
+                                       max="{{ date('Y-m-d') }}" 
+                                       required>
+                                <p class="text-[10px] text-gray-500 mt-1">* Não pode ser data futura</p>
                             </div>
                             <div>
                                 <label class="font-bold block text-xs uppercase">Previsão Execução:</label>
-                                <input type="date" name="data_execucao" class="w-full border p-1 rounded">
+                                {{-- 
+                                    min="{{ date('Y-m-d') }}" -> Impede selecionar datas passadas 
+                                --}}
+                                <input type="date" name="data_execucao" 
+                                       class="w-full border p-1 rounded focus:ring-[#358054] focus:border-[#358054]"
+                                       min="{{ date('Y-m-d') }}">
+                                <p class="text-[10px] text-gray-500 mt-1">* Não pode ser data passada</p>
                             </div>
+                            
                         </div>
-
                         <div class="mt-6 flex flex-row-reverse gap-2">
                             <button type="submit" class="inline-flex w-full justify-center rounded-md bg-[#358054] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 sm:w-auto">
                                 Gerar Ordem de serviço

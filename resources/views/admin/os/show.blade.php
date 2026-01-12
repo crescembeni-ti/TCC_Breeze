@@ -198,30 +198,16 @@
             </div>
         </div>
 
-        {{-- DATAS E ASSINATURA --}}
-                        <div class="grid grid-cols-2 gap-6 mt-4">
-                            <div>
-                                <label class="font-bold block text-xs uppercase">Data Vistoria:</label>
-                                {{-- 
-                                    max="{{ date('Y-m-d') }}" -> Impede selecionar datas futuras 
-                                --}}
-                                <input type="date" name="data_vistoria" 
-                                       class="w-full border p-1 rounded focus:ring-[#358054] focus:border-[#358054]" 
-                                       max="{{ date('Y-m-d') }}" 
-                                       required>
-                                <p class="text-[10px] text-gray-500 mt-1">* Não pode ser data futura</p>
-                            </div>
-                            <div>
-                                <label class="font-bold block text-xs uppercase">Previsão Execução:</label>
-                                {{-- 
-                                    min="{{ date('Y-m-d') }}" -> Impede selecionar datas passadas 
-                                --}}
-                                <input type="date" name="data_execucao" 
-                                       class="w-full border p-1 rounded focus:ring-[#358054] focus:border-[#358054]"
-                                       min="{{ date('Y-m-d') }}">
-                                <p class="text-[10px] text-gray-500 mt-1">* Não pode ser data passada</p>
-                            </div>
-                        </div>
+        {{-- DATAS E OBSERVAÇÕES --}}
+        <div class="grid grid-cols-2 gap-6 mt-4">
+            <div>
+                <label class="font-bold block text-xs uppercase">DATA VISTORIA:</label>
+                <p class="w-full border p-1 rounded bg-gray-50">{{ $os->data_vistoria ? \Carbon\Carbon::parse($os->data_vistoria)->format('d/m/Y') : 'N/A' }}</p>
+            </div>
+            <div>
+                <label class="font-bold block text-xs uppercase">PREVISÃO EXECUÇÃO:</label>
+                <p class="w-full border p-1 rounded bg-gray-50">{{ $os->data_execucao ? \Carbon\Carbon::parse($os->data_execucao)->format('d/m/Y') : 'N/A' }}</p>
+            </div>
             
             @if ($os->observacoes)
             <div class="mt-4 col-span-2">
