@@ -247,6 +247,12 @@ class ContactController extends Controller
     {
         $request->validate([
             'contact_id' => 'required|exists:contacts,id',
+            'data_vistoria' => 'required|date|before_or_equal:today', // Vistoria: Hoje ou antes
+            'data_execucao' => 'nullable|date|after_or_equal:today',  // Execução: Hoje ou depois
+        ], [
+            // Mensagens personalizadas (opcional)
+            'data_vistoria.before_or_equal' => 'A data da vistoria não pode ser no futuro.',
+            'data_execucao.after_or_equal' => 'A previsão de execução não pode ser no passado.',
         ]);
 
         $os = ServiceOrder::where('contact_id', $request->contact_id)->firstOrFail();
