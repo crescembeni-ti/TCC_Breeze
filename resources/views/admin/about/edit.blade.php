@@ -1,6 +1,5 @@
 @extends('layouts.dashboard')
 
-{{-- TÍTULO DA PÁGINA NO NAVEGADOR --}}
 @section('title', 'Editar Sobre')
 
 @section('content')
@@ -8,30 +7,15 @@
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 
 <style>
-    /* Força o editor a ficar ACIMA do menu lateral e do topo quando em tela cheia */
-    .note-fullscreen {
-        z-index: 9999 !important; /* Um número bem alto para cobrir tudo */
-        background-color: white !important; /* Garante fundo branco */
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        position: fixed !important;
-    }
-
-    /* Ajuste para o vídeo ficar responsivo dentro do editor */
+    /* Ajuste básico para vídeos ficarem responsivos dentro do editor */
     .note-video-clip {
         max-width: 100%;
         height: auto;
     }
     
-    /* Garante que o modal de inserir vídeo apareça na frente de tudo */
-    .note-modal-backdrop {
-        z-index: 1040 !important;
-    }
-    .note-modal {
-        z-index: 1050 !important;
-    }
+    /* Ajuste para os modais (janelas de inserir vídeo/link) aparecerem corretamente */
+    .note-modal-backdrop { z-index: 1040 !important; }
+    .note-modal { z-index: 1050 !important; }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -101,23 +85,17 @@
             tabsize: 2,
             height: 200,
             lang: 'pt-BR',
-            // CORREÇÃO 1: Configurações para garantir que o vídeo funcione melhor
-            dialogsInBody: true, // Isso ajuda a evitar conflitos de layout nos modais
+            dialogsInBody: true, // Mantive pois ajuda com o vídeo
             toolbar: [
+                // Personalizei a barra para remover o grupo ['view', ...]
                 ['style', ['style']],
                 ['font', ['bold', 'underline', 'clear']],
                 ['color', ['color']],
                 ['para', ['ul', 'ol', 'paragraph']],
                 ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']], // Certifique-se de usar links do YouTube/Vimeo
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ],
-            // Callbacks para depuração se necessário
-            callbacks: {
-                onInit: function() {
-                    console.log('Summernote is launched');
-                }
-            }
+                ['insert', ['link', 'picture', 'video']],
+                // A linha abaixo foi removida, ela que continha ['fullscreen', 'codeview', 'help']
+            ]
         });
     });
 </script>
