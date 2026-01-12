@@ -88,17 +88,27 @@ class ContactController extends Controller
         $query = Contact::with(['status', 'user', 'serviceOrder']);
 
         if ($filtro === 'pendentes') {
-            // Filtra pelos status básicos
+            // 1. Filtra pelos status básicos
             $query->whereHas('status', fn ($q) =>
                 $q->whereIn('name', ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'])
             );
 
-            // CORREÇÃO AQUI: 
-            // Antes escondíamos ['analista', 'servico']. 
-            // Agora escondemos SÓ 'analista'.
-            // Assim, se estiver com o 'servico' (Em Execução), o Admin CONSEGUE ver.
-            $query->whereDoesntHave('serviceOrder', function ($q) {
-                $q->where('destino', 'analista'); 
+            // 2. LÓGICA DE VISIBILIDADE (CORRIGIDA)
+            // O objetivo é: 
+            // - Se enviou pro Analista -> SOME.
+            // - Se enviou pro Serviço (ainda Vistoriado) -> SOME.
+            // - Se o Serviço deu "Visto" (virou Em Execução) -> APARECE.
+            // - Se não enviou pra ninguém (está com Admin) -> APARECE.
+
+            $query->where(function ($mainQuery) {
+                // CASO A: Mostra se NÃO tiver nenhum destino definido (está na mão do Admin)
+                $mainQuery->whereDoesntHave('serviceOrder', function ($q) {
+                    $q->whereIn('destino', ['analista', 'servico']);
+                })
+                // CASO B: OU mostra se o status for "Em Execução" (mesmo que tenha destino 'servico')
+                ->orWhereHas('status', function ($q) {
+                    $q->where('name', 'Em Execução');
+                });
             });
         }
 

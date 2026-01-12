@@ -15,12 +15,12 @@
         </a>
         <a href="?type=analyst"
            class="px-4 py-2 rounded
-           {{ $type === 'analyst' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
+           {{ $type === 'analista' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
             Analistas
         </a>
         <a href="?type=service"
            class="px-4 py-2 rounded
-           {{ $type === 'service' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
+           {{ $type === 'serviço' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
             Serviços
         </a>
     </div>
@@ -212,8 +212,9 @@ function openAddModal(type) {
     document.getElementById('add_type').value = type;
 
     const cpfContainer = document.getElementById('cpf_add_container');
+    // ATENÇÃO NA MUDANÇA ABAIXO: Adicionado oninput e maxlength
     cpfContainer.innerHTML = (type !== 'admin')
-        ? '<input name="cpf" class="block w-full rounded-md border border-gray-300 bg-[#f9fafb] text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2" placeholder="CPF" required>'
+        ? '<input name="cpf" oninput="maskCPF(this)" maxlength="14" class="block w-full rounded-md border border-gray-300 bg-[#f9fafb] text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2" placeholder="CPF (apenas números)" required>'
         : '';
 
     modalAdd.showModal();
@@ -228,12 +229,18 @@ function openEdit(id, name, email, cpf = '', type) {
     document.getElementById('edit_email').value = email;
 
     const cpfDiv = document.getElementById('cpf_container');
+    // ATENÇÃO NA MUDANÇA ABAIXO: Adicionado oninput e maxlength
     cpfDiv.innerHTML = (type !== 'admin')
-        ? `<input id="edit_cpf" name="cpf"
+        ? `<input id="edit_cpf" name="cpf" oninput="maskCPF(this)" maxlength="14"
                   class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
                          text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2"
                   value="${cpf}">`
         : '';
+    
+    // Se já tiver valor vindo do banco, aplicamos a máscara imediatamente para ficar bonito
+    if(type !== 'admin' && cpf) {
+        maskCPF(document.getElementById('edit_cpf'));
+    }
 
     document.getElementById('formEdit').action =
         "/pbi-admin/accounts/update/" + type + "/" + id;
@@ -246,6 +253,93 @@ function closeModal(modalId) {
 function formatCPF(cpf) {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
+
+/* MÁSCARA DE CPF (Formata enquanto digita e limita tamanho) */
+function maskCPF(input) {
+    let value = input.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+
+    if (value.length > 11) {
+        value = value.slice(0, 11); // Limita a 11 números
+    }
+
+    // Adiciona a pontuação
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+    input.value = value;
+}
+
+/* VALIDAÇÃO MATEMÁTICA DE CPF */
+function isValidCPF(cpf) {
+    cpf = cpf.replace(/[^\d]+/g, ''); // Remove caracteres não numéricos
+
+    if (cpf == '') return false;
+
+    // Elimina CPFs inválidos conhecidos (ex: 111.111.111-11)
+    if (cpf.length != 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+
+    let add = 0;
+    for (let i = 0; i < 9; i++)
+        add += parseInt(cpf.charAt(i)) * (10 - i);
+    let rev = 11 - (add % 11);
+    if (rev == 10 || rev == 11) rev = 0;
+    if (rev != parseInt(cpf.charAt(9))) return false;
+
+    add = 0;
+    for (let i = 0; i < 10; i++)
+        add += parseInt(cpf.charAt(i)) * (11 - i);
+    rev = 11 - (add % 11);
+    if (rev == 10 || rev == 11) rev = 0;
+    if (rev != parseInt(cpf.charAt(10))) return false;
+
+    return true;
+}
+/* VALIDAÇÃO DE SENHAS E CPF NO SUBMIT */
+
+// Modal ADD
+document.querySelector('#modalAdd form').addEventListener('submit', function(e) {
+    let senha = this.querySelector('input[name="password"]').value;
+    let confirmar = this.querySelector('input[name="password_confirmation"]').value;
+    
+    // Validação de CPF (se o campo existir)
+    let cpfInput = this.querySelector('input[name="cpf"]');
+    if (cpfInput) {
+        if (!isValidCPF(cpfInput.value)) {
+            e.preventDefault();
+            alert('CPF inválido. Por favor, verifique os números.');
+            cpfInput.focus();
+            return; // Para a execução aqui
+        }
+    }
+
+    if (senha !== confirmar) {
+        e.preventDefault();
+        alert('As senhas não coincidem.');
+    }
+});
+
+// Modal EDIT
+document.querySelector('#formEdit').addEventListener('submit', function(e) {
+    let senha = this.querySelector('input[name="password"]').value;
+    let confirmar = this.querySelector('input[name="password_confirmation"]').value;
+
+    // Validação de CPF (se o campo existir)
+    let cpfInput = this.querySelector('input[name="cpf"]');
+    if (cpfInput) {
+        if (!isValidCPF(cpfInput.value)) {
+            e.preventDefault();
+            alert('CPF inválido. Por favor, verifique os números.');
+            cpfInput.focus();
+            return; // Para a execução aqui
+        }
+    }
+
+    if (senha !== '' && senha !== confirmar) {
+        e.preventDefault();
+        alert('A confirmação da senha não coincide.');
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('td[id^="cpf-"]').forEach(function(cpfElement) {
