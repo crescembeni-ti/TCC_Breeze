@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AboutPage;
+use Illuminate\Support\Facades\Storage; // <--- IMPORTANTE: Adicionado para manipular arquivos
 
 class AboutPageController extends Controller
 {
@@ -44,7 +45,6 @@ class AboutPageController extends Controller
     {
         $pageContent = $this->getPageContent();
         
-        // CORREÇÃO CRUCIAL:
         // Aponta para a pasta onde criamos o formulário novo
         return view('admin.about.edit', ['pageContent' => $pageContent]);
     }
@@ -52,7 +52,7 @@ class AboutPageController extends Controller
     // 2. Salva as alterações no banco de dados
     public function update(Request $request)
     {
-        // Valida os campos de texto simples (não mais JSON)
+        // Valida os campos de texto simples
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
@@ -68,6 +68,26 @@ class AboutPageController extends Controller
 
         // Retorna para o formulário com mensagem de sucesso
         return back()->with('success', 'Página "Sobre o Projeto" atualizada com sucesso!');
+    }
+
+    // 3. NOVO: Upload de Vídeo via AJAX (Summernote)
+    public function uploadVideo(Request $request)
+    {
+        if ($request->hasFile('video')) {
+            // Validação: Máximo 50MB e formatos de vídeo comuns
+            $request->validate([
+                'video' => 'required|file|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime|max:51200', 
+            ]);
+
+            // Salva na pasta 'videos' dentro do disco 'public'
+            // O arquivo ficará em: storage/app/public/videos/nome_aleatorio.mp4
+            $path = $request->file('video')->store('videos', 'public');
+            
+            // Retorna a URL pública (ex: /storage/videos/nome_aleatorio.mp4)
+            return response()->json(['url' => Storage::url($path)]);
+        }
+
+        return response()->json(['error' => 'Nenhum arquivo enviado'], 400);
     }
 
     // ======================================================

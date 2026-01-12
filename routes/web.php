@@ -14,7 +14,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NoticiaController;
-use App\Http\Controllers\AboutPageController;
+use App\Http\Controllers\AboutPageController; // <--- ADICIONADO: Import necessário
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AccountManagementController;
 use App\Http\Controllers\Admin\AdminServiceController;
 use App\Http\Controllers\ServiceOrderController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -133,6 +134,12 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         // Sobre e Espécies
         Route::get('/sobre', [AboutPageController::class, 'edit'])->name('about.edit');
         Route::put('/sobre', [AboutPageController::class, 'update'])->name('about.update');
+        
+        // --- NOVA ROTA DE UPLOAD (ADICIONADA AQUI PARA FUNCIONAR CORRETAMENTE) ---
+        // Isso gera a rota: admin.upload.video
+        Route::post('/sobre/upload-video', [AboutPageController::class, 'uploadVideo'])->name('upload.video');
+        // ------------------------------------------------------------------------
+
         Route::post('/species', [SpeciesController::class, 'store'])->name('species.store');
 
         // Árvores
@@ -177,6 +184,10 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
             Route::post('/store', [AccountManagementController::class, 'store'])->name('store');
             Route::put('/update/{type}/{id}', [AccountManagementController::class, 'update'])->name('update');
             Route::delete('/delete/{type}/{id}', [AccountManagementController::class, 'destroy'])->name('destroy');
+            
+            // OBS: Esta rota abaixo estava com o nome de classe incorreto e dentro do grupo errado (accounts).
+            // A rota correta foi adicionada acima na seção 'Sobre'. Mantive esta aqui apenas comentada para registro.
+            // Route::post('/admin/upload-video', [App\Http\Controllers\Admin\AboutController::class, 'uploadVideo'])->name('admin.upload.video');
         });
     });
 });
