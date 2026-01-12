@@ -98,47 +98,163 @@
         </div>
     </div>
 
-    {{-- MODAL DE DETALHES DA OS --}}
+
+{{-- MODAL DE DETALHES DA OS --}}
+{{-- MODAL RÉPLICA DA OS (FORMATO COMPLETO) --}}
     <div x-show="open" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
         <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" @click="open = false"></div>
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl border-t-8 border-[#358054]">
-                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl border-t-8 border-[#358054]">
+                <div class="bg-white p-8">
 
-                    {{-- HEADER --}}
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <h3 class="text-lg font-bold text-gray-800">OS #<span x-text="item.id"></span> | Protocolo #<span x-text="item.contact ? item.contact.id : ''"></span></h3>
-                        <button @click="open = false" class="text-gray-500 hover:text-gray-700 font-bold">✕</button>
+                    {{-- BOTÃO FECHAR --}}
+                    <button @click="open = false" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 font-bold print:hidden">✕</button>
+
+                    {{-- HEADER IDÊNTICO AO DO ANALISTA --}}
+                    <div class="flex justify-between items-center mb-6 border-b pb-4">
+                        <div class="flex items-center gap-2">
+                            <img src="{{ asset('images/Brasao_Verde.png') }}" class="h-16 w-auto" alt="Logo">
+                            <div class="text-[10px] text-gray-600 leading-tight font-bold uppercase">
+                                ESTADO DO RIO DE JANEIRO<br>
+                                MUNICÍPIO DE PARACAMBI<br>
+                                SECRETARIA MUNICIPAL DE MEIO AMBIENTE
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <h3 class="text-lg font-bold text-gray-800 uppercase border-b-2 border-black">ORDEM DE SERVIÇO</h3>
+                            <p class="text-sm font-bold mt-1">Poda e Remoção de Árvores</p>
+                        </div>
                     </div>
 
-                    {{-- DETALHES --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
-                        <div>
-                            <p><strong>Solicitante:</strong> <span x-text="item.contact ? item.contact.nome_solicitante : ''"></span></p>
-                            <p><strong>Endereço:</strong> <span x-text="item.contact ? item.contact.rua + ', ' + item.contact.numero + ' - ' + item.contact.bairro : ''"></span></p>
+                    {{-- CORPO DA OS --}}
+                    <div class="text-sm space-y-4">
+                        
+                        {{-- DADOS DA SOLICITAÇÃO --}}
+                        <div class="grid grid-cols-2 gap-4 border-b border-gray-300 pb-2">
+                            <div>
+                                <label class="font-bold block text-gray-700">Protocolo / Solicitação:</label>
+                                <p class="w-full border-b border-gray-400 bg-gray-50 p-1" x-text="item.contact ? item.contact.id : ''"></p>
+                            </div>
+                            <div>
+                                <label class="font-bold block text-gray-700">Data de Geração:</label>
+                                <p class="w-full border-b border-gray-400 bg-gray-50 p-1" x-text="item.created_at ? new Date(item.created_at).toLocaleDateString('pt-BR') : ''"></p>
+                            </div>
                         </div>
-                        <div>
-                            <p><strong>Status:</strong> <span x-text="item.contact ? item.contact.status.name : ''"></span></p>
-                            <p><strong>Serviços:</strong></p>
-                            <div class="flex flex-wrap gap-2 mt-1">
-                                <template x-for="servico in item.servicos" :key="servico">
-                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs border border-green-200" x-text="servico"></span>
+
+                        {{-- IDENTIFICAÇÃO DA ÁREA --}}
+                        <div class="border-b border-gray-300 pb-2">
+                            <h4 class="font-bold underline mb-1">Identificação da Área</h4>
+                            <div class="grid grid-cols-1 gap-2">
+                                <div>
+                                    <span class="text-gray-600">Endereço Completo:</span>
+                                    <p class="w-full border-b border-gray-400 p-1 bg-gray-50 font-medium" 
+                                       x-text="item.contact ? (item.contact.rua + ', ' + item.contact.numero + ' - ' + item.contact.bairro) : ''"></p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span class="text-gray-600">Latitude:</span>
+                                        <p class="w-full border-b border-gray-400 p-1 bg-gray-50" x-text="item.latitude || 'Não informada'"></p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">Longitude:</span>
+                                        <p class="w-full border-b border-gray-400 p-1 bg-gray-50" x-text="item.longitude || 'Não informada'"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- IDENTIFICAÇÃO DAS ÁRVORES --}}
+                        <div class="grid grid-cols-3 gap-4 border-b border-gray-300 pb-2">
+                            <div class="col-span-2">
+                                <label class="font-bold block">Espécie(s):</label>
+                                <p class="w-full border-b border-gray-400 p-1 bg-gray-50" x-text="Array.isArray(item.especies) ? item.especies.join(', ') : (item.especies || 'N/A')"></p>
+                            </div>
+                            <div>
+                                <label class="font-bold block">Quantidade:</label>
+                                <p class="w-full border-b border-gray-400 p-1 bg-gray-50" x-text="item.quantidade || '1'"></p>
+                            </div>
+                        </div>
+
+                        {{-- MOTIVOS E SERVIÇOS (COM MARCADORES DE CHECK) --}}
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-2 rounded border">
+                                <h4 class="font-bold underline mb-1">Motivo da Intervenção</h4>
+                                <div class="space-y-1">
+                                    <template x-for="motivo in (item.motivos || [])" :key="motivo">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[#358054] font-bold">✔</span>
+                                            <span x-text="motivo"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-2 rounded border">
+                                <h4 class="font-bold underline mb-1">Serviços Autorizados</h4>
+                                <div class="space-y-1">
+                                    <template x-for="serv in (item.servicos || [])" :key="serv">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[#358054] font-bold">✔</span>
+                                            <span x-text="serv"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- EQUIPAMENTOS --}}
+                        <div class="border-b border-gray-300 pb-2">
+                            <h4 class="font-bold underline mb-1">Equipamentos Necessários</h4>
+                            <div class="flex flex-wrap gap-4 bg-gray-50 p-2 rounded">
+                                <template x-for="eq in (item.equipamentos || [])" :key="eq">
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs border border-gray-400 px-2 py-0.5 rounded bg-white" x-text="eq"></span>
+                                    </div>
                                 </template>
+                            </div>
+                        </div>
+
+                        {{-- OBSERVAÇÕES DO ANALISTA --}}
+                        <div class="bg-yellow-50 p-3 rounded border border-yellow-200">
+                            <h4 class="font-bold text-xs uppercase text-yellow-800 mb-1">Laudo / Observações do Analista:</h4>
+                            <p class="italic text-gray-700" x-text="item.laudo_tecnico || item.observacoes || 'Nenhuma observação adicional.'"></p>
+                        </div>
+
+                        {{-- DATAS E CONFIRMAÇÃO --}}
+                        <div class="grid grid-cols-2 gap-4 pt-4">
+                            <div class="border-t border-black text-center pt-1 text-[10px] uppercase">
+                                Assinatura do Analista Responsável
+                            </div>
+                            <div class="border-t border-black text-center pt-1 text-[10px] uppercase">
+                                Assinatura da Equipe Técnica
                             </div>
                         </div>
                     </div>
 
-                    {{-- OBSERVAÇÕES / LAUDO --}}
-                    <div class="bg-gray-50 p-3 rounded text-sm">
-                        <p><strong>Observações / Laudo:</strong></p>
-                        <p x-text="item.laudo_tecnico || item.observacoes || 'Sem observações adicionais.'"></p>
+                    {{-- AÇÕES DO MODAL --}}
+                    <div class="mt-8 flex justify-end gap-3 print:hidden">
+                        <button onclick="window.print()" class="bg-gray-100 border border-gray-300 text-gray-700 px-4 py-2 rounded flex items-center gap-2 hover:bg-gray-200">
+                             Imprimir OS
+                        </button>
+                        <button @click="open = false" class="bg-[#358054] text-white px-6 py-2 rounded font-bold hover:bg-green-700">
+                            Ok, entendi
+                        </button>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
 @endsection
+
+@push('scripts')
+<style>
+@media print {
+    body * { visibility: hidden; }
+    .fixed.inset-0.z-50, .fixed.inset-0.z-50 * { visibility: visible; }
+    .fixed.inset-0.z-50 { position: absolute; left: 0; top: 0; width: 100%; }
+    .print\:hidden { display: none !important; }
+    .shadow-xl { box-shadow: none !important; }
+}
+</style>
+@endpush
