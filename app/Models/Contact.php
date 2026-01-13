@@ -12,21 +12,22 @@ class Contact extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'analyst_id',
-        'service_id',
-        'nome_solicitante',
-        'email_solicitante',
-        'topico',
-        'bairro',
-        'rua',
-        'numero',
-        'descricao',
-        'status_id',
-        'justificativa',
-        'fotos',
-        'designated_to',
-    ];
+    'user_id',
+    'analyst_id',
+    'service_id',
+    'nome_solicitante',
+    'email_solicitante',
+    'telefone', // <--- ADICIONE AQUI
+    'topico',
+    'bairro',
+    'rua',
+    'numero',
+    'descricao',
+    'status_id',
+    'justificativa',
+    'fotos',
+    'designated_to',
+];
 
     protected $casts = [
         'fotos' => 'array',

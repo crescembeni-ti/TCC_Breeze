@@ -28,11 +28,12 @@ class ContactController extends Controller
         ]);
     }
 
-    // 2. Salvar Solicitação
+    // 2. Salvar Solicitação (ATUALIZADO COM TELEFONE)
     public function store(Request $request)
     {
         $request->validate([
             'topico' => 'required|string|max:255',
+            'telefone' => 'required|string|max:20', // <--- Validação do Telefone
             'bairro' => 'required|string|max:255',
             'rua' => 'required|string|max:255',
             'descricao' => 'required|string',
@@ -49,6 +50,7 @@ class ContactController extends Controller
 
         Contact::create([
             'topico' => $request->topico,
+            'telefone' => $request->telefone, // <--- Salva o Telefone
             'bairro' => $request->bairro,
             'rua' => $request->rua,
             'numero' => $request->numero,
@@ -93,13 +95,7 @@ class ContactController extends Controller
                 $q->whereIn('name', ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'])
             );
 
-            // 2. LÓGICA DE VISIBILIDADE (CORRIGIDA)
-            // O objetivo é: 
-            // - Se enviou pro Analista -> SOME.
-            // - Se enviou pro Serviço (ainda Vistoriado) -> SOME.
-            // - Se o Serviço deu "Visto" (virou Em Execução) -> APARECE.
-            // - Se não enviou pra ninguém (está com Admin) -> APARECE.
-
+            // 2. LÓGICA DE VISIBILIDADE
             $query->where(function ($mainQuery) {
                 // CASO A: Mostra se NÃO tiver nenhum destino definido (está na mão do Admin)
                 $mainQuery->whereDoesntHave('serviceOrder', function ($q) {
@@ -126,6 +122,7 @@ class ContactController extends Controller
             'filtro' => $filtro,
         ]);
     }
+
     // 5. Atualizar Status Manualmente
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
@@ -210,7 +207,7 @@ class ContactController extends Controller
             ->where('status', 'analise_concluida')
             ->count();
 
-        // Lista recente para a tabela no Dashboard (CORRIGIDO: variavel $vistorias)
+        // Lista recente para a tabela no Dashboard
         $vistorias = ServiceOrder::with(['contact.user']) 
             ->where('analyst_id', $analystId)
             ->where('destino', 'analista')
@@ -241,7 +238,6 @@ class ContactController extends Controller
     {
         $analystId = Auth::guard('analyst')->id();
 
-        // CORRIGIDO: Nome da variável deve ser $ordensEnviadas para bater com a View
         $ordensEnviadas = ServiceOrder::with(['contact', 'service'])
             ->where('analyst_id', $analystId)
             ->where('status', 'analise_concluida')
@@ -252,7 +248,6 @@ class ContactController extends Controller
     }
 
     // 12. Salvar Vistoria (Devolver para Admin)
-    // 12. Salvar Vistoria (CORRIGIDO: CAPTURA TODOS OS CAMPOS)
     public function storeServiceOrder(Request $request)
     {
         $request->validate([
