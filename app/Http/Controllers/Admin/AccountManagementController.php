@@ -8,7 +8,7 @@ use App\Models\Analyst;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule; // Necessário para a validação de update
+use Illuminate\Validation\Rule;
 
 class AccountManagementController extends Controller
 {
@@ -28,12 +28,11 @@ class AccountManagementController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Descobre qual a tabela no banco de dados baseada no tipo
-        // Isso é crucial para validar se o email/cpf já existe NAQUELA tabela específica
+        // 1. Descobre a tabela correta para validação unique
         $tableName = match ($request->type) {
-            'admin'   => (new Admin)->getTable(),   // Geralmente 'admins'
-            'analyst' => (new Analyst)->getTable(), // Geralmente 'analysts'
-            'service' => (new Service)->getTable(), // Geralmente 'services'
+            'admin'   => (new Admin)->getTable(),
+            'analyst' => (new Analyst)->getTable(),
+            'service' => (new Service)->getTable(),
             default   => 'admins',
         };
 
@@ -41,18 +40,16 @@ class AccountManagementController extends Controller
         $rules = [
             'type'     => 'required',
             'name'     => 'required|string|max:255',
-            // Valida se o email é único na tabela descoberta acima
             'email'    => "required|email|unique:$tableName,email",
             'password' => 'required|min:6|confirmed',
         ];
 
         // 3. Adiciona validação de CPF apenas se NÃO for admin
         if ($request->type !== 'admin') {
-            // Verifica se o CPF é único na tabela correta
             $rules['cpf'] = "required|string|unique:$tableName,cpf";
         }
 
-        // 4. Executa a validação com mensagens personalizadas
+        // 4. Executa a validação
         $request->validate($rules, [
             'email.unique' => 'Este e-mail já está em uso.',
             'cpf.unique'   => 'Este CPF já está cadastrado no sistema.',
@@ -60,9 +57,7 @@ class AccountManagementController extends Controller
         ]);
 
         // 5. Criação do registro
-        $type = $request->type;
-
-        match ($type) {
+        match ($request->type) {
             'admin' => Admin::create([
                 'name'     => $request->name,
                 'email'    => $request->email,
@@ -89,7 +84,7 @@ class AccountManagementController extends Controller
 
     public function update(Request $request, $type, $id)
     {
-        // 1. Busca o modelo primeiro para pegar a tabela e o registro atual
+        // 1. Busca o modelo e a tabela
         $modelClass = $this->getModel($type);
         $model = $modelClass::findOrFail($id);
         $tableName = $model->getTable();
@@ -97,8 +92,6 @@ class AccountManagementController extends Controller
         // 2. Regras básicas
         $rules = [
             'name' => 'required|string|max:255',
-            // Validação de Unique IGNORANDO o ID atual (Rule::unique)
-            // Isso permite salvar o próprio usuário sem dar erro de duplicidade
             'email' => [
                 'required', 
                 'email', 
@@ -116,7 +109,6 @@ class AccountManagementController extends Controller
             $rules['cpf'] = [
                 'required', 
                 'string', 
-                // Valida único ignorando o ID atual
                 Rule::unique($tableName)->ignore($id)
             ];
         }
@@ -144,17 +136,35 @@ class AccountManagementController extends Controller
         return back()->with('success', 'Conta atualizada com sucesso!');
     }
 
-    public function destroy($type, $id)
+    public function destroy(Request $request, $type, $id)
     {
-        // Adicionei uma proteção simples para Admin não se auto-deletar (opcional)
+        // 1. Busca o registro alvo
+        $modelClass = $this->getModel($type);
+        $model = $modelClass::findOrFail($id);
+
+        // 2. Proteção contra auto-exclusão (evita trancar a si mesmo fora)
         if ($type === 'admin' && auth()->id() == $id && auth()->user() instanceof Admin) {
-             return back()->with('error', 'Você não pode excluir sua própria conta.');
+             return back()->with('error', 'Você não pode excluir sua própria conta por aqui.');
         }
 
-        $model = $this->getModel($type)::findOrFail($id);
+        // 3. VERIFICAÇÃO DE SENHA (SÓ PARA ADMIN)
+        if ($type === 'admin') {
+            $request->validate([
+                'password' => 'required|string',
+            ], [
+                'password.required' => 'É necessário informar a senha do administrador alvo para confirmar.',
+            ]);
+
+            // Verifica se a senha digitada bate com a do USUÁRIO ALVO ($model->password)
+            if (!Hash::check($request->password, $model->password)) {
+                return back()->with('error', 'Senha incorreta. Você deve informar a senha do administrador que está sendo excluído.');
+            }
+        }
+
+        // 4. Exclusão
         $model->delete();
 
-        return back()->with('success', 'Conta excluída!');
+        return back()->with('success', 'Conta excluída com sucesso!');
     }
 
     private function getModel($type)

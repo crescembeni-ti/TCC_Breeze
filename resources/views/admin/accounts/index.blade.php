@@ -15,12 +15,12 @@
         </a>
         <a href="?type=analyst"
            class="px-4 py-2 rounded
-           {{ $type === 'analista' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
+           {{ $type === 'analyst' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
             Analistas
         </a>
         <a href="?type=service"
            class="px-4 py-2 rounded
-           {{ $type === 'serviço' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
+           {{ $type === 'service' ? 'bg-[#358054] text-white' : 'bg-gray-200 text-gray-700' }}">
             Serviços
         </a>
     </div>
@@ -67,21 +67,23 @@
 
                     <td class="px-4 py-2 text-right space-x-2">
 
-                        {{-- EDITAR --}}
-                        <button 
-                            onclick="openEdit({{ $item->id }}, '{{ $item->name }}', '{{ $item->email }}', '{{ $item->cpf ?? '' }}', '{{ $type }}')"
-                            class="bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] transition duration-200 px-3 py-1 text-xs">
-                            Editar
-                        </button>
+                        {{-- EDITAR (REMOVIDO PARA ADMINS) --}}
+                        @if($type !== 'admin')
+                            <button 
+                                onclick="openEdit({{ $item->id }}, '{{ $item->name }}', '{{ $item->email }}', '{{ $item->cpf ?? '' }}', '{{ $type }}')"
+                                class="bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] transition duration-200 px-3 py-1 text-xs">
+                                Editar
+                            </button>
+                        @endif
 
                         {{-- EXCLUIR --}}
-<button onclick="openDeleteModal({{ $item->id }}, '{{ $item->name }}')"
-        data-id="{{ $item->id }}" 
-        data-name="{{ $item->name }}"
-        data-url="{{ route('admin.accounts.destroy', [$type, $item->id]) }}"
-        class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-500 transition duration-200 px-3 py-1 text-xs">
-    Excluir
-</button>
+                        <button onclick="openDeleteModal({{ $item->id }}, '{{ $item->name }}')"
+                                data-id="{{ $item->id }}" 
+                                data-name="{{ $item->name }}"
+                                data-url="{{ route('admin.accounts.destroy', [$type, $item->id]) }}"
+                                class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-500 transition duration-200 px-3 py-1 text-xs">
+                            Excluir
+                        </button>
                     </td>
                 </tr>
             @endforeach
@@ -188,19 +190,37 @@
     
     <div id="modalDeleteName" class="bg-gray-100 text-gray-800 font-bold px-4 py-2 rounded-md my-4 w-fit mx-auto"></div>
 
-    <p class="text-gray-700 text-center">Esta ação é irreversível.</p>
+    <p class="text-gray-700 text-center text-sm mb-4">Esta ação é irreversível.</p>
 
-    <form id="formDelete" method="POST" action="" class="mt-4">
+    <form id="formDelete" method="POST" action="" class="space-y-4">
         @csrf
         @method('DELETE')
 
-        <div class="flex justify-center space-x-4">
+        {{-- CAMPO DE SENHA (SÓ PARA ADMIN) --}}
+        @if($type === 'admin')
+            <div class="text-left bg-red-50 p-3 rounded border border-red-200">
+                <label class="block text-sm font-bold text-red-800 mb-1">
+                    🔒 Segurança Obrigatória:
+                </label>
+                <p class="text-xs text-red-600 mb-2">
+                    Para excluir este administrador, digite a senha <strong>DELE</strong> (da conta que será apagada).
+                </p>
+                <input type="password" name="password" required 
+                       placeholder="Senha do administrador alvo"
+                       class="block w-full rounded-md border border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500 px-4 py-2">
+                @error('password')
+                    <span class="text-red-600 text-xs">{{ $message }}</span>
+                @enderror
+            </div>
+        @endif
+
+        <div class="flex justify-center space-x-4 pt-2">
             <button type="button" onclick="closeModal('modalDelete')" class="bg-gray-300 text-black font-semibold rounded-md px-4 py-2">
                 Cancelar
             </button>
 
             <button type="submit" class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-500 transition duration-200 px-4 py-2">
-                Excluir
+                Confirmar Exclusão
             </button>
         </div>
     </form>
@@ -212,7 +232,6 @@ function openAddModal(type) {
     document.getElementById('add_type').value = type;
 
     const cpfContainer = document.getElementById('cpf_add_container');
-    // ATENÇÃO NA MUDANÇA ABAIXO: Adicionado oninput e maxlength
     cpfContainer.innerHTML = (type !== 'admin')
         ? '<input name="cpf" oninput="maskCPF(this)" maxlength="14" class="block w-full rounded-md border border-gray-300 bg-[#f9fafb] text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2" placeholder="CPF (apenas números)" required>'
         : '';
@@ -229,15 +248,13 @@ function openEdit(id, name, email, cpf = '', type) {
     document.getElementById('edit_email').value = email;
 
     const cpfDiv = document.getElementById('cpf_container');
-    // ATENÇÃO NA MUDANÇA ABAIXO: Adicionado oninput e maxlength
     cpfDiv.innerHTML = (type !== 'admin')
         ? `<input id="edit_cpf" name="cpf" oninput="maskCPF(this)" maxlength="14"
                   class="block w-full rounded-md border border-gray-300 bg-[#f9fafb]
-                         text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2"
+                          text-[#358054] shadow-sm focus:ring-green-500 focus:border-green-500 px-4 py-2"
                   value="${cpf}">`
         : '';
     
-    // Se já tiver valor vindo do banco, aplicamos a máscara imediatamente para ficar bonito
     if(type !== 'admin' && cpf) {
         maskCPF(document.getElementById('edit_cpf'));
     }
@@ -254,62 +271,44 @@ function formatCPF(cpf) {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
-/* MÁSCARA DE CPF (Formata enquanto digita e limita tamanho) */
 function maskCPF(input) {
-    let value = input.value.replace(/\D/g, ""); // Remove tudo que não é dígito
-
-    if (value.length > 11) {
-        value = value.slice(0, 11); // Limita a 11 números
-    }
-
-    // Adiciona a pontuação
+    let value = input.value.replace(/\D/g, ""); 
+    if (value.length > 11) value = value.slice(0, 11); 
     value = value.replace(/(\d{3})(\d)/, "$1.$2");
     value = value.replace(/(\d{3})(\d)/, "$1.$2");
     value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-
     input.value = value;
 }
 
-/* VALIDAÇÃO MATEMÁTICA DE CPF */
 function isValidCPF(cpf) {
-    cpf = cpf.replace(/[^\d]+/g, ''); // Remove caracteres não numéricos
-
+    cpf = cpf.replace(/[^\d]+/g, ''); 
     if (cpf == '') return false;
-
-    // Elimina CPFs inválidos conhecidos (ex: 111.111.111-11)
     if (cpf.length != 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-
     let add = 0;
-    for (let i = 0; i < 9; i++)
-        add += parseInt(cpf.charAt(i)) * (10 - i);
+    for (let i = 0; i < 9; i++) add += parseInt(cpf.charAt(i)) * (10 - i);
     let rev = 11 - (add % 11);
     if (rev == 10 || rev == 11) rev = 0;
     if (rev != parseInt(cpf.charAt(9))) return false;
-
     add = 0;
-    for (let i = 0; i < 10; i++)
-        add += parseInt(cpf.charAt(i)) * (11 - i);
+    for (let i = 0; i < 10; i++) add += parseInt(cpf.charAt(i)) * (11 - i);
     rev = 11 - (add % 11);
     if (rev == 10 || rev == 11) rev = 0;
     if (rev != parseInt(cpf.charAt(10))) return false;
-
     return true;
 }
-/* VALIDAÇÃO DE SENHAS E CPF NO SUBMIT */
 
-// Modal ADD
+// Modal ADD - Submit
 document.querySelector('#modalAdd form').addEventListener('submit', function(e) {
     let senha = this.querySelector('input[name="password"]').value;
     let confirmar = this.querySelector('input[name="password_confirmation"]').value;
     
-    // Validação de CPF (se o campo existir)
     let cpfInput = this.querySelector('input[name="cpf"]');
     if (cpfInput) {
         if (!isValidCPF(cpfInput.value)) {
             e.preventDefault();
             alert('CPF inválido. Por favor, verifique os números.');
             cpfInput.focus();
-            return; // Para a execução aqui
+            return; 
         }
     }
 
@@ -319,19 +318,18 @@ document.querySelector('#modalAdd form').addEventListener('submit', function(e) 
     }
 });
 
-// Modal EDIT
+// Modal EDIT - Submit
 document.querySelector('#formEdit').addEventListener('submit', function(e) {
     let senha = this.querySelector('input[name="password"]').value;
     let confirmar = this.querySelector('input[name="password_confirmation"]').value;
 
-    // Validação de CPF (se o campo existir)
     let cpfInput = this.querySelector('input[name="cpf"]');
     if (cpfInput) {
         if (!isValidCPF(cpfInput.value)) {
             e.preventDefault();
             alert('CPF inválido. Por favor, verifique os números.');
             cpfInput.focus();
-            return; // Para a execução aqui
+            return; 
         }
     }
 
@@ -361,30 +359,6 @@ function openDeleteModal(id, name) {
 
     modalDelete.showModal();
 }
-
-/* VALIDAÇÃO DE SENHAS */
-
-// Modal ADD
-document.querySelector('#modalAdd form').addEventListener('submit', function(e) {
-    let senha = this.querySelector('input[name="password"]').value;
-    let confirmar = this.querySelector('input[name="password_confirmation"]').value;
-
-    if (senha !== confirmar) {
-        e.preventDefault();
-        alert('As senhas não coincidem.');
-    }
-});
-
-// Modal EDIT
-document.querySelector('#formEdit').addEventListener('submit', function(e) {
-    let senha = this.querySelector('input[name="password"]').value;
-    let confirmar = this.querySelector('input[name="password_confirmation"]').value;
-
-    if (senha !== '' && senha !== confirmar) {
-        e.preventDefault();
-        alert('A confirmação da senha não coincide.');
-    }
-});
 </script>
 
 @endsection
