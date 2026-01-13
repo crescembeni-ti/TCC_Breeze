@@ -39,13 +39,14 @@
 
             <form method="GET" action="{{ route('admin.dashboard') }}" class="w-full sm:w-auto">
                 <div class="relative">
-                    <select name="filter" onchange="this.form.submit()" 
-                            class="appearance-none w-full sm:w-56 bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-green-500 cursor-pointer shadow-sm">
-                        <option value="" {{ request('filter') == '' ? 'selected' : '' }}>Todas as Ações</option>
-                        <option value="cadastro" {{ request('filter') == 'cadastro' ? 'selected' : '' }}>✅ Cadastros</option>
-                        <option value="atualizacao" {{ request('filter') == 'atualizacao' ? 'selected' : '' }}>✏️ Atualizações</option>
-                        <option value="exclusao" {{ request('filter') == 'exclusao' ? 'selected' : '' }}>🗑️ Exclusões</option>
-                    </select>
+                  <select name="filter" onchange="this.form.submit()" 
+        class="appearance-none w-full sm:w-56 bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-green-500 cursor-pointer shadow-sm">
+    <option value="" {{ request('filter') == '' ? 'selected' : '' }}>Todas as Ações</option>
+    <option value="cadastro" {{ request('filter') == 'cadastro' ? 'selected' : '' }}>✅ Cadastros</option>
+    <option value="atualizacao" {{ request('filter') == 'atualizacao' ? 'selected' : '' }}>✏️ Atualizações</option> 
+    <option value="exclusao" {{ request('filter') == 'exclusao' ? 'selected' : '' }}>🗑️ Exclusões</option>
+    <option value="aprovacao" {{ request('filter') == 'aprovacao' ? 'selected' : '' }}>🛡️ Aprovações</option>
+</select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                     </div>

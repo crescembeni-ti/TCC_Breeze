@@ -87,6 +87,8 @@ class TreeController extends Controller
                 $query->where('action', 'like', '%update%');
             } elseif ($filter == 'exclusao') {
                 $query->where('action', 'like', '%delete%');
+            } elseif ($filter == 'aprovacao') {
+                $query->where('action', 'approve_tree');
             }
         }
 

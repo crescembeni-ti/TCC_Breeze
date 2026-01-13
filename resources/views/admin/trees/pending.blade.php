@@ -8,8 +8,8 @@
         <h2 class="text-2xl font-bold text-white flex items-center gap-2">
             🌳 Árvores Pendentes de Aprovação
         </h2>
-        <a href="{{ route('admin.map') }}" class="bg-white text-[#358054] px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition shadow-sm text-sm flex items-center gap-2">
-            ⬅ Voltar ao Mapa
+        <a href="{{ route('admin.dashboard') }}" class="bg-white text-[#358054] px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition shadow-sm text-sm flex items-center gap-2">
+            ⬅ Voltar ao Painel
         </a>
     </div>
 
