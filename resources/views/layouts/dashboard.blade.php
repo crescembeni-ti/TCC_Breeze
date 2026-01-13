@@ -6,11 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Painel') - Árvores de Paracambi</title>
 
-    <!-- FONTES -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
-    <!-- CSS & JS -->
     @vite([
         'resources/css/app.css',
         'resources/js/app.js',
@@ -23,13 +21,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Alpine.js -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 
 <body class="font-sans antialiased flex flex-col min-h-screen">
 
-    <!-- ======================== HEADER ========================== -->
     <header class="site-header bg-[#beffb4] border-b-2 border-[#358054] shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
             <div class="flex items-center gap-4">
@@ -50,28 +46,51 @@
         </div>
     </header>
 
-    <!-- ======================== CONTAINER =========================== -->
     <div x-data="{ open: false }" class="flex flex-1">
 
-        <!-- ====================== SIDEBAR ========================= -->
         <aside :class="open ? 'translate-x-0' : '-translate-x-full'"
             class="sidebar bg-[#358054] text-white flex flex-col py-8 px-4 transform transition-transform duration-300 md:translate-x-0 rounded-br-2xl md:rounded-none flex-shrink-0">
 
             <nav class="space-y-4">
+                {{-- ==================== MENU ADMIN ==================== --}}
                 @if (auth('admin')->check())
                     <a href="{{ route('admin.dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Painel Admin</a>
                     <a href="{{ route('admin.map') }}" class="sidebar-link"><i data-lucide="map-pin" class="icon"></i> Cadastrar Árvores</a>
                     <a href="{{ route('admin.trees.index') }}" class="sidebar-link"><i data-lucide="edit-3" class="icon"></i> Editar Árvores</a>
+
+                    {{-- ===> NOVO LINK: APROVAÇÕES <=== --}}
+                    <a href="{{ route('admin.trees.pending') }}" class="sidebar-link relative flex items-center justify-between pr-4">
+                        <div class="flex items-center">
+                            <i data-lucide="check-circle" class="icon"></i> 
+                            <span>Aprovações</span>
+                        </div>
+                        
+                        {{-- Badge de Contagem (Bolinha Vermelha) --}}
+                        @php
+                            $pendingCount = \App\Models\Tree::where('aprovado', false)->count();
+                        @endphp
+                        
+                        @if($pendingCount > 0)
+                            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                                {{ $pendingCount }}
+                            </span>
+                        @endif
+                    </a>
+                    {{-- ============================================= --}}
+
                     <a href="{{ route('admin.contato.index') }}" class="sidebar-link"><i data-lucide="inbox" class="icon"></i> Solicitações</a>
                     <a href="{{ route('admin.os.index') }}" class="sidebar-link"><i data-lucide="file-text" class="icon"></i> Ordens de Serviço</a>
                     <a href="{{ route('admin.profile.edit') }}" class="sidebar-link"><i data-lucide="user" class="icon"></i> Meu Perfil</a>
                     <a href="{{ route('admin.accounts.index') }}" class="sidebar-link"><i data-lucide="users" class="icon"></i> Gerenciar Contas</a>
                     <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
 
+                {{-- ==================== MENU ANALISTA ==================== --}}
                 @elseif (auth('analyst')->check())
                     <a href="{{ route('analyst.dashboard') }}" class="sidebar-link">
                         <i data-lucide="layout-dashboard" class="icon"></i> Painel Analista
                     </a>
+
+                    <a href="{{ route('analyst.map') }}" class="sidebar-link"><i data-lucide="map-pin" class="icon"></i> Cadastrar Árvores</a>
 
                     <a href="{{ route('analyst.vistorias.pendentes') }}" class="sidebar-link">
                         <i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes
@@ -81,10 +100,12 @@
                         <i data-lucide="file-text" class="icon"></i> OS Enviadas
                     </a>
 
+                {{-- ==================== MENU SERVIÇO ==================== --}}
                 @elseif (auth('service')->check())
                     <a href="{{ route('service.dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Painel Serviço</a>
                     <a href="{{ route('service.tasks.index') }}" class="sidebar-link"><i data-lucide="tool" class="icon"></i> Minhas Tarefas</a>
 
+                {{-- ==================== MENU USUÁRIO ==================== --}}
                 @elseif (auth('web')->check())
                     <a href="{{ route('dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Menu</a>
                     <a href="{{ route('contact') }}" class="sidebar-link"><i data-lucide="send" class="icon"></i> Nova Solicitação</a>
@@ -94,7 +115,6 @@
                 @endif
             </nav>
 
-            <!-- ================== LOGOUT ======================= -->
             <hr class="border-t-2 border-green-400 my-6 opacity-80">
 
             @if(auth('admin')->check() || auth('web')->check())
@@ -139,7 +159,6 @@
 
         </aside>
 
-        <!-- ================= CONTEÚDO ===================== -->
         <main class="flex-1 p-10 overflow-y-auto">
             @yield('content')
         </main>
