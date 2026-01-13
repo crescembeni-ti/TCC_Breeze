@@ -176,22 +176,28 @@ class TreeController extends Controller
         
         $treeData['species_id'] = $speciesId;
         
-        // --- AQUI ESTÁ A MUDANÇA PARA APROVAÇÃO ---
+        // --- LÓGICA DE QUEM CADASTROU ---
         
-        // Verifica se é Admin
         if (auth()->guard('admin')->check()) {
+            // Se for ADMIN
             $treeData['admin_id'] = auth()->guard('admin')->id();
-            $treeData['aprovado'] = true; // Admin aprova automaticamente
+            $treeData['analyst_id'] = null; // Admin não é analista
+            $treeData['is_approved'] = true; // Aprova direto
         } 
-        // Verifica se é Analista
         elseif (auth()->guard('analyst')->check()) {
+            // Se for ANALISTA
             $treeData['admin_id'] = null;
-            $treeData['aprovado'] = false; // Analista entra como PENDENTE
+            $treeData['analyst_id'] = auth()->guard('analyst')->id(); // <--- SALVA O ID AQUI
+            $treeData['is_approved'] = false; // Pendente
         } else {
-            // Caso de fallback (segurança)
+            // Fallback
             $treeData['admin_id'] = null;
-            $treeData['aprovado'] = false;
+            $treeData['analyst_id'] = null;
+            $treeData['is_approved'] = false;
         }
+
+        // 4. Salva a Árvore
+        $tree = Tree::create($treeData);
 
         // 4. Salva a Árvore
         $tree = Tree::create($treeData);

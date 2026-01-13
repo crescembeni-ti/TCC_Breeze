@@ -17,7 +17,7 @@ class Tree extends Model
         'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms',
         'target', 'injuries', 'wiring_status', 'total_width', 'street_width',
         'gutter_height', 'gutter_width', 'gutter_length', 'no_species_case', 'description',
-        'admin_id', 'aprovado',
+        'admin_id', 'aprovado', 'analyst_id',
     ];
 
     protected $casts = [
@@ -46,4 +46,8 @@ class Tree extends Model
         return $this->belongsTo(Admin::class, 'admin_id');
     }
 
+    public function analyst() {
+        return $this->belongsTo(Analyst::class, 'analyst_id');
+    }
+    
 }
