@@ -175,6 +175,8 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         Route::post('/os/{id}/enviar-servico', [AdminServiceController::class, 'enviarParaServico'])->name('os.enviar');
 
         // Outros
+        Route::get('/trees/pending', [TreeController::class, 'pendingTrees'])->name('trees.pending');
+        Route::patch('/trees/{id}/approve', [TreeController::class, 'approveTree'])->name('trees.approve');
         Route::get('/noticias', [NoticiaController::class, 'index'])->name('noticias.index');
         Route::get('/noticias/create', [NoticiaController::class, 'create'])->name('noticias.create');
         Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.store');
@@ -205,7 +207,7 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
         Route::post('/login', [AnalystLoginController::class, 'store'])->name('login.store');
     });
 
-    Route::middleware(['auth:analyst', 'preventBack'])->group(function () {
+        Route::middleware(['auth:analyst', 'preventBack'])->group(function () {
         Route::post('/logout', [AnalystLoginController::class, 'destroy'])->name('logout');
         Route::get('/dashboard', [ContactController::class, 'analystDashboard'])->name('dashboard');
         Route::get('/vistorias-pendentes', [ContactController::class, 'vistoriasPendentes'])->name('vistorias.pendentes');
@@ -213,6 +215,15 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
         Route::get('/ordens-enviadas', [ContactController::class, 'ordensEnviadas'])->name('os.enviadas');
         Route::get('/profile', fn () => view('analista.profile'))->name('profile.edit');
         Route::get('/os/{id}', [ServiceOrderController::class, 'show'])->name('os.show');
+
+        // 1. Ver o Mapa / Cadastrar
+        Route::get('/map', [TreeController::class, 'analystMap'])->name('map');
+        
+        // 2. Salvar (Reaproveita a lógica do Admin)
+        Route::post('/map', [TreeController::class, 'storeTree'])->name('map.store');
+        
+        // 3. Listagem (Caso queira que ele veja a lista também)
+        Route::get('/trees', [TreeController::class, 'analystTreeList'])->name('trees.index');
     });
 });
 

@@ -36,21 +36,25 @@ class TreeController extends Controller
     /* ============================================================
      * DADOS DO MAPA (JSON)
      * ============================================================ */
-    public function getTreesData()
+   public function getTreesData()
     {
-        return Tree::with(['species', 'bairro', 'admin'])->get()->map(fn ($tree) => [
-            'id' => $tree->id,
-            'latitude' => (float) $tree->latitude,
-            'longitude' => (float) $tree->longitude,
-            'species_name' => $tree->species->name,
-            'color_code' => $tree->species->color_code,
-            'address' => $tree->address,
-            'bairro_id' => $tree->bairro_id,
-            'bairro_nome' => $tree->bairro->nome ?? null,
-            'health_status' => $tree->health_status,
-            'trunk_diameter' => $tree->trunk_diameter,
-            'registered_by' => $tree->admin ? $tree->admin->name : 'Sistema',
-        ]);
+        // ADICIONEI O WHERE AQUI EMBAIXO:
+        return Tree::with(['species', 'bairro', 'admin'])
+            ->where('aprovado', true) // <--- FILTRO: Só mostra as aprovadas
+            ->get()
+            ->map(fn ($tree) => [
+                'id' => $tree->id,
+                'latitude' => (float) $tree->latitude,
+                'longitude' => (float) $tree->longitude,
+                'species_name' => $tree->species->name,
+                'color_code' => $tree->species->color_code,
+                'address' => $tree->address,
+                'bairro_id' => $tree->bairro_id,
+                'bairro_nome' => $tree->bairro->nome ?? null,
+                'health_status' => $tree->health_status,
+                'trunk_diameter' => $tree->trunk_diameter,
+                'registered_by' => $tree->admin ? $tree->admin->name : 'Sistema',
+            ]);
     }
 
     /* ============================================================
@@ -83,6 +87,8 @@ class TreeController extends Controller
                 $query->where('action', 'like', '%update%');
             } elseif ($filter == 'exclusao') {
                 $query->where('action', 'like', '%delete%');
+            } elseif ($filter == 'aprovacao') {
+                $query->where('action', 'approve_tree');
             }
         }
 
@@ -105,93 +111,145 @@ class TreeController extends Controller
         ]);
     }
 
-    /* ============================================================
-     * CADASTRAR ÁRVORE (LÓGICA HÍBRIDA: ID OU NOME)
+   /* ============================================================
+     * CADASTRAR ÁRVORE (LÓGICA HÍBRIDA + MODERAÇÃO)
      * ============================================================ */
     public function storeTree(Request $request)
     {
-        // 1. Validação Adaptada
+        // 1. Validação (Mantive a mesma)
         $validated = $request->validate([
-            // LÓGICA HÍBRIDA:
             'species_id' => 'nullable|exists:species,id', 
-            // Se species_id for null, species_name é obrigatório
-            'species_name' => 'required_without:species_id|nullable|string|max:255', 
-
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
-            'health_status' => 'required|in:good,fair,poor',
-            'planted_at' => 'required|date|before_or_equal:today',
-            'trunk_diameter' => 'required|numeric|min:0',
-            'address' => 'required|string|max:255',
-            'bairro_id' => 'required|exists:bairros,id',
-            'vulgar_name' => 'required|string|max:255',
-            'scientific_name' => 'required|string|max:255',
-            'cap' => 'required|numeric|min:0',
-            'height' => 'required|numeric|min:0',
-            'crown_height' => 'required|numeric|min:0',
-            'crown_diameter_longitudinal' => 'required|numeric|min:0',
-            'crown_diameter_perpendicular' => 'required|numeric|min:0',
-            'bifurcation_type' => 'required|string|max:100',
-            'stem_balance' => 'required|string|max:100',
-            'crown_balance' => 'required|string|max:100',
-            'organisms' => 'required|string|max:255',
-            'target' => 'required|string|max:255',
-            'injuries' => 'required|string|max:255',
-            'wiring_status' => 'required|string|max:100',
-            'total_width' => 'required|numeric|min:0',
-            'street_width' => 'required|numeric|min:0',
-            'gutter_height' => 'required|numeric|min:0',
-            'gutter_width' => 'required|numeric|min:0',
-            'gutter_length' => 'required|numeric|min:0',
+            'species_name' => 'nullable_without:species_id|nullable|string|max:255', 
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'health_status' => 'nullable|in:good,fair,poor',
+            'planted_at' => 'nullable|date|before_or_equal:today',
+            'trunk_diameter' => 'nullable|numeric|min:0',
+            'address' => 'nullable|string|max:255',
+            'bairro_id' => 'nullable|exists:bairros,id',
+            'vulgar_name' => 'nullable|string|max:255',
+            'scientific_name' => 'nullable|string|max:255',
+            'cap' => 'nullable|numeric|min:0',
+            'height' => 'nullable|numeric|min:0',
+            'crown_height' => 'nullable|numeric|min:0',
+            'crown_diameter_longitudinal' => 'nullable|numeric|min:0',
+            'crown_diameter_perpendicular' => 'nullable|numeric|min:0',
+            'bifurcation_type' => 'nullable|string|max:100',
+            'stem_balance' => 'nullable|string|max:100',
+            'crown_balance' => 'nullable|string|max:100',
+            'organisms' => 'nullable|string|max:255',
+            'target' => 'nullable|string|max:255',
+            'injuries' => 'nullable|string|max:255',
+            'wiring_status' => 'nullable|string|max:100',
+            'total_width' => 'nullable|numeric|min:0',
+            'street_width' => 'nullable|numeric|min:0',
+            'gutter_height' => 'nullable|numeric|min:0',
+            'gutter_width' => 'nullable|numeric|min:0',
+            'gutter_length' => 'nullable|numeric|min:0',
             'description' => 'nullable|string|max:1000',
         ]);
 
-        // 2. Determinar o ID da Espécie
+        // 2. Lógica da Espécie (Mantida)
         $speciesId = $request->species_id;
         $speciesNameLog = '';
 
-        // Se NÃO veio ID, significa que é uma nova espécie ou o usuário digitou o nome
         if (!$speciesId) {
             $nameInput = trim($request->species_name);
-            
-            // Tenta achar pelo nome ou cria nova
-            $species = Species::firstOrCreate(
+            $species = \App\Models\Species::firstOrCreate(
                 ['name' => $nameInput], 
                 [
-                    // Usa os dados do form para popular a nova espécie
                     'vulgar_name' => $request->vulgar_name, 
                     'scientific_name' => $request->scientific_name,
-                    'color_code' => '#' . substr(md5($nameInput), 0, 6), // Cor aleatória
+                    'color_code' => '#' . substr(md5($nameInput), 0, 6),
                     'description' => 'Cadastrada automaticamente pelo mapa.',
                 ]
             );
             $speciesId = $species->id;
             $speciesNameLog = $species->name;
         } else {
-            // Se veio ID, apenas busca o nome para o log
-            $speciesNameLog = Species::find($speciesId)->name;
+            $speciesObj = \App\Models\Species::find($speciesId);
+            $speciesNameLog = $speciesObj ? $speciesObj->name : 'Desconhecida';
         }
 
-        // 3. Prepara os dados da Árvore
-        // Remove campos auxiliares que não vão na tabela trees (se houver)
+       // 3. Prepara os dados
         $treeData = collect($validated)
-            ->except(['species_name', 'species_id']) // Remove campos de controle
+            ->except(['species_name', 'species_id']) 
             ->toArray();
         
-        $treeData['species_id'] = $speciesId; // Insere o ID decidido acima
-        $treeData['admin_id'] = auth('admin')->id();
+        $treeData['species_id'] = $speciesId;
+        
+        // --- LÓGICA DE APROVAÇÃO ROBUSTA ---
+        
+        // Verifica primeiro se é Analista (para garantir que não caia no Admin por engano)
+        if (auth()->guard('analyst')->check()) {
+            $treeData['admin_id'] = null;
+            $treeData['analyst_id'] = auth()->guard('analyst')->id();
+            
+            // FORÇA O VALOR BOOLEANO (0)
+            $treeData['aprovado'] = 0; 
+        } 
+        // Se não for Analista, verifica se é Admin
+        elseif (auth()->guard('admin')->check()) {
+            $treeData['admin_id'] = auth()->guard('admin')->id();
+            $treeData['analyst_id'] = null;
+            $treeData['aprovado'] = 1; // Aprova
+        } else {
+            // Segurança
+            $treeData['aprovado'] = 0;
+        }
 
         // 4. Salva a Árvore
         $tree = Tree::create($treeData);
+        
+        // Verifica se salvou errado e corrige na força bruta (Debug de Segurança)
+        if (auth()->guard('analyst')->check() && $tree->aprovado == 1) {
+            $tree->aprovado = 0;
+            $tree->save();
+        }
 
-        // 5. Gera Log
-        AdminLog::create([
-            'admin_id' => auth('admin')->id(),
-            'action' => 'create_tree',
-            'description' => 'Árvore criada (ID ' . $tree->id . ') - Espécie: ' . $speciesNameLog,
-        ]);
+        // 5. Gera Log (Apenas Admin gera log de admin_logs)
+        if (auth()->guard('admin')->check()) {
+            \App\Models\AdminLog::create([
+                'admin_id' => auth()->guard('admin')->id(),
+                'action' => 'create_tree',
+                'description' => 'Árvore criada (ID ' . $tree->id . ') - Espécie: ' . $speciesNameLog,
+            ]);
+        }
 
-        return redirect()->route('admin.map')->with('success', 'Árvore cadastrada com sucesso!');
+        // 6. Redirecionamento com mensagens diferentes
+        if (auth()->guard('analyst')->check()) {
+            // Mensagem avisando que foi para análise
+            return redirect()->route('analyst.map')->with('success', 'Árvore enviada para aprovação do Administrador!');
+        }
+
+        return redirect()->route('admin.map')->with('success', 'Árvore cadastrada e publicada com sucesso!');
+        
+    }
+
+        // LISTA AS PENDENTES
+        public function pendingTrees()
+    {
+        // Busca árvores onde aprovado é false (0)
+        $pendingTrees = Tree::where('aprovado', false)->with('species')->get();
+        return view('admin.trees.pending', compact('pendingTrees'));
+    }
+
+        // AÇÃO DE APROVAR
+        public function approveTree($id)
+    {
+        $tree = Tree::findOrFail($id);
+        $tree->update(['aprovado' => true]);
+
+        // Opcional: Logar que o admin aprovou
+        if (auth()->guard('admin')->check()) {
+            \App\Models\AdminLog::create([
+                'admin_id' => auth()->guard('admin')->id(),
+                'action' => 'approve_tree',
+                'description' => 'Aprovou a árvore ID ' . $tree->id,
+            ]);
+        }
+
+        return back()->with('success', 'Árvore aprovada e publicada no mapa!');
     }
 
     /* ============================================================
@@ -228,34 +286,34 @@ class TreeController extends Controller
         $validated = $request->validate([
             // Lógica Híbrida: Aceita ID ou Nome
             'species_id' => 'nullable|exists:species,id',
-            'species_name' => 'required_without:species_id|nullable|string|max:255',
+            'species_name' => 'nullable_without:species_id|nullable|string|max:255',
 
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
-            'health_status' => 'required|in:good,fair,poor',
-            'planted_at' => 'required|date|before_or_equal:today',
-            'trunk_diameter' => 'required|numeric|min:0',
-            'address' => 'required|string|max:255',
-            'bairro_id' => 'required|exists:bairros,id',
-            'vulgar_name' => 'required|string|max:255',
-            'scientific_name' => 'required|string|max:255',
-            'cap' => 'required|numeric|min:0',
-            'height' => 'required|numeric|min:0',
-            'crown_height' => 'required|numeric|min:0',
-            'crown_diameter_longitudinal' => 'required|numeric|min:0',
-            'crown_diameter_perpendicular' => 'required|numeric|min:0',
-            'bifurcation_type' => 'required|string|max:100',
-            'stem_balance' => 'required|string|max:100',
-            'crown_balance' => 'required|string|max:100',
-            'organisms' => 'required|string|max:255',
-            'target' => 'required|string|max:255',
-            'injuries' => 'required|string|max:255',
-            'wiring_status' => 'required|string|max:100',
-            'total_width' => 'required|numeric|min:0',
-            'street_width' => 'required|numeric|min:0',
-            'gutter_height' => 'required|numeric|min:0',
-            'gutter_width' => 'required|numeric|min:0',
-            'gutter_length' => 'required|numeric|min:0',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'health_status' => 'nullable|in:good,fair,poor',
+            'planted_at' => 'nullable|date|before_or_equal:today',
+            'trunk_diameter' => 'nullable|numeric|min:0',
+            'address' => 'nullable|string|max:255',
+            'bairro_id' => 'nullable|exists:bairros,id',
+            'vulgar_name' => 'nullable|string|max:255',
+            'scientific_name' => 'nullable|string|max:255',
+            'cap' => 'nullable|numeric|min:0',
+            'height' => 'nullable|numeric|min:0',
+            'crown_height' => 'nullable|numeric|min:0',
+            'crown_diameter_longitudinal' => 'nullable|numeric|min:0',
+            'crown_diameter_perpendicular' => 'nullable|numeric|min:0',
+            'bifurcation_type' => 'nullable|string|max:100',
+            'stem_balance' => 'nullable|string|max:100',
+            'crown_balance' => 'nullable|string|max:100',
+            'organisms' => 'nullable|string|max:255',
+            'target' => 'nullable|string|max:255',
+            'injuries' => 'nullable|string|max:255',
+            'wiring_status' => 'nullable|string|max:100',
+            'total_width' => 'nullable|numeric|min:0',
+            'street_width' => 'nullable|numeric|min:0',
+            'gutter_height' => 'nullable|numeric|min:0',
+            'gutter_width' => 'nullable|numeric|min:0',
+            'gutter_length' => 'nullable|numeric|min:0',
             'description' => 'nullable|string|max:1000',
         ]);
 
@@ -320,4 +378,31 @@ class TreeController extends Controller
         return redirect()->route('admin.trees.index')
             ->with('success', 'Árvore excluída!');
     }
+
+    // ==========================================================
+    // ÁREA DO ANALISTA
+    // ==========================================================
+
+    public function analystMap()
+    {
+        // 1. Bairros (para o select)
+        $bairros = Bairro::orderBy('nome')->get();
+
+        // 2. Espécies (para o autocomplete)
+        $species = Species::orderBy('name')->get();
+
+        // 3. Árvores (para os pinos no mapa)
+        // O with('species') é OBRIGATÓRIO porque o JS usa tree.species.name
+        $trees = Tree::with('species')->get(); 
+
+        // 4. Envia TUDO para a view
+        return view('analista.map', compact('bairros', 'species', 'trees'));
+    }
+    public function analystTreeList()
+    {
+        // Pega todas as árvores (ou filtra se necessário)
+        $trees = Tree::all(); // Ou com paginação: Tree::paginate(20);
+        return view('analista.trees.index', compact('trees'));
+    }
+
 }
