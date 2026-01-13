@@ -169,38 +169,41 @@ class TreeController extends Controller
             $speciesNameLog = $speciesObj ? $speciesObj->name : 'Desconhecida';
         }
 
-        // 3. Prepara os dados
+       // 3. Prepara os dados
         $treeData = collect($validated)
             ->except(['species_name', 'species_id']) 
             ->toArray();
         
         $treeData['species_id'] = $speciesId;
         
-        // --- LÓGICA DE QUEM CADASTROU ---
+        // --- LÓGICA DE APROVAÇÃO ROBUSTA ---
         
-        if (auth()->guard('admin')->check()) {
-            // Se for ADMIN
-            $treeData['admin_id'] = auth()->guard('admin')->id();
-            $treeData['analyst_id'] = null; // Admin não é analista
-            $treeData['is_approved'] = true; // Aprova direto
+        // Verifica primeiro se é Analista (para garantir que não caia no Admin por engano)
+        if (auth()->guard('analyst')->check()) {
+            $treeData['admin_id'] = null;
+            $treeData['analyst_id'] = auth()->guard('analyst')->id();
+            
+            // FORÇA O VALOR BOOLEANO (0)
+            $treeData['aprovado'] = 0; 
         } 
-        elseif (auth()->guard('analyst')->check()) {
-            // Se for ANALISTA
-            $treeData['admin_id'] = null;
-            $treeData['analyst_id'] = auth()->guard('analyst')->id(); // <--- SALVA O ID AQUI
-            $treeData['is_approved'] = false; // Pendente
-        } else {
-            // Fallback
-            $treeData['admin_id'] = null;
+        // Se não for Analista, verifica se é Admin
+        elseif (auth()->guard('admin')->check()) {
+            $treeData['admin_id'] = auth()->guard('admin')->id();
             $treeData['analyst_id'] = null;
-            $treeData['is_approved'] = false;
+            $treeData['aprovado'] = 1; // Aprova
+        } else {
+            // Segurança
+            $treeData['aprovado'] = 0;
         }
 
         // 4. Salva a Árvore
         $tree = Tree::create($treeData);
-
-        // 4. Salva a Árvore
-        $tree = Tree::create($treeData);
+        
+        // Verifica se salvou errado e corrige na força bruta (Debug de Segurança)
+        if (auth()->guard('analyst')->check() && $tree->aprovado == 1) {
+            $tree->aprovado = 0;
+            $tree->save();
+        }
 
         // 5. Gera Log (Apenas Admin gera log de admin_logs)
         if (auth()->guard('admin')->check()) {

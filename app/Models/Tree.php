@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Admin;
+use App\Models\Analyst;
 
 class Tree extends Model
 {
@@ -49,5 +50,5 @@ class Tree extends Model
     public function analyst() {
         return $this->belongsTo(Analyst::class, 'analyst_id');
     }
-    
+
 }
