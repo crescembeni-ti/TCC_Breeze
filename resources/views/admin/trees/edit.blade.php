@@ -160,7 +160,7 @@
 
                     {{-- Nome Vulgar --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Vulgar</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Popular</label>
                         <input type="text" name="vulgar_name" 
                             value="{{ old('vulgar_name', $tree->vulgar_name) }}"
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
@@ -174,7 +174,7 @@
                                 value="{{ old('no_species_case', $tree->no_species_case) }}"
                                 class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500"
                                 placeholder="Informe se não identificada">
-                            <p class="text-xs text-gray-500 mt-2">Utilize este campo apenas se a espécie não for encontrada.</p>
+                            <p class="text-xs text-gray-500 mt-2">Utilize este campo apenas se o nome científico não for encontrado.</p>
                         </div>
                     </div>
 

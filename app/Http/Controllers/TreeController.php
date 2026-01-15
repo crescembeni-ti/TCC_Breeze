@@ -19,11 +19,9 @@ class TreeController extends Controller
         $stats = [
             'total_trees' => Tree::count(),
             'total_activities' => Activity::count(),
-            // Removemos total_species pois a tabela não existe mais
             'total_species' => Tree::distinct('scientific_name')->count('scientific_name'), 
         ];
 
-        // Carrega atividades recentes (sem species)
         $recentActivities = Activity::with(['tree', 'user'])
             ->orderBy('activity_date', 'desc')
             ->take(5)
@@ -41,23 +39,21 @@ class TreeController extends Controller
     {
         return Tree::with(['bairro', 'admin']) 
             ->where('aprovado', true)
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->where('latitude', '!=', 0)
-            ->where('longitude', '!=', 0)
+            ->whereNotNull('latitude')->whereNotNull('longitude')
+            ->where('latitude', '!=', 0)->where('longitude', '!=', 0)
             ->get()
             ->map(fn ($tree) => [
                 'id' => $tree->id,
                 'latitude' => (float) $tree->latitude,
                 'longitude' => (float) $tree->longitude,
                 
-                // LÓGICA DE EXIBIÇÃO DO NOME (Direto da tabela trees)
-                'species_name' => $tree->scientific_name 
-                                  ?? $tree->vulgar_name 
-                                  ?? 'Árvore Não Identificada',
+                // Mantemos species_name para exibição no popup (Scientific ?? Vulgar)
+                'species_name' => $tree->scientific_name ?? $tree->vulgar_name ?? 'Não Identificada',
                 
-                'color_code' => '#358054', // Cor padrão
-                
+                // ADICIONE ESTA LINHA: Envia o nome vulgar especificamente para o filtro
+                'vulgar_name'  => $tree->vulgar_name ?? 'Não Identificada',
+
+                'color_code' => '#358054', 
                 'address' => $tree->address,
                 'bairro_id' => $tree->bairro_id,
                 'bairro_nome' => $tree->bairro->nome ?? null,
@@ -72,7 +68,6 @@ class TreeController extends Controller
      * ============================================================ */
     public function show($id)
     {
-        // Removemos 'species' do with
         $tree = Tree::with(['activities.user', 'admin'])->findOrFail($id);
         return view('trees.show', compact('tree'));
     }
@@ -85,7 +80,6 @@ class TreeController extends Controller
         $stats = [
             'total_trees' => Tree::count(),
             'total_activities' => Activity::count(),
-            // Conta nomes científicos únicos na tabela trees
             'total_species' => Tree::distinct('scientific_name')->count('scientific_name'),
         ];
 
@@ -110,16 +104,14 @@ class TreeController extends Controller
     }
 
     /* ============================================================
-     * MAPA ADMIN
-     * ============================================================ */
-    /* ============================================================
      * MAPA ADMIN (CADASTRO)
      * ============================================================ */
     public function adminMap()
     {
-        // Busca todos os nomes científicos distintos já cadastrados para o autocomplete
+        // Busca nomes para o autocomplete
         $scientificNames = Tree::whereNotNull('scientific_name')
             ->where('scientific_name', '!=', '')
+            ->where('scientific_name', '!=', 'Não identificada') // Opcional: não sugerir "Não identificada"
             ->distinct()
             ->orderBy('scientific_name')
             ->pluck('scientific_name');
@@ -127,19 +119,18 @@ class TreeController extends Controller
         return view('admin.trees.map', [
             'trees' => Tree::with(['bairro'])->get(),
             'bairros' => Bairro::orderBy('nome')->get(),
-            'scientificNames' => $scientificNames, // Envia para a view
+            'scientificNames' => $scientificNames,
         ]);
     }
 
     /* ============================================================
-     * CADASTRAR ÁRVORE (DIRETO NA TABELA TREES)
+     * CADASTRAR ÁRVORE
      * ============================================================ */
     public function storeTree(Request $request)
     {
         $validated = $request->validate([
             'scientific_name' => 'nullable|string|max:255',
             'vulgar_name' => 'nullable|string|max:255',
-            
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'health_status' => 'nullable|in:good,fair,poor',
@@ -168,18 +159,28 @@ class TreeController extends Controller
             'no_species_case' => 'nullable|string|max:255',
         ]);
 
-        // Removemos o campo auxiliar species_name se vier da view antiga
         $treeData = collect($validated)->except(['species_name'])->toArray();
-        
-        // --- LÓGICA DE APROVAÇÃO ---
+
+        // ============================================================
+        // LÓGICA DE PREENCHIMENTO AUTOMÁTICO (PADRÃO)
+        // ============================================================
+        if (empty($treeData['scientific_name'])) {
+            $treeData['scientific_name'] = 'Não identificada';
+        }
+        if (empty($treeData['vulgar_name'])) {
+            $treeData['vulgar_name'] = 'Não identificada';
+        }
+        // ============================================================
+
+        // Lógica de Aprovação
         if (auth()->guard('analyst')->check()) {
             $treeData['admin_id'] = null;
             $treeData['analyst_id'] = auth()->guard('analyst')->id();
-            $treeData['aprovado'] = 0; // Analista = Pendente
+            $treeData['aprovado'] = 0;
         } elseif (auth()->guard('admin')->check()) {
             $treeData['admin_id'] = auth()->guard('admin')->id();
             $treeData['analyst_id'] = null;
-            $treeData['aprovado'] = 1; // Admin = Aprovado
+            $treeData['aprovado'] = 1;
         } else {
             $treeData['aprovado'] = 0;
         }
@@ -187,10 +188,10 @@ class TreeController extends Controller
         $tree = Tree::create($treeData);
 
         if (auth()->guard('admin')->check()) {
-            \App\Models\AdminLog::create([
+            AdminLog::create([
                 'admin_id' => auth()->guard('admin')->id(),
                 'action' => 'create_tree',
-                'description' => 'Árvore criada (ID ' . $tree->id . ') - Nome: ' . ($tree->scientific_name ?? 'S/ Nome'),
+                'description' => 'Árvore criada (ID ' . $tree->id . ') - ' . $treeData['scientific_name'],
             ]);
         }
 
@@ -206,7 +207,6 @@ class TreeController extends Controller
      * ============================================================ */
     public function pendingTrees()
     {
-        // Sem species no with
         $pendingTrees = Tree::where('aprovado', false)->get();
         return view('admin.trees.pending', compact('pendingTrees'));
     }
@@ -220,7 +220,7 @@ class TreeController extends Controller
         $tree->update(['aprovado' => true]);
 
         if (auth()->guard('admin')->check()) {
-            \App\Models\AdminLog::create([
+            AdminLog::create([
                 'admin_id' => auth()->guard('admin')->id(),
                 'action' => 'approve_tree',
                 'description' => 'Aprovou a árvore ID ' . $tree->id,
@@ -243,12 +243,8 @@ class TreeController extends Controller
     /* ============================================================
      * EDITAR
      * ============================================================ */
-   /* ============================================================
-     * EDITAR
-     * ============================================================ */
     public function adminTreeEdit(Tree $tree)
     {
-        // Mesma lógica para o edit
         $scientificNames = Tree::whereNotNull('scientific_name')
             ->where('scientific_name', '!=', '')
             ->distinct()
@@ -258,7 +254,7 @@ class TreeController extends Controller
         return view('admin.trees.edit', [
             'tree' => $tree,
             'bairros' => Bairro::orderBy('nome')->get(),
-            'scientificNames' => $scientificNames, // Envia para a view
+            'scientificNames' => $scientificNames,
         ]);
     }
 
@@ -270,7 +266,7 @@ class TreeController extends Controller
         $validated = $request->validate([
             'scientific_name' => 'nullable|string|max:255',
             'vulgar_name' => 'nullable|string|max:255',
-            // ... (mesmas validações dos outros campos)
+            // ... demais campos ...
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'health_status' => 'nullable|in:good,fair,poor',
@@ -301,6 +297,17 @@ class TreeController extends Controller
 
         $updateData = collect($validated)->except(['species_name'])->toArray();
 
+        // ============================================================
+        // LÓGICA DE PREENCHIMENTO AUTOMÁTICO (PADRÃO)
+        // ============================================================
+        if (empty($updateData['scientific_name'])) {
+            $updateData['scientific_name'] = 'Não identificada';
+        }
+        if (empty($updateData['vulgar_name'])) {
+            $updateData['vulgar_name'] = 'Não identificada';
+        }
+        // ============================================================
+
         $tree->update($updateData);
 
         AdminLog::create([
@@ -310,7 +317,7 @@ class TreeController extends Controller
         ]);
 
         return redirect()->route('admin.trees.index')
-            ->with('success', 'Árvore atualizada com sucesso!');
+            ->with('success', 'Árvore atualizada!');
     }
 
     /* ============================================================
@@ -338,9 +345,9 @@ class TreeController extends Controller
     public function analystMap()
     {
         $bairros = Bairro::orderBy('nome')->get();
-        // Removemos species
         $trees = Tree::all(); 
-
+        // Se precisar do autocomplete no analista também, envie $scientificNames aqui
+        
         return view('analista.map', compact('bairros', 'trees'));
     }
     

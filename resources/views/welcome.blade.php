@@ -507,10 +507,17 @@
                 exibirArvores(allTrees);
             });
 
+       /* ============================================================
+           POPULAR SELECTS (AGORA COM NOME VULGAR)
+           ============================================================ */
+       /* ============================================================
+           POPULAR SELECTS (CORRIGIDO: SEM DUPLICATAS)
+           ============================================================ */
         function popularSelects(trees) {
             const especieSelect = document.getElementById("especie");
             const bairroSelect = document.getElementById("bairro");
 
+            // 1. Popula Bairros (Mantido igual)
             allBairros.forEach(b => {
                 const opt = document.createElement("option");
                 opt.value = b.id;
@@ -518,11 +525,32 @@
                 bairroSelect.appendChild(opt);
             });
 
-            const especies = [...new Set(trees.map(t => t.species_name))].sort();
-            especies.forEach(e => {
+            // 2. Popula Espécies (Nome Vulgar Único e Limpo)
+            const nomesSet = new Set();
+
+            trees.forEach(t => {
+                let nome = t.vulgar_name;
+                
+                // Se o nome existir e não for "Não Identificada"
+                if (nome && nome.trim() !== "" && nome !== "Não Identificada") {
+                    // Padroniza: Remove espaços extras e capitaliza a primeira letra
+                    // Isso junta "amendoeira", "Amendoeira " e "AMENDOEIRA" no mesmo item visual
+                    let nomeFormatado = nome.trim();
+                    
+                    // Opcional: Forçar primeira letra maiúscula para padronizar visualmente
+                    nomeFormatado = nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1);
+                    
+                    nomesSet.add(nomeFormatado);
+                }
+            });
+
+            // Converte o Set para Array, ordena alfabeticamente e cria as opções
+            const listaOrdenada = Array.from(nomesSet).sort((a, b) => a.localeCompare(b));
+
+            listaOrdenada.forEach(nome => {
                 const opt = document.createElement("option");
-                opt.value = e;
-                opt.textContent = e;
+                opt.value = nome; // O valor que será buscado
+                opt.textContent = nome; // O texto que aparece
                 especieSelect.appendChild(opt);
             });
         }
@@ -652,76 +680,80 @@
         /* ============================================================
            FUNÇÃO DE FILTRO PRINCIPAL
            ============================================================ */
+        /* ============================================================
+           FUNÇÃO DE FILTRO (ADAPTADA PARA NOME VULGAR)
+           ============================================================ */
         function aplicarFiltro() {
-    const bairroVal = document.getElementById("bairro").value;
-    const especieVal = document.getElementById("especie").value;
-    const buscaVal = document.getElementById("search").value.toLowerCase().trim();
+            const bairroVal = document.getElementById("bairro").value;
+            const especieVal = document.getElementById("especie").value;
+            const buscaVal = document.getElementById("search").value.toLowerCase().trim();
 
-    // 1. FILTRAGEM RIGOROSA (Agora inclui o Bairro na verificação)
-    const filtradas = allTrees.filter(tree => {
-        // Verifica se a árvore pertence ao bairro selecionado (se houver bairro)
-        const okBairro = bairroVal ? tree.bairro_id == bairroVal : true;
-        
-        // Verifica a espécie
-        const okEspecie = especieVal ? tree.species_name === especieVal : true;
-        
-        // Verifica a busca (texto)
-        let okBusca = true;
-        if (buscaVal.length > 0) {
-            const nome = (tree.species_name || "").toLowerCase();
-            const end = (tree.address || "").toLowerCase();
-            okBusca = nome.includes(buscaVal) || end.includes(buscaVal);
-        }
+            const filtradas = allTrees.filter(tree => {
+                // 1. Filtro de Bairro
+                const okBairro = bairroVal ? tree.bairro_id == bairroVal : true;
+                
+                // 2. Filtro de Espécie (MUDANÇA AQUI: Compara com o Nome Vulgar)
+                // Como o select foi preenchido com nomes vulgares, comparamos com tree.vulgar_name
+               // Filtro de Espécie (Agora insensível a maiúsculas/minúsculas e espaços)
+                const okEspecie = especieVal ? (tree.vulgar_name || "").trim().toLowerCase() === especieVal.trim().toLowerCase() : true;
+                
+                // 3. Filtro de Busca (Texto)
+                let okBusca = true;
+                if (buscaVal.length > 0) {
+                    const cientifico = (tree.species_name || "").toLowerCase(); // Nome exibido (pode ser o científico)
+                    const vulgar = (tree.vulgar_name || "").toLowerCase();      // Nome popular
+                    const end = (tree.address || "").toLowerCase();             // Endereço
+                    
+                    // Busca em qualquer um dos campos
+                    okBusca = cientifico.includes(buscaVal) || vulgar.includes(buscaVal) || end.includes(buscaVal);
+                }
 
-        // A árvore só passa se atender a TODOS os requisitos
-        return okBairro && okEspecie && okBusca;
-    });
+                // A árvore só passa se atender a TODOS os requisitos
+                return okBairro && okEspecie && okBusca;
+            });
 
-    // Atualiza os marcadores e, SE "filtradas" estiver vazio, a função exibirArvores
-    // automaticamente chama atualizarStatus(0) que mostra a mensagem de erro.
-    exibirArvores(filtradas);
+            // Atualiza os marcadores no mapa
+            exibirArvores(filtradas);
 
-    // 2. Lógica de Zoom Inteligente
-    let zoomFocadoNasArvores = false;
+            // --- LÓGICA DE ZOOM E BORDAS (Mantida do seu código) ---
+            
+            let zoomFocadoNasArvores = false;
 
-    // Se encontrou árvores filtradas, foca nelas
-    if (filtradas.length > 0) {
-        if (filtradas.length === 1) {
-            const t = filtradas[0];
-            map.setView([t.latitude, t.longitude], 18);
-        } else {
-            const bounds = L.latLngBounds(filtradas.map(t => [t.latitude, t.longitude]));
-            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 17 });
-        }
-        zoomFocadoNasArvores = true;
-    }
+            // Se encontrou árvores filtradas, foca nelas
+            if (filtradas.length > 0) {
+                if (filtradas.length === 1) {
+                    const t = filtradas[0];
+                    map.setView([t.latitude, t.longitude], 18);
+                } else {
+                    const bounds = L.latLngBounds(filtradas.map(t => [t.latitude, t.longitude]));
+                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 17 });
+                }
+                zoomFocadoNasArvores = true;
+            }
 
-    // 3. Lógica da Borda do Bairro
-    // Só desenha a borda se o usuário selecionou um bairro E se a busca retornou algo
-    // (Isso evita desenhar a borda em um bairro onde não achamos a espécie procurada)
-    if (bairroVal) {
-        if (filtradas.length > 0) {
-            // Se achou árvores, desenha a borda mas não força o zoom se já focamos nas árvores
-            destacarBairro(bairroVal, !zoomFocadoNasArvores);
-        } else {
-            // Se NÃO achou árvores (filtradas.length === 0), remove a borda para ficar limpo
-            if (bairrosGeoLayer) {
-                bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
+            // Lógica da Borda do Bairro
+            if (bairroVal) {
+                if (filtradas.length > 0) {
+                    // Se achou árvores, desenha a borda (sem forçar zoom se já focou nas árvores)
+                    destacarBairro(bairroVal, !zoomFocadoNasArvores);
+                } else {
+                    // Se NÃO achou árvores, remove a borda para ficar limpo
+                    if (bairrosGeoLayer) {
+                        bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
+                    }
+                }
+            } else {
+                // Limpa bordas se não tiver bairro selecionado
+                if (bairrosGeoLayer) {
+                    bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
+                }
+                
+                // Se limpou tudo (sem filtros), reseta o mapa para a visão inicial
+                if (!especieVal && !buscaVal && !bairroVal) {
+                    map.setView(INITIAL_VIEW, INITIAL_ZOOM);
+                }
             }
         }
-    } else {
-        // Limpa bordas se não tiver bairro selecionado
-        if (bairrosGeoLayer) {
-            bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-        }
-        
-        // Se limpou tudo (sem filtros), reseta o mapa
-        if (!especieVal && !buscaVal && !bairroVal) {
-            map.setView(INITIAL_VIEW, INITIAL_ZOOM);
-        }
-    }
-}
-
         /* ============================================================
            POPUP DINÂMICO
            ============================================================ */
