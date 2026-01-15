@@ -39,10 +39,8 @@ class TreeController extends Controller
      * ============================================================ */
     public function getTreesData()
     {
-        // Fusão: Usa os filtros de integridade do Amigo (aprovado, lat/long válidos)
-        // MAS usa a sua lógica de Nomes e JSON formatado
-        return Tree::with(['bairro', 'admin'])
-            ->where('aprovado', true) // Só mostra aprovadas no mapa público
+        return Tree::with(['bairro', 'admin']) 
+            ->where('aprovado', true)
             ->whereNotNull('latitude')->whereNotNull('longitude')
             ->where('latitude', '!=', 0)->where('longitude', '!=', 0)
             ->get()
@@ -50,27 +48,24 @@ class TreeController extends Controller
                 'id' => $tree->id,
                 'latitude' => (float) $tree->latitude,
                 'longitude' => (float) $tree->longitude,
-                
-                // --- SUA LÓGICA DE NOME (Vulgar > Caso Específico > Não identificada) ---
-                'species_name' => (function() use ($tree) {
-                    $nome = $tree->vulgar_name ?? 'Não identificada';
-                    
-                    if (($nome === 'Não identificada' || empty($nome)) && !empty($tree->no_species_case)) {
-                        return $tree->no_species_case;
-                    }
-                    return $nome;
-                })(),
-                
-                // Campo extra para filtros específicos (do amigo)
+                'species_name' => $tree->scientific_name ?? $tree->vulgar_name ?? 'Árvore Não Identificada',
                 'vulgar_name'  => $tree->vulgar_name ?? 'Não Identificada',
-
-                'color_code' => '#358054', // Verde padrão
+                'color_code' => '#358054', 
                 'address' => $tree->address,
                 'bairro_id' => $tree->bairro_id,
                 'bairro_nome' => $tree->bairro->nome ?? null,
-                'health_status' => $tree->health_status,
                 'trunk_diameter' => $tree->trunk_diameter,
                 'registered_by' => $tree->admin ? $tree->admin->name : 'Sistema',
+
+                // --- NOVOS CAMPOS PARA O FILTRO DE ADMIN ---
+                'health_status' => $tree->health_status,
+                'bifurcation_type' => $tree->bifurcation_type,
+                'stem_balance' => $tree->stem_balance,
+                'crown_balance' => $tree->crown_balance,
+                'organisms' => $tree->organisms,
+                'target' => $tree->target,
+                'injuries' => $tree->injuries,
+                'wiring_status' => $tree->wiring_status,
             ]);
     }
 

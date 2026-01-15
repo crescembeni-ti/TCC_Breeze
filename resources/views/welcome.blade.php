@@ -14,39 +14,91 @@
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 
     {{-- ESTILOS --}}
-    <style>
+   <style>
+        /* ... (Mantenha os estilos de tooltip/popup anteriores) ... */
         .bairro-tooltip { background: rgba(0, 0, 0, 0.65); color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; border: none; }
         .leaflet-popup-content-wrapper { padding: 0; overflow: hidden; border-radius: 12px; }
         .leaflet-popup-content { margin: 0; width: 280px !important; }
-        
+
         .map-filter-toggle {
-            position: absolute; top: 10px; right: 10px; z-index: 1000; background: #358054; color: white; padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s;
+            position: absolute; top: 10px; right: 10px; z-index: 2000; 
+            background: #358054; color: white; padding: 10px 16px; border: none; border-radius: 8px; 
+            cursor: pointer; font-weight: 600; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); 
+            display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s;
         }
         .map-filter-toggle:hover { background: #2d6e4b; }
         .map-filter-toggle:active { transform: scale(0.98); }
 
+        /* PAINEL DE FILTROS CORRIGIDO */
         .map-filter-panel {
-            position: absolute; top: 60px; right: 10px; width: 280px; z-index: 1000; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); display: none; animation: slideIn 0.2s ease-out; font-family: 'Instrument Sans', sans-serif;
+            position: absolute; 
+            top: 70px; 
+            right: 10px; 
+            width: 280px; 
+            z-index: 2000; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
+            display: none; 
+            flex-direction: column;
+            font-family: 'Instrument Sans', sans-serif;
+            max-height: calc(100% - 80px); /* Garante que caiba dentro do container do mapa */
+            overflow: hidden;
+        }
+        .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
+        
+        .filter-header {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0; /* Impede que o cabeçalho diminua */
+        }
+        .header-title-box { display: flex; gap: 8px; align-items: center; }
+        .header-icon { color: #358054; }
+        .header-text h3 { margin: 0; font-size: 14px; font-weight: 700; color: #111827; }
+        .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
+
+        .filter-content {
+            padding: 12px 16px;
+            overflow-y: auto;
+            flex: 1;
+            overscroll-behavior: contain;
+        }
+
+        .filter-footer {
+            padding: 10px 14px;
+            background: #f9fafb;
+            border-top: 1px solid #f3f4f6;
+            border-radius: 0 0 12px 12px;
+            flex-shrink: 0; /* Impede que o rodapé diminua ou suma */
         }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .map-filter-panel.open { display: block; }
 
-        .filter-group { margin-bottom: 14px; }
-        .filter-label { font-size: 11px; font-weight: 700; color: #6b7280; margin-bottom: 4px; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
+        .filter-group { margin-bottom: 10px; }
+        .filter-label { font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 3px; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
+        
         .map-filter-panel input, .map-filter-panel select {
-            width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 14px; outline: none; transition: all 0.2s; background-color: #f9fafb; color: #1f2937;
+            width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid #d1d5db; 
+            font-size: 13px; outline: none; transition: all 0.2s; background-color: #f9fafb; color: #1f2937;
         }
         .map-filter-panel input:focus, .map-filter-panel select:focus {
             border-color: #358054; background-color: #fff; box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.1);
         }
 
-        .btn-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-filter { flex: 1; padding: 10px; border-radius: 6px; border: none; background: #358054; color: white; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        .btn-filter:hover { background: #2d6e4b; }
-        .btn-clear { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; background: #f3f4f6; color: #374151; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        .btn-clear:hover { background: #e5e7eb; }
+        .admin-divider {
+            border-top: 1px dashed #d1d5db; margin: 15px 0; padding-top: 10px; 
+            text-align: center; font-size: 10px; font-weight: bold; color: #358054; text-transform: uppercase;
+        }
 
-        .filter-status { margin-top: 15px; padding: 10px; border-top: 1px solid #e5e7eb; font-size: 12px; text-align: center; color: #6b7280; transition: all 0.2s; }
+        .btn-actions { display: flex; gap: 10px; }
+        .btn-filter { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #358054; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 14px; }
+        .btn-filter:hover { background: #2d6e4b; }
+        .btn-clear { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #358054; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 14px; }
+        .btn-clear:hover { background: #2d6e4b; }
+
+        .filter-status { margin-top: 8px; padding: 5px; font-size: 11px; text-align: center; color: #6b7280; transition: all 0.2s; }
         .filter-status.vazio { background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; color: #991b1b; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 15px; }
     </style>
 </head>
@@ -148,9 +200,21 @@
         const INITIAL_ZOOM = 14;
         const PARACAMBI_BOUNDS = [[-22.7000, -43.8500], [-22.5000, -43.5500]];
 
-        // --- VERIFICAÇÃO DE ADMIN (PARA O BOTÃO EDITAR) ---
+        // --- VERIFICAÇÃO DE ADMIN ---
         const isAdmin = @json(auth('admin')->check());
         const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
+
+        // Configuração dos Campos Extras do Admin
+        const adminFieldsConfig = [
+            { id: 'health_status', label: 'Estado da Árvore', key: 'health_status' },
+            { id: 'bifurcation_type', label: 'Tipo de Bifurcação', key: 'bifurcation_type' },
+            { id: 'stem_balance', label: 'Equilíbrio Fuste', key: 'stem_balance' },
+            { id: 'crown_balance', label: 'Equilíbrio Copa', key: 'crown_balance' },
+            { id: 'organisms', label: 'Organismos', key: 'organisms' },
+            { id: 'target', label: 'Alvo', key: 'target' },
+            { id: 'injuries', label: 'Injúrias', key: 'injuries' },
+            { id: 'wiring_status', label: 'Estado da Fiação', key: 'wiring_status' },
+        ];
 
         const map = L.map('map', {
             center: INITIAL_VIEW, zoom: INITIAL_ZOOM, minZoom: 13, maxBounds: PARACAMBI_BOUNDS, maxBoundsViscosity: 1.0
@@ -164,35 +228,86 @@
         toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg> Filtros`;
         map.getContainer().appendChild(toggleBtn);
 
+        // --- CRIAÇÃO DO PAINEL COM CORREÇÃO DE SCROLL ---
         const panel = L.DomUtil.create("div", "map-filter-panel");
+        
+        // ESTA LINHA CORRIGE O PROBLEMA DO SCROLL NO MAPA
         L.DomEvent.disableClickPropagation(panel);
+        L.DomEvent.disableScrollPropagation(panel); 
 
-        // --- PAINEL DE FILTROS (TEXTOS CORRIGIDOS) ---
+        // --- MONTAGEM DO HTML ---
+        let extraAdminHtml = '';
+        if (isAdmin) {
+            extraAdminHtml += `<div class="admin-divider">Filtros Avançados (Admin)</div>`;
+            adminFieldsConfig.forEach(field => {
+                extraAdminHtml += `
+                    <div class="filter-group">
+                        <label class="filter-label">${field.label}</label>
+                        <select id="${field.id}">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                `;
+            });
+        }
+
+        // HTML Completo garantindo que os botões estejam no final
         panel.innerHTML = `
             <div class="filter-header">
-                <div class="header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></div>
-                <div class="header-text"><h3>Explorar Mapa</h3><p>Encontre Árvores em Paracambi</p></div>
-            </div>
-            <div class="filter-group"><label class="filter-label">Pesquisar</label><input type="text" id="search" placeholder="Nome ou endereço..." autocomplete="off"/></div>
-            
-            <div class="filter-group">
-                <label class="filter-label">Bairro</label>
-                <select id="bairro"><option value="">Todos os bairros</option></select>
-            </div>
-            
-            <div class="filter-group">
-                <label class="filter-label">Nome Comum / Espécie</label>
-                <select id="especie">
-                    <option value="">Todas as espécies</option>
-                </select>
+                <div class="header-title-box">
+                    <div class="header-icon" style="background: #e8f5e9; padding: 6px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#358054" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                    </div>
+                    <div class="header-text">
+                        <h3>Explorar Mapa</h3>
+                        <p>Filtros</p>
+                    </div>
+                </div>
+                <button id="closePanelBtn" style="background:none; border:none; color:#9ca3af; cursor:pointer; font-size:18px; padding: 4px; line-height: 1;">✕</button>
             </div>
 
-            <div class="btn-actions"><button id="limparFiltro" class="btn-clear">Limpar</button><button id="aplicarFiltro" class="btn-filter">Filtrar</button></div>
-            <div id="filterStatus" class="filter-status">Carregando...</div>
+            <div class="filter-content">
+                <div class="filter-group">
+                    <label class="filter-label">PESQUISAR</label>
+                    <input type="text" id="search" placeholder="Nome ou endereço..." autocomplete="off"/>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">BAIRRO</label>
+                    <select id="bairro"><option value="">Todos os bairros</option></select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">ESPECIE</label>
+                    <select id="especie">
+                        <option value="">Todas as espécies</option>
+                    </select>
+                </div>
+
+                ${extraAdminHtml}
+            </div>
+
+            <div class="filter-footer">
+                <div class="btn-actions">
+                    <button id="limparFiltro" class="btn-clear">Limpar</button>
+                    <button id="aplicarFiltro" class="btn-filter">Filtrar</button>
+                </div>
+                <div id="filterStatus" class="filter-status">Carregando...</div>
+            </div>
         `;
+        
         map.getContainer().appendChild(panel);
 
-        toggleBtn.addEventListener("click", (e) => { L.DomEvent.stop(e); panel.classList.toggle("open"); });
+        // Lógica de abrir/fechar
+        toggleBtn.addEventListener("click", (e) => { 
+            L.DomEvent.stop(e); 
+            panel.classList.toggle("open"); 
+        });
+        
+        panel.querySelector('#closePanelBtn').addEventListener("click", (e) => {
+            L.DomEvent.stop(e);
+            panel.classList.remove("open");
+        });
 
         /* VARIÁVEIS GLOBAIS */
         let currentTrees = [], allTrees = [], filteredTrees = [], treeIndexGlobal = 0, treeMarkers = {};
@@ -220,36 +335,66 @@
         });
 
         /* FUNÇÕES */
+        function getColorBySpecies(speciesName) {
+            if (!speciesName || speciesName.toLowerCase().includes("não identificada")) {
+                return "#064e3b"; // Verde escuro para não identificadas
+            }
+
+            // Gera um hash simples a partir do nome científico para manter a cor consistente
+            let hash = 0;
+            for (let i = 0; i < speciesName.length; i++) {
+                hash = speciesName.charCodeAt(i) + ((hash << 5) - hash);
+            }
+
+            // Converte o hash para uma cor HSL (mais fácil de controlar saturação e brilho)
+            const h = Math.abs(hash % 360);
+            // Saturação entre 60-80% e Brilho entre 40-60% para cores vibrantes mas legíveis
+            return `hsl(${h}, 70%, 45%)`;
+        }
+
         function popularSelects(trees) {
             const especieSelect = document.getElementById("especie");
             const bairroSelect = document.getElementById("bairro");
             
+            // 1. Popula Bairros
             allBairros.forEach(b => {
                 const opt = document.createElement("option"); opt.value = b.id; opt.textContent = b.nome; bairroSelect.appendChild(opt);
             });
 
-            // LÓGICA FILTRO: NOME VULGAR
+            // 2. Popula Espécies (Nome Vulgar)
             const nomesSet = new Set();
             trees.forEach(t => {
                 let nome = t.vulgar_name;
-                // Filtra apenas nomes vulgares válidos
                 if (nome && nome.trim() !== "" && nome.toLowerCase() !== "não identificada") {
                     let nomeFormatado = nome.trim();
                     nomeFormatado = nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1);
                     nomesSet.add(nomeFormatado);
                 }
             });
-
             Array.from(nomesSet).sort().forEach(nome => {
-                const opt = document.createElement("option"); 
-                opt.value = nome; 
-                opt.textContent = nome; 
-                especieSelect.appendChild(opt);
+                const opt = document.createElement("option"); opt.value = nome; opt.textContent = nome; especieSelect.appendChild(opt);
             });
+
+            // 3. Popula Filtros de Admin (Dinamicamente)
+            if (isAdmin) {
+                adminFieldsConfig.forEach(field => {
+                    const select = document.getElementById(field.id);
+                    if(select) {
+                        const valoresUnicos = [...new Set(trees.map(t => t[field.key]).filter(v => v))].sort();
+                        valoresUnicos.forEach(valor => {
+                            const opt = document.createElement("option");
+                            opt.value = valor;
+                            opt.textContent = valor;
+                            select.appendChild(opt);
+                        });
+                    }
+                });
+            }
         }
 
         function atualizarStatus(count, total) {
             const statusDiv = document.getElementById("filterStatus");
+            if (!statusDiv) return;
             statusDiv.className = "filter-status"; 
             if (count === 0) {
                 statusDiv.classList.add("vazio");
@@ -284,9 +429,11 @@
             trees.forEach((tree) => {
                 if (!tree.latitude || !tree.longitude) return;
                 
+                const treeColor = getColorBySpecies(tree.species_name);
+                
                 const marker = L.circleMarker([tree.latitude, tree.longitude], {
                     radius: scaleDiameter(parseFloat(tree.trunk_diameter) || 0),
-                    color: "#fff", weight: 2, fillColor: tree.color_code || "#358054", fillOpacity: 0.85, interactive: true
+                    color: "#fff", weight: 2, fillColor: treeColor, fillOpacity: 0.85, interactive: true
                 }).addTo(markersLayer);
 
                 marker.on('click', () => {
@@ -313,14 +460,24 @@
         }
 
         function aplicarFiltro() {
+            // 1. Filtros Padrão
             const bairroVal = document.getElementById("bairro").value;
             const especieVal = document.getElementById("especie").value;
             const buscaVal = document.getElementById("search").value.toLowerCase().trim();
 
+            // 2. Filtros Admin
+            const adminFilters = {};
+            if (isAdmin) {
+                adminFieldsConfig.forEach(field => {
+                    const el = document.getElementById(field.id);
+                    if (el && el.value) {
+                        adminFilters[field.key] = el.value;
+                    }
+                });
+            }
+
             const filtradas = allTrees.filter(tree => {
                 const okBairro = bairroVal ? tree.bairro_id == bairroVal : true;
-                
-                // Filtro atualizado para usar 'vulgar_name'
                 const nomeVulgarArvore = (tree.vulgar_name || "").toLowerCase().trim();
                 const okEspecie = especieVal ? nomeVulgarArvore === especieVal.toLowerCase().trim() : true;
                 
@@ -330,7 +487,18 @@
                     const end = (tree.address || "").toLowerCase();
                     okBusca = nomeGeral.includes(buscaVal) || end.includes(buscaVal);
                 }
-                return okBairro && okEspecie && okBusca;
+
+                let okAdmin = true;
+                if (isAdmin) {
+                    for (const [key, val] of Object.entries(adminFilters)) {
+                        if ((tree[key] || "") != val) {
+                            okAdmin = false;
+                            break;
+                        }
+                    }
+                }
+
+                return okBairro && okEspecie && okBusca && okAdmin;
             });
 
             exibirArvores(filtradas);
@@ -342,7 +510,8 @@
             if (bairroVal && filtradas.length > 0) destacarBairro(bairroVal, false);
             else {
                 if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-                if (!especieVal && !buscaVal && !bairroVal) map.setView(INITIAL_VIEW, INITIAL_ZOOM);
+                const adminEmpty = isAdmin ? Object.keys(adminFilters).length === 0 : true;
+                if (!especieVal && !buscaVal && !bairroVal && adminEmpty) map.setView(INITIAL_VIEW, INITIAL_ZOOM);
             }
         }
 
@@ -363,12 +532,9 @@
                 const tree = listaArvores[indexAtual];
                 const total = listaArvores.length;
 
-                // --- LÓGICA DO BOTÃO EDITAR PARA ADMIN ---
                 let adminButton = '';
                 if (isAdmin) {
-                    // Substitui o placeholder pelo ID real da árvore
                     const editUrl = editRouteTemplate.replace('ID_PLACEHOLDER', tree.id);
-                    
                     adminButton = `
                         <a href="${editUrl}" 
                            class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 
@@ -397,13 +563,11 @@
                     <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Endereço:</p>
                     <p class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">${tree.address || 'Localização não informada'}</p>
                 </div>
-                
                 <div class="flex w-full">
                     <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
                         <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>
                         <svg class="w-4 h-4 text-[#166534] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
-                    
                     ${adminButton}
                 </div>`;
                 
@@ -414,16 +578,28 @@
             return container;
         }
 
-        document.getElementById("aplicarFiltro").addEventListener("click", aplicarFiltro);
-        document.getElementById("search").addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
-        document.getElementById("limparFiltro").addEventListener("click", () => {
-            document.getElementById("bairro").value = "";
-            document.getElementById("especie").value = "";
-            document.getElementById("search").value = "";
-            exibirArvores(allTrees);
-            if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-            map.setView(INITIAL_VIEW, INITIAL_ZOOM);
-        });
+        // Binds dos botões de ação (agora garantidos que existem)
+        // OBS: Usamos delegation ou garantimos que os elementos existam após o innerHTML
+        // Como o innerHTML é setado logo no início, os getElementById vão funcionar.
+        setTimeout(() => {
+            document.getElementById("aplicarFiltro").addEventListener("click", aplicarFiltro);
+            document.getElementById("search").addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
+            document.getElementById("limparFiltro").addEventListener("click", () => {
+                document.getElementById("bairro").value = "";
+                document.getElementById("especie").value = "";
+                document.getElementById("search").value = "";
+                if (isAdmin) {
+                    adminFieldsConfig.forEach(f => {
+                        const el = document.getElementById(f.id);
+                        if(el) el.value = "";
+                    });
+                }
+                exibirArvores(allTrees);
+                if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
+                map.setView(INITIAL_VIEW, INITIAL_ZOOM);
+            });
+        }, 100);
+
     </script>
 </body>
 </html>
