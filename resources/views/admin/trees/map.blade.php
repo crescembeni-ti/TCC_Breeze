@@ -2,13 +2,11 @@
 
 @section('content')
     <div class="perfil-box inline-block">
-        {{-- Título principal mantém o verde da identidade visual --}}
         <h2 class="text-3xl font-bold text-[#358054] mb-0">
             Painel de Administração – Mapa de Árvores
         </h2>
     </div>
 
-    {{-- ALERTAS --}}
     @if (session('success'))
         <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
             <strong>Sucesso!</strong> {{ session('success') }}
@@ -26,8 +24,7 @@
 
         <h3 class="text-2xl font-bold mb-6 text-gray-800">Adicionar Nova Árvore</h3>
 
-        {{-- BLOCO DE ERROS DE VALIDAÇÃO --}}
-    @if ($errors->any())
+        @if ($errors->any())
         <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
             <p class="font-bold">Ops! Corrija os erros abaixo:</p>
             <ul class="list-disc list-inside text-sm mt-2">
@@ -36,18 +33,12 @@
                 @endforeach
             </ul>
         </div>
-    @endif
-
-    {{-- AQUI COMEÇA SEU FORMULÁRIO --}}
+        @endif
 
         <form method="POST" action="{{ route('admin.map.store') }}" class="space-y-10">
             @csrf
 
-            {{-- 
-                ==========================================================
-                SEÇÃO 1: IDENTIFICAÇÃO (LAYOUT CORRIGIDO)
-                ========================================================== 
-            --}}
+            {{-- SEÇÃO 1: IDENTIFICAÇÃO --}}
             <div>
                 <div class="flex items-center gap-2 mb-4 border-b pb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -60,8 +51,8 @@
 
                     {{-- Endereço --}}
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Endereço </label>
-                        <input type="text" id="address" name="address"  maxlength="255" value="{{ old('address') }}"
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Endereço</label>
+                        <input type="text" id="address" name="address" maxlength="255" value="{{ old('address') }}"
                             class="block w-full rounded-md border border-gray-300 bg-gray-50 text-gray-800 shadow-sm px-3 py-2 focus:ring-green-500 focus:border-green-500" />
                         <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher automaticamente</p>
                     </div>
@@ -71,7 +62,7 @@
                          @set-bairro-map.window="selected = $event.detail.id; selectedName = $event.detail.nome"
                          class="relative w-full">
                         
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Bairro </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Bairro</label>
 
                         <button @click="open = !open" type="button"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500">
@@ -96,121 +87,87 @@
                         <p class="text-xs text-gray-500 mt-1">Será preenchido automaticamente ao clicar no mapa.</p>
                     </div>
 
-                    {{-- Espécie --}}
-                   {{-- Espécie (COMBOBOX HÍBRIDO) --}}
-<div x-data="{
-        query: '{{ old('species_name') }}',
-        selectedId: null,
-        open: false,
-        allSpecies: {{ $species->toJson() }}, // Pega as espécies do PHP
-        
-        get filteredSpecies() {
-            if (this.query === '') {
-                return this.allSpecies;
-            }
-            return this.allSpecies.filter(s => 
-                s.name.toLowerCase().includes(this.query.toLowerCase())
-            );
-        },
-        
-        selectSpecies(item) {
-            this.query = item.name;
-            this.selectedId = item.id;
-            this.open = false;
-        },
+                    {{-- NOME CIENTÍFICO (CORRIGIDO COM X-INIT) --}}
+                    <div x-data="{
+                            query: '{{ old('scientific_name') }}',
+                            open: false,
+                            list: [],
+                            filtered: [],
+                            initList() {
+                                this.list = {{ json_encode($scientificNames) }};
+                            },
+                            filter() {
+                                if (this.query === '') {
+                                    this.filtered = [];
+                                } else {
+                                    this.filtered = this.list.filter(item => 
+                                        item.toLowerCase().includes(this.query.toLowerCase())
+                                    );
+                                }
+                                this.open = true;
+                            },
+                            select(name) {
+                                this.query = name;
+                                this.open = false;
+                            }
+                        }"
+                        x-init="initList()"
+                        class="relative">
+                        
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Científico</label>
+                        
+                        <div class="relative">
+                            <input type="text" 
+                                   name="scientific_name" 
+                                   x-model="query"
+                                   @input="filter()"
+                                   @click="open = true; filter()"
+                                   @click.outside="open = false"
+                                   autocomplete="off"
+                                   class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500"
+                                   placeholder="Selecione ou digite um novo...">
+                            
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
 
-        checkSelection() {
-            // Se o que está escrito não bate exatamente com nenhuma espécie existente pelo nome,
-            // limpa o ID para forçar criação de nova.
-            let match = this.allSpecies.find(s => s.name.toLowerCase() === this.query.toLowerCase());
-            if (match) {
-                this.selectedId = match.id;
-            } else {
-                this.selectedId = null; // Vai criar nova
-            }
-        }
-    }" 
-    class="relative w-full">
+                        {{-- Lista Suspensa --}}
+                        <ul x-show="open && filtered.length > 0" 
+                            x-transition
+                            class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
+                            style="display: none;">
+                            
+                            <template x-for="name in filtered" :key="name">
+                                <li @click="select(name)"
+                                    class="cursor-pointer select-none py-2 px-3 hover:bg-[#358054] hover:text-white text-gray-700 text-sm">
+                                    <span x-text="name"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
 
-    <label class="block text-sm font-medium text-gray-700 mb-1">Espécie </label>
-    
-    {{-- Input visível para digitação --}}
-    <div class="relative">
-        <input type="text" 
-               x-model="query"
-               @input="open = true; selectedId = null"
-               @click="open = true"
-               @click.outside="open = false; checkSelection()"
-               name="species_name" 
-               autocomplete="off"
-               placeholder="Selecione ou digite uma nova..."
-               class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500"
-               >
-
-        {{-- Ícone de seta para indicar que é lista também --}}
-        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-        </div>
-    </div>
-
-    {{-- Input oculto para enviar o ID se for existente --}}
-    <input type="hidden" name="species_id" :value="selectedId">
-
-    {{-- Lista Dropdown --}}
-    <ul x-show="open" 
-        x-transition
-        class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none"
-        style="display: none;">
-        
-        {{-- Loop das espécies filtradas --}}
-        <template x-for="specie in filteredSpecies" :key="specie.id">
-            <li @click="selectSpecies(specie)"
-                class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-[#358054] hover:text-white text-gray-900">
-                <span x-text="specie.name" class="block truncate"></span>
-            </li>
-        </template>
-
-        {{-- Opção de 'Nenhum resultado' que incentiva o cadastro --}}
-        <li x-show="filteredSpecies.length === 0 && query !== ''" 
-            @click="open = false; selectedId = null"
-            class="cursor-pointer select-none relative py-2 pl-3 pr-9 text-green-700 font-semibold hover:bg-green-50">
-            <span class="block truncate">
-                Cadastrar nova: "<span x-text="query"></span>"
-            </span>
-        </li>
-    </ul>
-    
-    <p class="text-xs text-gray-500 mt-1">Selecione da lista ou digite para criar uma nova.</p>
-</div>
-
-                    {{-- Nome vulgar --}}
+                    {{-- Nome Vulgar --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Popular </label>
-                        <input type="text" name="vulgar_name" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Vulgar</label>
+                        <input type="text" name="vulgar_name" value="{{ old('vulgar_name') }}"
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
 
-                    {{-- Nome científico --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome científico </label>
-                        <input type="text" name="scientific_name" 
-                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
-                    </div>
-
-                    {{-- Caso não tenha espécie (MOVIDO PARA CÁ PARA ALINHAR COM NOME CIENTÍFICO) --}}
+                    {{-- Caso não tenha espécie --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Caso não tenha espécie</label>
                         <div class="flex flex-col justify-start">
-                            <input type="text" name="no_species_case"
+                            <input type="text" name="no_species_case" value="{{ old('no_species_case') }}"
                                 class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500"
                                 placeholder="Informe se não identificada">
-                            <p class="text-xs text-gray-500 mt-1">Utilize este campo apenas se a espécie não foi encontrada ou definida acima.</p>
+                            <p class="text-xs text-gray-500 mt-1">Utilize este campo apenas se a espécie não for encontrada ou definida acima.</p>
                         </div>
                     </div>
 
-                    {{-- Descrição (AGORA OCUPA A LARGURA TOTAL - md:col-span-2) --}}
+                    {{-- Descrição --}}
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Descrição da Árvore</label>
                         <textarea name="description" rows="4"
@@ -221,11 +178,7 @@
                 </div>
             </div>
 
-            {{-- 
-                ==========================================================
-                SEÇÃO 2: COORDENADAS 
-                ========================================================== 
-            --}}
+            {{-- SEÇÃO 2: COORDENADAS --}}
             <div>
                 <div class="flex items-center gap-2 mb-4 border-b pb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -237,13 +190,13 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Latitude </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
                         <input type="number" step="0.0000001" id="latitude" name="latitude" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                         <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Longitude </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
                         <input type="number" step="0.0000001" id="longitude" name="longitude" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                         <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
@@ -251,11 +204,7 @@
                 </div>
             </div>
 
-            {{-- 
-                ==========================================================
-                SEÇÃO 3: DADOS GERAIS 
-                ========================================================== 
-            --}}
+            {{-- SEÇÃO 3: DADOS GERAIS --}}
             <div>
                 <div class="flex items-center gap-2 mb-4 border-b pb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -266,7 +215,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div x-data="{ open: false, selected: '{{ old('health_status') ?? '' }}', selectedName: '{{ old('health_status_name') ?? '' }}' }" class="relative w-full">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado de Saúde </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado de Saúde</label>
                         <button @click="open = !open" type="button"
                             class="w-full border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between px-3 py-2 shadow-sm focus:ring-green-500 focus:border-green-500">
                             <span x-text="selectedName || 'Selecione um estado'"></span>
@@ -280,28 +229,24 @@
                             <li @click="selected='fair'; selectedName='Regular'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white" :class="selected === 'fair' ? 'bg-[#358054] text-white' : ''">Regular</li>
                             <li @click="selected='poor'; selectedName='Ruim'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white" :class="selected === 'poor' ? 'bg-[#358054] text-white' : ''">Ruim</li>
                         </ul>
-                        <input type="hidden" name="health_status" :value="selected" >
+                        <input type="hidden" name="health_status" :value="selected">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Data de Plantio </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data de Plantio</label>
                         <input type="date" name="planted_at" max="{{ now()->format('Y-m-d') }}" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Diâmetro do Tronco (cm) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Diâmetro do Tronco (cm)</label>
                         <input type="number" step="0.01" name="trunk_diameter" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
                 </div>
             </div>
 
-            {{-- 
-                ==========================================================
-                SEÇÃO 4: DIMENSÕES 
-                ========================================================== 
-            --}}
+            {{-- SEÇÃO 4: DIMENSÕES --}}
             <div>
                 <div class="flex items-center gap-2 mb-4 border-b pb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -312,38 +257,34 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">CAP (cm) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CAP (cm)</label>
                         <input type="number" step="0.01" name="cap" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura (m) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura (m)</label>
                         <input type="number" step="0.01" name="height" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura da copa (m) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura da copa (m)</label>
                         <input type="number" step="0.01" name="crown_height"
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Copa Longitudinal (m) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Copa Longitudinal (m)</label>
                         <input type="number" step="0.01" name="crown_diameter_longitudinal" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Copa Perpendicular (m) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Copa Perpendicular (m)</label>
                         <input type="number" step="0.01" name="crown_diameter_perpendicular" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
                 </div>
             </div>
 
-            {{-- 
-                ==========================================================
-                SEÇÃO 5: CARACTERÍSTICAS 
-                ========================================================== 
-            --}}
+            {{-- SEÇÃO 5: CARACTERÍSTICAS --}}
             <div>
                 <div class="flex items-center gap-2 mb-4 border-b pb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -354,7 +295,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div x-data="{ open: false, selected: '{{ old('bifurcation_type') ?? '' }}', selectedName: '{{ old('bifurcation_type_name') ?? '' }}' }" class="relative w-full">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Bifurcação </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Bifurcação</label>
                         <button @click="open = !open" type="button"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500">
                             <span x-text="selectedName || 'Selecione...'"></span>
@@ -368,11 +309,11 @@
                             <li @click="selected='U'; selectedName='U'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'U' ? 'bg-[#358054] text-white' : ''">U</li>
                             <li @click="selected='V'; selectedName='V'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'V' ? 'bg-[#358054] text-white' : ''">V</li>
                         </ul>
-                        <input type="hidden" name="bifurcation_type" :value="selected" >
+                        <input type="hidden" name="bifurcation_type" :value="selected">
                     </div>
 
                     <div x-data="{ open: false, selected: '{{ old('stem_balance') ?? '' }}', selectedName: '{{ old('stem_balance_name') ?? '' }}' }" class="relative w-full">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio Fuste (Inclinação) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio Fuste (Inclinação)</label>
                         <button @click="open = !open" type="button"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500">
                             <span x-text="selectedName || 'Selecione...'"></span>
@@ -386,11 +327,11 @@
                             <li @click="selected='maior_45'; selectedName='Maior que 45°'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'maior_45' ? 'bg-[#358054] text-white' : ''">Maior que 45°</li>
                             <li @click="selected='menor_45'; selectedName='Menor que 45°'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'menor_45' ? 'bg-[#358054] text-white' : ''">Menor que 45°</li>
                         </ul>
-                        <input type="hidden" name="stem_balance" :value="selected" >
+                        <input type="hidden" name="stem_balance" :value="selected">
                     </div>
 
                     <div x-data="{ open: false, selected: '{{ old('crown_balance') ?? '' }}', selectedName: '{{ old('crown_balance_name') ?? '' }}' }" class="relative w-full">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio da copa </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio da copa</label>
                         <button @click="open = !open" type="button"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500">
                             <span x-text="selectedName || 'Selecione...'"></span>
@@ -405,16 +346,12 @@
                             <li @click="selected='desequilibrada'; selectedName='Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'desequilibrada' ? 'bg-[#358054] text-white' : ''">Desequilibrada</li>
                             <li @click="selected='muito_desequilibrada'; selectedName='Muito Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'muito_desequilibrada' ? 'bg-[#358054] text-white' : ''">Muito Desequilibrada</li>
                         </ul>
-                        <input type="hidden" name="crown_balance" :value="selected" >
+                        <input type="hidden" name="crown_balance" :value="selected">
                     </div>
                 </div>
             </div>
 
-            {{-- 
-                ==========================================================
-                SEÇÃO 6: AMBIENTE 
-                ========================================================== 
-            --}}
+            {{-- SEÇÃO 6: AMBIENTE --}}
             <div>
                 <div class="flex items-center gap-2 mb-4 border-b pb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -425,7 +362,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div x-data="{ open: false, selected: '{{ old('organisms') ?? '' }}', selectedName: '{{ old('organisms_name') ?? '' }}' }" class="relative w-full">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Organismos </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Organismos</label>
                         <button @click="open = !open" type="button"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500">
                             <span x-text="selectedName || 'Selecione...'"></span>
@@ -438,23 +375,23 @@
                             <li @click="selected='ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'ausente' ? 'bg-[#358054] text-white' : ''">Ausente</li>
                             <li @click="selected='infestacao_inicial'; selectedName='Infestação Inicial'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'infestacao_inicial' ? 'bg-[#358054] text-white' : ''">Infestação Inicial</li>
                         </ul>
-                        <input type="hidden" name="organisms" :value="selected" >
+                        <input type="hidden" name="organisms" :value="selected">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Alvo </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Alvo</label>
                         <input type="text" name="target" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Injúrias mecânicas e cavidades </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Injúrias mecânicas e cavidades</label>
                         <input type="text" name="injuries" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
 
                     <div x-data="{ open: false, selected: '{{ old('wiring_status') ?? '' }}', selectedName: '{{ old('wiring_status_name') ?? '' }}' }" class="relative w-full">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado da fiação </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado da fiação</label>
                         <button @click="open = !open" type="button"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500">
                             <span x-text="selectedName || 'Selecione...'"></span>
@@ -468,35 +405,35 @@
                             <li @click="selected='interfere'; selectedName='Interfere'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'interfere' ? 'bg-[#358054] text-white' : ''">Interfere</li>
                             <li @click="selected='nao_interfere'; selectedName='Não interfere'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white text-sm" :class="selected === 'nao_interfere' ? 'bg-[#358054] text-white' : ''">Não interfere</li>
                         </ul>
-                        <input type="hidden" name="wiring_status" :value="selected" >
+                        <input type="hidden" name="wiring_status" :value="selected">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura total (m) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura total (m)</label>
                         <input type="number" step="0.01" name="total_width" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura da rua (m) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura da rua (m)</label>
                         <input type="number" step="0.01" name="street_width" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura da gola (m) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura da gola (m)</label>
                         <input type="number" step="0.01" name="gutter_height"
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura da gola (m) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura da gola (m)</label>
                         <input type="number" step="0.01" name="gutter_width" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Comprimento da gola (m) </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Comprimento da gola (m)</label>
                         <input type="number" step="0.01" name="gutter_length" 
                             class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                     </div>
@@ -614,13 +551,6 @@
                         detail: { id: bairroData.id, nome: bairroData.nome } 
                     }));
                 }
-            });
-
-            // 7. Árvores Existentes
-            const trees = @json($trees);
-            trees.forEach(tree => {
-                L.marker([tree.latitude, tree.longitude]).addTo(map)
-                    .bindPopup(`<div style='font-weight:600; margin-bottom:4px;'>${tree.species.name}</div><div style='color:#555;'>${tree.address || 'Sem endereço'}</div>`);
             });
         });
     </script>

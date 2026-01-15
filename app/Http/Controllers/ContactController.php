@@ -83,25 +83,24 @@ class ContactController extends Controller
      * ============================================================ */
 
     // 4. Listagem Principal (Admin)
-    public function adminContactList(Request $request)
+   public function adminContactList(Request $request)
     {
         $filtro = $request->get('filtro', 'pendentes');
 
-        $query = Contact::with(['status', 'user', 'serviceOrder']);
+        // MUDANÇA AQUI: Adicionado .service ao final de serviceOrder
+        // Isso permite acessar o nome da equipe no JavaScript
+        $query = Contact::with(['status', 'user', 'serviceOrder.service']);
 
         if ($filtro === 'pendentes') {
-            // 1. Filtra pelos status básicos
             $query->whereHas('status', fn ($q) =>
                 $q->whereIn('name', ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'])
             );
 
-            // 2. LÓGICA DE VISIBILIDADE
+            // Regra de visibilidade (Admin vê tudo, exceto o que está COM o analista ou Vistoriado/Sem Visto)
             $query->where(function ($mainQuery) {
-                // CASO A: Mostra se NÃO tiver nenhum destino definido (está na mão do Admin)
                 $mainQuery->whereDoesntHave('serviceOrder', function ($q) {
                     $q->whereIn('destino', ['analista', 'servico']);
                 })
-                // CASO B: OU mostra se o status for "Em Execução" (mesmo que tenha destino 'servico')
                 ->orWhereHas('status', function ($q) {
                     $q->where('name', 'Em Execução');
                 });
@@ -122,7 +121,6 @@ class ContactController extends Controller
             'filtro' => $filtro,
         ]);
     }
-
     // 5. Atualizar Status Manualmente
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {

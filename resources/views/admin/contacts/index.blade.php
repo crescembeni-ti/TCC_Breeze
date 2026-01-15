@@ -156,7 +156,7 @@
             if (!itens || itens.length === 0) return `<p class="text-gray-400 mt-2 ml-2">Nenhuma solicitação neste grupo.</p>`;
 
             let rows = itens.map(m => {
-                const created = new Date(m.created_at).toLocaleString();
+                const created = new Date(m.created_at).toLocaleString('pt-BR');
                 const topico = m.topico ?? '';
                 const endereco = [m.bairro, m.rua, m.numero].filter(Boolean).join(', ');
                 const descricao = m.descricao ?? '';
@@ -165,7 +165,28 @@
                 // --- LÓGICA DOS BOTÕES ---
                 let actionButtons = '';
 
-                // 1. DEFERIDO → ANALISTA
+                // 1. VISUALIZAÇÃO DE "VISTO POR" (NOVO - Aparece à esquerda dos botões)
+                // Só mostra se estiver "Em Execução" E se já tiver a data de visualização (viewed_at)
+                if (statusName === 'Em Execução' && m.service_order && m.service_order.viewed_at) {
+                    const viewedDate = new Date(m.service_order.viewed_at).toLocaleString('pt-BR', {
+                        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                    });
+                    
+                    // Tenta pegar o nome da conta de serviço. Se não vier, usa "Equipe" como padrão.
+                    const serviceName = (m.service_order.service && m.service_order.service.name) 
+                                        ? m.service_order.service.name 
+                                        : 'Equipe Técnica';
+                    
+                    // Adicionamos esse bloco ANTES dos botões para ficar à esquerda
+                    actionButtons += `
+                        <div class="flex flex-col items-end mr-4 text-xs text-gray-500 border-r pr-3 border-gray-200">
+                            <span class="font-bold text-[#358054]">Visto por: ${serviceName}</span>
+                            <span>${viewedDate}</span>
+                        </div>
+                    `;
+                }
+
+                // 2. BOTÕES DE ENCAMINHAMENTO (Se aplicável)
                 if (statusName === 'Deferido') {
                     actionButtons += `
                         <button onclick="openForwardModal(${m.id}, 'analista')" 
@@ -173,7 +194,6 @@
                             <i data-lucide="user-check" class="w-3 h-3 mr-1"></i> Analista
                         </button>`;
                 } 
-                // 2. VISTORIADO → SERVIÇO (ACEITA VARIAÇÕES DE NOME)
                 else if (statusName.toLowerCase().includes('vistoriado')) {
                     actionButtons += `
                         <button onclick="openForwardModal(${m.id}, 'servico')" 
@@ -183,21 +203,12 @@
                 }
 
                 // 3. BOTÃO VER INTELIGENTE
-                // 3. BOTÃO VER INTELIGENTE (ATUALIZADO)
                 let btnVer = '';
-                
-                // Verifica se existe uma OS vinculada
                 const temOS = m.service_order && m.service_order.id;
-
-                // Lista de status que devem abrir a tela da OS em vez do modal simples
-                // Adicionei os status de 'Resolvidas' aqui
                 const statusQueAbremOS = ['Vistoriado', 'Em Execução', 'Concluído', 'Indeferido', 'Sem Pendências'];
-
-                // Verifica se o status atual está na lista (ou contém a palavra, ex: 'Vistoriado ')
                 const deveAbrirOS = statusQueAbremOS.some(s => statusName.includes(s));
 
                 if (temOS && deveAbrirOS) {
-                    // SE TIVER OS E O STATUS FOR ADEQUADO -> BOTÃO LEVA PARA A PÁGINA DA OS
                     const urlOS = `/pbi-admin/os/${m.service_order.id}`;
                     btnVer = `
                         <a href="${urlOS}" 
@@ -206,7 +217,6 @@
                            <i data-lucide="file-text" class="w-3 h-3 mr-1"></i> Ver OS
                         </a>`;
                 } else {
-                    // CASO CONTRÁRIO (ex: Em Análise) -> ABRE O MODAL SIMPLES
                     btnVer = `
                         <button onclick="openViewModal(${m.id})" 
                             class="px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947] mr-2"
@@ -215,6 +225,7 @@
                         </button>`;
                 }
                 actionButtons += btnVer;
+
                 // 4. BOTÃO STATUS
                 actionButtons += `
                     <button onclick="openStatusModal(${m.id})" class="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700">

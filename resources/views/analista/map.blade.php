@@ -615,13 +615,6 @@
                     }));
                 }
             });
-
-            // 7. Árvores Existentes
-            const trees = @json($trees);
-            trees.forEach(tree => {
-                L.marker([tree.latitude, tree.longitude]).addTo(map)
-                    .bindPopup(`<div style='font-weight:600; margin-bottom:4px;'>${tree.species.name}</div><div style='color:#555;'>${tree.address || 'Sem endereço'}</div>`);
-            });
         });
     </script>
 @endpush

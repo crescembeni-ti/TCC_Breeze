@@ -36,8 +36,8 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Espécie</th>
+                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nome Científico</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Endereço</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -49,7 +49,9 @@
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $tree->id }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {{ $tree->species->name ?? 'N/A' }}</td>
+                                    {{-- Tenta mostrar o scientific_name da árvore. Se vazio, tenta o da espécie vinculada --}}
+                                    {{ $tree->scientific_name ?: optional($tree->species)->scientific_name ?: 'N/A' }}
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $tree->address ?? 'N/A' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
