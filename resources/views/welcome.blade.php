@@ -13,7 +13,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/welcome.css'])
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 
-    {{-- ESTILOS DOS FILTROS E POPUPS --}}
+    {{-- ESTILOS --}}
     <style>
         .bairro-tooltip { background: rgba(0, 0, 0, 0.65); color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; border: none; }
         .leaflet-popup-content-wrapper { padding: 0; overflow: hidden; border-radius: 12px; }
@@ -148,6 +148,10 @@
         const INITIAL_ZOOM = 14;
         const PARACAMBI_BOUNDS = [[-22.7000, -43.8500], [-22.5000, -43.5500]];
 
+        // --- VERIFICAÇÃO DE ADMIN (PARA O BOTÃO EDITAR) ---
+        const isAdmin = @json(auth('admin')->check());
+        const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
+
         const map = L.map('map', {
             center: INITIAL_VIEW, zoom: INITIAL_ZOOM, minZoom: 13, maxBounds: PARACAMBI_BOUNDS, maxBoundsViscosity: 1.0
         });
@@ -163,7 +167,7 @@
         const panel = L.DomUtil.create("div", "map-filter-panel");
         L.DomEvent.disableClickPropagation(panel);
 
-        // AQUI ESTAVA O ERRO DE PORTUGUÊS - CORRIGIDO
+        // --- PAINEL DE FILTROS (TEXTOS CORRIGIDOS) ---
         panel.innerHTML = `
             <div class="filter-header">
                 <div class="header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></div>
@@ -177,8 +181,10 @@
             </div>
             
             <div class="filter-group">
-                <label class="filter-label">Espécies</label> <select id="especie">
-                    <option value="">Todas as espécies</option> </select>
+                <label class="filter-label">Nome Comum / Espécie</label>
+                <select id="especie">
+                    <option value="">Todas as espécies</option>
+                </select>
             </div>
 
             <div class="btn-actions"><button id="limparFiltro" class="btn-clear">Limpar</button><button id="aplicarFiltro" class="btn-filter">Filtrar</button></div>
@@ -222,22 +228,18 @@
                 const opt = document.createElement("option"); opt.value = b.id; opt.textContent = b.nome; bairroSelect.appendChild(opt);
             });
 
-            // LÓGICA ATUALIZADA: Puxar APENAS o Nome Vulgar
+            // LÓGICA FILTRO: NOME VULGAR
             const nomesSet = new Set();
             trees.forEach(t => {
-                // Aqui puxamos 'vulgar_name' especificamente
                 let nome = t.vulgar_name;
-                
-                // Filtra vazios e "Não identificada" para não poluir a lista
+                // Filtra apenas nomes vulgares válidos
                 if (nome && nome.trim() !== "" && nome.toLowerCase() !== "não identificada") {
                     let nomeFormatado = nome.trim();
-                    // Capitaliza a primeira letra
                     nomeFormatado = nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1);
                     nomesSet.add(nomeFormatado);
                 }
             });
 
-            // Ordena e cria as opções
             Array.from(nomesSet).sort().forEach(nome => {
                 const opt = document.createElement("option"); 
                 opt.value = nome; 
@@ -318,8 +320,7 @@
             const filtradas = allTrees.filter(tree => {
                 const okBairro = bairroVal ? tree.bairro_id == bairroVal : true;
                 
-                // LÓGICA DE FILTRO ATUALIZADA
-                // Compara o que foi selecionado no dropdown com o 'vulgar_name' da árvore
+                // Filtro atualizado para usar 'vulgar_name'
                 const nomeVulgarArvore = (tree.vulgar_name || "").toLowerCase().trim();
                 const okEspecie = especieVal ? nomeVulgarArvore === especieVal.toLowerCase().trim() : true;
                 
@@ -361,6 +362,25 @@
             function render() {
                 const tree = listaArvores[indexAtual];
                 const total = listaArvores.length;
+
+                // --- LÓGICA DO BOTÃO EDITAR PARA ADMIN ---
+                let adminButton = '';
+                if (isAdmin) {
+                    // Substitui o placeholder pelo ID real da árvore
+                    const editUrl = editRouteTemplate.replace('ID_PLACEHOLDER', tree.id);
+                    
+                    adminButton = `
+                        <a href="${editUrl}" 
+                           class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 
+                                  text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
+                            <span class="text-xs font-bold">Editar</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </a>
+                    `;
+                }
+
                 container.innerHTML = `
                 <div class="flex items-center justify-between mb-3 bg-gray-100 rounded-lg p-1 select-none">
                     <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">
@@ -377,10 +397,16 @@
                     <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Endereço:</p>
                     <p class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">${tree.address || 'Localização não informada'}</p>
                 </div>
-                <a href="/trees/${tree.id}" class="group flex items-center justify-between w-full bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
-                    <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>
-                    <svg class="w-4 h-4 text-[#166534] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                </a>`;
+                
+                <div class="flex w-full">
+                    <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
+                        <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>
+                        <svg class="w-4 h-4 text-[#166534] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                    
+                    ${adminButton}
+                </div>`;
+                
                 container.querySelector('#btn-prev').onclick = (e) => { e.stopPropagation(); indexAtual = (indexAtual - 1 + total) % total; render(); mostrarArvoreAtual(); };
                 container.querySelector('#btn-next').onclick = (e) => { e.stopPropagation(); indexAtual = (indexAtual + 1) % total; render(); mostrarArvoreAtual(); };
             }

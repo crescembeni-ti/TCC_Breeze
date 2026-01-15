@@ -2,47 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use Illuminate\Http\Request;
 use App\Models\Tree;
 use App\Models\Activity;
-use App\Models\Species;
 use App\Models\Bairro;
-use Illuminate\Http\RedirectResponse;
+// use App\Models\Species; // <--- REMOVIDO: A tabela não existe mais
 
 class DashboardController extends Controller
 {
-    /**
-     * Exibe o dashboard apenas para usuários autenticados.
-     */
-    public function index(): View|RedirectResponse
+    public function index()
     {
-        // Verifica se há usuário logado
-        if (!Auth::check()) {
-            // Se não estiver logado, redireciona para o login
-            return redirect()->route('login');
-        }
+        // 1. Obtém o usuário logado (CORREÇÃO AQUI)
+        $user = auth()->user();
 
-        // Obtém o usuário autenticado
-        $user = Auth::user();
-
-        // Estatísticas
+        // 2. Estatísticas
         $stats = [
             'total_trees' => Tree::count(),
             'total_activities' => Activity::count(),
-            'total_species' => Species::count(),
+            
+            // Conta nomes científicos únicos na tabela trees
+            'total_species' => Tree::distinct('scientific_name')->count('scientific_name'),
         ];
 
-        // Atividades recentes
-        $recentActivities = Activity::with(['tree.species', 'user'])
+        // 3. Atividades recentes (Sem 'species')
+        $recentActivities = Activity::with(['tree', 'user'])
             ->orderBy('activity_date', 'desc')
             ->take(5)
             ->get();
 
-        // Bairros
+        // 4. Bairros
         $bairros = Bairro::orderBy('nome', 'asc')->get();
 
-        // Retorna a view
-        return view('dashboard', compact('user', 'stats', 'recentActivities', 'bairros'));
+        // 5. Retorna a view enviando o $user junto
+        return view('dashboard', compact('stats', 'recentActivities', 'bairros', 'user'));
     }
 }
