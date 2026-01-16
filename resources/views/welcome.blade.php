@@ -15,7 +15,6 @@
 
     {{-- ESTILOS --}}
    <style>
-        /* ... (Mantenha os estilos de tooltip/popup anteriores) ... */
         .bairro-tooltip { background: rgba(0, 0, 0, 0.65); color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; border: none; }
         .leaflet-popup-content-wrapper { padding: 0; overflow: hidden; border-radius: 12px; }
         .leaflet-popup-content { margin: 0; width: 280px !important; }
@@ -29,7 +28,7 @@
         .map-filter-toggle:hover { background: #2d6e4b; }
         .map-filter-toggle:active { transform: scale(0.98); }
 
-        /* PAINEL DE FILTROS CORRIGIDO */
+        /* PAINEL DE FILTROS */
         .map-filter-panel {
             position: absolute; 
             top: 70px; 
@@ -42,7 +41,7 @@
             display: none; 
             flex-direction: column;
             font-family: 'Instrument Sans', sans-serif;
-            max-height: calc(100% - 80px); /* Garante que caiba dentro do container do mapa */
+            max-height: calc(100% - 80px);
             overflow: hidden;
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
@@ -53,10 +52,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-shrink: 0; /* Impede que o cabeçalho diminua */
+            flex-shrink: 0;
         }
         .header-title-box { display: flex; gap: 8px; align-items: center; }
-        .header-icon { color: #358054; }
         .header-text h3 { margin: 0; font-size: 14px; font-weight: 700; color: #111827; }
         .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
 
@@ -72,7 +70,7 @@
             background: #f9fafb;
             border-top: 1px solid #f3f4f6;
             border-radius: 0 0 12px 12px;
-            flex-shrink: 0; /* Impede que o rodapé diminua ou suma */
+            flex-shrink: 0;
         }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -92,11 +90,19 @@
             text-align: center; font-size: 10px; font-weight: bold; color: #358054; text-transform: uppercase;
         }
 
-        .btn-actions { display: flex; gap: 10px; }
-        .btn-filter { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #358054; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 14px; }
+        .btn-actions { display: flex; gap: 10px; margin-bottom: 8px; }
+        .btn-filter { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #358054; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
         .btn-filter:hover { background: #2d6e4b; }
-        .btn-clear { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #358054; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 14px; }
-        .btn-clear:hover { background: #2d6e4b; }
+        .btn-clear { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #9ca3af; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
+        .btn-clear:hover { background: #6b7280; }
+        
+        /* Estilo do botão de download */
+        .btn-download {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #358054; 
+            background: white; color: #358054; font-weight: 700; cursor: pointer; 
+            transition: all 0.2s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px;
+        }
+        .btn-download:hover { background: #f0fdf4; }
 
         .filter-status { margin-top: 8px; padding: 5px; font-size: 11px; text-align: center; color: #6b7280; transition: all 0.2s; }
         .filter-status.vazio { background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; color: #991b1b; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 15px; }
@@ -202,6 +208,7 @@
 
         // --- VERIFICAÇÃO DE ADMIN ---
         const isAdmin = @json(auth('admin')->check());
+        const exportRoute = "{{ route('admin.trees.export') }}"; // Rota de exportação
         const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
 
         // Configuração dos Campos Extras do Admin
@@ -228,16 +235,17 @@
         toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg> Filtros`;
         map.getContainer().appendChild(toggleBtn);
 
-        // --- CRIAÇÃO DO PAINEL COM CORREÇÃO DE SCROLL ---
+        // --- CRIAÇÃO DO PAINEL ---
         const panel = L.DomUtil.create("div", "map-filter-panel");
-        
-        // ESTA LINHA CORRIGE O PROBLEMA DO SCROLL NO MAPA
         L.DomEvent.disableClickPropagation(panel);
         L.DomEvent.disableScrollPropagation(panel); 
 
         // --- MONTAGEM DO HTML ---
         let extraAdminHtml = '';
+        let downloadBtnHtml = '';
+
         if (isAdmin) {
+            // Campos de filtro extra
             extraAdminHtml += `<div class="admin-divider">Filtros Avançados (Admin)</div>`;
             adminFieldsConfig.forEach(field => {
                 extraAdminHtml += `
@@ -249,9 +257,16 @@
                     </div>
                 `;
             });
+
+            // Botão de Download (SÓ PARA ADMIN)
+            downloadBtnHtml = `
+                <button id="downloadCsv" class="btn-download">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Baixar Relatório (CSV)
+                </button>
+            `;
         }
 
-        // HTML Completo garantindo que os botões estejam no final
         panel.innerHTML = `
             <div class="filter-header">
                 <div class="header-title-box">
@@ -292,6 +307,7 @@
                     <button id="limparFiltro" class="btn-clear">Limpar</button>
                     <button id="aplicarFiltro" class="btn-filter">Filtrar</button>
                 </div>
+                ${downloadBtnHtml}
                 <div id="filterStatus" class="filter-status">Carregando...</div>
             </div>
         `;
@@ -336,62 +352,23 @@
 
         /* FUNÇÕES */
         function getColorBySpecies(speciesName, vulgarName) {
-            const name = (speciesName || "").toLowerCase();
-            const vulgar = (vulgarName || "").toLowerCase();
-            const fullName = `${name} ${vulgar}`;
-
-            if (fullName.includes("não identificada")) return "#064e3b";
-
-            // 1. Mapeamento de Cores Base por Palavras-Chave
-            let baseHue = 120; // Padrão: Verde
-            let saturation = 60;
-            let lightness = 45;
-
-            const colorMap = [
-                { keys: ['flamboyant', 'vermelho', 'pau-brasil'], hue: 0 },      // Vermelho
-                { keys: ['amarelo', 'ipe-amarelo', 'acacia'], hue: 50 },        // Amarelo
-                { keys: ['roxo', 'quaresmeira', 'ipe-roxo', 'manaca'], hue: 280 }, // Roxo/Lilás
-                { keys: ['rosa', 'ipe-rosa', 'paineira'], hue: 330 },           // Rosa
-                { keys: ['branco', 'ipe-branco'], hue: 0, sat: 0, light: 85 },  // Branco (ajuste especial)
-                { keys: ['laranja', 'tulipeira'], hue: 30 },                    // Laranja
-                { keys: ['azul', 'jacaranda'], hue: 210 },                      // Azul
-            ];
-
-            const match = colorMap.find(item => item.keys.some(key => fullName.includes(key)));
-            
-            if (match) {
-                baseHue = match.hue;
-                if (match.sat !== undefined) saturation = match.sat;
-                if (match.light !== undefined) lightness = match.light;
+            if (!speciesName || speciesName.toLowerCase().includes("não identificada")) {
+                return "#064e3b"; 
             }
-
-            // 2. Gerar variação de tonalidade baseada no nome (Hash)
-            // Isso garante que Ipê Roxo e Quaresmeira tenham tons de roxo diferentes
             let hash = 0;
-            for (let i = 0; i < name.length; i++) {
-                hash = name.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            
-            // Ajusta levemente o matiz (hue) em +/- 15 graus e a luminosidade em +/- 10%
-            const hueVariation = (hash % 30) - 15;
-            const lightVariation = (hash % 20) - 10;
-
-            const finalHue = (baseHue + hueVariation + 360) % 360;
-            const finalLight = Math.min(Math.max(lightness + lightVariation, 20), 80);
-
-            return `hsl(${finalHue}, ${saturation}%, ${finalLight}%)`;
+            for (let i = 0; i < speciesName.length; i++) { hash = speciesName.charCodeAt(i) + ((hash << 5) - hash); }
+            const h = Math.abs(hash % 360);
+            return `hsl(${h}, 70%, 45%)`;
         }
 
         function popularSelects(trees) {
             const especieSelect = document.getElementById("especie");
             const bairroSelect = document.getElementById("bairro");
             
-            // 1. Popula Bairros
             allBairros.forEach(b => {
                 const opt = document.createElement("option"); opt.value = b.id; opt.textContent = b.nome; bairroSelect.appendChild(opt);
             });
 
-            // 2. Popula Espécies (Nome Vulgar)
             const nomesSet = new Set();
             trees.forEach(t => {
                 let nome = t.vulgar_name;
@@ -405,7 +382,6 @@
                 const opt = document.createElement("option"); opt.value = nome; opt.textContent = nome; especieSelect.appendChild(opt);
             });
 
-            // 3. Popula Filtros de Admin (Dinamicamente)
             if (isAdmin) {
                 adminFieldsConfig.forEach(field => {
                     const select = document.getElementById(field.id);
@@ -428,7 +404,7 @@
             statusDiv.className = "filter-status"; 
             if (count === 0) {
                 statusDiv.classList.add("vazio");
-                statusDiv.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:6px; opacity:0.8"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg><span>Nenhuma árvore encontrada.</span>`;
+                statusDiv.innerHTML = `<span>Nenhuma árvore encontrada.</span>`;
             } else if (count === total) {
                 statusDiv.innerHTML = `Exibindo todas as <b>${total}</b> árvores.`;
             } else {
@@ -458,8 +434,7 @@
 
             trees.forEach((tree) => {
                 if (!tree.latitude || !tree.longitude) return;
-                
-                const treeColor = getColorBySpecies(tree.species_name, tree.vulgar_name);
+                const treeColor = getColorBySpecies(tree.species_name);
                 
                 const marker = L.circleMarker([tree.latitude, tree.longitude], {
                     radius: scaleDiameter(parseFloat(tree.trunk_diameter) || 0),
@@ -540,9 +515,33 @@
             if (bairroVal && filtradas.length > 0) destacarBairro(bairroVal, false);
             else {
                 if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-                const adminEmpty = isAdmin ? Object.keys(adminFilters).length === 0 : true;
-                if (!especieVal && !buscaVal && !bairroVal && adminEmpty) map.setView(INITIAL_VIEW, INITIAL_ZOOM);
             }
+        }
+
+        // --- FUNÇÃO PARA BAIXAR CSV (NOVA) ---
+        function downloadCSV() {
+            const params = new URLSearchParams();
+            
+            // Pega valores
+            const bairroVal = document.getElementById("bairro").value;
+            const especieVal = document.getElementById("especie").value;
+            const buscaVal = document.getElementById("search").value;
+
+            if (bairroVal) params.append('bairro_id', bairroVal);
+            if (especieVal) params.append('vulgar_name', especieVal); // Controller agora aceita vulgar_name
+            if (buscaVal) params.append('search', buscaVal);
+
+            if (isAdmin) {
+                adminFieldsConfig.forEach(field => {
+                    const el = document.getElementById(field.id);
+                    if (el && el.value) {
+                        params.append(field.key, el.value);
+                    }
+                });
+            }
+
+            // Redireciona para rota de download
+            window.open(`${exportRoute}?${params.toString()}`, '_blank');
         }
 
         function criarConteudoPopup(listaArvores, indexInicial) {
@@ -561,69 +560,34 @@
             function render() {
                 const tree = listaArvores[indexAtual];
                 const total = listaArvores.length;
-                
-                // --- LÓGICA INTELIGENTE DO NOME ---
-                let nomeExibicao = tree.vulgar_name || 'Não Identificada';
-                
-                // Normaliza para minúsculas para facilitar a comparação
-                let nomeCheck = nomeExibicao.toLowerCase().trim();
 
-                // Verifica se é "não identificada" (com ou sem acento)
-                if (nomeCheck.includes('não identificada') || nomeCheck.includes('nao identificada')) {
-                    // Se tiver algo escrito no campo 'no_species_case', usa ele
-                    if (tree.no_species_case && tree.no_species_case.trim() !== "") {
-                        nomeExibicao = tree.no_species_case;
-                    }
-                }
-
-                // --- BOTÃO EDITAR ---
                 let adminButton = '';
                 if (isAdmin) {
                     const editUrl = editRouteTemplate.replace('ID_PLACEHOLDER', tree.id);
                     adminButton = `
-                        <a href="${editUrl}" 
-                           style="color: white !important;"
+                        <a href="${editUrl}" target="_blank"
                            class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 
-                                  !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
-                            <span class="text-xs font-bold text-white">Editar</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
+                                  text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
+                            <span class="text-xs font-bold">Editar</span>
                         </a>
                     `;
                 }
 
                 container.innerHTML = `
                 <div class="flex items-center justify-between mb-3 bg-gray-100 rounded-lg p-1 select-none">
-                    <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                    </button>
+                    <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">←</button>
                     <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">${indexAtual + 1} de ${total}</span>
-                    <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                    </button>
+                    <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">→</button>
                 </div>
-
                 <div class="mb-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie/Nome Popular:</p>
-                    
-                    {{-- NOME DA ÁRVORE (CORRIGIDO) --}}
-                    <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">
-                        ${nomeExibicao}
-                    </h3>
-
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Localização:</p>
-                    <div class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">
-                        <p class="mb-1">${tree.address},  <strong>${tree.bairro_nome  || 'Rua não informada'}</p>
-                        <p class="font-semibold text-gray-500">
-                        </p>
-                    </div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie / Nome Comum:</p>
+                    <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">${tree.species_name}</h3>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Endereço:</p>
+                    <p class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">${tree.address || 'Localização não informada'}</p>
                 </div>
-                
                 <div class="flex w-full">
                     <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
                         <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>
-                        <svg class="w-4 h-4 text-[#166534] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
                     ${adminButton}
                 </div>`;
@@ -635,12 +599,15 @@
             return container;
         }
 
-        // Binds dos botões de ação (agora garantidos que existem)
-        // OBS: Usamos delegation ou garantimos que os elementos existam após o innerHTML
-        // Como o innerHTML é setado logo no início, os getElementById vão funcionar.
+        // Binds dos botões
         setTimeout(() => {
             document.getElementById("aplicarFiltro").addEventListener("click", aplicarFiltro);
             document.getElementById("search").addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
+            
+            // Botão Download (se existir)
+            const btnDown = document.getElementById("downloadCsv");
+            if (btnDown) btnDown.addEventListener("click", downloadCSV);
+
             document.getElementById("limparFiltro").addEventListener("click", () => {
                 document.getElementById("bairro").value = "";
                 document.getElementById("especie").value = "";
