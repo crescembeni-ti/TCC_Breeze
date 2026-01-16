@@ -58,11 +58,11 @@
                     <a href="{{ route('admin.map') }}" class="sidebar-link"><i data-lucide="map-pin" class="icon"></i> Cadastrar Árvores</a>
                     <a href="{{ route('admin.trees.index') }}" class="sidebar-link"><i data-lucide="edit-3" class="icon"></i> Editar Árvores</a>
 
-                    {{-- ===> NOVO LINK: APROVAÇÕES <=== --}}
+                    {{-- ===> LINK DE APROVAÇÕES (ATUALIZADO COM gap-3) <=== --}}
                     <a href="{{ route('admin.trees.pending') }}" class="sidebar-link relative flex items-center justify-between pr-4">
-                        <div class="flex items-center">
+                        <div class="flex items-center gap-3"> {{-- AQUI ESTAVA FALTANDO O gap-3 --}}
                             <i data-lucide="check-circle" class="icon"></i> 
-                           <span>Aprovações</span>
+                            <span>Aprovações</span>
                         </div>
                         
                         {{-- Badge de Contagem (Bolinha Vermelha) --}}
@@ -76,7 +76,7 @@
                             </span>
                         @endif
                     </a>
-                    {{-- ============================================= --}}
+                    {{-- ================================================= --}}
 
                     <a href="{{ route('admin.contato.index') }}" class="sidebar-link"><i data-lucide="inbox" class="icon"></i> Solicitações</a>
                     <a href="{{ route('admin.os.index') }}" class="sidebar-link"><i data-lucide="file-text" class="icon"></i> Ordens de Serviço</a>
