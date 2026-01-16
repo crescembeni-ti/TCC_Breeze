@@ -317,7 +317,7 @@
                         <option value="species">Espécie (Padrão)</option>
                         <option value="injuries">Injúrias</option>
                         <option value="target">Alvo (Fluxo)</option>
-                        <option value="wiring_status">Conflito com Fiação</option>
+                        <option value="wiring_status">Entado da Fiação</option>
                         <option value="organisms">Organismos</option>
                         <option value="crown_balance">Equilíbrio de Copa</option>
                         <option value="stem_balance">Equilíbrio de Fuste</option>
