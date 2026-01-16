@@ -207,7 +207,7 @@
 
         // --- VERIFICAÇÃO DE ADMIN ---
         const isAdmin = @json(auth('admin')->check());
-        const exportRoute = "{{ route('admin.trees.export') }}"; // Rota de exportação
+        const exportRoute = "{{ route('admin.trees.export') }}"; 
         const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
 
         // Configuração dos Campos Extras do Admin
@@ -234,7 +234,6 @@
         toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg> Filtros`;
         map.getContainer().appendChild(toggleBtn);
 
-        // --- CRIAÇÃO DO PAINEL ---
         const panel = L.DomUtil.create("div", "map-filter-panel");
         L.DomEvent.disableClickPropagation(panel);
         L.DomEvent.disableScrollPropagation(panel); 
@@ -244,8 +243,22 @@
         let downloadBtnHtml = '';
 
         if (isAdmin) {
-            // Campos de filtro extra
-            extraAdminHtml += `<div class="admin-divider">Filtros Avançados (Admin)</div>`;
+            // 1. SELETOR DE MODO DE COR (HEATMAP)
+            extraAdminHtml += `
+                <div class="admin-divider">Visualização (Admin)</div>
+                <div class="filter-group">
+                    <label class="filter-label" style="color:#358054;">Colorir Mapa Por:</label>
+                    <select id="colorMode" style="border-color:#358054; font-weight:600; color:#358054;">
+                        <option value="species">Espécie</option>
+                        <option value="injuries">Injúrias</option>
+                        <option value="health_status">Estado de Saúde</option>
+                        <option value="wiring_status">Conflito com Fiação</option>
+                    </select>
+                </div>
+                <div class="admin-divider">Filtros Avançados</div>
+            `;
+
+            // 2. FILTROS AVANÇADOS
             adminFieldsConfig.forEach(field => {
                 extraAdminHtml += `
                     <div class="filter-group">
@@ -257,7 +270,7 @@
                 `;
             });
 
-            // Botão de Download (SÓ PARA ADMIN) - TEXTO CORRIGIDO PARA EXCEL
+            // 3. BOTÃO DE EXCEL
             downloadBtnHtml = `
                 <button id="downloadCsv" class="btn-download">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -285,19 +298,14 @@
                     <label class="filter-label">PESQUISAR</label>
                     <input type="text" id="search" placeholder="Nome ou endereço..." autocomplete="off"/>
                 </div>
-                
                 <div class="filter-group">
                     <label class="filter-label">BAIRRO</label>
                     <select id="bairro"><option value="">Todos os bairros</option></select>
                 </div>
-                
                 <div class="filter-group">
                     <label class="filter-label">ESPECIE</label>
-                    <select id="especie">
-                        <option value="">Todas as espécies</option>
-                    </select>
+                    <select id="especie"><option value="">Todas as espécies</option></select>
                 </div>
-
                 ${extraAdminHtml}
             </div>
 
@@ -313,16 +321,8 @@
         
         map.getContainer().appendChild(panel);
 
-        // Lógica de abrir/fechar
-        toggleBtn.addEventListener("click", (e) => { 
-            L.DomEvent.stop(e); 
-            panel.classList.toggle("open"); 
-        });
-        
-        panel.querySelector('#closePanelBtn').addEventListener("click", (e) => {
-            L.DomEvent.stop(e);
-            panel.classList.remove("open");
-        });
+        toggleBtn.addEventListener("click", (e) => { L.DomEvent.stop(e); panel.classList.toggle("open"); });
+        panel.querySelector('#closePanelBtn').addEventListener("click", (e) => { L.DomEvent.stop(e); panel.classList.remove("open"); });
 
         /* VARIÁVEIS GLOBAIS */
         let currentTrees = [], allTrees = [], filteredTrees = [], treeIndexGlobal = 0, treeMarkers = {};
@@ -349,15 +349,50 @@
             exibirArvores(allTrees);
         });
 
-        /* FUNÇÕES */
-        function getColorBySpecies(speciesName, vulgarName) {
-            if (!speciesName || speciesName.toLowerCase().includes("não identificada")) {
-                return "#064e3b"; 
+        /* --- LÓGICA DE CORES INTELIGENTE --- */
+        function getMarkerColor(tree) {
+            // 1. Verifica modo (se não existir, é usuário comum -> species)
+            const modeSelect = document.getElementById('colorMode');
+            const mode = modeSelect ? modeSelect.value : 'species';
+
+            // MODO 1: ESPÉCIE
+            if (mode === 'species') {
+                return getColorBySpecies(tree.species_name, tree.vulgar_name);
             }
+
+            // MODO 2: INJÚRIAS
+            if (mode === 'injuries') {
+                const val = (tree.injuries || '').toLowerCase();
+                if (val.includes('grave') || val.includes('extensa')) return '#dc2626'; // Vermelho
+                if (val.includes('moderada')) return '#f97316'; // Laranja
+                return '#22c55e'; // Verde
+            }
+
+            // MODO 3: ESTADO DE SAÚDE
+            if (mode === 'health_status') {
+                const val = (tree.health_status || '').toLowerCase();
+                if (val === 'poor' || val === 'ruim') return '#dc2626'; // Vermelho
+                if (val === 'fair' || val === 'regular') return '#f97316'; // Laranja
+                return '#22c55e'; // Verde
+            }
+
+            // MODO 4: FIAÇÃO
+            if (mode === 'wiring_status') {
+                const val = (tree.wiring_status || '').toLowerCase();
+                if (val.includes('interfere') && !val.includes('nao')) return '#dc2626'; // Vermelho
+                if (val.includes('pode')) return '#f97316'; // Laranja
+                return '#22c55e'; // Verde
+            }
+
+            return '#358054'; // Cor padrão de fallback
+        }
+
+        function getColorBySpecies(speciesName, vulgarName) {
+            if (!speciesName || speciesName.toLowerCase().includes("não identificada")) return "#064e3b";
             let hash = 0;
-            for (let i = 0; i < speciesName.length; i++) { hash = speciesName.charCodeAt(i) + ((hash << 5) - hash); }
-            const h = Math.abs(hash % 360);
-            return `hsl(${h}, 70%, 45%)`;
+            const fullName = (speciesName + vulgarName).toLowerCase();
+            for (let i = 0; i < fullName.length; i++) { hash = fullName.charCodeAt(i) + ((hash << 5) - hash); }
+            return `hsl(${Math.abs(hash % 360)}, 65%, 45%)`;
         }
 
         function popularSelects(trees) {
@@ -387,10 +422,7 @@
                     if(select) {
                         const valoresUnicos = [...new Set(trees.map(t => t[field.key]).filter(v => v))].sort();
                         valoresUnicos.forEach(valor => {
-                            const opt = document.createElement("option");
-                            opt.value = valor;
-                            opt.textContent = valor;
-                            select.appendChild(opt);
+                            const opt = document.createElement("option"); opt.value = valor; opt.textContent = valor; select.appendChild(opt);
                         });
                     }
                 });
@@ -433,7 +465,9 @@
 
             trees.forEach((tree) => {
                 if (!tree.latitude || !tree.longitude) return;
-                const treeColor = getColorBySpecies(tree.species_name);
+                
+                // --- APLICA A COR DINÂMICA AQUI ---
+                const treeColor = getMarkerColor(tree);
                 
                 const marker = L.circleMarker([tree.latitude, tree.longitude], {
                     radius: scaleDiameter(parseFloat(tree.trunk_diameter) || 0),
@@ -464,19 +498,15 @@
         }
 
         function aplicarFiltro() {
-            // 1. Filtros Padrão
             const bairroVal = document.getElementById("bairro").value;
             const especieVal = document.getElementById("especie").value;
             const buscaVal = document.getElementById("search").value.toLowerCase().trim();
 
-            // 2. Filtros Admin
             const adminFilters = {};
             if (isAdmin) {
                 adminFieldsConfig.forEach(field => {
                     const el = document.getElementById(field.id);
-                    if (el && el.value) {
-                        adminFilters[field.key] = el.value;
-                    }
+                    if (el && el.value) adminFilters[field.key] = el.value;
                 });
             }
 
@@ -495,17 +525,14 @@
                 let okAdmin = true;
                 if (isAdmin) {
                     for (const [key, val] of Object.entries(adminFilters)) {
-                        if ((tree[key] || "") != val) {
-                            okAdmin = false;
-                            break;
-                        }
+                        if ((tree[key] || "") != val) { okAdmin = false; break; }
                     }
                 }
-
                 return okBairro && okEspecie && okBusca && okAdmin;
             });
 
             exibirArvores(filtradas);
+            
             if (filtradas.length > 0) {
                 if (filtradas.length === 1) { map.setView([filtradas[0].latitude, filtradas[0].longitude], 18); }
                 else { map.fitBounds(L.latLngBounds(filtradas.map(t => [t.latitude, t.longitude])), { padding: [50, 50], maxZoom: 17 }); }
@@ -514,32 +541,28 @@
             if (bairroVal && filtradas.length > 0) destacarBairro(bairroVal, false);
             else {
                 if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
+                // Só reseta o zoom se não houver filtros ativos
+                const adminEmpty = isAdmin ? Object.keys(adminFilters).length === 0 : true;
+                if (!especieVal && !buscaVal && !bairroVal && adminEmpty) map.setView(INITIAL_VIEW, INITIAL_ZOOM);
             }
         }
 
-        // --- FUNÇÃO PARA BAIXAR CSV (NOVA) ---
         function downloadCSV() {
             const params = new URLSearchParams();
-            
-            // Pega valores
             const bairroVal = document.getElementById("bairro").value;
             const especieVal = document.getElementById("especie").value;
             const buscaVal = document.getElementById("search").value;
 
             if (bairroVal) params.append('bairro_id', bairroVal);
-            if (especieVal) params.append('vulgar_name', especieVal); // Controller agora aceita vulgar_name
+            if (especieVal) params.append('vulgar_name', especieVal);
             if (buscaVal) params.append('search', buscaVal);
 
             if (isAdmin) {
                 adminFieldsConfig.forEach(field => {
                     const el = document.getElementById(field.id);
-                    if (el && el.value) {
-                        params.append(field.key, el.value);
-                    }
+                    if (el && el.value) params.append(field.key, el.value);
                 });
             }
-
-            // Redireciona para rota de download
             window.open(`${exportRoute}?${params.toString()}`, '_blank');
         }
 
@@ -559,17 +582,16 @@
             function render() {
                 const tree = listaArvores[indexAtual];
                 const total = listaArvores.length;
+                let nomeExibicao = tree.vulgar_name || 'Não Identificada';
+                let nomeCheck = nomeExibicao.toLowerCase().trim();
+                if (nomeCheck.includes('não identificada') || nomeCheck.includes('nao identificada')) {
+                    if (tree.no_species_case && tree.no_species_case.trim() !== "") nomeExibicao = tree.no_species_case;
+                }
 
                 let adminButton = '';
                 if (isAdmin) {
                     const editUrl = editRouteTemplate.replace('ID_PLACEHOLDER', tree.id);
-                    adminButton = `
-                        <a href="${editUrl}" target="_blank"
-                           class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 
-                                  text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
-                            <span class="text-xs font-bold">Editar</span>
-                        </a>
-                    `;
+                    adminButton = `<a href="${editUrl}" target="_blank" style="color:white !important;" class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0"><span class="text-xs font-bold text-white">Editar</span></a>`;
                 }
 
                 container.innerHTML = `
@@ -579,15 +601,13 @@
                     <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">→</button>
                 </div>
                 <div class="mb-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie / Nome Comum:</p>
-                    <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">${tree.species_name}</h3>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie/Nome Popular:</p>
+                    <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">${nomeExibicao}</h3>
                     <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Endereço:</p>
                     <p class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">${tree.address || 'Localização não informada'}</p>
                 </div>
                 <div class="flex w-full">
-                    <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
-                        <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>
-                    </a>
+                    <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0"><span class="text-xs font-bold text-[#166534]">Ver detalhes</span></a>
                     ${adminButton}
                 </div>`;
                 
@@ -598,24 +618,30 @@
             return container;
         }
 
-        // Binds dos botões
         setTimeout(() => {
             document.getElementById("aplicarFiltro").addEventListener("click", aplicarFiltro);
             document.getElementById("search").addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
-            
-            // Botão Download (se existir)
             const btnDown = document.getElementById("downloadCsv");
             if (btnDown) btnDown.addEventListener("click", downloadCSV);
+
+            // Listener para quando o Admin mudar o modo de cor
+            const colorModeSelect = document.getElementById("colorMode");
+            if(colorModeSelect) {
+                colorModeSelect.addEventListener("change", () => {
+                    // Recarrega as bolinhas com a nova lógica de cor
+                    exibirArvores(filteredTrees.length > 0 ? filteredTrees : allTrees);
+                });
+            }
 
             document.getElementById("limparFiltro").addEventListener("click", () => {
                 document.getElementById("bairro").value = "";
                 document.getElementById("especie").value = "";
                 document.getElementById("search").value = "";
                 if (isAdmin) {
-                    adminFieldsConfig.forEach(f => {
-                        const el = document.getElementById(f.id);
-                        if(el) el.value = "";
-                    });
+                    adminFieldsConfig.forEach(f => { const el = document.getElementById(f.id); if(el) el.value = ""; });
+                    // Reseta o modo de cor para padrão
+                    const cm = document.getElementById("colorMode");
+                    if(cm) cm.value = "species";
                 }
                 exibirArvores(allTrees);
                 if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
