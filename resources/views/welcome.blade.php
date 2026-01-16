@@ -28,7 +28,7 @@
         .map-filter-toggle:hover { background: #2d6e4b; }
         .map-filter-toggle:active { transform: scale(0.98); }
 
-        /* PAINEL DE FILTROS */
+        /* PAINEL DE FILTROS CORRIGIDO */
         .map-filter-panel {
             position: absolute; top: 70px; right: 10px; width: 280px; 
             z-index: 2000; background: white; border-radius: 12px; 
@@ -38,29 +38,54 @@
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
         
-        .filter-header { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .filter-header {
+            padding: 10px 14px; border-bottom: 1px solid #f3f4f6; display: flex;
+            justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
         .header-title-box { display: flex; gap: 8px; align-items: center; }
         .header-icon { color: #358054; }
         .header-text h3 { margin: 0; font-size: 14px; font-weight: 700; color: #111827; }
         .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
 
-        .filter-content { padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain; }
-        .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; }
+        .filter-content {
+            padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain;
+        }
+
+        .filter-footer {
+            padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6;
+            border-radius: 0 0 12px 12px; flex-shrink: 0;
+        }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .filter-group { margin-bottom: 10px; }
         .filter-label { font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 3px; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
-        .map-filter-panel input, .map-filter-panel select { width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 13px; outline: none; transition: all 0.2s; background-color: #f9fafb; color: #1f2937; }
-        .map-filter-panel input:focus, .map-filter-panel select:focus { border-color: #358054; background-color: #fff; box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.1); }
-        .admin-divider { border-top: 1px dashed #d1d5db; margin: 15px 0; padding-top: 10px; text-align: center; font-size: 10px; font-weight: bold; color: #358054; text-transform: uppercase; }
         
+        .map-filter-panel input, .map-filter-panel select {
+            width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid #d1d5db; 
+            font-size: 13px; outline: none; transition: all 0.2s; background-color: #f9fafb; color: #1f2937;
+        }
+        .map-filter-panel input:focus, .map-filter-panel select:focus {
+            border-color: #358054; background-color: #fff; box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.1);
+        }
+
+        .admin-divider {
+            border-top: 1px dashed #d1d5db; margin: 15px 0; padding-top: 10px; 
+            text-align: center; font-size: 10px; font-weight: bold; color: #358054; text-transform: uppercase;
+        }
+
         .btn-actions { display: flex; gap: 10px; margin-bottom: 8px; }
         .btn-filter { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #358054; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
         .btn-filter:hover { background: #2d6e4b; }
         .btn-clear { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #9ca3af; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
         .btn-clear:hover { background: #6b7280; }
-        .btn-download { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #358054; background: white; color: #358054; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        
+        .btn-download {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #358054; 
+            background: white; color: #358054; font-weight: 700; cursor: pointer; 
+            transition: all 0.2s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px;
+        }
         .btn-download:hover { background: #f0fdf4; }
+
         .filter-status { margin-top: 8px; padding: 5px; font-size: 11px; text-align: center; color: #6b7280; transition: all 0.2s; }
         .filter-status.vazio { background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; color: #991b1b; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 15px; }
 
@@ -205,10 +230,12 @@
         const INITIAL_ZOOM = 14;
         const PARACAMBI_BOUNDS = [[-22.7000, -43.8500], [-22.5000, -43.5500]];
 
+        // --- VERIFICAÇÃO DE ADMIN ---
         const isAdmin = @json(auth('admin')->check());
-        const exportRoute = "{{ route('admin.trees.export') }}"; 
         const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
+        const exportRoute = "{{ route('admin.trees.export') }}";
 
+        // Configuração dos Campos Extras do Admin
         const adminFieldsConfig = [
             { id: 'health_status', label: 'Estado da Árvore', key: 'health_status' },
             { id: 'bifurcation_type', label: 'Tipo de Bifurcação', key: 'bifurcation_type' },
@@ -240,7 +267,7 @@
         const legendDiv = L.DomUtil.create("div", "map-legend");
         map.getContainer().appendChild(legendDiv);
 
-        // CONFIGURAÇÃO DA LEGENDA E CORES (Regras do seu pedido)
+        // CONFIGURAÇÃO DA LEGENDA E CORES
         const legendConfig = {
             'injuries': {
                 title: 'Injúrias',
@@ -304,7 +331,7 @@
             }
         };
 
-        // --- MONTAGEM DO HTML DO PAINEL ---
+        // --- MONTAGEM DO HTML ---
         let extraAdminHtml = '';
         let downloadBtnHtml = '';
 
@@ -317,7 +344,7 @@
                         <option value="species">Espécie (Padrão)</option>
                         <option value="injuries">Injúrias</option>
                         <option value="target">Alvo (Fluxo)</option>
-                        <option value="wiring_status">Entado da Fiação</option>
+                        <option value="wiring_status">Conflito com Fiação</option>
                         <option value="organisms">Organismos</option>
                         <option value="crown_balance">Equilíbrio de Copa</option>
                         <option value="stem_balance">Equilíbrio de Fuste</option>
@@ -331,7 +358,9 @@
                 extraAdminHtml += `
                     <div class="filter-group">
                         <label class="filter-label">${field.label}</label>
-                        <select id="${field.id}"><option value="">Todos</option></select>
+                        <select id="${field.id}">
+                            <option value="">Todos</option>
+                        </select>
                     </div>
                 `;
             });
@@ -357,6 +386,7 @@
                 </div>
                 <button id="closePanelBtn" style="background:none; border:none; color:#9ca3af; cursor:pointer; font-size:18px; padding: 4px; line-height: 1;">✕</button>
             </div>
+
             <div class="filter-content">
                 <div class="filter-group">
                     <label class="filter-label">PESQUISAR</label>
@@ -372,6 +402,7 @@
                 </div>
                 ${extraAdminHtml}
             </div>
+
             <div class="filter-footer">
                 <div class="btn-actions">
                     <button id="limparFiltro" class="btn-clear">Limpar</button>
@@ -432,16 +463,18 @@
             legendDiv.style.display = 'block';
         }
 
-        /* --- LÓGICA DE CORES INTELIGENTE --- */
+        /* --- FUNÇÃO PRINCIPAL DE COR DO MARCADOR --- */
         function getMarkerColor(tree) {
             const modeSelect = document.getElementById('colorMode');
             const mode = modeSelect ? modeSelect.value : 'species';
             const val = (tree[mode] || '').toLowerCase(); 
 
-            // Se for Espécie, usa a cor aleatória padrão
-            if (mode === 'species') return getColorBySpecies(tree.species_name, tree.vulgar_name);
+            // Lógica Padrão: Cor baseada na Espécie
+            if (mode === 'species') {
+                return getColorBySpecies(tree.species_name, tree.vulgar_name);
+            }
 
-            // Verifica regras manuais para garantir prioridade (Vermelho > Laranja > Verde)
+            // Lógica Admin (Outros Modos)
             if (mode === 'injuries') {
                 if (val.includes('grave') || val.includes('extensa')) return '#dc2626';
                 if (val.includes('moderada')) return '#f97316';
@@ -453,16 +486,16 @@
                 return '#22c55e'; 
             }
             if (mode === 'wiring_status') {
-                if (val.includes('interfere') && !val.includes('nao') && !val.includes('pode')) return '#dc2626'; // Interfere
-                if (val.includes('pode')) return '#f97316'; // Pode interferir
-                if (val.includes('ausente')) return '#3b82f6'; // Azul
-                return '#22c55e'; // Não interfere
+                if (val.includes('interfere') && !val.includes('nao') && !val.includes('pode')) return '#dc2626'; 
+                if (val.includes('pode')) return '#f97316';
+                if (val.includes('ausente')) return '#3b82f6';
+                return '#22c55e';
             }
             if (mode === 'organisms') {
                 if (val.includes('avançada') || val.includes('avancada')) return '#dc2626'; 
                 if (val.includes('media') || val.includes('média')) return '#f97316'; 
                 if (val.includes('inicial')) return '#22c55e'; 
-                return '#3b82f6'; // Ausente
+                return '#3b82f6';
             }
             if (mode === 'crown_balance') {
                 if (val.includes('muito')) return '#991b1b'; 
@@ -482,15 +515,55 @@
                 return '#22c55e'; 
             }
 
-            return '#358054'; // Fallback
+            return '#358054'; // Fallback Verde
         }
 
+        /* --- LÓGICA DE COR POR ESPÉCIE --- */
         function getColorBySpecies(speciesName, vulgarName) {
-            if (!speciesName || speciesName.toLowerCase().includes("não identificada")) return "#064e3b";
+            const nameCheck = (vulgarName || "").toLowerCase();
+            const fullName = nameCheck + " " + (speciesName || "").toLowerCase();
+
+            // 1. Árvore não identificada = Verde Escuro
+            if (nameCheck.includes('não identificada') || nameCheck.includes('nao identificada')) {
+                return '#064e3b'; 
+            }
+
+            // 2. Cores Base (Palavras-Chave)
+            let baseHue = 120; // Verde padrão (Espécies novas sem regra caem aqui)
+            let saturation = 60;
+            let lightness = 45;
+
+            if (fullName.includes('flamboyant') || fullName.includes('vermelho') || fullName.includes('pau-brasil')) {
+                baseHue = 0; // Vermelho
+            } else if (fullName.includes('amarelo') || fullName.includes('acacia') || fullName.includes('sibipiruna') || fullName.includes('canafistula')) {
+                baseHue = 50; // Amarelo/Ouro
+            } else if (fullName.includes('roxo') || fullName.includes('quaresmeira') || fullName.includes('jacaranda') || fullName.includes('manaca')) {
+                baseHue = 270; // Roxo
+            } else if (fullName.includes('rosa') || fullName.includes('paineira') || fullName.includes('jambo')) {
+                baseHue = 330; // Rosa
+            } else if (fullName.includes('branco')) {
+                baseHue = 200; saturation = 10; lightness = 85; // Branco/Cinza claro
+            } else if (fullName.includes('laranja') || fullName.includes('espatodea')) {
+                baseHue = 25; // Laranja
+            } else if (fullName.includes('azul')) {
+                baseHue = 210; // Azul
+            }
+
+            // 3. Variação de Tom (Hash do nome)
+            // Isso garante que Ipê Roxo e Quaresmeira (ambos roxos) tenham tons levemente diferentes
             let hash = 0;
-            const fullName = (speciesName + vulgarName).toLowerCase();
-            for (let i = 0; i < fullName.length; i++) { hash = fullName.charCodeAt(i) + ((hash << 5) - hash); }
-            return `hsl(${Math.abs(hash % 360)}, 65%, 45%)`;
+            for (let i = 0; i < fullName.length; i++) {
+                hash = fullName.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            
+            // Pequena variação para não descaracterizar a cor base
+            const hueVariation = (hash % 20) - 10;   // +/- 10 graus no disco de cor
+            const lightVariation = (hash % 15) - 7;  // +/- 7% na luminosidade
+
+            const finalHue = (baseHue + hueVariation + 360) % 360;
+            const finalLight = Math.max(25, Math.min(75, lightness + lightVariation));
+
+            return `hsl(${finalHue}, ${saturation}%, ${finalLight}%)`;
         }
 
         function popularSelects(trees) {
@@ -504,7 +577,7 @@
             const nomesSet = new Set();
             trees.forEach(t => {
                 let nome = t.vulgar_name;
-                if (nome && nome.trim() !== "" && nome.toLowerCase() !== "não identificada") {
+                if (nome && nome.trim() !== "" && !nome.toLowerCase().includes("não identificada")) {
                     let nomeFormatado = nome.trim();
                     nomeFormatado = nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1);
                     nomesSet.add(nomeFormatado);
@@ -564,6 +637,7 @@
             trees.forEach((tree) => {
                 if (!tree.latitude || !tree.longitude) return;
                 
+                // CHAMA A FUNÇÃO DE COR CORRETA
                 const treeColor = getMarkerColor(tree);
                 
                 const marker = L.circleMarker([tree.latitude, tree.longitude], {
@@ -678,32 +752,46 @@
             function render() {
                 const tree = listaArvores[indexAtual];
                 const total = listaArvores.length;
+                
                 let nomeExibicao = tree.vulgar_name || 'Não Identificada';
                 let nomeCheck = nomeExibicao.toLowerCase().trim();
+
                 if (nomeCheck.includes('não identificada') || nomeCheck.includes('nao identificada')) {
-                    if (tree.no_species_case && tree.no_species_case.trim() !== "") nomeExibicao = tree.no_species_case;
+                    if (tree.no_species_case && tree.no_species_case.trim() !== "") {
+                        nomeExibicao = tree.no_species_case;
+                    }
                 }
 
                 let adminButton = '';
                 if (isAdmin) {
                     const editUrl = editRouteTemplate.replace('ID_PLACEHOLDER', tree.id);
-                    adminButton = `<a href="${editUrl}" target="_blank" style="color:white !important;" class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0"><span class="text-xs font-bold text-white">Editar</span></a>`;
+                    adminButton = `
+                        <a href="${editUrl}" style="color: white !important;" class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
+                            <span class="text-xs font-bold text-white">Editar</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </a>`;
                 }
 
                 container.innerHTML = `
                 <div class="flex items-center justify-between mb-3 bg-gray-100 rounded-lg p-1 select-none">
-                    <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">←</button>
+                    <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
                     <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">${indexAtual + 1} de ${total}</span>
-                    <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">→</button>
+                    <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
                 </div>
                 <div class="mb-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie/Nome Popular:</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Nome Popular:</p>
                     <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">${nomeExibicao}</h3>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Endereço:</p>
-                    <p class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">${tree.address || 'Localização não informada'}</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Localização:</p>
+                    <div class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">
+                        <p class="mb-1">${tree.address} - <strong>${tree.bairro_nome || 'Rua não informada'}</p>
                 </div>
                 <div class="flex w-full">
-                    <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0"><span class="text-xs font-bold text-[#166534]">Ver detalhes</span></a>
+                    <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
+                        <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>
+                        <svg class="w-4 h-4 text-[#166534] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
                     ${adminButton}
                 </div>`;
                 
@@ -715,38 +803,40 @@
         }
 
         setTimeout(() => {
-            document.getElementById("aplicarFiltro").addEventListener("click", aplicarFiltro);
-            document.getElementById("search").addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
+            const btnAplicar = document.getElementById("aplicarFiltro");
+            const btnLimpar = document.getElementById("limparFiltro");
+            const inputSearch = document.getElementById("search");
             const btnDown = document.getElementById("downloadCsv");
+            
+            if (btnAplicar) btnAplicar.addEventListener("click", aplicarFiltro);
+            if (inputSearch) inputSearch.addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
             if (btnDown) btnDown.addEventListener("click", downloadCSV);
 
-            // Listener para o novo Dropdown de Cor
             const colorModeSelect = document.getElementById("colorMode");
             if(colorModeSelect) {
                 colorModeSelect.addEventListener("change", () => {
                     const newMode = colorModeSelect.value;
-                    updateLegend(newMode); // Atualiza a legenda
-                    exibirArvores(filteredTrees.length > 0 ? filteredTrees : allTrees); // Atualiza o mapa
+                    updateLegend(newMode);
+                    exibirArvores(filteredTrees.length > 0 ? filteredTrees : allTrees);
                 });
             }
 
-            document.getElementById("limparFiltro").addEventListener("click", () => {
-                document.getElementById("bairro").value = "";
-                document.getElementById("especie").value = "";
-                document.getElementById("search").value = "";
-                if (isAdmin) {
-                    adminFieldsConfig.forEach(f => { const el = document.getElementById(f.id); if(el) el.value = ""; });
-                    const cm = document.getElementById("colorMode");
-                    if(cm) {
-                        cm.value = "species";
-                        updateLegend('species'); // Reseta a legenda
+            if (btnLimpar) {
+                btnLimpar.addEventListener("click", () => {
+                    document.getElementById("bairro").value = "";
+                    document.getElementById("especie").value = "";
+                    document.getElementById("search").value = "";
+                    if (isAdmin) {
+                        adminFieldsConfig.forEach(f => { const el = document.getElementById(f.id); if(el) el.value = ""; });
+                        const cm = document.getElementById("colorMode");
+                        if(cm) { cm.value = "species"; updateLegend('species'); }
                     }
-                }
-                exibirArvores(allTrees);
-                if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-                map.setView(INITIAL_VIEW, INITIAL_ZOOM);
-            });
-        }, 100);
+                    exibirArvores(allTrees);
+                    if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
+                    map.setView(INITIAL_VIEW, INITIAL_ZOOM);
+                });
+            }
+        }, 300);
 
     </script>
 </body>
