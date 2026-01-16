@@ -178,7 +178,7 @@
         </footer>
     </div>
 
-    {{-- SCRIPTS DO MAPA --}}
+   {{-- SCRIPTS DO MAPA --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
@@ -190,8 +190,8 @@
 
         // --- VERIFICAÇÃO DE ADMIN ---
         const isAdmin = @json(auth('admin')->check());
+        const exportRoute = "{{ route('admin.trees.export') }}"; 
         const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
-        const exportRoute = "{{ route('admin.trees.export') }}";
 
         // Configuração dos Campos Extras do Admin
         const adminFieldsConfig = [
@@ -226,6 +226,7 @@
         let downloadBtnHtml = '';
 
         if (isAdmin) {
+            // 1. SELETOR DE MODO DE COR (HEATMAP) ATUALIZADO
             extraAdminHtml += `
                 <div class="admin-divider">Visualização (Admin)</div>
                 <div class="filter-group">
@@ -233,13 +234,17 @@
                     <select id="colorMode" style="border-color:#358054; font-weight:600; color:#358054;">
                         <option value="species">Espécie</option>
                         <option value="injuries">Injúrias</option>
-                        <option value="health_status">Estado de Saúde</option>
+                        <option value="target">Alvo</option>
                         <option value="wiring_status">Conflito com Fiação</option>
+                        <option value="organisms">Organismos</option>
+                        <option value="crown_balance">Equilíbrio de Copa</option>
+                        <option value="stem_balance">Equilíbrio de Fuste</option>
                     </select>
                 </div>
                 <div class="admin-divider">Filtros Avançados</div>
             `;
 
+            // 2. FILTROS AVANÇADOS
             adminFieldsConfig.forEach(field => {
                 extraAdminHtml += `
                     <div class="filter-group">
@@ -251,6 +256,7 @@
                 `;
             });
 
+            // 3. BOTÃO DE EXCEL
             downloadBtnHtml = `
                 <button id="downloadCsv" class="btn-download">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -329,69 +335,73 @@
             exibirArvores(allTrees);
         });
 
-        /* FUNÇÕES DE COR E VISUALIZAÇÃO */
-        function getColorBySpecies(tree) {
-            // Se Admin selecionou outro modo de cor (saúde, fiação, etc)
-            if (isAdmin) {
-                const mode = document.getElementById('colorMode')?.value;
-                if (mode === 'injuries') return tree.injuries ? '#ef4444' : '#22c55e'; // Vermelho se tiver injúria
-                if (mode === 'health_status') {
-                    if (tree.health_status === 'poor') return '#ef4444'; // Ruim
-                    if (tree.health_status === 'fair') return '#eab308'; // Regular
-                    return '#22c55e'; // Boa
-                }
-                if (mode === 'wiring_status') {
-                    if (tree.wiring_status === 'interfere') return '#ef4444'; 
-                    if (tree.wiring_status === 'pode_interferir') return '#eab308';
-                    return '#22c55e';
-                }
+        /* --- LÓGICA DE CORES INTELIGENTE (ATUALIZADA) --- */
+        function getMarkerColor(tree) {
+            // Se não houver elemento, é usuário comum -> species
+            const modeSelect = document.getElementById('colorMode');
+            const mode = modeSelect ? modeSelect.value : 'species';
+            const val = (tree[mode] || '').toLowerCase(); // Pega o valor do campo correspondente
+
+            // 1. ESPÉCIE (Padrão)
+            if (mode === 'species') {
+                return getColorBySpecies(tree.species_name, tree.vulgar_name);
             }
 
-            // --- LÓGICA DE COR POR ESPÉCIE ---
-            const nameCheck = (tree.vulgar_name || "").toLowerCase();
-            const fullName = nameCheck + " " + (tree.scientific_name || "").toLowerCase();
-
-            // 1. Árvore não identificada = Verde Escuro
-            if (nameCheck.includes('não identificada') || nameCheck.includes('nao identificada')) {
-                return '#064e3b'; 
+            // 2. INJÚRIAS
+            if (mode === 'injuries') {
+                if (val.includes('grave')) return '#dc2626'; // Vermelho
+                if (val.includes('moderada')) return '#f97316'; // Laranja
+                return '#22c55e'; // Verde (Leves/Ausentes)
             }
 
-            // 2. Cores Base (Palavras-Chave)
-            let baseHue = 120; // Verde padrão
-            let saturation = 60;
-            let lightness = 40;
-
-            if (fullName.includes('flamboyant') || fullName.includes('vermelho') || fullName.includes('pau-brasil')) {
-                baseHue = 0; // Vermelho
-            } else if (fullName.includes('amarelo') || fullName.includes('acacia') || fullName.includes('sibipiruna') || fullName.includes('canafistula')) {
-                baseHue = 50; // Amarelo/Ouro
-            } else if (fullName.includes('roxo') || fullName.includes('quaresmeira') || fullName.includes('jacaranda') || fullName.includes('manaca')) {
-                baseHue = 270; // Roxo
-            } else if (fullName.includes('rosa') || fullName.includes('paineira') || fullName.includes('jambo')) {
-                baseHue = 330; // Rosa
-            } else if (fullName.includes('branco')) {
-                baseHue = 200; saturation = 10; lightness = 85; // Branco/Cinza claro
-            } else if (fullName.includes('laranja') || fullName.includes('espatodea')) {
-                baseHue = 25; // Laranja
-            } else if (fullName.includes('azul')) {
-                baseHue = 210; // Azul
+            // 3. ALVO (Fluxo)
+            if (mode === 'target') {
+                if (val.includes('intenso')) return '#dc2626'; // Vermelho
+                if (val.includes('moderado')) return '#f97316'; // Laranja
+                return '#22c55e'; // Verde (Leve/Pouco)
             }
 
-            // 3. Variação de Tom (Hash do nome)
-            // Isso garante que Ipê Roxo e Quaresmeira (ambos roxos) tenham tons levemente diferentes
+            // 4. FIAÇÃO
+            if (mode === 'wiring_status') {
+                if (val.includes('pode')) return '#f97316'; // Laranja (Pode interferir)
+                if (val.includes('interfere') && !val.includes('nao')) return '#dc2626'; // Vermelho (Interfere)
+                if (val.includes('ausente')) return '#3b82f6'; // Azul
+                return '#22c55e'; // Verde (Não interfere)
+            }
+
+            // 5. ORGANISMOS
+            if (mode === 'organisms') {
+                if (val.includes('avançada') || val.includes('avancada')) return '#dc2626'; // Vermelho
+                if (val.includes('media') || val.includes('média')) return '#f97316'; // Laranja
+                if (val.includes('inicial')) return '#22c55e'; // Verde
+                return '#3b82f6'; // Azul (Ausente/Não detectado)
+            }
+
+            // 6. EQUILÍBRIO DE COPA
+            if (mode === 'crown_balance') {
+                if (val.includes('muito')) return '#991b1b'; // Vermelho Escuro (Muito Desequilibrada)
+                if (val.includes('desequilibrada')) return '#dc2626'; // Vermelho
+                if (val.includes('medianamente') || val.includes('mediamente')) return '#f97316'; // Laranja
+                return '#22c55e'; // Verde (Equilibrada)
+            }
+
+            // 7. EQUILÍBRIO DE FUSTE
+            if (mode === 'stem_balance') {
+                if (val.includes('acidental')) return '#000000'; // Preto
+                if (val.includes('maior')) return '#f87171'; // Vermelho Fraco (>45)
+                if (val.includes('menor')) return '#f97316'; // Laranja (<45)
+                return '#22c55e'; // Verde (Ausente/Reto)
+            }
+
+            return '#358054'; // Cor padrão de fallback
+        }
+
+        function getColorBySpecies(speciesName, vulgarName) {
+            if (!speciesName || speciesName.toLowerCase().includes("não identificada")) return "#064e3b";
             let hash = 0;
-            for (let i = 0; i < fullName.length; i++) {
-                hash = fullName.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            
-            // Pequena variação para não descaracterizar a cor base
-            const hueVariation = (hash % 20) - 10;   // +/- 10 graus no disco de cor
-            const lightVariation = (hash % 15) - 7;  // +/- 7% na luminosidade
-
-            const finalHue = (baseHue + hueVariation + 360) % 360;
-            const finalLight = Math.max(25, Math.min(75, lightness + lightVariation));
-
-            return `hsl(${finalHue}, ${saturation}%, ${finalLight}%)`;
+            const fullName = (speciesName + vulgarName).toLowerCase();
+            for (let i = 0; i < fullName.length; i++) { hash = fullName.charCodeAt(i) + ((hash << 5) - hash); }
+            return `hsl(${Math.abs(hash % 360)}, 65%, 45%)`;
         }
 
         function popularSelects(trees) {
@@ -405,7 +415,7 @@
             const nomesSet = new Set();
             trees.forEach(t => {
                 let nome = t.vulgar_name;
-                if (nome && nome.trim() !== "" && !nome.toLowerCase().includes("não identificada")) {
+                if (nome && nome.trim() !== "" && nome.toLowerCase() !== "não identificada") {
                     let nomeFormatado = nome.trim();
                     nomeFormatado = nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1);
                     nomesSet.add(nomeFormatado);
@@ -465,8 +475,8 @@
             trees.forEach((tree) => {
                 if (!tree.latitude || !tree.longitude) return;
                 
-                // --- CHAMA A FUNÇÃO DE COR CORRETA ---
-                const treeColor = getColorBySpecies(tree);
+                // --- APLICA A COR DINÂMICA (HEATMAP) ---
+                const treeColor = getMarkerColor(tree);
                 
                 const marker = L.circleMarker([tree.latitude, tree.longitude], {
                     radius: scaleDiameter(parseFloat(tree.trunk_diameter) || 0),
@@ -580,48 +590,32 @@
             function render() {
                 const tree = listaArvores[indexAtual];
                 const total = listaArvores.length;
-                
                 let nomeExibicao = tree.vulgar_name || 'Não Identificada';
                 let nomeCheck = nomeExibicao.toLowerCase().trim();
-
                 if (nomeCheck.includes('não identificada') || nomeCheck.includes('nao identificada')) {
-                    if (tree.no_species_case && tree.no_species_case.trim() !== "") {
-                        nomeExibicao = tree.no_species_case;
-                    }
+                    if (tree.no_species_case && tree.no_species_case.trim() !== "") nomeExibicao = tree.no_species_case;
                 }
 
                 let adminButton = '';
                 if (isAdmin) {
                     const editUrl = editRouteTemplate.replace('ID_PLACEHOLDER', tree.id);
-                    adminButton = `
-                        <a href="${editUrl}" style="color: white !important;" class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
-                            <span class="text-xs font-bold text-white">Editar</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                        </a>`;
+                    adminButton = `<a href="${editUrl}" target="_blank" style="color:white !important;" class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0"><span class="text-xs font-bold text-white">Editar</span></a>`;
                 }
 
                 container.innerHTML = `
                 <div class="flex items-center justify-between mb-3 bg-gray-100 rounded-lg p-1 select-none">
-                    <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                    <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">←</button>
                     <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">${indexAtual + 1} de ${total}</span>
-                    <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+                    <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">→</button>
                 </div>
                 <div class="mb-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Nome Popular:</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie/Nome Popular:</p>
                     <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">${nomeExibicao}</h3>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Localização:</p>
-                    <div class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">
-                        <p class="mb-1">${tree.address || 'Rua não informada'}</p>
-                        <p class="font-semibold text-gray-500"><span class="font-normal text-gray-400">Bairro:</span> ${tree.bairro_nome || 'Não informado'}</p>
-                    </div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Endereço:</p>
+                    <p class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">${tree.address || 'Localização não informada'}</p>
                 </div>
                 <div class="flex w-full">
-                    <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
-                        <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>
-                        <svg class="w-4 h-4 text-[#166534] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </a>
+                    <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0"><span class="text-xs font-bold text-[#166534]">Ver detalhes</span></a>
                     ${adminButton}
                 </div>`;
                 
@@ -633,41 +627,35 @@
         }
 
         setTimeout(() => {
-            const btnAplicar = document.getElementById("aplicarFiltro");
-            const btnLimpar = document.getElementById("limparFiltro");
-            const inputSearch = document.getElementById("search");
+            document.getElementById("aplicarFiltro").addEventListener("click", aplicarFiltro);
+            document.getElementById("search").addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
             const btnDown = document.getElementById("downloadCsv");
-            
-            if (btnAplicar) btnAplicar.addEventListener("click", aplicarFiltro);
-            if (inputSearch) inputSearch.addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
             if (btnDown) btnDown.addEventListener("click", downloadCSV);
 
+            // Listener para o novo Dropdown de Cor
             const colorModeSelect = document.getElementById("colorMode");
             if(colorModeSelect) {
                 colorModeSelect.addEventListener("change", () => {
+                    // Recarrega as árvores com as novas cores
                     exibirArvores(filteredTrees.length > 0 ? filteredTrees : allTrees);
                 });
             }
 
-            if (btnLimpar) {
-                btnLimpar.addEventListener("click", () => {
-                    document.getElementById("bairro").value = "";
-                    document.getElementById("especie").value = "";
-                    document.getElementById("search").value = "";
-                    if (isAdmin) {
-                        adminFieldsConfig.forEach(f => {
-                            const el = document.getElementById(f.id);
-                            if(el) el.value = "";
-                        });
-                        const cm = document.getElementById("colorMode");
-                        if(cm) cm.value = "species";
-                    }
-                    exibirArvores(allTrees);
-                    if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-                    map.setView(INITIAL_VIEW, INITIAL_ZOOM);
-                });
-            }
-        }, 300);
+            document.getElementById("limparFiltro").addEventListener("click", () => {
+                document.getElementById("bairro").value = "";
+                document.getElementById("especie").value = "";
+                document.getElementById("search").value = "";
+                if (isAdmin) {
+                    adminFieldsConfig.forEach(f => { const el = document.getElementById(f.id); if(el) el.value = ""; });
+                    // Reseta modo de cor para 'species'
+                    const cm = document.getElementById("colorMode");
+                    if(cm) cm.value = "species";
+                }
+                exibirArvores(allTrees);
+                if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
+                map.setView(INITIAL_VIEW, INITIAL_ZOOM);
+            });
+        }, 100);
 
     </script>
 </body>
