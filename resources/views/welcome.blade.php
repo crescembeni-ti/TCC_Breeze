@@ -28,49 +28,32 @@
         .map-filter-toggle:hover { background: #2d6e4b; }
         .map-filter-toggle:active { transform: scale(0.98); }
 
-        /* PAINEL DE FILTROS */
+        /* PAINEL DE FILTROS CORRIGIDO */
         .map-filter-panel {
-            position: absolute; 
-            top: 70px; 
-            right: 10px; 
-            width: 280px; 
-            z-index: 2000; 
-            background: white; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
-            display: none; 
-            flex-direction: column;
-            font-family: 'Instrument Sans', sans-serif;
-            max-height: calc(100% - 80px);
-            overflow: hidden;
+            position: absolute; top: 70px; right: 10px; width: 280px; 
+            z-index: 2000; background: white; border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); display: none; 
+            flex-direction: column; font-family: 'Instrument Sans', sans-serif;
+            max-height: calc(100% - 80px); overflow: hidden;
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
         
         .filter-header {
-            padding: 10px 14px;
-            border-bottom: 1px solid #f3f4f6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
+            padding: 10px 14px; border-bottom: 1px solid #f3f4f6; display: flex;
+            justify-content: space-between; align-items: center; flex-shrink: 0;
         }
         .header-title-box { display: flex; gap: 8px; align-items: center; }
+        .header-icon { color: #358054; }
         .header-text h3 { margin: 0; font-size: 14px; font-weight: 700; color: #111827; }
         .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
 
         .filter-content {
-            padding: 12px 16px;
-            overflow-y: auto;
-            flex: 1;
-            overscroll-behavior: contain;
+            padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain;
         }
 
         .filter-footer {
-            padding: 10px 14px;
-            background: #f9fafb;
-            border-top: 1px solid #f3f4f6;
-            border-radius: 0 0 12px 12px;
-            flex-shrink: 0;
+            padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6;
+            border-radius: 0 0 12px 12px; flex-shrink: 0;
         }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -207,8 +190,8 @@
 
         // --- VERIFICAÇÃO DE ADMIN ---
         const isAdmin = @json(auth('admin')->check());
-        const exportRoute = "{{ route('admin.trees.export') }}"; 
         const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
+        const exportRoute = "{{ route('admin.trees.export') }}";
 
         // Configuração dos Campos Extras do Admin
         const adminFieldsConfig = [
@@ -243,7 +226,6 @@
         let downloadBtnHtml = '';
 
         if (isAdmin) {
-            // 1. SELETOR DE MODO DE COR (HEATMAP)
             extraAdminHtml += `
                 <div class="admin-divider">Visualização (Admin)</div>
                 <div class="filter-group">
@@ -258,7 +240,6 @@
                 <div class="admin-divider">Filtros Avançados</div>
             `;
 
-            // 2. FILTROS AVANÇADOS
             adminFieldsConfig.forEach(field => {
                 extraAdminHtml += `
                     <div class="filter-group">
@@ -270,7 +251,6 @@
                 `;
             });
 
-            // 3. BOTÃO DE EXCEL
             downloadBtnHtml = `
                 <button id="downloadCsv" class="btn-download">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -349,50 +329,69 @@
             exibirArvores(allTrees);
         });
 
-        /* --- LÓGICA DE CORES INTELIGENTE --- */
-        function getMarkerColor(tree) {
-            // 1. Verifica modo (se não existir, é usuário comum -> species)
-            const modeSelect = document.getElementById('colorMode');
-            const mode = modeSelect ? modeSelect.value : 'species';
-
-            // MODO 1: ESPÉCIE
-            if (mode === 'species') {
-                return getColorBySpecies(tree.species_name, tree.vulgar_name);
+        /* FUNÇÕES DE COR E VISUALIZAÇÃO */
+        function getColorBySpecies(tree) {
+            // Se Admin selecionou outro modo de cor (saúde, fiação, etc)
+            if (isAdmin) {
+                const mode = document.getElementById('colorMode')?.value;
+                if (mode === 'injuries') return tree.injuries ? '#ef4444' : '#22c55e'; // Vermelho se tiver injúria
+                if (mode === 'health_status') {
+                    if (tree.health_status === 'poor') return '#ef4444'; // Ruim
+                    if (tree.health_status === 'fair') return '#eab308'; // Regular
+                    return '#22c55e'; // Boa
+                }
+                if (mode === 'wiring_status') {
+                    if (tree.wiring_status === 'interfere') return '#ef4444'; 
+                    if (tree.wiring_status === 'pode_interferir') return '#eab308';
+                    return '#22c55e';
+                }
             }
 
-            // MODO 2: INJÚRIAS
-            if (mode === 'injuries') {
-                const val = (tree.injuries || '').toLowerCase();
-                if (val.includes('grave') || val.includes('extensa')) return '#dc2626'; // Vermelho
-                if (val.includes('moderada')) return '#f97316'; // Laranja
-                return '#22c55e'; // Verde
+            // --- LÓGICA DE COR POR ESPÉCIE ---
+            const nameCheck = (tree.vulgar_name || "").toLowerCase();
+            const fullName = nameCheck + " " + (tree.scientific_name || "").toLowerCase();
+
+            // 1. Árvore não identificada = Verde Escuro
+            if (nameCheck.includes('não identificada') || nameCheck.includes('nao identificada')) {
+                return '#064e3b'; 
             }
 
-            // MODO 3: ESTADO DE SAÚDE
-            if (mode === 'health_status') {
-                const val = (tree.health_status || '').toLowerCase();
-                if (val === 'poor' || val === 'ruim') return '#dc2626'; // Vermelho
-                if (val === 'fair' || val === 'regular') return '#f97316'; // Laranja
-                return '#22c55e'; // Verde
+            // 2. Cores Base (Palavras-Chave)
+            let baseHue = 120; // Verde padrão
+            let saturation = 60;
+            let lightness = 40;
+
+            if (fullName.includes('flamboyant') || fullName.includes('vermelho') || fullName.includes('pau-brasil')) {
+                baseHue = 0; // Vermelho
+            } else if (fullName.includes('amarelo') || fullName.includes('acacia') || fullName.includes('sibipiruna') || fullName.includes('canafistula')) {
+                baseHue = 50; // Amarelo/Ouro
+            } else if (fullName.includes('roxo') || fullName.includes('quaresmeira') || fullName.includes('jacaranda') || fullName.includes('manaca')) {
+                baseHue = 270; // Roxo
+            } else if (fullName.includes('rosa') || fullName.includes('paineira') || fullName.includes('jambo')) {
+                baseHue = 330; // Rosa
+            } else if (fullName.includes('branco')) {
+                baseHue = 200; saturation = 10; lightness = 85; // Branco/Cinza claro
+            } else if (fullName.includes('laranja') || fullName.includes('espatodea')) {
+                baseHue = 25; // Laranja
+            } else if (fullName.includes('azul')) {
+                baseHue = 210; // Azul
             }
 
-            // MODO 4: FIAÇÃO
-            if (mode === 'wiring_status') {
-                const val = (tree.wiring_status || '').toLowerCase();
-                if (val.includes('interfere') && !val.includes('nao')) return '#dc2626'; // Vermelho
-                if (val.includes('pode')) return '#f97316'; // Laranja
-                return '#22c55e'; // Verde
-            }
-
-            return '#358054'; // Cor padrão de fallback
-        }
-
-        function getColorBySpecies(speciesName, vulgarName) {
-            if (!speciesName || speciesName.toLowerCase().includes("não identificada")) return "#064e3b";
+            // 3. Variação de Tom (Hash do nome)
+            // Isso garante que Ipê Roxo e Quaresmeira (ambos roxos) tenham tons levemente diferentes
             let hash = 0;
-            const fullName = (speciesName + vulgarName).toLowerCase();
-            for (let i = 0; i < fullName.length; i++) { hash = fullName.charCodeAt(i) + ((hash << 5) - hash); }
-            return `hsl(${Math.abs(hash % 360)}, 65%, 45%)`;
+            for (let i = 0; i < fullName.length; i++) {
+                hash = fullName.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            
+            // Pequena variação para não descaracterizar a cor base
+            const hueVariation = (hash % 20) - 10;   // +/- 10 graus no disco de cor
+            const lightVariation = (hash % 15) - 7;  // +/- 7% na luminosidade
+
+            const finalHue = (baseHue + hueVariation + 360) % 360;
+            const finalLight = Math.max(25, Math.min(75, lightness + lightVariation));
+
+            return `hsl(${finalHue}, ${saturation}%, ${finalLight}%)`;
         }
 
         function popularSelects(trees) {
@@ -406,7 +405,7 @@
             const nomesSet = new Set();
             trees.forEach(t => {
                 let nome = t.vulgar_name;
-                if (nome && nome.trim() !== "" && nome.toLowerCase() !== "não identificada") {
+                if (nome && nome.trim() !== "" && !nome.toLowerCase().includes("não identificada")) {
                     let nomeFormatado = nome.trim();
                     nomeFormatado = nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1);
                     nomesSet.add(nomeFormatado);
@@ -466,8 +465,8 @@
             trees.forEach((tree) => {
                 if (!tree.latitude || !tree.longitude) return;
                 
-                // --- APLICA A COR DINÂMICA AQUI ---
-                const treeColor = getMarkerColor(tree);
+                // --- CHAMA A FUNÇÃO DE COR CORRETA ---
+                const treeColor = getColorBySpecies(tree);
                 
                 const marker = L.circleMarker([tree.latitude, tree.longitude], {
                     radius: scaleDiameter(parseFloat(tree.trunk_diameter) || 0),
@@ -541,7 +540,6 @@
             if (bairroVal && filtradas.length > 0) destacarBairro(bairroVal, false);
             else {
                 if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-                // Só reseta o zoom se não houver filtros ativos
                 const adminEmpty = isAdmin ? Object.keys(adminFilters).length === 0 : true;
                 if (!especieVal && !buscaVal && !bairroVal && adminEmpty) map.setView(INITIAL_VIEW, INITIAL_ZOOM);
             }
@@ -582,32 +580,48 @@
             function render() {
                 const tree = listaArvores[indexAtual];
                 const total = listaArvores.length;
+                
                 let nomeExibicao = tree.vulgar_name || 'Não Identificada';
                 let nomeCheck = nomeExibicao.toLowerCase().trim();
+
                 if (nomeCheck.includes('não identificada') || nomeCheck.includes('nao identificada')) {
-                    if (tree.no_species_case && tree.no_species_case.trim() !== "") nomeExibicao = tree.no_species_case;
+                    if (tree.no_species_case && tree.no_species_case.trim() !== "") {
+                        nomeExibicao = tree.no_species_case;
+                    }
                 }
 
                 let adminButton = '';
                 if (isAdmin) {
                     const editUrl = editRouteTemplate.replace('ID_PLACEHOLDER', tree.id);
-                    adminButton = `<a href="${editUrl}" target="_blank" style="color:white !important;" class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0"><span class="text-xs font-bold text-white">Editar</span></a>`;
+                    adminButton = `
+                        <a href="${editUrl}" style="color: white !important;" class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
+                            <span class="text-xs font-bold text-white">Editar</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </a>`;
                 }
 
                 container.innerHTML = `
                 <div class="flex items-center justify-between mb-3 bg-gray-100 rounded-lg p-1 select-none">
-                    <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">←</button>
+                    <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
                     <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">${indexAtual + 1} de ${total}</span>
-                    <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer">→</button>
+                    <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
                 </div>
                 <div class="mb-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie/Nome Popular:</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Nome Popular:</p>
                     <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">${nomeExibicao}</h3>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Endereço:</p>
-                    <p class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">${tree.address || 'Localização não informada'}</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Localização:</p>
+                    <div class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">
+                        <p class="mb-1">${tree.address || 'Rua não informada'}</p>
+                        <p class="font-semibold text-gray-500"><span class="font-normal text-gray-400">Bairro:</span> ${tree.bairro_nome || 'Não informado'}</p>
+                    </div>
                 </div>
                 <div class="flex w-full">
-                    <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0"><span class="text-xs font-bold text-[#166534]">Ver detalhes</span></a>
+                    <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
+                        <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>
+                        <svg class="w-4 h-4 text-[#166534] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
                     ${adminButton}
                 </div>`;
                 
@@ -619,35 +633,41 @@
         }
 
         setTimeout(() => {
-            document.getElementById("aplicarFiltro").addEventListener("click", aplicarFiltro);
-            document.getElementById("search").addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
+            const btnAplicar = document.getElementById("aplicarFiltro");
+            const btnLimpar = document.getElementById("limparFiltro");
+            const inputSearch = document.getElementById("search");
             const btnDown = document.getElementById("downloadCsv");
+            
+            if (btnAplicar) btnAplicar.addEventListener("click", aplicarFiltro);
+            if (inputSearch) inputSearch.addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
             if (btnDown) btnDown.addEventListener("click", downloadCSV);
 
-            // Listener para quando o Admin mudar o modo de cor
             const colorModeSelect = document.getElementById("colorMode");
             if(colorModeSelect) {
                 colorModeSelect.addEventListener("change", () => {
-                    // Recarrega as bolinhas com a nova lógica de cor
                     exibirArvores(filteredTrees.length > 0 ? filteredTrees : allTrees);
                 });
             }
 
-            document.getElementById("limparFiltro").addEventListener("click", () => {
-                document.getElementById("bairro").value = "";
-                document.getElementById("especie").value = "";
-                document.getElementById("search").value = "";
-                if (isAdmin) {
-                    adminFieldsConfig.forEach(f => { const el = document.getElementById(f.id); if(el) el.value = ""; });
-                    // Reseta o modo de cor para padrão
-                    const cm = document.getElementById("colorMode");
-                    if(cm) cm.value = "species";
-                }
-                exibirArvores(allTrees);
-                if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-                map.setView(INITIAL_VIEW, INITIAL_ZOOM);
-            });
-        }, 100);
+            if (btnLimpar) {
+                btnLimpar.addEventListener("click", () => {
+                    document.getElementById("bairro").value = "";
+                    document.getElementById("especie").value = "";
+                    document.getElementById("search").value = "";
+                    if (isAdmin) {
+                        adminFieldsConfig.forEach(f => {
+                            const el = document.getElementById(f.id);
+                            if(el) el.value = "";
+                        });
+                        const cm = document.getElementById("colorMode");
+                        if(cm) cm.value = "species";
+                    }
+                    exibirArvores(allTrees);
+                    if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
+                    map.setView(INITIAL_VIEW, INITIAL_ZOOM);
+                });
+            }
+        }, 300);
 
     </script>
 </body>
