@@ -19,7 +19,7 @@ class TreesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         $this->request = $request;
     }
 
-    // 1. A consulta (igualzinha a que fizemos no Controller)
+    // 1. A consulta
     public function collection()
     {
         $query = Tree::with(['bairro', 'admin'])->where('aprovado', true);
@@ -41,7 +41,7 @@ class TreesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         }
 
         // Filtros Admin
-        $adminFields = ['health_status', 'wiring_status', 'stem_balance']; // Adicione outros se quiser
+        $adminFields = ['health_status', 'wiring_status', 'stem_balance'];
         foreach ($adminFields as $field) {
             if ($req->filled($field)) $query->where($field, $req->$field);
         }
@@ -55,7 +55,7 @@ class TreesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         return [
             'ID',
             'Nome Científico',
-            'Nome Vulgar',
+            'Nome Popular',
             'Bairro',
             'Endereço',
             'Estado de Saúde',
@@ -65,7 +65,7 @@ class TreesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         ];
     }
 
-    // 3. Mapear os dados (o que vai em cada coluna)
+    // 3. Mapear os dados
     public function map($tree): array
     {
         return [
@@ -76,16 +76,20 @@ class TreesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             $tree->address,
             $tree->health_status,
             $tree->wiring_status,
-            $tree->planted_at ? $tree->planted_at->format('d/m/Y') : '-',
+            // Verifica se planted_at é nulo antes de formatar
+            $tree->planted_at ? \Carbon\Carbon::parse($tree->planted_at)->format('d/m/Y') : '-',
             $tree->admin ? $tree->admin->name : 'Sistema'
         ];
     }
 
-    // 4. Estilos (Opcional - Deixa o cabeçalho em negrito)
+    // 4. Estilos
     public function styles(Worksheet $sheet)
     {
         return [
-            1 => ['font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']], 'fill' => ['fillType' => 'solid', 'startColor' => ['argb' => 'FF358054']]],
+            1 => [
+                'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+                'fill' => ['fillType' => 'solid', 'startColor' => ['argb' => 'FF358054']]
+            ],
         ];
     }
 }

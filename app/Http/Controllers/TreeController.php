@@ -135,18 +135,26 @@ class TreeController extends Controller
      * ============================================================ */
     public function adminMap()
     {
+        // 1. Busca Nomes Científicos
         $scientificNames = Tree::whereNotNull('scientific_name')
-            ->where('aprovado', true)
             ->where('scientific_name', '!=', '')
-            ->where('scientific_name', '!=', 'Não identificada')
             ->distinct()
             ->orderBy('scientific_name')
             ->pluck('scientific_name');
 
+        // 2. ADICIONE ISSO: Busca Nomes Vulgares
+        $vulgarNames = Tree::whereNotNull('vulgar_name')
+            ->where('vulgar_name', '!=', '')
+            ->where('vulgar_name', '!=', 'Não identificada') // Opcional: remove o padrão
+            ->distinct()
+            ->orderBy('vulgar_name')
+            ->pluck('vulgar_name');
+
         return view('admin.trees.map', [
-            'trees' => Tree::with(['bairro'])->where('aprovado', true)->get(),
+            'trees' => Tree::with(['bairro'])->get(),
             'bairros' => Bairro::orderBy('nome')->get(),
             'scientificNames' => $scientificNames,
+            'vulgarNames' => $vulgarNames, // <--- NÃO ESQUEÇA DE PASSAR AQUI
         ]);
     }
 
