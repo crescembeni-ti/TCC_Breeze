@@ -8,6 +8,9 @@ use App\Models\AdminLog;
 use App\Models\Bairro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; 
+// Importações necessárias para o Excel
+use App\Exports\TreesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TreeController extends Controller
 {
@@ -79,98 +82,16 @@ class TreeController extends Controller
     }
 
     /* ============================================================
-     * EXPORTAR PARA CSV/EXCEL (TURBINADO)
+     * EXPORTAR PARA EXCEL (.xlsx)
      * ============================================================ */
     public function exportTrees(Request $request)
     {
-        // 1. Query base (apenas árvores aprovadas)
-        $query = Tree::with(['bairro', 'admin'])->where('aprovado', true);
+        // Gera o nome do arquivo com data e hora
+        $fileName = 'relatorio_arvores_' . date('d-m-Y_H-i') . '.xlsx';
 
-        // 2. Filtros Básicos (Iguais ao mapa)
-        if ($request->filled('scientific_name')) {
-            $query->where('scientific_name', $request->scientific_name);
-        }
-        if ($request->filled('vulgar_name')) {
-            $query->where('vulgar_name', $request->vulgar_name);
-        }
-        if ($request->filled('bairro_id')) {
-            $query->where('bairro_id', $request->bairro_id);
-        }
-
-        // 3. Filtro de Busca (Texto livre - Search Bar)
-        if ($request->filled('search')) {
-            $term = $request->search;
-            $query->where(function($q) use ($term) {
-                $q->where('scientific_name', 'like', "%{$term}%")
-                  ->orWhere('vulgar_name', 'like', "%{$term}%")
-                  ->orWhere('address', 'like', "%{$term}%");
-            });
-        }
-
-        // 4. Filtros Avançados de Admin (Campos técnicos)
-        $adminFields = [
-            'health_status', 'bifurcation_type', 'stem_balance', 
-            'crown_balance', 'organisms', 'target', 'injuries', 'wiring_status'
-        ];
-        foreach ($adminFields as $field) {
-            if ($request->filled($field)) {
-                $query->where($field, $request->$field);
-            }
-        }
-
-        $trees = $query->get();
-        
-        // Nome do arquivo
-        $fileName = 'relatorio_arvores_' . date('d-m-Y_H-i') . '.csv';
-
-        $headers = [
-            "Content-type"        => "text/csv; charset=UTF-8",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        ];
-
-        $callback = function() use ($trees) {
-            $file = fopen('php://output', 'w');
-            
-            // Adiciona BOM para o Excel ler acentos corretamente (UTF-8)
-            fputs($file, "\xEF\xBB\xBF"); 
-
-            // Cabeçalho do CSV
-            fputcsv($file, [
-                'ID', 
-                'Nome Científico', 
-                'Nome Vulgar', 
-                'Bairro', 
-                'Endereço', 
-                'Diâmetro Tronco', 
-                'Estado Saúde', 
-                'Fiação',
-                'Equilíbrio Fuste',
-                'Data Plantio', 
-                'Cadastrado Por'
-            ], ';');
-
-            foreach ($trees as $tree) {
-                fputcsv($file, [
-                    $tree->id,
-                    $tree->scientific_name ?? '-',
-                    $tree->vulgar_name ?? '-',
-                    $tree->bairro->nome ?? '-',
-                    $tree->address,
-                    $tree->trunk_diameter,
-                    $tree->health_status,
-                    $tree->wiring_status,
-                    $tree->stem_balance,
-                    $tree->planted_at ? $tree->planted_at->format('d/m/Y') : '-',
-                    $tree->admin ? $tree->admin->name : 'Sistema/Analista'
-                ], ';');
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        // Dispara o download usando a classe de exportação que criamos
+        // Ele passa o $request inteiro para a classe saber quais filtros aplicar
+        return Excel::download(new TreesExport($request), $fileName);
     }
 
     /* ============================================================

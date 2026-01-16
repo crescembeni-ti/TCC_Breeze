@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PreventBackHistory
 {
@@ -73,13 +75,31 @@ class PreventBackHistory
     }
 
     /**
-     * Remove cache da página
+     * Remove cache da página de forma segura
      */
     private function noCache($response)
     {
-        return $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-                        ->header('Pragma', 'no-cache')
-                        ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
+        // 1. IGNORA DOWNLOADS
+        // Se for um arquivo binário (Excel, PDF, Imagem) ou Stream, não mexe nos headers.
+        // Isso corrige o erro "Call to undefined method header()" e evita downloads corrompidos.
+        if ($response instanceof BinaryFileResponse || $response instanceof StreamedResponse) {
+            return $response;
+        }
+
+        // 2. Verifica se o método header existe (Responses do Laravel)
+        if (method_exists($response, 'header')) {
+            return $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                            ->header('Pragma', 'no-cache')
+                            ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
+        }
+
+        // 3. Fallback seguro para outras respostas do Symfony
+        // Usa a propriedade 'headers' diretamente caso o método 'header' não exista
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
+
+        return $response;
     }
 
     /**

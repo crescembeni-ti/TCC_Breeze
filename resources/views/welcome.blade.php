@@ -96,7 +96,6 @@
         .btn-clear { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #9ca3af; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
         .btn-clear:hover { background: #6b7280; }
         
-        /* Estilo do botão de download */
         .btn-download {
             width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #358054; 
             background: white; color: #358054; font-weight: 700; cursor: pointer; 
@@ -258,11 +257,11 @@
                 `;
             });
 
-            // Botão de Download (SÓ PARA ADMIN)
+            // Botão de Download (SÓ PARA ADMIN) - TEXTO CORRIGIDO PARA EXCEL
             downloadBtnHtml = `
                 <button id="downloadCsv" class="btn-download">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    Baixar Relatório (CSV)
+                    Baixar Relatório (Excel)
                 </button>
             `;
         }
