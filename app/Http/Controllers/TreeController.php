@@ -86,11 +86,7 @@ class TreeController extends Controller
      * ============================================================ */
     public function exportTrees(Request $request)
     {
-        // Gera o nome do arquivo com data e hora
         $fileName = 'relatorio_arvores_' . date('d-m-Y_H-i') . '.xlsx';
-
-        // Dispara o download usando a classe de exportação que criamos
-        // Ele passa o $request inteiro para a classe saber quais filtros aplicar
         return Excel::download(new TreesExport($request), $fileName);
     }
 
@@ -139,7 +135,6 @@ class TreeController extends Controller
      * ============================================================ */
     public function adminMap()
     {
-        // Recupera nomes científicos APENAS de árvores aprovadas para o filtro
         $scientificNames = Tree::whereNotNull('scientific_name')
             ->where('aprovado', true)
             ->where('scientific_name', '!=', '')
@@ -200,7 +195,6 @@ class TreeController extends Controller
             $treeData['vulgar_name'] = 'Não identificada';
         }
 
-        // Define aprovação com base no guard
         if (auth()->guard('analyst')->check()) {
             $treeData['admin_id'] = null;
             $treeData['analyst_id'] = auth()->guard('analyst')->id();
@@ -217,7 +211,6 @@ class TreeController extends Controller
 
         $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? $tree->scientific_name;
 
-        // Log apenas se for admin
         if (auth()->guard('admin')->check()) {
             AdminLog::create([
                 'admin_id' => auth()->guard('admin')->id(),
@@ -375,9 +368,45 @@ class TreeController extends Controller
     public function analystMap()
     {
         $bairros = Bairro::orderBy('nome')->get();
+        
+        // 1. Busca todas as árvores para mostrar no mapa
         $trees = Tree::all(); 
         
-        return view('analista.map', compact('bairros', 'trees'));
+        // 2. Busca nomes científicos JÁ CADASTRADOS na tabela 'trees'
+        $registeredSpecies = Tree::whereNotNull('scientific_name')
+            ->where('scientific_name', '!=', '')
+            ->where('scientific_name', '!=', 'Não identificada')
+            ->distinct()
+            ->orderBy('scientific_name')
+            ->pluck('scientific_name')
+            ->toArray();
+
+        // 3. Lista de espécies comuns para ajudar no início (Hardcoded)
+        // Isso garante que o select não venha vazio se o banco estiver vazio
+        $commonSpecies = [
+            'Caesalpinia echinata (Pau-Brasil)',
+            'Handroanthus albus (Ipê-Amarelo)',
+            'Handroanthus heptaphyllus (Ipê-Roxo)',
+            'Tabebuia roseoalba (Ipê-Branco)',
+            'Delonix regia (Flamboyant)',
+            'Spathodea campanulata (Bisnagueira)',
+            'Terminalia catappa (Amendoeira)',
+            'Ficus benjamina (Ficus)',
+            'Mangifera indica (Mangueira)',
+            'Tibouchina granulosa (Quaresmeira)',
+            'Schinus terebinthifolia (Aroeira)',
+            'Jacaranda mimosifolia (Jacarandá-Mimoso)',
+            'Licania tomentosa (Oiti)'
+        ];
+
+        // 4. Junta tudo, remove duplicados e ordena
+        $allSpecies = array_unique(array_merge($registeredSpecies, $commonSpecies));
+        sort($allSpecies);
+
+        // 5. Formata para o JavaScript da view (array de objetos com chave 'name')
+        $species = collect($allSpecies)->map(fn($name) => ['name' => $name]);
+
+        return view('analista.map', compact('bairros', 'trees', 'species'));
     }
     
     public function analystTreeList()
