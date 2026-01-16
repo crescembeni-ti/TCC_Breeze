@@ -335,21 +335,51 @@
         });
 
         /* FUNÇÕES */
-        function getColorBySpecies(speciesName) {
-            if (!speciesName || speciesName.toLowerCase().includes("não identificada")) {
-                return "#064e3b"; // Verde escuro para não identificadas
+        function getColorBySpecies(speciesName, vulgarName) {
+            const name = (speciesName || "").toLowerCase();
+            const vulgar = (vulgarName || "").toLowerCase();
+            const fullName = `${name} ${vulgar}`;
+
+            if (fullName.includes("não identificada")) return "#064e3b";
+
+            // 1. Mapeamento de Cores Base por Palavras-Chave
+            let baseHue = 120; // Padrão: Verde
+            let saturation = 60;
+            let lightness = 45;
+
+            const colorMap = [
+                { keys: ['flamboyant', 'vermelho', 'pau-brasil'], hue: 0 },      // Vermelho
+                { keys: ['amarelo', 'ipe-amarelo', 'acacia'], hue: 50 },        // Amarelo
+                { keys: ['roxo', 'quaresmeira', 'ipe-roxo', 'manaca'], hue: 280 }, // Roxo/Lilás
+                { keys: ['rosa', 'ipe-rosa', 'paineira'], hue: 330 },           // Rosa
+                { keys: ['branco', 'ipe-branco'], hue: 0, sat: 0, light: 85 },  // Branco (ajuste especial)
+                { keys: ['laranja', 'tulipeira'], hue: 30 },                    // Laranja
+                { keys: ['azul', 'jacaranda'], hue: 210 },                      // Azul
+            ];
+
+            const match = colorMap.find(item => item.keys.some(key => fullName.includes(key)));
+            
+            if (match) {
+                baseHue = match.hue;
+                if (match.sat !== undefined) saturation = match.sat;
+                if (match.light !== undefined) lightness = match.light;
             }
 
-            // Gera um hash simples a partir do nome científico para manter a cor consistente
+            // 2. Gerar variação de tonalidade baseada no nome (Hash)
+            // Isso garante que Ipê Roxo e Quaresmeira tenham tons de roxo diferentes
             let hash = 0;
-            for (let i = 0; i < speciesName.length; i++) {
-                hash = speciesName.charCodeAt(i) + ((hash << 5) - hash);
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
             }
+            
+            // Ajusta levemente o matiz (hue) em +/- 15 graus e a luminosidade em +/- 10%
+            const hueVariation = (hash % 30) - 15;
+            const lightVariation = (hash % 20) - 10;
 
-            // Converte o hash para uma cor HSL (mais fácil de controlar saturação e brilho)
-            const h = Math.abs(hash % 360);
-            // Saturação entre 60-80% e Brilho entre 40-60% para cores vibrantes mas legíveis
-            return `hsl(${h}, 70%, 45%)`;
+            const finalHue = (baseHue + hueVariation + 360) % 360;
+            const finalLight = Math.min(Math.max(lightness + lightVariation, 20), 80);
+
+            return `hsl(${finalHue}, ${saturation}%, ${finalLight}%)`;
         }
 
         function popularSelects(trees) {
@@ -429,7 +459,7 @@
             trees.forEach((tree) => {
                 if (!tree.latitude || !tree.longitude) return;
                 
-                const treeColor = getColorBySpecies(tree.species_name);
+                const treeColor = getColorBySpecies(tree.species_name, tree.vulgar_name);
                 
                 const marker = L.circleMarker([tree.latitude, tree.longitude], {
                     radius: scaleDiameter(parseFloat(tree.trunk_diameter) || 0),
@@ -531,16 +561,32 @@
             function render() {
                 const tree = listaArvores[indexAtual];
                 const total = listaArvores.length;
+                
+                // --- LÓGICA INTELIGENTE DO NOME ---
+                let nomeExibicao = tree.vulgar_name || 'Não Identificada';
+                
+                // Normaliza para minúsculas para facilitar a comparação
+                let nomeCheck = nomeExibicao.toLowerCase().trim();
 
+                // Verifica se é "não identificada" (com ou sem acento)
+                if (nomeCheck.includes('não identificada') || nomeCheck.includes('nao identificada')) {
+                    // Se tiver algo escrito no campo 'no_species_case', usa ele
+                    if (tree.no_species_case && tree.no_species_case.trim() !== "") {
+                        nomeExibicao = tree.no_species_case;
+                    }
+                }
+
+                // --- BOTÃO EDITAR ---
                 let adminButton = '';
                 if (isAdmin) {
                     const editUrl = editRouteTemplate.replace('ID_PLACEHOLDER', tree.id);
                     adminButton = `
                         <a href="${editUrl}" 
+                           style="color: white !important;"
                            class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 
-                                  text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
-                            <span class="text-xs font-bold">Editar</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
+                            <span class="text-xs font-bold text-white">Editar</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
                         </a>
@@ -557,12 +603,23 @@
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                     </button>
                 </div>
+
                 <div class="mb-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie / Nome Comum:</p>
-                    <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">${tree.species_name}</h3>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Endereço:</p>
-                    <p class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">${tree.address || 'Localização não informada'}</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Espécie/Nome Popular:</p>
+                    
+                    {{-- NOME DA ÁRVORE (CORRIGIDO) --}}
+                    <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">
+                        ${nomeExibicao}
+                    </h3>
+
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Localização:</p>
+                    <div class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">
+                        <p class="mb-1">${tree.address},  <strong>${tree.bairro_nome  || 'Rua não informada'}</p>
+                        <p class="font-semibold text-gray-500">
+                        </p>
+                    </div>
                 </div>
+                
                 <div class="flex w-full">
                     <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
                         <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>

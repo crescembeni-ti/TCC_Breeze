@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tree;
-// use App\Models\Species; <-- REMOVIDO (Conforme sua alteração)
 use App\Models\Activity;
 use App\Models\AdminLog;
 use App\Models\Bairro;
@@ -56,6 +55,7 @@ class TreeController extends Controller
                 'bairro_nome' => $tree->bairro->nome ?? null,
                 'trunk_diameter' => $tree->trunk_diameter,
                 'registered_by' => $tree->admin ? $tree->admin->name : 'Sistema',
+                'no_species_case' => $tree->no_species_case,
 
                 // --- NOVOS CAMPOS PARA O FILTRO DE ADMIN ---
                 'health_status' => $tree->health_status,
