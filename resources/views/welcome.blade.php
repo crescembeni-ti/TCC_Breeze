@@ -339,7 +339,7 @@
             extraAdminHtml += `
                 <div class="admin-divider">Visualização (Admin)</div>
                 <div class="filter-group">
-                    <label class="filter-label" style="color:#358054;">🎨 Colorir Mapa Por:</label>
+                    <label class="filter-label" style="color:#358054;">Colorir Mapa Por:</label>
                     <select id="colorMode" style="border-color:#358054; font-weight:600; color:#358054;">
                         <option value="species">Espécie (Padrão)</option>
                         <option value="injuries">Injúrias</option>
