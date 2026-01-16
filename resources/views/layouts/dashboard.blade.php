@@ -62,7 +62,7 @@
                     <a href="{{ route('admin.trees.pending') }}" class="sidebar-link relative flex items-center justify-between pr-4">
                         <div class="flex items-center">
                             <i data-lucide="check-circle" class="icon"></i> 
-                            <span>Aprovações</span>
+                           <span>Aprovações</span>
                         </div>
                         
                         {{-- Badge de Contagem (Bolinha Vermelha) --}}

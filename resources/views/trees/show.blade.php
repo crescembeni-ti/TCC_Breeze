@@ -71,7 +71,7 @@
 
                         {{-- NOME / ESPÉCIE --}}
                         <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
-                            <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Espécie / Nome Comum</h3>
+                            <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Nome Comum / Espécie</h3>
                             
                             {{-- TÍTULO GRANDE --}}
                             <p class="text-lg text-gray-900 font-bold">
@@ -89,35 +89,47 @@
                         {{-- ENDEREÇO --}}
                         <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
                             <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Endereço</h3>
-                            <p class="text-gray-900">{{ $tree->address ?? 'Endereço não informado' }}</p>
+                            <p class="text-gray-900">{{ $tree->address ?? 'Endereço não informado' }}, {{ $tree->bairro->nome ?? 'Bairro não informado' }}</p>
                         </div>
 
-                        {{-- DIÂMETRO --}}
+                        {{-- DESCRIÇÃO (LÓGICA CORRIGIDA) --}}
+                        <div class="bg-[#f0fdf4] p-5 rounded-xl shadow-sm border border-[#bbf7d0] min-h-[8rem] flex flex-col">
+                            <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-3 flex items-center gap-2">
+                                Descrição / Observações
+                            </h3>
+                            <div class="text-gray-800 leading-relaxed text-base whitespace-pre-line flex-grow">
+                                @if(!empty($tree->description))
+                                    {{ $tree->description }}
+                                @else
+                                    <span class="text-gray-500 italic">Nenhuma descrição disponível.</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- DIÂMETRO (LÓGICA CORRIGIDA) --}}
                         <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0] text-center">
                             <p class="text-xs uppercase text-[#358054] font-bold tracking-wide">Diâmetro do Tronco</p>
-                            <p class="text-lg text-gray-900">{{ $tree->trunk_diameter ?? 0 }} cm</p>
+                            <p class="text-lg text-gray-900">
+                                @if($tree->trunk_diameter && $tree->trunk_diameter > 0)
+                                    {{ $tree->trunk_diameter }} cm
+                                @else
+                                    <span class="text-gray-500 text-base italic">Diâmetro não informado</span>
+                                @endif
+                            </p>
                         </div>
 
-                        {{-- DATA DE PLANTIO --}}
-                        @if ($tree->planted_at)
-                            <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
-                                <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Data de Plantio</h3>
-                                <p class="text-gray-900">{{ $tree->planted_at->format('d/m/Y') }}</p>
-                            </div>
-                        @endif
+                        {{-- DATA DE PLANTIO (LÓGICA CORRIGIDA) --}}
+                        <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
+                            <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Data de Plantio</h3>
+                            <p class="text-gray-900">
+                                @if($tree->planted_at)
+                                    {{ $tree->planted_at->format('d/m/Y') }}
+                                @else
+                                    <span class="text-gray-500 italic">Data de plantio não informada</span>
+                                @endif
+                            </p>
+                        </div>
                         
-                        {{-- DESCRIÇÃO --}}
-                        @if ($tree->description)
-                            <div class="bg-[#f0fdf4] p-5 rounded-xl shadow-sm border border-[#bbf7d0] min-h-[10rem] flex flex-col">
-                                <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-3 flex items-center gap-2">
-                                    Descrição / Observações
-                                </h3>
-                                <div class="text-gray-800 leading-relaxed text-base whitespace-pre-line flex-grow">
-                                    {{ $tree->description }}
-                                </div>
-                            </div>
-                        @endif
-
                     </div>
                 </div>
 
@@ -152,11 +164,7 @@
         }).addTo(map);
 
         const radius = Math.max(8, {{ $tree->trunk_diameter ?? 4 }} / 5);
-        
-        // Cor fixa verde pois removemos a tabela species com cores
         const colorCode = '#358054'; 
-
-        // Popup com o nome calculado pelo PHP
         const nomePopup = '{{ $nomePrincipal }}';
 
         L.circleMarker([{{ $tree->latitude }}, {{ $tree->longitude }}], {
