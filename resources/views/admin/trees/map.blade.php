@@ -87,7 +87,7 @@
                         <p class="text-xs text-gray-500 mt-1">Será preenchido automaticamente ao clicar no mapa.</p>
                     </div>
 
-                    {{-- NOME CIENTÍFICO (CORRIGIDO COM X-INIT) --}}
+                    {{-- NOME CIENTÍFICO --}}
                     <div x-data="{
                             query: '{{ old('scientific_name') }}',
                             open: false,
@@ -450,9 +450,59 @@
 
     {{-- MAPA --}}
     <div class="bg-white border border-gray-200 shadow rounded-xl p-8">
-        <h3 class="text-2xl font-bold mb-4 text-gray-800">Mapa de Árvores</h3>
-        <p class="text-sm text-gray-600 mb-4">Clique no mapa para definir coordenadas.</p>
-        <div id="map" class="rounded-xl overflow-hidden" style="height: 500px;"></div>
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800">Mapa de Árvores</h3>
+                <p class="text-sm text-gray-600">Visualize, filtre e exporte os dados.</p>
+            </div>
+        </div>
+
+        <div class="relative w-full h-[600px] rounded-xl overflow-hidden border border-gray-300">
+            
+            {{-- PAINEL FLUTUANTE DE FILTROS E EXPORTAÇÃO --}}
+            <div class="absolute top-4 right-4 z-[999] bg-white p-4 rounded-lg shadow-xl w-72 border border-gray-200 bg-opacity-95">
+                <h4 class="font-bold text-gray-800 mb-3 text-sm flex items-center gap-2 border-b pb-2">
+                    <svg class="w-4 h-4 text-[#358054]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    Filtros & Relatórios
+                </h4>
+
+                {{-- Filtro de Espécie --}}
+                <div class="mb-3">
+                    <label class="text-xs font-semibold text-gray-500 uppercase">Espécie</label>
+                    <select id="filter-species" onchange="updateMapFilters()" class="w-full text-xs border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500 py-1">
+                        <option value="">Todas as Espécies</option>
+                        @foreach($scientificNames as $name)
+                            <option value="{{ $name }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Filtro de Bairro --}}
+                <div class="mb-4">
+                    <label class="text-xs font-semibold text-gray-500 uppercase">Bairro</label>
+                    <select id="filter-bairro" onchange="updateMapFilters()" class="w-full text-xs border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500 py-1">
+                        <option value="">Todos os Bairros</option>
+                        @foreach($bairros as $bairro)
+                            <option value="{{ $bairro->id }}">{{ $bairro->nome }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <hr class="my-3 border-gray-100">
+
+                {{-- Botão de Exportar --}}
+                <a id="btn-export" href="{{ route('admin.trees.export') }}" target="_blank" 
+                   class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs transition shadow-md">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Baixar Planilha (CSV)
+                </a>
+                <p id="counter-display" class="text-[10px] text-center text-gray-400 mt-2">Carregando dados...</p>
+            </div>
+
+            {{-- O MAPA --}}
+            <div id="map" class="w-full h-full z-0"></div>
+
+        </div>
     </div>
 @endsection
 
@@ -471,12 +521,15 @@
                 attribution: '© OpenStreetMap'
             }).addTo(map);
 
-            let tempMarker = null;
+            let tempMarker = null; // Marcador Vermelho (Novo cadastro)
+            let treesLayer = L.layerGroup().addTo(map); // Camada de Árvores (Verdes)
 
             // Elementos do DOM
             const latInput = document.getElementById("latitude");
             const lngInput = document.getElementById("longitude");
             const addressInput = document.getElementById("address");
+            const exportBtn = document.getElementById('btn-export');
+            const counterDisplay = document.getElementById('counter-display');
 
             // 2. Carregar Bairros
             let bairrosPoligonos = [];
@@ -527,7 +580,81 @@
                 }
             }
 
-            // 6. Evento de Clique
+            // 6. Lógica de Filtragem e Carregamento de Árvores
+            window.updateMapFilters = async function() {
+                const speciesName = document.getElementById('filter-species').value;
+                const bairroId = document.getElementById('filter-bairro').value;
+
+                // Atualiza Link de Exportação
+                const params = new URLSearchParams();
+                if(speciesName) params.append('scientific_name', speciesName);
+                if(bairroId) params.append('bairro_id', bairroId);
+                
+                // Define o href do botão para baixar o CSV filtrado
+                exportBtn.href = "{{ route('admin.trees.export') }}?" + params.toString();
+
+                counterDisplay.innerText = "Carregando...";
+
+                try {
+                    // Busca dados filtrados
+                    const response = await fetch("{{ route('trees.data') }}?" + params.toString());
+                    const trees = await response.json();
+
+                    // Limpa marcadores antigos
+                    treesLayer.clearLayers();
+
+                    // Adiciona novos marcadores
+                    trees.forEach(tree => {
+                        const color = tree.color_code || '#358054';
+                        
+                        // Ícone circular simples
+                        const markerHtml = `
+                            <div style="
+                                background-color: ${color};
+                                width: 12px; height: 12px;
+                                border-radius: 50%;
+                                border: 1.5px solid white;
+                                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                            "></div>
+                        `;
+
+                        const customIcon = L.divIcon({
+                            className: 'custom-tree-marker',
+                            html: markerHtml,
+                            iconSize: [12, 12],
+                            iconAnchor: [6, 6]
+                        });
+
+                        const popupContent = `
+                            <div class="text-xs font-sans">
+                                <strong class="text-sm text-[#358054]">${tree.species_name}</strong><br>
+                                <span class="text-gray-500">ID: ${tree.id}</span><br>
+                                <div class="mt-1 text-gray-700">
+                                    <b>Bairro:</b> ${tree.bairro_nome}<br>
+                                    <b>Endereço:</b> ${tree.address}<br>
+                                    <b>Saúde:</b> ${tree.health_status}
+                                </div>
+                                <a href="/pbi-admin/trees/${tree.id}/edit" target="_blank" 
+                                   class="mt-2 inline-block bg-[#358054] text-white px-2 py-1 rounded hover:bg-green-700">
+                                   Editar
+                                </a>
+                            </div>
+                        `;
+
+                        L.marker([tree.latitude, tree.longitude], { icon: customIcon })
+                         .bindPopup(popupContent)
+                         .addTo(treesLayer);
+                    });
+
+                    counterDisplay.innerText = `${trees.length} árvores no mapa.`;
+
+                } catch (error) {
+                    console.error('Erro ao carregar árvores:', error);
+                    counterDisplay.innerText = "Erro na busca.";
+                }
+            };
+
+            // 7. Evento de Clique no Mapa (Cadastro de Nova Árvore)
             map.on("click", async e => {
                 const lat = e.latlng.lat.toFixed(7);
                 const lng = e.latlng.lng.toFixed(7);
@@ -536,7 +663,16 @@
                 lngInput.value = lng;
 
                 if (tempMarker) map.removeLayer(tempMarker);
-                tempMarker = L.marker([lat, lng]).addTo(map).bindPopup("Coordenada selecionada").openPopup();
+                
+                // Marcador Vermelho (Novo)
+                tempMarker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'new-tree-marker',
+                        html: '<div style="background-color:red; width:14px; height:14px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5);"></div>',
+                        iconSize: [14, 14],
+                        iconAnchor: [7, 7]
+                    })
+                }).addTo(map).bindPopup("<b>Novo Local Selecionado</b><br>Preenchendo formulário...").openPopup();
 
                 // Busca Endereço
                 const info = await buscarEndereco(lat, lng);
@@ -546,12 +682,14 @@
                 const bairroData = detectarBairro(parseFloat(lat), parseFloat(lng));
 
                 if (bairroData) {
-                    // Dispara evento para o Alpine.js capturar e mudar o texto
                     window.dispatchEvent(new CustomEvent('set-bairro-map', { 
                         detail: { id: bairroData.id, nome: bairroData.nome } 
                     }));
                 }
             });
+
+            // Carrega as árvores ao iniciar
+            updateMapFilters();
         });
     </script>
 @endpush

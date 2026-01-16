@@ -109,19 +109,19 @@ Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
 | ADMIN (/pbi-admin)
 |--------------------------------------------------------------------------
 */
-Route::prefix('pbi-admin')->name('admin.')->group(function () {
+    Route::prefix('pbi-admin')->name('admin.')->group(function () {
 
     // Redirecionamento Inicial
     Route::get('/', fn () => redirect()->route('admin.login'));
 
     // LOGIN ADMIN
-    Route::middleware(['guest:admin', 'guard.only:admin'])->group(function () {
+        Route::middleware(['guest:admin', 'guard.only:admin'])->group(function () {
         Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
         Route::post('/login', [AdminLoginController::class, 'store'])->name('login.store');
     });
 
     // ÁREA AUTENTICADA ADMIN
-    Route::middleware(['auth:admin', 'preventBack'])->group(function () {
+        Route::middleware(['auth:admin', 'preventBack'])->group(function () {
         Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
         Route::get('/dashboard', [TreeController::class, 'adminDashboard'])->name('dashboard');
 
@@ -180,6 +180,7 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         Route::get('/noticias', [NoticiaController::class, 'index'])->name('noticias.index');
         Route::get('/noticias/create', [NoticiaController::class, 'create'])->name('noticias.create');
         Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.store');
+        Route::get('/trees/export', [TreeController::class, 'exportTrees'])->name('admin.trees.export');
 
         Route::prefix('accounts')->name('accounts.')->group(function () {
             Route::get('/', [AccountManagementController::class, 'index'])->name('index');
