@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class TreeController extends Controller
 {
     /* ============================================================
-     * PÁGINA PÚBLICA
+     * PÁGINA PÚBLICA (HOME)
      * ============================================================ */
     public function index()
     {
@@ -33,7 +33,7 @@ class TreeController extends Controller
     }
 
     /* ============================================================
-     * DADOS DO MAPA PÚBLICO (JSON) - COM FILTROS
+     * DADOS DO MAPA (API JSON) - COM FILTROS
      * ============================================================ */
     public function getTreesData(Request $request)
     {
@@ -42,7 +42,7 @@ class TreeController extends Controller
             ->whereNotNull('latitude')->whereNotNull('longitude')
             ->where('latitude', '!=', 0)->where('longitude', '!=', 0);
 
-        // --- FILTROS ---
+        // --- APLICAÇÃO DOS FILTROS ---
         if ($request->filled('scientific_name')) {
             $query->where('scientific_name', $request->scientific_name);
         }
@@ -50,7 +50,7 @@ class TreeController extends Controller
         if ($request->filled('bairro_id')) {
             $query->where('bairro_id', $request->bairro_id);
         }
-        // ---------------
+        // -----------------------------
 
         return $query->get()
             ->map(fn ($tree) => [
@@ -66,7 +66,7 @@ class TreeController extends Controller
                 'trunk_diameter' => $tree->trunk_diameter,
                 'registered_by' => $tree->admin ? $tree->admin->name : 'Sistema',
 
-                // --- CAMPOS EXTRAS PARA O POPUP DO ADMIN ---
+                // Campos extras para o popup do Admin (usados no JS da home)
                 'health_status' => $tree->health_status,
                 'bifurcation_type' => $tree->bifurcation_type,
                 'stem_balance' => $tree->stem_balance,
@@ -79,22 +79,48 @@ class TreeController extends Controller
     }
 
     /* ============================================================
-     * EXPORTAR PARA CSV/EXCEL (NOVA FUNÇÃO)
+     * EXPORTAR PARA CSV/EXCEL (TURBINADO)
      * ============================================================ */
     public function exportTrees(Request $request)
     {
-        // 1. Inicia a query base (Apenas Aprovadas)
+        // 1. Query base (apenas árvores aprovadas)
         $query = Tree::with(['bairro', 'admin'])->where('aprovado', true);
 
-        // 2. Aplica os mesmos filtros do mapa
+        // 2. Filtros Básicos (Iguais ao mapa)
         if ($request->filled('scientific_name')) {
             $query->where('scientific_name', $request->scientific_name);
+        }
+        if ($request->filled('vulgar_name')) {
+            $query->where('vulgar_name', $request->vulgar_name);
         }
         if ($request->filled('bairro_id')) {
             $query->where('bairro_id', $request->bairro_id);
         }
 
+        // 3. Filtro de Busca (Texto livre - Search Bar)
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $query->where(function($q) use ($term) {
+                $q->where('scientific_name', 'like', "%{$term}%")
+                  ->orWhere('vulgar_name', 'like', "%{$term}%")
+                  ->orWhere('address', 'like', "%{$term}%");
+            });
+        }
+
+        // 4. Filtros Avançados de Admin (Campos técnicos)
+        $adminFields = [
+            'health_status', 'bifurcation_type', 'stem_balance', 
+            'crown_balance', 'organisms', 'target', 'injuries', 'wiring_status'
+        ];
+        foreach ($adminFields as $field) {
+            if ($request->filled($field)) {
+                $query->where($field, $request->$field);
+            }
+        }
+
         $trees = $query->get();
+        
+        // Nome do arquivo
         $fileName = 'relatorio_arvores_' . date('d-m-Y_H-i') . '.csv';
 
         $headers = [
@@ -120,6 +146,8 @@ class TreeController extends Controller
                 'Endereço', 
                 'Diâmetro Tronco', 
                 'Estado Saúde', 
+                'Fiação',
+                'Equilíbrio Fuste',
                 'Data Plantio', 
                 'Cadastrado Por'
             ], ';');
@@ -133,6 +161,8 @@ class TreeController extends Controller
                     $tree->address,
                     $tree->trunk_diameter,
                     $tree->health_status,
+                    $tree->wiring_status,
+                    $tree->stem_balance,
                     $tree->planted_at ? $tree->planted_at->format('d/m/Y') : '-',
                     $tree->admin ? $tree->admin->name : 'Sistema/Analista'
                 ], ';');
@@ -184,12 +214,13 @@ class TreeController extends Controller
     }
 
     /* ============================================================
-     * MAPA ADMIN (CADASTRO)
+     * MAPA ADMIN (CADASTRO E VISUALIZAÇÃO)
      * ============================================================ */
     public function adminMap()
     {
-        // Autocomplete de nomes científicos já existentes
+        // Recupera nomes científicos APENAS de árvores aprovadas para o filtro
         $scientificNames = Tree::whereNotNull('scientific_name')
+            ->where('aprovado', true)
             ->where('scientific_name', '!=', '')
             ->where('scientific_name', '!=', 'Não identificada')
             ->distinct()
@@ -197,7 +228,7 @@ class TreeController extends Controller
             ->pluck('scientific_name');
 
         return view('admin.trees.map', [
-            'trees' => Tree::with(['bairro'])->get(),
+            'trees' => Tree::with(['bairro'])->where('aprovado', true)->get(),
             'bairros' => Bairro::orderBy('nome')->get(),
             'scientificNames' => $scientificNames,
         ]);
@@ -248,6 +279,7 @@ class TreeController extends Controller
             $treeData['vulgar_name'] = 'Não identificada';
         }
 
+        // Define aprovação com base no guard
         if (auth()->guard('analyst')->check()) {
             $treeData['admin_id'] = null;
             $treeData['analyst_id'] = auth()->guard('analyst')->id();
@@ -264,6 +296,7 @@ class TreeController extends Controller
 
         $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? $tree->scientific_name;
 
+        // Log apenas se for admin
         if (auth()->guard('admin')->check()) {
             AdminLog::create([
                 'admin_id' => auth()->guard('admin')->id(),

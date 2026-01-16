@@ -14,7 +14,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NoticiaController;
-use App\Http\Controllers\AboutPageController; // <--- ADICIONADO: Import necessário
+use App\Http\Controllers\AboutPageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +26,6 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AccountManagementController;
 use App\Http\Controllers\Admin\AdminServiceController;
 use App\Http\Controllers\ServiceOrderController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -109,19 +108,19 @@ Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
 | ADMIN (/pbi-admin)
 |--------------------------------------------------------------------------
 */
-    Route::prefix('pbi-admin')->name('admin.')->group(function () {
+Route::prefix('pbi-admin')->name('admin.')->group(function () {
 
     // Redirecionamento Inicial
     Route::get('/', fn () => redirect()->route('admin.login'));
 
     // LOGIN ADMIN
-        Route::middleware(['guest:admin', 'guard.only:admin'])->group(function () {
+    Route::middleware(['guest:admin', 'guard.only:admin'])->group(function () {
         Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
         Route::post('/login', [AdminLoginController::class, 'store'])->name('login.store');
     });
 
     // ÁREA AUTENTICADA ADMIN
-        Route::middleware(['auth:admin', 'preventBack'])->group(function () {
+    Route::middleware(['auth:admin', 'preventBack'])->group(function () {
         Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
         Route::get('/dashboard', [TreeController::class, 'adminDashboard'])->name('dashboard');
 
@@ -135,16 +134,18 @@ Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
         Route::get('/sobre', [AboutPageController::class, 'edit'])->name('about.edit');
         Route::put('/sobre', [AboutPageController::class, 'update'])->name('about.update');
         
-        // --- NOVA ROTA DE UPLOAD (ADICIONADA AQUI PARA FUNCIONAR CORRETAMENTE) ---
-        // Isso gera a rota: admin.upload.video
         Route::post('/sobre/upload-video', [AboutPageController::class, 'uploadVideo'])->name('upload.video');
-        // ------------------------------------------------------------------------
 
         Route::post('/species', [SpeciesController::class, 'store'])->name('species.store');
 
         // Árvores
         Route::get('/map', [TreeController::class, 'adminMap'])->name('map');
         Route::post('/map', [TreeController::class, 'storeTree'])->name('map.store');
+        
+        // --- ROTA DE EXPORTAÇÃO ---
+        Route::get('/trees/export', [TreeController::class, 'exportTrees'])->name('trees.export'); 
+        // --------------------------
+
         Route::get('/trees', [TreeController::class, 'adminTreeList'])->name('trees.index');
         Route::get('/trees/{tree}/edit', [TreeController::class, 'adminTreeEdit'])->name('trees.edit');
         Route::patch('/trees/{tree}', [TreeController::class, 'adminTreeUpdate'])->name('trees.update');
@@ -152,7 +153,6 @@ Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
 
         /*
          * CONTATOS (SOLICITAÇÕES)
-         * Nomes ajustados para bater com o HTML: admin.contato.index
          */
         Route::get('/contacts', [ContactController::class, 'adminContactList'])
             ->name('contato.index');
@@ -165,7 +165,6 @@ Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
 
         /*
          * ORDENS DE SERVIÇO
-         * Nomes ajustados para bater com o HTML: admin.os.index
          */
         Route::get('/os', [AdminServiceController::class, 'index'])->name('os.index');
         Route::get('/os/pendentes', [AdminServiceController::class, 'ordensPendentes'])->name('os.pendentes');
@@ -180,17 +179,14 @@ Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
         Route::get('/noticias', [NoticiaController::class, 'index'])->name('noticias.index');
         Route::get('/noticias/create', [NoticiaController::class, 'create'])->name('noticias.create');
         Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.store');
-        Route::get('/trees/export', [TreeController::class, 'exportTrees'])->name('admin.trees.export');
+
+        // REMOVIDA A ROTA: reports.map
 
         Route::prefix('accounts')->name('accounts.')->group(function () {
             Route::get('/', [AccountManagementController::class, 'index'])->name('index');
             Route::post('/store', [AccountManagementController::class, 'store'])->name('store');
             Route::put('/update/{type}/{id}', [AccountManagementController::class, 'update'])->name('update');
             Route::delete('/delete/{type}/{id}', [AccountManagementController::class, 'destroy'])->name('destroy');
-            
-            // OBS: Esta rota abaixo estava com o nome de classe incorreto e dentro do grupo errado (accounts).
-            // A rota correta foi adicionada acima na seção 'Sobre'. Mantive esta aqui apenas comentada para registro.
-            // Route::post('/admin/upload-video', [App\Http\Controllers\Admin\AboutController::class, 'uploadVideo'])->name('admin.upload.video');
         });
     });
 });
@@ -220,19 +216,14 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
         // 1. Ver o Mapa / Cadastrar
         Route::get('/map', [TreeController::class, 'analystMap'])->name('map');
         
-        // 2. Salvar (Reaproveita a lógica do Admin)
+        // 2. Salvar
         Route::post('/map', [TreeController::class, 'storeTree'])->name('map.store');
         
-        // 3. Listagem (Caso queira que ele veja a lista também)
+        // 3. Listagem
         Route::get('/trees', [TreeController::class, 'analystTreeList'])->name('trees.index');
     });
 });
 
-/*
-|--------------------------------------------------------------------------
-| SERVIÇO (/pbi-servico)
-|--------------------------------------------------------------------------
-*/
 /*
 |--------------------------------------------------------------------------
 | SERVIÇO (/pbi-servico)
@@ -256,23 +247,23 @@ Route::prefix('pbi-servico')->name('service.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/profile', fn () => view('servico.profile'))->name('profile.edit');
 
-        // --- ROTAS DE TAREFAS (AQUI ESTAVAM FALTANDO) ---
+        // --- ROTAS DE TAREFAS ---
         
         // 1. Listar Tarefas
         Route::get('/tarefas', [ServiceExecutionController::class, 'index'])
-            ->name('tasks.index'); // Gera: service.tasks.index
+            ->name('tasks.index'); 
 
-        // 2. Confirmar Recebimento (Botão Visto) - NOVA ROTA
+        // 2. Confirmar Recebimento (Botão Visto)
         Route::post('/tarefas/{id}/confirmar', [ServiceExecutionController::class, 'confirmarRecebimento'])
-            ->name('tasks.confirmar'); // Gera: service.tasks.confirmar
+            ->name('tasks.confirmar');
 
         // 3. Concluir Tarefa
         Route::post('/tarefas/{id}/concluir', [ServiceExecutionController::class, 'concluir'])
-            ->name('tasks.concluir'); // Gera: service.tasks.concluir
+            ->name('tasks.concluir');
 
         // 4. Registrar Falha
         Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])
-            ->name('tasks.falha'); // Gera: service.tasks.falha
+            ->name('tasks.falha'); 
     });
 });
 
