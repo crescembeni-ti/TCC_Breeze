@@ -28,7 +28,7 @@
         .map-filter-toggle:hover { background: #2d6e4b; }
         .map-filter-toggle:active { transform: scale(0.98); }
 
-        /* PAINEL DE FILTROS CORRIGIDO */
+        /* PAINEL DE FILTROS */
         .map-filter-panel {
             position: absolute; top: 70px; right: 10px; width: 280px; 
             z-index: 2000; background: white; border-radius: 12px; 
@@ -38,56 +38,73 @@
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
         
-        .filter-header {
-            padding: 10px 14px; border-bottom: 1px solid #f3f4f6; display: flex;
-            justify-content: space-between; align-items: center; flex-shrink: 0;
-        }
+        .filter-header { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .header-title-box { display: flex; gap: 8px; align-items: center; }
         .header-icon { color: #358054; }
         .header-text h3 { margin: 0; font-size: 14px; font-weight: 700; color: #111827; }
         .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
 
-        .filter-content {
-            padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain;
-        }
-
-        .filter-footer {
-            padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6;
-            border-radius: 0 0 12px 12px; flex-shrink: 0;
-        }
+        .filter-content { padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain; }
+        .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .filter-group { margin-bottom: 10px; }
         .filter-label { font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 3px; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
+        .map-filter-panel input, .map-filter-panel select { width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 13px; outline: none; transition: all 0.2s; background-color: #f9fafb; color: #1f2937; }
+        .map-filter-panel input:focus, .map-filter-panel select:focus { border-color: #358054; background-color: #fff; box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.1); }
+        .admin-divider { border-top: 1px dashed #d1d5db; margin: 15px 0; padding-top: 10px; text-align: center; font-size: 10px; font-weight: bold; color: #358054; text-transform: uppercase; }
         
-        .map-filter-panel input, .map-filter-panel select {
-            width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid #d1d5db; 
-            font-size: 13px; outline: none; transition: all 0.2s; background-color: #f9fafb; color: #1f2937;
-        }
-        .map-filter-panel input:focus, .map-filter-panel select:focus {
-            border-color: #358054; background-color: #fff; box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.1);
-        }
-
-        .admin-divider {
-            border-top: 1px dashed #d1d5db; margin: 15px 0; padding-top: 10px; 
-            text-align: center; font-size: 10px; font-weight: bold; color: #358054; text-transform: uppercase;
-        }
-
         .btn-actions { display: flex; gap: 10px; margin-bottom: 8px; }
         .btn-filter { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #358054; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
         .btn-filter:hover { background: #2d6e4b; }
         .btn-clear { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #9ca3af; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
         .btn-clear:hover { background: #6b7280; }
-        
-        .btn-download {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #358054; 
-            background: white; color: #358054; font-weight: 700; cursor: pointer; 
-            transition: all 0.2s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px;
-        }
+        .btn-download { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #358054; background: white; color: #358054; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px; }
         .btn-download:hover { background: #f0fdf4; }
-
         .filter-status { margin-top: 8px; padding: 5px; font-size: 11px; text-align: center; color: #6b7280; transition: all 0.2s; }
         .filter-status.vazio { background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; color: #991b1b; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 15px; }
+
+        /* --- LEGENDA FLUTUANTE --- */
+        .map-legend {
+            position: absolute;
+            top: 80px; /* Abaixo dos controles de zoom */
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-family: 'Instrument Sans', sans-serif;
+            font-size: 11px;
+            color: #374151;
+            display: none; /* Inicia oculta */
+            min-width: 140px;
+            border: 1px solid #e5e7eb;
+            animation: fadeIn 0.3s ease;
+        }
+        .legend-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #358054;
+            text-transform: uppercase;
+            font-size: 10px;
+            border-bottom: 1px solid #f3f4f6;
+            padding-bottom: 4px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 
@@ -178,7 +195,7 @@
         </footer>
     </div>
 
-   {{-- SCRIPTS DO MAPA --}}
+    {{-- SCRIPTS DO MAPA --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
@@ -188,12 +205,10 @@
         const INITIAL_ZOOM = 14;
         const PARACAMBI_BOUNDS = [[-22.7000, -43.8500], [-22.5000, -43.5500]];
 
-        // --- VERIFICAÇÃO DE ADMIN ---
         const isAdmin = @json(auth('admin')->check());
         const exportRoute = "{{ route('admin.trees.export') }}"; 
         const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
 
-        // Configuração dos Campos Extras do Admin
         const adminFieldsConfig = [
             { id: 'health_status', label: 'Estado da Árvore', key: 'health_status' },
             { id: 'bifurcation_type', label: 'Tipo de Bifurcação', key: 'bifurcation_type' },
@@ -221,42 +236,106 @@
         L.DomEvent.disableClickPropagation(panel);
         L.DomEvent.disableScrollPropagation(panel); 
 
-        // --- MONTAGEM DO HTML ---
+        /* --- LEGENDA FLUTUANTE (ELEMENTO) --- */
+        const legendDiv = L.DomUtil.create("div", "map-legend");
+        map.getContainer().appendChild(legendDiv);
+
+        // CONFIGURAÇÃO DA LEGENDA E CORES (Regras do seu pedido)
+        const legendConfig = {
+            'injuries': {
+                title: 'Injúrias',
+                items: [
+                    { label: 'Grave', color: '#dc2626' }, // Vermelho
+                    { label: 'Moderada', color: '#f97316' }, // Laranja
+                    { label: 'Leves ou Ausentes', color: '#22c55e' } // Verde
+                ]
+            },
+            'target': {
+                title: 'Alvo (Fluxo)',
+                items: [
+                    { label: 'Fluxo Intenso', color: '#dc2626' }, // Vermelho
+                    { label: 'Fluxo Moderado', color: '#f97316' }, // Laranja
+                    { label: 'Fluxo Leve', color: '#22c55e' } // Verde
+                ]
+            },
+            'wiring_status': {
+                title: 'Fiação',
+                items: [
+                    { label: 'Interfere', color: '#dc2626' }, // Vermelho
+                    { label: 'Pode Interferir', color: '#f97316' }, // Laranja
+                    { label: 'Não Interfere', color: '#22c55e' }, // Verde
+                    { label: 'Ausente', color: '#3b82f6' } // Azul
+                ]
+            },
+            'organisms': {
+                title: 'Organismos',
+                items: [
+                    { label: 'Infestação Avançada', color: '#dc2626' }, // Vermelho
+                    { label: 'Infestação Média', color: '#f97316' }, // Laranja
+                    { label: 'Infestação Inicial', color: '#22c55e' }, // Verde
+                    { label: 'Ausente', color: '#3b82f6' } // Azul
+                ]
+            },
+            'crown_balance': {
+                title: 'Equilíbrio Copa',
+                items: [
+                    { label: 'Muito Desequilibrada', color: '#991b1b' }, // Vermelho Escuro
+                    { label: 'Desequilibrada', color: '#dc2626' }, // Vermelho
+                    { label: 'Mediamente Equil.', color: '#f97316' }, // Laranja
+                    { label: 'Equilibrada', color: '#22c55e' } // Verde
+                ]
+            },
+            'stem_balance': {
+                title: 'Equilíbrio Fuste',
+                items: [
+                    { label: 'Acidental', color: '#000000' }, // Preto
+                    { label: 'Maior que 45°', color: '#f87171' }, // Vermelho Fraco
+                    { label: 'Menor que 45°', color: '#f97316' }, // Laranja
+                    { label: 'Ausente (Reto)', color: '#22c55e' } // Verde
+                ]
+            },
+            'health_status': {
+                title: 'Saúde',
+                items: [
+                    { label: 'Ruim', color: '#dc2626' },
+                    { label: 'Regular', color: '#f97316' },
+                    { label: 'Boa', color: '#22c55e' }
+                ]
+            }
+        };
+
+        // --- MONTAGEM DO HTML DO PAINEL ---
         let extraAdminHtml = '';
         let downloadBtnHtml = '';
 
         if (isAdmin) {
-            // 1. SELETOR DE MODO DE COR (HEATMAP) ATUALIZADO
             extraAdminHtml += `
                 <div class="admin-divider">Visualização (Admin)</div>
                 <div class="filter-group">
-                    <label class="filter-label" style="color:#358054;">Colorir Mapa Por:</label>
+                    <label class="filter-label" style="color:#358054;">🎨 Colorir Mapa Por:</label>
                     <select id="colorMode" style="border-color:#358054; font-weight:600; color:#358054;">
-                        <option value="species">Espécie</option>
+                        <option value="species">Espécie (Padrão)</option>
                         <option value="injuries">Injúrias</option>
-                        <option value="target">Alvo</option>
+                        <option value="target">Alvo (Fluxo)</option>
                         <option value="wiring_status">Conflito com Fiação</option>
                         <option value="organisms">Organismos</option>
                         <option value="crown_balance">Equilíbrio de Copa</option>
                         <option value="stem_balance">Equilíbrio de Fuste</option>
+                        <option value="health_status">Estado de Saúde</option>
                     </select>
                 </div>
                 <div class="admin-divider">Filtros Avançados</div>
             `;
 
-            // 2. FILTROS AVANÇADOS
             adminFieldsConfig.forEach(field => {
                 extraAdminHtml += `
                     <div class="filter-group">
                         <label class="filter-label">${field.label}</label>
-                        <select id="${field.id}">
-                            <option value="">Todos</option>
-                        </select>
+                        <select id="${field.id}"><option value="">Todos</option></select>
                     </div>
                 `;
             });
 
-            // 3. BOTÃO DE EXCEL
             downloadBtnHtml = `
                 <button id="downloadCsv" class="btn-download">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -278,7 +357,6 @@
                 </div>
                 <button id="closePanelBtn" style="background:none; border:none; color:#9ca3af; cursor:pointer; font-size:18px; padding: 4px; line-height: 1;">✕</button>
             </div>
-
             <div class="filter-content">
                 <div class="filter-group">
                     <label class="filter-label">PESQUISAR</label>
@@ -294,7 +372,6 @@
                 </div>
                 ${extraAdminHtml}
             </div>
-
             <div class="filter-footer">
                 <div class="btn-actions">
                     <button id="limparFiltro" class="btn-clear">Limpar</button>
@@ -335,65 +412,77 @@
             exibirArvores(allTrees);
         });
 
-        /* --- LÓGICA DE CORES INTELIGENTE (ATUALIZADA) --- */
+        /* --- FUNÇÃO PARA ATUALIZAR A LEGENDA --- */
+        function updateLegend(mode) {
+            if (mode === 'species' || !legendConfig[mode]) {
+                legendDiv.style.display = 'none';
+                return;
+            }
+            const config = legendConfig[mode];
+            let html = `<div class="legend-title">${config.title}</div>`;
+            config.items.forEach(item => {
+                html += `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: ${item.color};"></div>
+                        <span>${item.label}</span>
+                    </div>
+                `;
+            });
+            legendDiv.innerHTML = html;
+            legendDiv.style.display = 'block';
+        }
+
+        /* --- LÓGICA DE CORES INTELIGENTE --- */
         function getMarkerColor(tree) {
-            // Se não houver elemento, é usuário comum -> species
             const modeSelect = document.getElementById('colorMode');
             const mode = modeSelect ? modeSelect.value : 'species';
-            const val = (tree[mode] || '').toLowerCase(); // Pega o valor do campo correspondente
+            const val = (tree[mode] || '').toLowerCase(); 
 
-            // 1. ESPÉCIE (Padrão)
-            if (mode === 'species') {
-                return getColorBySpecies(tree.species_name, tree.vulgar_name);
-            }
+            // Se for Espécie, usa a cor aleatória padrão
+            if (mode === 'species') return getColorBySpecies(tree.species_name, tree.vulgar_name);
 
-            // 2. INJÚRIAS
+            // Verifica regras manuais para garantir prioridade (Vermelho > Laranja > Verde)
             if (mode === 'injuries') {
-                if (val.includes('grave')) return '#dc2626'; // Vermelho
-                if (val.includes('moderada')) return '#f97316'; // Laranja
-                return '#22c55e'; // Verde (Leves/Ausentes)
+                if (val.includes('grave') || val.includes('extensa')) return '#dc2626';
+                if (val.includes('moderada')) return '#f97316';
+                return '#22c55e';
             }
-
-            // 3. ALVO (Fluxo)
             if (mode === 'target') {
-                if (val.includes('intenso')) return '#dc2626'; // Vermelho
-                if (val.includes('moderado')) return '#f97316'; // Laranja
-                return '#22c55e'; // Verde (Leve/Pouco)
+                if (val.includes('intenso')) return '#dc2626'; 
+                if (val.includes('moderado')) return '#f97316'; 
+                return '#22c55e'; 
             }
-
-            // 4. FIAÇÃO
             if (mode === 'wiring_status') {
-                if (val.includes('pode')) return '#f97316'; // Laranja (Pode interferir)
-                if (val.includes('interfere') && !val.includes('nao')) return '#dc2626'; // Vermelho (Interfere)
+                if (val.includes('interfere') && !val.includes('nao') && !val.includes('pode')) return '#dc2626'; // Interfere
+                if (val.includes('pode')) return '#f97316'; // Pode interferir
                 if (val.includes('ausente')) return '#3b82f6'; // Azul
-                return '#22c55e'; // Verde (Não interfere)
+                return '#22c55e'; // Não interfere
             }
-
-            // 5. ORGANISMOS
             if (mode === 'organisms') {
-                if (val.includes('avançada') || val.includes('avancada')) return '#dc2626'; // Vermelho
-                if (val.includes('media') || val.includes('média')) return '#f97316'; // Laranja
-                if (val.includes('inicial')) return '#22c55e'; // Verde
-                return '#3b82f6'; // Azul (Ausente/Não detectado)
+                if (val.includes('avançada') || val.includes('avancada')) return '#dc2626'; 
+                if (val.includes('media') || val.includes('média')) return '#f97316'; 
+                if (val.includes('inicial')) return '#22c55e'; 
+                return '#3b82f6'; // Ausente
             }
-
-            // 6. EQUILÍBRIO DE COPA
             if (mode === 'crown_balance') {
-                if (val.includes('muito')) return '#991b1b'; // Vermelho Escuro (Muito Desequilibrada)
-                if (val.includes('desequilibrada')) return '#dc2626'; // Vermelho
-                if (val.includes('medianamente') || val.includes('mediamente')) return '#f97316'; // Laranja
-                return '#22c55e'; // Verde (Equilibrada)
+                if (val.includes('muito')) return '#991b1b'; 
+                if (val.includes('desequilibrada')) return '#dc2626'; 
+                if (val.includes('medianamente') || val.includes('mediamente')) return '#f97316'; 
+                return '#22c55e'; 
             }
-
-            // 7. EQUILÍBRIO DE FUSTE
             if (mode === 'stem_balance') {
-                if (val.includes('acidental')) return '#000000'; // Preto
-                if (val.includes('maior')) return '#f87171'; // Vermelho Fraco (>45)
-                if (val.includes('menor')) return '#f97316'; // Laranja (<45)
-                return '#22c55e'; // Verde (Ausente/Reto)
+                if (val.includes('acidental')) return '#000000'; 
+                if (val.includes('maior')) return '#f87171';
+                if (val.includes('menor')) return '#f97316'; 
+                return '#22c55e'; 
+            }
+            if (mode === 'health_status') {
+                if (val === 'poor' || val === 'ruim') return '#dc2626'; 
+                if (val === 'fair' || val === 'regular') return '#f97316'; 
+                return '#22c55e'; 
             }
 
-            return '#358054'; // Cor padrão de fallback
+            return '#358054'; // Fallback
         }
 
         function getColorBySpecies(speciesName, vulgarName) {
@@ -475,7 +564,6 @@
             trees.forEach((tree) => {
                 if (!tree.latitude || !tree.longitude) return;
                 
-                // --- APLICA A COR DINÂMICA (HEATMAP) ---
                 const treeColor = getMarkerColor(tree);
                 
                 const marker = L.circleMarker([tree.latitude, tree.longitude], {
@@ -636,8 +724,9 @@
             const colorModeSelect = document.getElementById("colorMode");
             if(colorModeSelect) {
                 colorModeSelect.addEventListener("change", () => {
-                    // Recarrega as árvores com as novas cores
-                    exibirArvores(filteredTrees.length > 0 ? filteredTrees : allTrees);
+                    const newMode = colorModeSelect.value;
+                    updateLegend(newMode); // Atualiza a legenda
+                    exibirArvores(filteredTrees.length > 0 ? filteredTrees : allTrees); // Atualiza o mapa
                 });
             }
 
@@ -647,9 +736,11 @@
                 document.getElementById("search").value = "";
                 if (isAdmin) {
                     adminFieldsConfig.forEach(f => { const el = document.getElementById(f.id); if(el) el.value = ""; });
-                    // Reseta modo de cor para 'species'
                     const cm = document.getElementById("colorMode");
-                    if(cm) cm.value = "species";
+                    if(cm) {
+                        cm.value = "species";
+                        updateLegend('species'); // Reseta a legenda
+                    }
                 }
                 exibirArvores(allTrees);
                 if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
