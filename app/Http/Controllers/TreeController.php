@@ -8,7 +8,6 @@ use App\Models\AdminLog;
 use App\Models\Bairro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; 
-// Importações necessárias para o Excel
 use App\Exports\TreesExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -61,7 +60,6 @@ class TreeController extends Controller
             ->whereNotNull('latitude')->whereNotNull('longitude')
             ->where('latitude', '!=', 0)->where('longitude', '!=', 0);
 
-        // --- Filtros ---
         if ($request->filled('scientific_name')) {
             $query->where('scientific_name', $request->scientific_name);
         }
@@ -69,30 +67,27 @@ class TreeController extends Controller
             $query->where('bairro_id', $request->bairro_id);
         }
 
-        return $query->get()
-            ->map(fn ($tree) => [
-                'id' => $tree->id,
-                'latitude' => (float) $tree->latitude,
-                'longitude' => (float) $tree->longitude,
-                'species_name' => $tree->scientific_name ?? $tree->vulgar_name ?? 'Árvore Não Identificada',
-                'vulgar_name'  => $tree->vulgar_name ?? 'Não Identificada',
-                'color_code' => '#358054', 
-                'address' => $tree->address,
-                'bairro_id' => $tree->bairro_id,
-                'bairro_nome' => $tree->bairro->nome ?? null,
-                'trunk_diameter' => $tree->trunk_diameter,
-                'registered_by' => $tree->admin ? $tree->admin->name : 'Sistema',
-
-                // Campos extras para o popup/filtros do mapa
-                'health_status' => $tree->health_status,
-                'bifurcation_type' => $tree->bifurcation_type,
-                'stem_balance' => $tree->stem_balance,
-                'crown_balance' => $tree->crown_balance,
-                'organisms' => $tree->organisms,
-                'target' => $tree->target,
-                'injuries' => $tree->injuries,
-                'wiring_status' => $tree->wiring_status,
-            ]);
+        return $query->get()->map(fn ($tree) => [
+            'id' => $tree->id,
+            'latitude' => (float) $tree->latitude,
+            'longitude' => (float) $tree->longitude,
+            'species_name' => $tree->scientific_name ?? $tree->vulgar_name ?? 'Árvore Não Identificada',
+            'vulgar_name'  => $tree->vulgar_name ?? 'Não Identificada',
+            'color_code' => '#358054', 
+            'address' => $tree->address,
+            'bairro_id' => $tree->bairro_id,
+            'bairro_nome' => $tree->bairro->nome ?? null,
+            'trunk_diameter' => $tree->trunk_diameter,
+            'registered_by' => $tree->admin ? $tree->admin->name : 'Sistema',
+            'health_status' => $tree->health_status,
+            'bifurcation_type' => $tree->bifurcation_type,
+            'stem_balance' => $tree->stem_balance,
+            'crown_balance' => $tree->crown_balance,
+            'organisms' => $tree->organisms,
+            'target' => $tree->target,
+            'injuries' => $tree->injuries,
+            'wiring_status' => $tree->wiring_status,
+        ]);
     }
 
     /* ============================================================
@@ -156,7 +151,7 @@ class TreeController extends Controller
 
         $vulgarNames = Tree::whereNotNull('vulgar_name')
             ->where('vulgar_name', '!=', '')
-            ->where('vulgar_name', '!=', 'Não identificada') // Opcional: remove o padrão
+            ->where('vulgar_name', '!=', 'Não identificada')
             ->distinct()
             ->orderBy('vulgar_name')
             ->pluck('vulgar_name');
@@ -182,6 +177,8 @@ class TreeController extends Controller
             'bairros' => Bairro::orderBy('nome')->get(),
             'scientificNames' => $scientificNames,
             'vulgarNames' => $vulgarNames,
+            'speciesMap' => $speciesMap,
+            'vulgarToScientific' => $vulgarToScientific, // Envia para a View
         ]);
     }
 
@@ -242,6 +239,7 @@ class TreeController extends Controller
         $tree = Tree::create($treeData);
 
         if (auth()->guard('admin')->check()) {
+            $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? $tree->scientific_name;
             AdminLog::create([
                 'admin_id' => auth()->guard('admin')->id(), 
                 'action' => 'create_tree', 
@@ -307,45 +305,45 @@ class TreeController extends Controller
     public function adminTreeUpdate(Request $request, Tree $tree) 
     {
         $validated = $request->validate([
-            'scientific_name' => 'nullable|string|max:255',
-            'vulgar_name' => 'nullable|string|max:255',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
-            'health_status' => 'nullable|string|max:255',
-            'planted_at' => 'nullable|date|before_or_equal:today',
-            'trunk_diameter' => 'nullable|numeric|min:0',
-            'address' => 'nullable|string|max:255',
-            'bairro_id' => 'nullable|exists:bairros,id',
-            'no_species_case' => 'nullable|string|max:255',
-            'cap' => 'nullable|numeric|min:0',
-            'height' => 'nullable|numeric|min:0',
-            'crown_height' => 'nullable|numeric|min:0',
-            'crown_diameter_longitudinal' => 'nullable|numeric|min:0',
-            'crown_diameter_perpendicular' => 'nullable|numeric|min:0',
-            'bifurcation_type' => 'nullable|string|max:255',
-            'stem_balance' => 'nullable|string|max:500',
-            'crown_balance' => 'nullable|string|max:255',
-            'organisms' => 'nullable|string|max:255',
-            'target' => 'nullable|string|max:255',
-            'injuries' => 'nullable|string|max:255',
-            'wiring_status' => 'nullable|string|max:100',
-            'total_width' => 'nullable|numeric|min:0',
-            'street_width' => 'nullable|numeric|min:0',
-            'gutter_height' => 'nullable|numeric|min:0',
-            'gutter_width' => 'nullable|numeric|min:0',
-            'gutter_length' => 'nullable|numeric|min:0',
-            'description' => 'nullable|string|max:1000',
+            'scientific_name' => 'nullable|string|max:255', 
+            'vulgar_name' => 'nullable|string|max:255', 
+            // ATUALIZADO
+            'latitude' => 'required|numeric|between:-90,90', 
+            'longitude' => 'required|numeric|between:-180,180', 
+            // DIÂMETRO REMOVIDO
+            'health_status' => 'nullable|string|max:255', 
+            'planted_at' => 'nullable|date|before_or_equal:today', 
+            'address' => 'nullable|string|max:255', 
+            'bairro_id' => 'nullable|exists:bairros,id', 
+            'no_species_case' => 'nullable|string|max:255', 
+            'cap' => 'nullable|numeric|min:0', 
+            'height' => 'nullable|numeric|min:0', 
+            'crown_height' => 'nullable|numeric|min:0', 
+            'crown_diameter_longitudinal' => 'nullable|numeric|min:0', 
+            'crown_diameter_perpendicular' => 'nullable|numeric|min:0', 
+            'bifurcation_type' => 'nullable|string|max:255', 
+            'stem_balance' => 'nullable|string|max:500', 
+            'crown_balance' => 'nullable|string|max:255', 
+            'organisms' => 'nullable|string|max:255', 
+            'target' => 'nullable|string|max:500', 
+            'injuries' => 'nullable|string|max:255', 
+            'wiring_status' => 'nullable|string|max:255', 
+            'total_width' => 'nullable|numeric|min:0', 
+            'street_width' => 'nullable|numeric|min:0', 
+            'gutter_height' => 'nullable|numeric|min:0', 
+            'gutter_width' => 'nullable|numeric|min:0', 
+            'gutter_length' => 'nullable|numeric|min:0', 
+            'description' => 'nullable|string|max:1000'
         ]);
 
         $updateData = $validated;
-
         if (empty($updateData['scientific_name'])) $updateData['scientific_name'] = 'Não identificada';
         if (empty($updateData['vulgar_name'])) $updateData['vulgar_name'] = 'Não identificada';
-
+        
         $tree->update($updateData);
-
-        if (auth('admin')->check()) {
-            $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? 'Atualizada';
+        
+        if (auth('admin')->check()) { 
+            $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? 'Atualizada'; 
             AdminLog::create([
                 'admin_id' => auth('admin')->id(), 
                 'action' => 'update_tree', 
@@ -368,14 +366,10 @@ class TreeController extends Controller
         } 
         return redirect()->route('admin.trees.index')->with('success', 'Árvore excluída!'); 
     }
-
-    // ==========================================================
-    // ÁREA DO ANALISTA
-    // ==========================================================
-
-    public function analystMap()
-    {
-        $bairros = Bairro::orderBy('nome')->get();
+    
+    public function analystMap() 
+    { 
+        $bairros = Bairro::orderBy('nome')->get(); 
         $trees = Tree::all(); 
         $scientificNames = Tree::whereNotNull('scientific_name')->distinct()->orderBy('scientific_name')->pluck('scientific_name');
         $vulgarNames = Tree::whereNotNull('vulgar_name')->distinct()->orderBy('vulgar_name')->pluck('vulgar_name');

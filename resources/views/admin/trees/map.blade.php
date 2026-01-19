@@ -6,7 +6,7 @@
         showModal: false, 
         
         openModal() {
-            // Validação simples de HTML antes de abrir o modal
+            // Validação simples do HTML antes de abrir o modal
             const form = document.getElementById('form-create');
             if (form.checkValidity()) {
                 this.showModal = true;
@@ -26,7 +26,6 @@
             </h2>
         </div>
 
-        {{-- MENSAGEM DE SUCESSO COM BOTÃO DE ZOOM --}}
         @if (session('success'))
             <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex justify-between items-center shadow-sm">
                 <div class="flex items-center gap-2">
@@ -127,12 +126,10 @@
                                 select(name) { 
                                     this.query = name; 
                                     this.open = false; 
-                                    // Atualiza input e dispara evento change
-                                    setTimeout(() => {
-                                        const el = document.getElementById('scientific_name_input');
-                                        el.value = name;
-                                        el.dispatchEvent(new Event('change'));
-                                    }, 50);
+                                    // Atualiza input e dispara evento
+                                    const el = document.getElementById('scientific_name_input');
+                                    el.value = name;
+                                    el.dispatchEvent(new Event('change'));
                                 }
                             }" x-init="initList()" class="relative">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nome Científico</label>
@@ -147,7 +144,7 @@
                             </ul>
                         </div>
 
-                        {{-- NOME VULGAR (Autocomplete) --}}
+                        {{-- NOME VULGAR (Autocomplete Bidirecional) --}}
                         <div x-data="{
                                 query: '{{ old('vulgar_name') }}',
                                 open: false,
@@ -163,11 +160,9 @@
                                     this.query = name; 
                                     this.open = false; 
                                     // Atualiza input e dispara evento change
-                                    setTimeout(() => {
-                                        const el = document.getElementById('vulgar_name_input');
-                                        el.value = name;
-                                        el.dispatchEvent(new Event('change'));
-                                    }, 50);
+                                    const el = document.getElementById('vulgar_name_input');
+                                    el.value = name;
+                                    el.dispatchEvent(new Event('change'));
                                 }
                             }" x-init="initList()" class="relative">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nome Vulgar</label>
@@ -212,13 +207,11 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
                             <label class="block text-sm font-medium text-gray-700 mb-1">Latitude <span class="text-red-500">*</span></label>
                             <input type="number" step="0.0000001" id="latitude" name="latitude" required class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                             <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
                         </div>
                         <div>
-                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
                             <label class="block text-sm font-medium text-gray-700 mb-1">Longitude <span class="text-red-500">*</span></label>
                             <input type="number" step="0.0000001" id="longitude" name="longitude" required class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                             <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
@@ -260,7 +253,9 @@
                 {{-- SEÇÃO 4: DIMENSÕES --}}
                 <div>
                     <div class="flex items-center gap-2 mb-4 border-b pb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
                         <h4 class="text-xl font-bold text-gray-700">Dimensões da Árvore</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -296,7 +291,7 @@
                                 <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
                                 <li @click="selected='Maior que 45°'; selectedName='Maior que 45°'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Maior que 45°</li>
                                 <li @click="selected='Menor que 45°'; selectedName='Menor que 45°'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Menor que 45°</li>
-                                <li @click="selected='Acidental...'; selectedName='Acidental...'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Acidental...</li>
+                                <li @click="selected='Acidental ou associada à elevação da superfície do terreno pelo conjunto de raízes no lado oposto à inclinação'; selectedName='Acidental ou associada à elevação da superfície do terreno pelo conjunto de raízes no lado oposto à inclinação'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Acidental ou associada à elevação da superfície do terreno pelo conjunto de raízes no lado oposto à inclinação</li>
                             </ul>
                             <input type="hidden" name="stem_balance" :value="selected">
                         </div>
@@ -315,14 +310,19 @@
                     </div>
                 </div>
 
-                {{-- SEÇÃO 6: AMBIENTE (MANTIDO) --}}
+                {{-- SEÇÃO 6: AMBIENTE (CORRIGIDA E MESCLADA) --}}
                 <div>
                     <div class="flex items-center gap-2 mb-4 border-b pb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0a8.1 8.1 0 001-8c0-4.42-3.58-8-8-8a8.1 8.1 0 00-1 8m6 8a2 2 0 11-4 0M6 8a2 2 0 11-4 0" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14c-4 0-6-4-6-4m6 4c4 0 6-4 6-4" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0a8.1 8.1 0 001-8c0-4.42-3.58-8-8-8a8.1 8.1 0 00-1 8m6 8a2 2 0 11-4 0M6 8a2 2 0 11-4 0" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14c-4 0-6-4-6-4m6 4c4 0 6-4 6-4" />
+                        </svg>
                         <h4 class="text-xl font-bold text-gray-700">Ambiente e Entorno</h4>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        {{-- Organismos --}}
                         <div x-data="{ open: false, selected: '{{ old('organisms') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Organismos</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
@@ -335,17 +335,19 @@
                             <input type="hidden" name="organisms" :value="selected">
                         </div>
 
+                        {{-- Alvo --}}
                         <div x-data="{ open: false, selected: '{{ old('target') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Alvo (Fluxo)</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Ruas secundárias...'; selectedName='Ruas secundárias...'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas secundárias...</li>
-                                <li @click="selected='Ruas principais...'; selectedName='Ruas principais...'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas principais...</li>
-                                <li @click="selected='Avenidas...'; selectedName='Avenidas...'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Avenidas...</li>
+                                <li @click="selected='Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas'; selectedName='Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas</li>
+                                <li @click="selected='Ruas principais ou secundárias com fluxo intermediário de veículos e pessoas'; selectedName='Ruas principais ou secundárias com fluxo intermediário de veículos e pessoas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas principais ou secundárias com fluxo intermediário de veículos e pessoas</li>
+                                <li @click="selected='Avenidas ou ruas principais com fluxo intenso de veículos e pessoas'; selectedName='Avenidas ou ruas principais com fluxo intenso de veículos e pessoas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Avenidas ou ruas principais com fluxo intenso de veículos e pessoas</li>
                             </ul>
                             <input type="hidden" name="target" :value="selected">
                         </div>
 
+                        {{-- Injúrias --}}
                         <div x-data="{ open: false, selected: '{{ old('injuries') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Injúrias Mecânicas</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
@@ -357,6 +359,7 @@
                             <input type="hidden" name="injuries" :value="selected">
                         </div>
 
+                        {{-- Fiação --}}
                         <div x-data="{ open: false, selected: '{{ old('wiring_status') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Estado da fiação</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
@@ -371,22 +374,30 @@
                     </div>
                 </div>
 
+                {{-- BOTÃO CADASTRAR --}}
                 <button type="button" @click="openModal()" class="bg-green-600 text-white text-lg rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] active:scale-95 transition px-6 py-3 mt-4">Adicionar Árvore</button>
+
             </form>
         </div>
 
+        {{-- MAPA --}}
         <div id="map-section" class="bg-white border border-gray-200 shadow rounded-xl p-8 scroll-mt-24">
             <h3 class="text-2xl font-bold mb-4 text-gray-800">Mapa de Árvores</h3>
             <p class="text-sm text-gray-600 mb-4">Clique no mapa para definir coordenadas.</p>
             <div id="map" class="rounded-xl overflow-hidden" style="height: 500px;"></div>
         </div>
 
+        {{-- MODAL DE CONFIRMAÇÃO --}}
         <div x-show="showModal" style="display: none;" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[9999] flex items-center justify-center backdrop-blur-sm"
              x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
              x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
              @click.stop>
             <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center relative" @click.outside="showModal = false">
-                <div class="mb-4 flex justify-center"><div class="rounded-full bg-green-100 bg-opacity-50 p-3"><svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg></div></div>
+                <div class="mb-4 flex justify-center">
+                    <div class="rounded-full bg-green-100 bg-opacity-50 p-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    </div>
+                </div>
                 <h3 class="text-xl font-bold text-gray-900 mb-2">Cadastrar Árvore?</h3>
                 <p class="text-gray-500 mb-6">Confirma o cadastro desta nova árvore no sistema?</p>
                 <div class="flex justify-center gap-4">
@@ -395,13 +406,14 @@
                 </div>
             </div>
         </div>
+
     </div>
 @endsection
 
 @push('scripts')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+    
     {{-- SCRIPT DO AUTOCOMPLETE BIDIRECIONAL --}}
     <script>
         const speciesMap = @json($speciesMap ?? []);
@@ -433,7 +445,7 @@
         });
     </script>
 
-    {{-- SCRIPT DO MAPA (MANTIDO) --}}
+    {{-- SCRIPT DO MAPA --}}
     <script>
         document.addEventListener("DOMContentLoaded", async function() {
             const map = L.map('map').setView([-22.6091, -43.7089], 14);
@@ -498,4 +510,4 @@
             });
         });
     </script>
-@endpush    
+@endpush
