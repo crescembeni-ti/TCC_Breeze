@@ -220,7 +220,7 @@
         </footer>
     </div>
 
-   {{-- SCRIPTS DO MAPA --}}
+    {{-- SCRIPTS DO MAPA --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
@@ -263,6 +263,74 @@
         L.DomEvent.disableClickPropagation(panel);
         L.DomEvent.disableScrollPropagation(panel); 
 
+        /* --- LEGENDA FLUTUANTE (ELEMENTO) --- */
+        const legendDiv = L.DomUtil.create("div", "map-legend");
+        map.getContainer().appendChild(legendDiv);
+
+        // CONFIGURAÇÃO DA LEGENDA E CORES
+        const legendConfig = {
+            'injuries': {
+                title: 'Injúrias',
+                items: [
+                    { label: 'Grave', color: '#dc2626' }, // Vermelho
+                    { label: 'Moderada', color: '#f97316' }, // Laranja
+                    { label: 'Leves ou Ausentes', color: '#22c55e' } // Verde
+                ]
+            },
+            'target': {
+                title: 'Alvo (Fluxo)',
+                items: [
+                    { label: 'Fluxo Intenso', color: '#dc2626' }, // Vermelho
+                    { label: 'Fluxo Moderado', color: '#f97316' }, // Laranja
+                    { label: 'Fluxo Leve', color: '#22c55e' } // Verde
+                ]
+            },
+            'wiring_status': {
+                title: 'Fiação',
+                items: [
+                    { label: 'Interfere', color: '#dc2626' }, // Vermelho
+                    { label: 'Pode Interferir', color: '#f97316' }, // Laranja
+                    { label: 'Não Interfere', color: '#22c55e' }, // Verde
+                    { label: 'Ausente', color: '#3b82f6' } // Azul
+                ]
+            },
+            'organisms': {
+                title: 'Organismos',
+                items: [
+                    { label: 'Infestação Avançada', color: '#dc2626' }, // Vermelho
+                    { label: 'Infestação Média', color: '#f97316' }, // Laranja
+                    { label: 'Infestação Inicial', color: '#22c55e' }, // Verde
+                    { label: 'Ausente', color: '#3b82f6' } // Azul
+                ]
+            },
+            'crown_balance': {
+                title: 'Equilíbrio Copa',
+                items: [
+                    { label: 'Muito Desequilibrada', color: '#991b1b' }, // Vermelho Escuro
+                    { label: 'Desequilibrada', color: '#dc2626' }, // Vermelho
+                    { label: 'Mediamente Equil.', color: '#f97316' }, // Laranja
+                    { label: 'Equilibrada', color: '#22c55e' } // Verde
+                ]
+            },
+            'stem_balance': {
+                title: 'Equilíbrio Fuste',
+                items: [
+                    { label: 'Acidental', color: '#000000' }, // Preto
+                    { label: 'Maior que 45°', color: '#f87171' }, // Vermelho Fraco
+                    { label: 'Menor que 45°', color: '#f97316' }, // Laranja
+                    { label: 'Ausente (Reto)', color: '#22c55e' } // Verde
+                ]
+            },
+            'health_status': {
+                title: 'Saúde',
+                items: [
+                    { label: 'Ruim', color: '#dc2626' },
+                    { label: 'Regular', color: '#f97316' },
+                    { label: 'Boa', color: '#22c55e' }
+                ]
+            }
+        };
+
         // --- MONTAGEM DO HTML ---
         let extraAdminHtml = '';
         let downloadBtnHtml = '';
@@ -273,10 +341,14 @@
                 <div class="filter-group">
                     <label class="filter-label" style="color:#358054;">Colorir Mapa Por:</label>
                     <select id="colorMode" style="border-color:#358054; font-weight:600; color:#358054;">
-                        <option value="species">Espécie</option>
+                        <option value="species">Espécie (Padrão)</option>
                         <option value="injuries">Injúrias</option>
-                        <option value="health_status">Estado de Saúde</option>
+                        <option value="target">Alvo (Fluxo)</option>
                         <option value="wiring_status">Conflito com Fiação</option>
+                        <option value="organisms">Organismos</option>
+                        <option value="crown_balance">Equilíbrio de Copa</option>
+                        <option value="stem_balance">Equilíbrio de Fuste</option>
+                        <option value="health_status">Estado de Saúde</option>
                     </select>
                 </div>
                 <div class="admin-divider">Filtros Avançados</div>
@@ -351,7 +423,7 @@
         let markersLayer = L.layerGroup().addTo(map);
         let bairrosGeoLayer = null;
 
-        /* FETCH DADOS E LÓGICA DE ZOOM */
+        /* FETCH DADOS */
         const bairrosIndex = {};
         allBairros.forEach(b => bairrosIndex[b.nome.toUpperCase()] = b.id);
 
@@ -365,100 +437,133 @@
             bairrosGeoLayer.bringToBack();
         });
 
-        // ------------------------------------------------------------------
-        // AQUI ESTÁ A CORREÇÃO PRINCIPAL: O FETCH
-        // ------------------------------------------------------------------
         fetch("{{ route('trees.data') }}").then(r => r.json()).then(data => {
             allTrees = data;
             popularSelects(allTrees);
             exibirArvores(allTrees);
-
-            // Captura o ID da URL (?focus_tree=123)
-            const urlParams = new URLSearchParams(window.location.search);
-            const focusTreeId = urlParams.get('focus_tree');
-
-            if (focusTreeId) {
-                // Tenta focar 3 vezes (para garantir que o marker já foi renderizado)
-                let attempts = 0;
-                const checkAndZoom = setInterval(() => {
-                    attempts++;
-                    if (treeMarkers && treeMarkers[focusTreeId]) {
-                        const marker = treeMarkers[focusTreeId];
-                        
-                        // 1. Centraliza e Zooma
-                        map.setView(marker.getLatLng(), 19, { animate: true });
-                        
-                        // 2. Abre o Popup
-                        marker.openPopup();
-                        marker.fire('click'); // Garante que a lógica de sidebar/popup execute
-
-                        // 3. Limpa intervalo e URL
-                        clearInterval(checkAndZoom);
-                        const newUrl = window.location.pathname;
-                        window.history.replaceState({}, document.title, newUrl);
-                    } 
-                    
-                    // Se tentou 10 vezes (2 segundos) e não achou, desiste
-                    if (attempts > 10) clearInterval(checkAndZoom);
-                }, 200);
-            }
         });
 
-        /* FUNÇÕES DE CORES */
-        function getColorBySpecies(speciesName, vulgarName) {
-            // ... (mesma lógica de antes) ...
-            const name = (speciesName || "").toLowerCase();
-            const vulgar = (vulgarName || "").toLowerCase();
-            const fullName = `${name} ${vulgar}`;
-
-            if (fullName.includes("não identificada")) return "#064e3b";
-
-            let baseHue = 120; let saturation = 60; let lightness = 45;
-            const colorMap = [
-                { keys: ['flamboyant', 'vermelho', 'pau-brasil'], hue: 0 },
-                { keys: ['amarelo', 'ipe-amarelo', 'acacia'], hue: 50 },
-                { keys: ['roxo', 'quaresmeira', 'ipe-roxo', 'manaca'], hue: 280 },
-                { keys: ['rosa', 'ipe-rosa', 'paineira'], hue: 330 },
-                { keys: ['branco', 'ipe-branco'], hue: 0, sat: 0, light: 85 },
-                { keys: ['laranja', 'tulipeira'], hue: 30 },
-                { keys: ['azul', 'jacaranda'], hue: 210 },
-            ];
-
-            const match = colorMap.find(item => item.keys.some(key => fullName.includes(key)));
-            if (match) {
-                baseHue = match.hue;
-                if (match.sat !== undefined) saturation = match.sat;
-                if (match.light !== undefined) lightness = match.light;
+        /* --- FUNÇÃO PARA ATUALIZAR A LEGENDA --- */
+        function updateLegend(mode) {
+            if (mode === 'species' || !legendConfig[mode]) {
+                legendDiv.style.display = 'none';
+                return;
             }
-
-            let hash = 0;
-            for (let i = 0; i < name.length; i++) { hash = name.charCodeAt(i) + ((hash << 5) - hash); }
-            const hueVariation = (hash % 30) - 15;
-            const lightVariation = (hash % 20) - 10;
-            const finalHue = (baseHue + hueVariation + 360) % 360;
-            const finalLight = Math.min(Math.max(lightness + lightVariation, 20), 80);
-
-            return `hsl(${finalHue}, ${saturation}%, ${finalLight}%)`;
+            const config = legendConfig[mode];
+            let html = `<div class="legend-title">${config.title}</div>`;
+            config.items.forEach(item => {
+                html += `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: ${item.color};"></div>
+                        <span>${item.label}</span>
+                    </div>
+                `;
+            });
+            legendDiv.innerHTML = html;
+            legendDiv.style.display = 'block';
         }
 
-        // Função para pegar cor pelo modo selecionado pelo Admin
+        /* --- FUNÇÃO PRINCIPAL DE COR DO MARCADOR --- */
         function getMarkerColor(tree) {
             const modeSelect = document.getElementById('colorMode');
-            if (!isAdmin || !modeSelect || modeSelect.value === 'species') {
-                return getColorBySpecies(tree.species_name, tree.vulgar_name);
-            }
-            
-            const mode = modeSelect.value;
+            const mode = modeSelect ? modeSelect.value : 'species';
             const val = (tree[mode] || '').toLowerCase(); 
 
-            // Lógica Admin (Cores de Status)
-            if (mode === 'injuries' || mode === 'target' || mode === 'wiring_status' || mode === 'health_status' || mode === 'organisms') {
-                if (val.includes('grave') || val.includes('intenso') || (val.includes('interfere') && !val.includes('nao')) || val.includes('avançada') || val === 'ruim' || val === 'poor') return '#dc2626'; // Vermelho
-                if (val.includes('moderada') || val.includes('pode') || val.includes('media') || val === 'regular' || val === 'fair') return '#f97316'; // Laranja
-                if (val.includes('leve') || val.includes('boa') || val.includes('nao interfere') || val.includes('inicial')) return '#22c55e'; // Verde
-                if (val.includes('ausente')) return '#3b82f6'; // Azul
+            // Lógica Padrão: Cor baseada na Espécie
+            if (mode === 'species') {
+                return getColorBySpecies(tree.species_name, tree.vulgar_name);
             }
-            return '#358054';
+
+            // Lógica Admin (Outros Modos)
+            if (mode === 'injuries') {
+                if (val.includes('grave') || val.includes('extensa')) return '#dc2626';
+                if (val.includes('moderada')) return '#f97316';
+                return '#22c55e';
+            }
+            if (mode === 'target') {
+                if (val.includes('intenso')) return '#dc2626'; 
+                if (val.includes('moderado')) return '#f97316'; 
+                return '#22c55e'; 
+            }
+            if (mode === 'wiring_status') {
+                if (val.includes('interfere') && !val.includes('nao') && !val.includes('pode')) return '#dc2626'; 
+                if (val.includes('pode')) return '#f97316';
+                if (val.includes('ausente')) return '#3b82f6';
+                return '#22c55e';
+            }
+            if (mode === 'organisms') {
+                if (val.includes('avançada') || val.includes('avancada')) return '#dc2626'; 
+                if (val.includes('media') || val.includes('média')) return '#f97316'; 
+                if (val.includes('inicial')) return '#22c55e'; 
+                return '#3b82f6';
+            }
+            if (mode === 'crown_balance') {
+                if (val.includes('muito')) return '#991b1b'; 
+                if (val.includes('desequilibrada')) return '#dc2626'; 
+                if (val.includes('medianamente') || val.includes('mediamente')) return '#f97316'; 
+                return '#22c55e'; 
+            }
+            if (mode === 'stem_balance') {
+                if (val.includes('acidental')) return '#000000'; 
+                if (val.includes('maior')) return '#f87171';
+                if (val.includes('menor')) return '#f97316'; 
+                return '#22c55e'; 
+            }
+            if (mode === 'health_status') {
+                if (val === 'poor' || val === 'ruim') return '#dc2626'; 
+                if (val === 'fair' || val === 'regular') return '#f97316'; 
+                return '#22c55e'; 
+            }
+
+            return '#358054'; // Fallback Verde
+        }
+
+        /* --- LÓGICA DE COR POR ESPÉCIE --- */
+        function getColorBySpecies(speciesName, vulgarName) {
+            const nameCheck = (vulgarName || "").toLowerCase();
+            const fullName = nameCheck + " " + (speciesName || "").toLowerCase();
+
+            // 1. Árvore não identificada = Verde Escuro
+            if (nameCheck.includes('não identificada') || nameCheck.includes('nao identificada')) {
+                return '#064e3b'; 
+            }
+
+            // 2. Cores Base (Palavras-Chave)
+            let baseHue = 120; // Verde padrão (Espécies novas sem regra caem aqui)
+            let saturation = 60;
+            let lightness = 45;
+
+            if (fullName.includes('flamboyant') || fullName.includes('vermelho') || fullName.includes('pau-brasil')) {
+                baseHue = 0; // Vermelho
+            } else if (fullName.includes('amarelo') || fullName.includes('acacia') || fullName.includes('sibipiruna') || fullName.includes('canafistula')) {
+                baseHue = 50; // Amarelo/Ouro
+            } else if (fullName.includes('roxo') || fullName.includes('quaresmeira') || fullName.includes('jacaranda') || fullName.includes('manaca')) {
+                baseHue = 270; // Roxo
+            } else if (fullName.includes('rosa') || fullName.includes('paineira') || fullName.includes('jambo')) {
+                baseHue = 330; // Rosa
+            } else if (fullName.includes('branco')) {
+                baseHue = 200; saturation = 10; lightness = 85; // Branco/Cinza claro
+            } else if (fullName.includes('laranja') || fullName.includes('espatodea')) {
+                baseHue = 25; // Laranja
+            } else if (fullName.includes('azul')) {
+                baseHue = 210; // Azul
+            }
+
+            // 3. Variação de Tom (Hash do nome)
+            // Isso garante que Ipê Roxo e Quaresmeira (ambos roxos) tenham tons levemente diferentes
+            let hash = 0;
+            for (let i = 0; i < fullName.length; i++) {
+                hash = fullName.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            
+            // Pequena variação para não descaracterizar a cor base
+            const hueVariation = (hash % 20) - 10;   // +/- 10 graus no disco de cor
+            const lightVariation = (hash % 15) - 7;  // +/- 7% na luminosidade
+
+            const finalHue = (baseHue + hueVariation + 360) % 360;
+            const finalLight = Math.max(25, Math.min(75, lightness + lightVariation));
+
+            return `hsl(${finalHue}, ${saturation}%, ${finalLight}%)`;
         }
 
         function popularSelects(trees) {
@@ -532,7 +637,8 @@
             trees.forEach((tree) => {
                 if (!tree.latitude || !tree.longitude) return;
                 
-                const treeColor = getMarkerColor(tree); // Usa a função que decide entre cor admin ou espécie
+                // CHAMA A FUNÇÃO DE COR CORRETA
+                const treeColor = getMarkerColor(tree);
                 
                 const marker = L.circleMarker([tree.latitude, tree.longitude], {
                     radius: scaleDiameter(parseFloat(tree.trunk_diameter) || 0),
@@ -550,8 +656,19 @@
             });
         }
 
+        function destacarBairro(bairroId, darZoom = true) {
+            if (!bairrosGeoLayer) return;
+            bairrosGeoLayer.eachLayer(layer => {
+                if (layer.feature.properties.id_bairro == bairroId) {
+                    layer.setStyle({ color: "#0084ff", weight: 3, fillOpacity: 0.1 });
+                    if (darZoom) map.fitBounds(layer.getBounds(), { padding: [20, 20] });
+                } else {
+                    layer.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 });
+                }
+            });
+        }
+
         function aplicarFiltro() {
-            // ... (código do filtro mantido igual) ...
             const bairroVal = document.getElementById("bairro").value;
             const especieVal = document.getElementById("especie").value;
             const buscaVal = document.getElementById("search").value.toLowerCase().trim();
@@ -595,13 +712,12 @@
             if (bairroVal && filtradas.length > 0) destacarBairro(bairroVal, false);
             else {
                 if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-                // const adminEmpty = isAdmin ? Object.keys(adminFilters).length === 0 : true;
-                // if (!especieVal && !buscaVal && !bairroVal && adminEmpty) map.setView(INITIAL_VIEW, INITIAL_ZOOM);
+                const adminEmpty = isAdmin ? Object.keys(adminFilters).length === 0 : true;
+                if (!especieVal && !buscaVal && !bairroVal && adminEmpty) map.setView(INITIAL_VIEW, INITIAL_ZOOM);
             }
         }
 
         function downloadCSV() {
-            // ... (código download CSV igual) ...
             const params = new URLSearchParams();
             const bairroVal = document.getElementById("bairro").value;
             const especieVal = document.getElementById("especie").value;
@@ -669,9 +785,7 @@
                     <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">${nomeExibicao}</h3>
                     <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Localização:</p>
                     <div class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">
-                        <p class="mb-1">${tree.address || 'Rua não informada'}</p>
-                        <p class="font-semibold text-gray-500"><span class="font-normal text-gray-400">Bairro:</span> ${tree.bairro_nome || 'Não informado'}</p>
-                    </div>
+                        <p class="mb-1">${tree.address} - <strong>${tree.bairro_nome || 'Rua não informada'}</p>
                 </div>
                 <div class="flex w-full">
                     <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
@@ -701,6 +815,8 @@
             const colorModeSelect = document.getElementById("colorMode");
             if(colorModeSelect) {
                 colorModeSelect.addEventListener("change", () => {
+                    const newMode = colorModeSelect.value;
+                    updateLegend(newMode);
                     exibirArvores(filteredTrees.length > 0 ? filteredTrees : allTrees);
                 });
             }
@@ -711,12 +827,9 @@
                     document.getElementById("especie").value = "";
                     document.getElementById("search").value = "";
                     if (isAdmin) {
-                        adminFieldsConfig.forEach(f => {
-                            const el = document.getElementById(f.id);
-                            if(el) el.value = "";
-                        });
+                        adminFieldsConfig.forEach(f => { const el = document.getElementById(f.id); if(el) el.value = ""; });
                         const cm = document.getElementById("colorMode");
-                        if(cm) cm.value = "species";
+                        if(cm) { cm.value = "species"; updateLegend('species'); }
                     }
                     exibirArvores(allTrees);
                     if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));

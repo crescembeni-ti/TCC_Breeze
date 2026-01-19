@@ -31,7 +31,23 @@ class TreeController extends Controller
 
         $bairros = Bairro::orderBy('nome')->get();
 
-        return view('welcome', compact('stats', 'recentActivities', 'bairros'));
+        // --- ADICIONADO: Listas para os filtros da Welcome (Apenas Aprovadas) ---
+        $scientificNames = Tree::where('aprovado', true)
+            ->whereNotNull('scientific_name')
+            ->where('scientific_name', '!=', '')
+            ->distinct()
+            ->orderBy('scientific_name')
+            ->pluck('scientific_name');
+
+        $vulgarNames = Tree::where('aprovado', true)
+            ->whereNotNull('vulgar_name')
+            ->where('vulgar_name', '!=', '')
+            ->where('vulgar_name', '!=', 'Não identificada')
+            ->distinct()
+            ->orderBy('vulgar_name')
+            ->pluck('vulgar_name');
+
+        return view('welcome', compact('stats', 'recentActivities', 'bairros', 'scientificNames', 'vulgarNames'));
     }
 
     /* ============================================================
@@ -100,7 +116,7 @@ class TreeController extends Controller
     /* ============================================================
      * DASHBOARD ADMIN
      * ============================================================ */
-    public function adminDashboard(Request $request)
+     public function adminDashboard(Request $request)
     {
         $stats = [
             'total_trees' => Tree::count(),
@@ -146,14 +162,12 @@ class TreeController extends Controller
      * ============================================================ */
     public function adminMap()
     {
-        // Busca Nomes Científicos
         $scientificNames = Tree::whereNotNull('scientific_name')
             ->where('scientific_name', '!=', '')
             ->distinct()
             ->orderBy('scientific_name')
             ->pluck('scientific_name');
 
-        // Busca Nomes Vulgares
         $vulgarNames = Tree::whereNotNull('vulgar_name')
             ->where('vulgar_name', '!=', '')
             ->where('vulgar_name', '!=', 'Não identificada')
@@ -174,11 +188,10 @@ class TreeController extends Controller
      * ============================================================ */
     public function storeTree(Request $request)
     {
-        // 1. Validação (Mantida igual)
         $validated = $request->validate([
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
-            'health_status' => 'nullable|string|max:255', // Ajustado para aceitar qualquer string (Boa, Regular, etc)
+            'health_status' => 'nullable|string|max:255',
             'planted_at' => 'nullable|date|before_or_equal:today',
             'trunk_diameter' => 'nullable|numeric|min:0',
             'address' => 'nullable|string|max:255',
@@ -208,7 +221,6 @@ class TreeController extends Controller
 
         $treeData = $validated;
 
-        // Lógica de nomes padrão
         if (empty($treeData['scientific_name'])) {
             $treeData['scientific_name'] = 'Não identificada';
         }
@@ -216,7 +228,6 @@ class TreeController extends Controller
             $treeData['vulgar_name'] = 'Não identificada';
         }
 
-        // Definição de Aprovação e Responsável
         if (auth()->guard('analyst')->check()) {
             $treeData['admin_id'] = null;
             $treeData['analyst_id'] = auth()->guard('analyst')->id();
@@ -229,11 +240,8 @@ class TreeController extends Controller
             $treeData['aprovado'] = 0;
         }
 
-        // 2. CRIA A ÁRVORE
         $tree = Tree::create($treeData);
 
-        // Logs
-        $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? $tree->scientific_name;
         if (auth()->guard('admin')->check()) {
             $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? $tree->scientific_name;
             AdminLog::create([
@@ -243,14 +251,19 @@ class TreeController extends Controller
             ]);
         }
 
+
+
         $msg = $treeData['aprovado'] ? 'Árvore cadastrada com sucesso!' : 'Árvore enviada para aprovação!';
         
-        // 3. RETORNO CORRIGIDO (Envia o ID para a View criar o botão)
+        // CORREÇÃO AQUI: Mudamos 'analyst.map.create' para 'analyst.map'
+        $route = auth()->guard('admin')->check() ? 'admin.map' : 'analyst.map';
+
         return redirect()
-            ->route('admin.map') 
+            ->route($route) 
             ->with('success', $msg)
-            ->with('new_tree_id', $tree->id); // <--- AQUI ESTÁ A MÁGICA
+            ->with('new_tree_id', $tree->id);
     }
+
     /* ============================================================
      * LISTA DE PENDENTES
      * ============================================================ */
@@ -301,10 +314,18 @@ class TreeController extends Controller
             ->orderBy('scientific_name')
             ->pluck('scientific_name');
 
+        $vulgarNames = Tree::whereNotNull('vulgar_name')
+            ->where('vulgar_name', '!=', '')
+            ->where('vulgar_name', '!=', 'Não identificada')
+            ->distinct()
+            ->orderBy('vulgar_name')
+            ->pluck('vulgar_name');
+
         return view('admin.trees.edit', [
             'tree' => $tree,
             'bairros' => Bairro::orderBy('nome')->get(),
             'scientificNames' => $scientificNames,
+            'vulgarNames' => $vulgarNames,
         ]);
     }
 
@@ -318,8 +339,7 @@ class TreeController extends Controller
             'vulgar_name' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
-            // Alterado para aceitar os valores em português: Boa, Regular, Ruim
-            'health_status' => 'nullable|in:Boa,Regular,Ruim',
+            'health_status' => 'nullable|string|max:255',
             'planted_at' => 'nullable|date|before_or_equal:today',
             'trunk_diameter' => 'nullable|numeric|min:0',
             'address' => 'nullable|string|max:255',
@@ -331,7 +351,6 @@ class TreeController extends Controller
             'crown_diameter_longitudinal' => 'nullable|numeric|min:0',
             'crown_diameter_perpendicular' => 'nullable|numeric|min:0',
             'bifurcation_type' => 'nullable|string|max:255',
-            // Aumentado o limite para aceitar as descrições longas
             'stem_balance' => 'nullable|string|max:500',
             'crown_balance' => 'nullable|string|max:255',
             'organisms' => 'nullable|string|max:255',
@@ -362,7 +381,10 @@ class TreeController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.trees.index')->with('success', 'Árvore atualizada com sucesso!');
+        return redirect()
+            ->route('admin.trees.edit', $tree->id)
+            ->with('success', 'Árvore atualizada com sucesso!')
+            ->with('updated_tree_id', $tree->id);
     }
 
     /* ============================================================
@@ -391,39 +413,21 @@ class TreeController extends Controller
     {
         $bairros = Bairro::orderBy('nome')->get();
         $trees = Tree::all(); 
-        
-        // Nomes científicos cadastrados
-        $registeredSpecies = Tree::whereNotNull('scientific_name')
+
+        $scientificNames = Tree::whereNotNull('scientific_name')
             ->where('scientific_name', '!=', '')
-            ->where('scientific_name', '!=', 'Não identificada')
             ->distinct()
             ->orderBy('scientific_name')
-            ->pluck('scientific_name')
-            ->toArray();
+            ->pluck('scientific_name');
 
-        // Lista de apoio para autocomplete
-        $commonSpecies = [
-            'Caesalpinia echinata (Pau-Brasil)',
-            'Handroanthus albus (Ipê-Amarelo)',
-            'Handroanthus heptaphyllus (Ipê-Roxo)',
-            'Tabebuia roseoalba (Ipê-Branco)',
-            'Delonix regia (Flamboyant)',
-            'Spathodea campanulata (Bisnagueira)',
-            'Terminalia catappa (Amendoeira)',
-            'Ficus benjamina (Ficus)',
-            'Mangifera indica (Mangueira)',
-            'Tibouchina granulosa (Quaresmeira)',
-            'Schinus terebinthifolia (Aroeira)',
-            'Jacaranda mimosifolia (Jacarandá-Mimoso)',
-            'Licania tomentosa (Oiti)'
-        ];
+        $vulgarNames = Tree::whereNotNull('vulgar_name')
+            ->where('vulgar_name', '!=', '')
+            ->where('vulgar_name', '!=', 'Não identificada')
+            ->distinct()
+            ->orderBy('vulgar_name')
+            ->pluck('vulgar_name');
 
-        // Combina e formata para o front-end
-        $allSpecies = array_unique(array_merge($registeredSpecies, $commonSpecies));
-        sort($allSpecies);
-        $species = collect($allSpecies)->map(fn($name) => ['name' => $name]);
-
-        return view('analista.map', compact('bairros', 'trees', 'species'));
+        return view('analista.map', compact('bairros', 'trees', 'scientificNames', 'vulgarNames'));
     }
     
     public function analystTreeList()

@@ -180,8 +180,6 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         Route::get('/noticias/create', [NoticiaController::class, 'create'])->name('noticias.create');
         Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.store');
 
-        // REMOVIDA A ROTA: reports.map
-
         Route::prefix('accounts')->name('accounts.')->group(function () {
             Route::get('/', [AccountManagementController::class, 'index'])->name('index');
             Route::post('/store', [AccountManagementController::class, 'store'])->name('store');
