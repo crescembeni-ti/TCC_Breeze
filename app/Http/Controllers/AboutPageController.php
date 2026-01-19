@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AboutPage;
-use Illuminate\Support\Facades\Storage; // <--- IMPORTANTE: Adicionado para manipular arquivos
+use Illuminate\Support\Facades\Storage; 
 
 class AboutPageController extends Controller
 {
@@ -20,7 +20,7 @@ class AboutPageController extends Controller
             [
                 'title' => 'Sobre o Projeto', 
                 'content' => '<p>Texto inicial...</p>',
-                // Os outros campos serão criados como null
+                'sections' => [] // Inicializa vazio
             ]
         );
     }
@@ -31,8 +31,6 @@ class AboutPageController extends Controller
     public function index()
     {
         $pageContent = $this->getPageContent();
-        
-        // Retorna a visualização bonita (Página Verde)
         return view('pages.about', ['pageContent' => $pageContent]);
     }
 
@@ -44,46 +42,51 @@ class AboutPageController extends Controller
     public function edit()
     {
         $pageContent = $this->getPageContent();
-        
-        // Aponta para a pasta onde criamos o formulário novo
         return view('admin.about.edit', ['pageContent' => $pageContent]);
     }
 
-    // 2. Salva as alterações no banco de dados
+    // 2. Salva as alterações no banco de dados (COM SEÇÕES DINÂMICAS)
     public function update(Request $request)
     {
-        // Valida os campos de texto simples
+        // Validação
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'mission_content' => 'nullable|string',
-            'how_it_works_content' => 'nullable|string',
-            'benefits_content' => 'nullable|string',
+            
+            // Validação das seções dinâmicas
+            'sections' => 'nullable|array',
+            'sections.*.title' => 'required|string|max:255',
+            'sections.*.content' => 'nullable|string',
         ]);
 
         $page = AboutPage::findOrFail(1);
         
-        // Atualiza as colunas
-        $page->update($validated);
+        $data = $validated;
+        
+        // Se não vier nenhuma seção (usuário apagou tudo), salva array vazio
+        if (!isset($data['sections'])) {
+            $data['sections'] = [];
+        }
 
-        // Retorna para o formulário com mensagem de sucesso
-        return back()->with('success', 'Página "Sobre o Projeto" atualizada com sucesso!');
+        // Reindexa o array para garantir que seja sequencial (0, 1, 2...) no JSON
+        $data['sections'] = array_values($data['sections']);
+
+        // Atualiza no banco
+        $page->update($data);
+
+        return back()->with('success', 'Página atualizada com sucesso!');
     }
 
-    // 3. NOVO: Upload de Vídeo via AJAX (Summernote)
+    // 3. Upload de Vídeo via AJAX (Summernote)
     public function uploadVideo(Request $request)
     {
         if ($request->hasFile('video')) {
-            // Validação: Máximo 50MB e formatos de vídeo comuns
             $request->validate([
                 'video' => 'required|file|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime|max:51200', 
             ]);
 
-            // Salva na pasta 'videos' dentro do disco 'public'
-            // O arquivo ficará em: storage/app/public/videos/nome_aleatorio.mp4
             $path = $request->file('video')->store('videos', 'public');
             
-            // Retorna a URL pública (ex: /storage/videos/nome_aleatorio.mp4)
             return response()->json(['url' => Storage::url($path)]);
         }
 
@@ -97,27 +100,28 @@ class AboutPageController extends Controller
     {
         $page = $this->getPageContent();
 
-        // Retorna JSON limpo para o App montar a tela nativa
+        // Monta a estrutura para o App
+        // A Introdução é fixa, o resto vem do array dinâmico
+        $sections = [
+            [
+                'title' => 'Introdução',
+                'content' => $page->content
+            ]
+        ];
+
+        // Adiciona as seções dinâmicas se existirem
+        if (!empty($page->sections) && is_array($page->sections)) {
+            foreach ($page->sections as $section) {
+                $sections[] = [
+                    'title' => $section['title'],
+                    'content' => $section['content']
+                ];
+            }
+        }
+
         return response()->json([
             'title' => $page->title,
-            'sections' => [
-                [
-                    'title' => 'Introdução',
-                    'content' => $page->content
-                ],
-                [
-                    'title' => 'Nossa Missão',
-                    'content' => $page->mission_content
-                ],
-                [
-                    'title' => 'Como Funciona',
-                    'content' => $page->how_it_works_content
-                ],
-                [
-                    'title' => 'Benefícios',
-                    'content' => $page->benefits_content
-                ]
-            ],
+            'sections' => $sections,
             'updated_at' => $page->updated_at
         ]);
     }

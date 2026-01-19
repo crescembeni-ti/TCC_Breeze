@@ -38,24 +38,37 @@
 --}}
 <div class="max-w-4xl mx-auto bg-white p-8 shadow-2xl rounded-lg border-t-8 border-[#358054] relative overflow-hidden print:border-0 print:shadow-none print:p-0 print:max-w-full">
 
-    {{-- MARCA D'ÁGUA --}}
+    {{-- MARCA D'ÁGUA (Fundo) --}}
     <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-        {{-- Removido 'grayscale' para exibir a cor original (verde) --}}
-        <img src="{{ asset('images/logo.png') }}" alt="Marca D'água" class="w-2/3 opacity-15 print:w-1/2 print:opacity-15">
+        {{-- 
+             ATENÇÃO: Verifique se o arquivo 'logo.png' existe em public/images/ 
+             Se trocou o nome, altere abaixo em asset('images/SEU_NOVO_NOME.png')
+        --}}
+        <img src="{{ asset('images/logo.png') }}" 
+             alt="Marca D'água" 
+             class="w-2/3 object-contain opacity-15 print:w-1/2 print:opacity-15">
     </div>
 
-    {{-- CONTEÚDO --}}
+    {{-- CONTEÚDO (Frente) --}}
     <div class="relative z-10">
 
         {{-- CABEÇALHO --}}
         <div class="flex justify-between items-center mb-6 border-b pb-4 print:mb-2 print:pb-2 print:border-b-2">
-            <div class="flex items-center gap-2">
-                {{-- Logo menor na impressão para economizar espaço vertical --}}
-                <img src="{{ asset('images/Brasao_Verde.png') }}" class="h-16 w-auto print:h-12" alt="Logo">
+            <div class="flex items-center gap-3">
+                {{-- 
+                     LOGO DO CABEÇALHO 
+                     Verifique se 'secretaria_logo.png' existe em public/images/
+                --}}
+                <img src="{{ asset('images/secretaria_logo.png') }}" 
+                     class="h-16 w-auto object-contain print:h-12" 
+                     alt="Logo">
+                     
                 <div class="text-xs text-gray-600 leading-tight font-bold uppercase print:text-xs">
                     ESTADO DO RIO DE JANEIRO<br>
                     MUNICÍPIO DE PARACAMBI<br>
-                    SECRETARIA MUNICIPAL DE MEIO AMBIENTE
+                    SECRETARIA MUNICIPAL DE MEIO AMBIENTE<br>
+                    SUPER INTENDÊNCIA DE ÁREAS VERDES<br>
+                    DIRETORIA DE ARBORIZAÇÃO URBANA
                 </div>
             </div>
             <div class="text-right">
@@ -214,7 +227,7 @@
 
         </div>
 
-        {{-- BOTÕES --}}
+        {{-- BOTÕES (Não aparecem na impressão) --}}
         <div class="mt-6 flex flex-row-reverse gap-2 print:hidden">
             @php
                 if (auth()->guard('analyst')->check()) {
