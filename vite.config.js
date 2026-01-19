@@ -10,7 +10,8 @@ export default defineConfig({
                 'resources/css/contact.css',
                 'resources/css/welcome.css',
                 'resources/css/auth.css',
-                'resources/css/perfil.css', // ✅ adicionado
+                'resources/css/perfil.css',
+                'resources/css/dashboard.css', // ✅ ADICIONE ESTA LINHA
                 'resources/js/app.js',
             ],
             refresh: true,

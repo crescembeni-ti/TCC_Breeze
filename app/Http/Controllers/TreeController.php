@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; 
 use App\Exports\TreesExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Contact;
 
 class TreeController extends Controller
 {
@@ -115,12 +116,17 @@ class TreeController extends Controller
     {
         $stats = [
             'total_trees' => Tree::count(),
+            
+            // ✅ ESTA É A LINHA QUE ESTÁ FALTANDO E CAUSA O ERRO
+            'total_requests' => Contact::count(),
+            
             'total_activities' => Activity::count(),
             'total_species' => Tree::distinct('scientific_name')->count('scientific_name'),
         ];
 
         $query = AdminLog::with('admin')->latest();
 
+        // Filtros (Mantidos iguais)
         if ($request->filled('filter')) {
             $f = $request->filter;
             if ($f == 'cadastro') $query->where('action', 'like', '%create%');
@@ -128,13 +134,16 @@ class TreeController extends Controller
             elseif ($f == 'exclusao') $query->where('action', 'like', '%delete%');
             elseif ($f == 'aprovacao') $query->where('action', 'like', '%approve%');
         }
+
         if ($request->filled('period')) {
             $p = $request->period;
             if ($p == '7_days') $query->where('created_at', '>=', now()->subDays(7));
             elseif ($p == '30_days') $query->where('created_at', '>=', now()->subDays(30));
             elseif ($p == 'year') $query->where('created_at', '>=', now()->subYear());
         }
+
         $adminLogs = $query->paginate(10)->appends($request->all());
+
         return view('admin.dashboard', compact('stats', 'adminLogs'));
     }
 
