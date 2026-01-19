@@ -4,22 +4,8 @@
 
 @section('content')
 
-<meta name="csrf-token" content="{{ csrf_token() }}">
-
+{{-- Carrega CSS do Summernote --}}
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-
-<style>
-    /* Estilo para o vídeo inserido ficar responsivo */
-    .note-video-clip, video {
-        max-width: 100%;
-        height: auto;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .note-modal-backdrop { z-index: 1040 !important; }
-    .note-modal { z-index: 1050 !important; }
-</style>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-pt-BR.min.js"></script>
@@ -29,9 +15,7 @@
         
         <div class="bg-[#358054] p-6 flex justify-between items-center">
             <h2 class="text-2xl font-bold text-white">🌿 Editar Página: Sobre o Projeto</h2>
-            <a href="{{ route('admin.dashboard') }}" class="text-white hover:text-gray-200 text-sm underline">
-                Voltar ao Painel
-            </a>
+            <a href="{{ route('admin.dashboard') }}" class="text-white hover:text-gray-200 text-sm underline">Voltar</a>
         </div>
 
         @if(session('success'))
@@ -40,16 +24,24 @@
             </div>
         @endif
 
+        @if ($errors->any())
+            <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700 mx-6 mt-6">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form action="{{ route('admin.about.update') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-8">
             @csrf
             @method('PUT')
 
-            <input type="file" id="video-upload-input" accept="video/mp4,video/webm,video/ogg" style="display: none;">
-
             <div>
                 <label class="block text-lg font-semibold text-gray-700 mb-2">Título da Página</label>
                 <input type="text" name="title" value="{{ old('title', $pageContent->title ?? 'Sobre o Projeto') }}"
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none">
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
             </div>
 
             <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -57,128 +49,120 @@
                 <textarea name="content" class="summernote">{{ old('content', $pageContent->content ?? '') }}</textarea>
             </div>
 
-            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <label class="block text-lg font-bold text-[#358054] mb-3">🎯 Nossa Missão</label>
-                <textarea name="mission_content" class="summernote">{{ old('mission_content', $pageContent->mission_content ?? '') }}</textarea>
+            <hr class="border-t-2 border-gray-200 my-8">
+
+            <h3 class="text-xl font-bold text-gray-800">Seções Adicionais</h3>
+            <p class="text-sm text-gray-500 mb-4">Adicione quantas caixas de conteúdo desejar (Ex: Missão, Valores, História).</p>
+
+            <div id="sections-container" class="space-y-6">
+                @php
+                    // Recupera as seções salvas ou um array vazio
+                    $sections = old('sections', $pageContent->sections ?? []);
+                @endphp
+
+                @foreach($sections as $index => $section)
+                <div class="section-item p-6 bg-white rounded-xl border border-gray-300 shadow-sm relative group hover:border-[#358054] transition-colors">
+                    
+                    {{-- Botão de Remover --}}
+                    <button type="button" onclick="removeSection(this)" class="absolute top-4 right-4 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition" title="Remover seção">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+
+                    <div class="mb-4 pr-12">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Título da Seção</label>
+                        <input type="text" name="sections[{{ $index }}][title]" value="{{ $section['title'] ?? '' }}" 
+                               class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-[#358054]" placeholder="Ex: Nossa Missão">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Conteúdo</label>
+                        <textarea name="sections[{{ $index }}][content]" class="summernote-dynamic">{{ $section['content'] ?? '' }}</textarea>
+                    </div>
+                </div>
+                @endforeach
             </div>
 
-            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <label class="block text-lg font-bold text-[#358054] mb-3">⚙️ Como Funciona</label>
-                <textarea name="how_it_works_content" class="summernote">{{ old('how_it_works_content', $pageContent->how_it_works_content ?? '') }}</textarea>
-            </div>
+            <button type="button" onclick="addSection()" class="w-full py-3 border-2 border-dashed border-[#358054] text-[#358054] font-bold rounded-lg hover:bg-green-50 transition flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Adicionar Nova Seção
+            </button>
 
-            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <label class="block text-lg font-bold text-[#358054] mb-3">🌳 Benefícios das Árvores</label>
-                <textarea name="benefits_content" class="summernote">{{ old('benefits_content', $pageContent->benefits_content ?? '') }}</textarea>
-            </div>
-
-            <div class="flex justify-end pt-4">
+            <div class="flex justify-end pt-6 border-t mt-8">
                 <button type="submit" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg shadow-md hover:bg-green-700 transition transform hover:scale-105">
-                    💾 Salvar Alterações
+                    💾 Salvar Tudo
                 </button>
             </div>
         </form>
     </div>
 </div>
 
+{{-- Scripts para Manipulação Dinâmica --}}
 <script>
-    $(document).ready(function() {
-        
-        // Variável para saber qual editor chamou o upload (já que você tem vários textareas)
-        var currentEditorContext = null;
+    // Contador para gerar índices únicos (evita conflito ao adicionar/remover)
+    let sectionCount = {{ count(old('sections', $pageContent->sections ?? [])) }};
 
-        // Função que cria o botão personalizado
-        var VideoUploadButton = function (context) {
-            var ui = $.summernote.ui;
-            var button = ui.button({
-                contents: '<i class="note-icon-video"></i> Upload MP4',
-                tooltip: 'Fazer upload de vídeo do PC',
-                click: function () {
-                    // 1. Salva qual editor foi clicado
-                    currentEditorContext = context;
-                    // 2. Simula o clique no input de arquivo invisível
-                    $('#video-upload-input').trigger('click');
-                }
-            });
-            return button.render();
-        }
-
-        // Configuração do Summernote
-        $('.summernote').summernote({
-            placeholder: 'Digite o conteúdo aqui...',
+    function initSummernote(selector) {
+        $(selector).summernote({
+            placeholder: 'Escreva o conteúdo...',
             tabsize: 2,
-            height: 200,
+            height: 150,
             lang: 'pt-BR',
-            dialogsInBody: true,
             toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['color', ['color']],
+                ['style', ['style', 'bold', 'italic', 'underline', 'clear']],
                 ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video', 'videoUpload']], // Adicionei 'videoUpload' aqui
-            ],
-            buttons: {
-                videoUpload: VideoUploadButton // Registra o botão
-            }
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview']]
+            ]
         });
+    }
 
-        // Lógica do Upload via AJAX quando o arquivo é selecionado
-        $('#video-upload-input').on('change', function() {
-            var file = this.files[0];
-            var reader = new FileReader();
-
-            if (file) {
-                // Prepara os dados para envio
-                var formData = new FormData();
-                formData.append("video", file);
-
-                // Mostra um texto de "Enviando..." (Opcional, mas bom para UX)
-                if(currentEditorContext) {
-                    currentEditorContext.invoke('editor.saveRange'); // Salva onde o cursor estava
-                    currentEditorContext.invoke('editor.pasteHTML', '<span id="temp-loading">🔄 Enviando vídeo... aguarde...</span>');
-                }
-
-                $.ajax({
-                    url: "{{ route('admin.upload.video') }}", // Rota que criamos no Laravel
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        // Remove o texto de carregamento
-                        var loadingText = document.getElementById('temp-loading');
-                        if(loadingText) loadingText.remove();
-
-                        // Cria a tag de vídeo HTML5
-                        var videoNode = document.createElement('video');
-                        videoNode.src = response.url;
-                        videoNode.controls = true;
-                        videoNode.style.maxWidth = "100%";
-                        
-                        // Insere no editor correto
-                        if(currentEditorContext) {
-                            currentEditorContext.invoke('editor.restoreRange');
-                            currentEditorContext.invoke('editor.insertNode', videoNode);
-                            // Adiciona um parágrafo vazio depois para não quebrar layout
-                            currentEditorContext.invoke('editor.pasteHTML', '<p><br></p>');
-                        }
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        alert('Erro ao enviar vídeo: ' + textStatus);
-                        var loadingText = document.getElementById('temp-loading');
-                        if(loadingText) loadingText.remove();
-                    }
-                });
-            }
-            
-            // Limpa o input para permitir enviar o mesmo arquivo novamente se quiser
-            $(this).val('');
-        });
+    // Inicia os editores já existentes ao carregar
+    $(document).ready(function() {
+        initSummernote('.summernote'); // O principal
+        initSummernote('.summernote-dynamic'); // Os dinâmicos já carregados do banco
     });
+
+    function addSection() {
+        const index = sectionCount++;
+        const html = `
+            <div class="section-item p-6 bg-white rounded-xl border border-gray-300 shadow-sm relative group hover:border-[#358054] transition-colors mt-6 slide-in">
+                <button type="button" onclick="removeSection(this)" class="absolute top-4 right-4 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition" title="Remover seção">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+
+                <div class="mb-4 pr-12">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Título da Seção</label>
+                    <input type="text" name="sections[${index}][title]" class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-[#358054]" placeholder="Título da nova seção">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Conteúdo</label>
+                    <textarea id="summernote-${index}" name="sections[${index}][content]" class="summernote-dynamic"></textarea>
+                </div>
+            </div>
+        `;
+
+        $('#sections-container').append(html);
+        
+        // Inicializa o Summernote no novo textarea criado
+        initSummernote(`#summernote-${index}`);
+    }
+
+    function removeSection(button) {
+        if(confirm('Tem certeza que deseja remover esta seção?')) {
+            $(button).closest('.section-item').remove();
+        }
+    }
 </script>
+
+<style>
+    .slide-in {
+        animation: slideDown 0.3s ease-out;
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
 
 @endsection
