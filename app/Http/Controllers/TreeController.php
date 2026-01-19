@@ -174,11 +174,10 @@ class TreeController extends Controller
      * ============================================================ */
     public function storeTree(Request $request)
     {
-        // 1. Validação (Mantida igual)
         $validated = $request->validate([
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
-            'health_status' => 'nullable|string|max:255', // Ajustado para aceitar qualquer string (Boa, Regular, etc)
+            'health_status' => 'nullable|in:good,fair,poor',
             'planted_at' => 'nullable|date|before_or_equal:today',
             'trunk_diameter' => 'nullable|numeric|min:0',
             'address' => 'nullable|string|max:255',
@@ -191,13 +190,13 @@ class TreeController extends Controller
             'crown_height' => 'nullable|numeric|min:0',
             'crown_diameter_longitudinal' => 'nullable|numeric|min:0',
             'crown_diameter_perpendicular' => 'nullable|numeric|min:0',
-            'bifurcation_type' => 'nullable|string|max:255',
-            'stem_balance' => 'nullable|string|max:500',
-            'crown_balance' => 'nullable|string|max:255',
+            'bifurcation_type' => 'nullable|string|max:100',
+            'stem_balance' => 'nullable|string|max:100',
+            'crown_balance' => 'nullable|string|max:100',
             'organisms' => 'nullable|string|max:255',
-            'target' => 'nullable|string|max:500',
+            'target' => 'nullable|string|max:255',
             'injuries' => 'nullable|string|max:255',
-            'wiring_status' => 'nullable|string|max:255',
+            'wiring_status' => 'nullable|string|max:100',
             'total_width' => 'nullable|numeric|min:0',
             'street_width' => 'nullable|numeric|min:0',
             'gutter_height' => 'nullable|numeric|min:0',
@@ -208,15 +207,11 @@ class TreeController extends Controller
 
         $treeData = $validated;
 
-        // Lógica de nomes padrão
-        if (empty($treeData['scientific_name'])) {
-            $treeData['scientific_name'] = 'Não identificada';
-        }
-        if (empty($treeData['vulgar_name'])) {
-            $treeData['vulgar_name'] = 'Não identificada';
-        }
+        // Defaults para campos vazios
+        if (empty($treeData['scientific_name'])) $treeData['scientific_name'] = 'Não identificada';
+        if (empty($treeData['vulgar_name'])) $treeData['vulgar_name'] = 'Não identificada';
 
-        // Definição de Aprovação e Responsável
+        // Lógica de aprovação automática
         if (auth()->guard('analyst')->check()) {
             $treeData['admin_id'] = null;
             $treeData['analyst_id'] = auth()->guard('analyst')->id();
@@ -229,11 +224,9 @@ class TreeController extends Controller
             $treeData['aprovado'] = 0;
         }
 
-        // 2. CRIA A ÁRVORE
         $tree = Tree::create($treeData);
 
-        // Logs
-        $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? $tree->scientific_name;
+        // Registro de Log
         if (auth()->guard('admin')->check()) {
             $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? $tree->scientific_name;
             AdminLog::create([
@@ -244,13 +237,9 @@ class TreeController extends Controller
         }
 
         $msg = $treeData['aprovado'] ? 'Árvore cadastrada com sucesso!' : 'Árvore enviada para aprovação!';
-        
-        // 3. RETORNO CORRIGIDO (Envia o ID para a View criar o botão)
-        return redirect()
-            ->route('admin.map') 
-            ->with('success', $msg)
-            ->with('new_tree_id', $tree->id); // <--- AQUI ESTÁ A MÁGICA
+        return redirect()->route('admin.map')->with('success', $msg);
     }
+
     /* ============================================================
      * LISTA DE PENDENTES
      * ============================================================ */
@@ -318,8 +307,7 @@ class TreeController extends Controller
             'vulgar_name' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
-            // Alterado para aceitar os valores em português: Boa, Regular, Ruim
-            'health_status' => 'nullable|in:Boa,Regular,Ruim',
+            'health_status' => 'nullable|in:good,fair,poor',
             'planted_at' => 'nullable|date|before_or_equal:today',
             'trunk_diameter' => 'nullable|numeric|min:0',
             'address' => 'nullable|string|max:255',
@@ -330,14 +318,13 @@ class TreeController extends Controller
             'crown_height' => 'nullable|numeric|min:0',
             'crown_diameter_longitudinal' => 'nullable|numeric|min:0',
             'crown_diameter_perpendicular' => 'nullable|numeric|min:0',
-            'bifurcation_type' => 'nullable|string|max:255',
-            // Aumentado o limite para aceitar as descrições longas
-            'stem_balance' => 'nullable|string|max:500',
-            'crown_balance' => 'nullable|string|max:255',
+            'bifurcation_type' => 'nullable|string|max:100',
+            'stem_balance' => 'nullable|string|max:100',
+            'crown_balance' => 'nullable|string|max:100',
             'organisms' => 'nullable|string|max:255',
-            'target' => 'nullable|string|max:500',
+            'target' => 'nullable|string|max:255',
             'injuries' => 'nullable|string|max:255',
-            'wiring_status' => 'nullable|string|max:255',
+            'wiring_status' => 'nullable|string|max:100',
             'total_width' => 'nullable|numeric|min:0',
             'street_width' => 'nullable|numeric|min:0',
             'gutter_height' => 'nullable|numeric|min:0',

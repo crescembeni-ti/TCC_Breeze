@@ -32,17 +32,20 @@
 
     <div class="bg-white rounded-lg shadow-sm p-6">
         
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 border-b border-gray-100 pb-4">
+        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4 border-b border-gray-100 pb-4">
             <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 📋 Histórico de Atividades
             </h2>
 
-            <form method="GET" action="{{ route('admin.dashboard') }}" class="w-full sm:w-auto flex flex-col sm:flex-row gap-3">
+            {{-- FORMULÁRIO DE FILTROS --}}
+            <form method="GET" action="{{ route('admin.dashboard') }}" 
+                  x-data="{ period: '{{ request('period') }}' }" 
+                  class="w-full xl:w-auto flex flex-col md:flex-row gap-3 items-end">
                 
                 {{-- Filtro de Ação --}}
-                <div class="relative">
+                <div class="relative w-full md:w-auto">
                     <select name="filter" onchange="this.form.submit()" 
-                            class="appearance-none w-full sm:w-48 bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-green-500 cursor-pointer shadow-sm">
+                            class="appearance-none w-full md:w-48 bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:border-green-500 cursor-pointer shadow-sm">
                         <option value="" {{ request('filter') == '' ? 'selected' : '' }}>Todas as Ações</option>
                         <option value="cadastro" {{ request('filter') == 'cadastro' ? 'selected' : '' }}>✅ Cadastros</option>
                         <option value="atualizacao" {{ request('filter') == 'atualizacao' ? 'selected' : '' }}>✏️ Atualizações</option> 
@@ -54,18 +57,28 @@
                     </div>
                 </div>
 
-                {{-- Filtro de Período (DATA) --}}
-                <div class="relative">
-                    <select name="period" onchange="this.form.submit()" 
-                            class="appearance-none w-full sm:w-48 bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-green-500 cursor-pointer shadow-sm">
-                        <option value="" {{ request('period') == '' ? 'selected' : '' }}>Todo o Período</option>
-                        <option value="7_days" {{ request('period') == '7_days' ? 'selected' : '' }}>📅 Últimos 7 dias</option>
-                        <option value="30_days" {{ request('period') == '30_days' ? 'selected' : '' }}>📅 Últimos 30 dias</option>
-                        <option value="year" {{ request('period') == 'year' ? 'selected' : '' }}>📅 Último Ano</option>
+                {{-- Filtro de Período --}}
+                <div class="relative w-full md:w-auto">
+                    <select name="period" x-model="period" onchange="if(this.value != 'custom') this.form.submit()" 
+                            class="appearance-none w-full md:w-48 bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:border-green-500 cursor-pointer shadow-sm">
+                        <option value="">Todo o Período</option>
+                        <option value="7_days">📅 Últimos 7 dias</option>
+                        <option value="30_days">📅 Últimos 30 dias</option>
+                        <option value="custom">📆 Personalizado</option>
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                     </div>
+                </div>
+
+                {{-- CAMPOS DE DATA (Aparecem só se "Personalizado" for escolhido) --}}
+                <div x-show="period === 'custom'" x-transition class="flex gap-2 w-full md:w-auto" style="display: none;">
+                    <input type="date" name="date_start" value="{{ request('date_start') }}" class="rounded-lg border-gray-300 text-sm focus:border-green-500 focus:ring-green-500 w-full md:w-auto">
+                    <span class="self-center text-gray-500">até</span>
+                    <input type="date" name="date_end" value="{{ request('date_end') }}" class="rounded-lg border-gray-300 text-sm focus:border-green-500 focus:ring-green-500 w-full md:w-auto">
+                    <button type="submit" class="bg-[#358054] text-white px-3 py-2 rounded-lg hover:bg-green-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                 </div>
 
             </form>
@@ -73,7 +86,7 @@
 
         <div class="space-y-3">
             @forelse($adminLogs as $log)
-                {{-- Lógica para definir cores baseada na ação --}}
+                {{-- Lógica de cores mantida --}}
                 @php
                     $isCreate = Str::contains($log->action, 'create');
                     $isUpdate = Str::contains($log->action, 'update');
@@ -81,7 +94,6 @@
                     
                     $bgColor = $isCreate ? 'bg-green-50' : ($isUpdate ? 'bg-blue-50' : ($isDelete ? 'bg-red-50' : 'bg-gray-50'));
                     $borderColor = $isCreate ? 'border-green-200' : ($isUpdate ? 'border-blue-200' : ($isDelete ? 'border-red-200' : 'border-gray-200'));
-                    $textColor = $isCreate ? 'text-green-700' : ($isUpdate ? 'text-blue-700' : ($isDelete ? 'text-red-700' : 'text-gray-700'));
                 @endphp
 
                 <div class="flex items-start gap-4 p-4 rounded-lg border {{ $borderColor }} {{ $bgColor }} transition hover:shadow-sm">
