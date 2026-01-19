@@ -28,12 +28,12 @@ class ContactController extends Controller
         ]);
     }
 
-    // 2. Salvar Solicitação (ATUALIZADO COM TELEFONE)
+    // 2. Salvar Solicitação
     public function store(Request $request)
     {
         $request->validate([
             'topico' => 'required|string|max:255',
-            'telefone' => 'required|string|max:20', // <--- Validação do Telefone
+            'telefone' => 'required|string|max:20', 
             'bairro' => 'required|string|max:255',
             'rua' => 'required|string|max:255',
             'descricao' => 'required|string',
@@ -50,7 +50,7 @@ class ContactController extends Controller
 
         Contact::create([
             'topico' => $request->topico,
-            'telefone' => $request->telefone, // <--- Salva o Telefone
+            'telefone' => $request->telefone, 
             'bairro' => $request->bairro,
             'rua' => $request->rua,
             'numero' => $request->numero,
@@ -82,21 +82,20 @@ class ContactController extends Controller
      * ÁREA DO ADMIN (GESTÃO)
      * ============================================================ */
 
-    // 4. Listagem Principal (Admin)
+    // 4. Listagem Principal (Admin) com Filtros de Status e Data
    public function adminContactList(Request $request)
     {
         $filtro = $request->get('filtro', 'pendentes');
 
-        // MUDANÇA AQUI: Adicionado .service ao final de serviceOrder
-        // Isso permite acessar o nome da equipe no JavaScript
         $query = Contact::with(['status', 'user', 'serviceOrder.service']);
 
+        // --- Filtro de Status (Abas) ---
         if ($filtro === 'pendentes') {
             $query->whereHas('status', fn ($q) =>
                 $q->whereIn('name', ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'])
             );
 
-            // Regra de visibilidade (Admin vê tudo, exceto o que está COM o analista ou Vistoriado/Sem Visto)
+            // Regra de visibilidade: Admin não vê o que está com analista ou serviço (salvo exceções)
             $query->where(function ($mainQuery) {
                 $mainQuery->whereDoesntHave('serviceOrder', function ($q) {
                     $q->whereIn('destino', ['analista', 'servico']);
@@ -113,6 +112,18 @@ class ContactController extends Controller
             );
         }
 
+        // --- Filtro de Período (Data) ---
+        if ($request->filled('period')) {
+            $period = $request->period;
+            if ($period == '7_days') {
+                $query->where('created_at', '>=', now()->subDays(7));
+            } elseif ($period == '30_days') {
+                $query->where('created_at', '>=', now()->subDays(30));
+            } elseif ($period == 'year') {
+                $query->where('created_at', '>=', now()->subYear());
+            }
+        }
+
         return view('admin.contacts.index', [
             'messages' => $query->latest()->get(),
             'allStatuses' => Status::where('name', '!=', 'Cancelado')->get(),
@@ -121,6 +132,7 @@ class ContactController extends Controller
             'filtro' => $filtro,
         ]);
     }
+
     // 5. Atualizar Status Manualmente
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
@@ -158,7 +170,6 @@ class ContactController extends Controller
         
         $contact->update(['analyst_id' => $request->analyst_id]);
         
-        // Define destino='analista' -> Some da lista principal e vai para a tela de OS
         ServiceOrder::updateOrCreate(
             ['contact_id' => $contact->id],
             [
@@ -177,7 +188,6 @@ class ContactController extends Controller
     {
         $request->validate(['service_id' => 'required|exists:services,id']);
         
-        // Define destino='servico' -> Vai para a tela de OS
         $os->update([
             'service_id' => $request->service_id,
             'destino' => 'servico',
@@ -196,7 +206,6 @@ class ContactController extends Controller
     {
         $analystId = Auth::guard('analyst')->id();
 
-        // Contadores
         $countPendentes = ServiceOrder::where('analyst_id', $analystId)
             ->where('destino', 'analista')
             ->count();
@@ -205,7 +214,6 @@ class ContactController extends Controller
             ->where('status', 'analise_concluida')
             ->count();
 
-        // Lista recente para a tabela no Dashboard
         $vistorias = ServiceOrder::with(['contact.user']) 
             ->where('analyst_id', $analystId)
             ->where('destino', 'analista')
@@ -221,7 +229,6 @@ class ContactController extends Controller
     {
         $analystId = Auth::guard('analyst')->id();
 
-        // Carrega contact.user e contact.status para exibir na tabela
         $vistorias = ServiceOrder::with(['contact.user', 'contact.status'])
             ->where('analyst_id', $analystId)
             ->where('destino', 'analista')
@@ -250,48 +257,36 @@ class ContactController extends Controller
     {
         $request->validate([
             'contact_id' => 'required|exists:contacts,id',
-            'data_vistoria' => 'required|date|before_or_equal:today', // Vistoria: Hoje ou antes
-            'data_execucao' => 'nullable|date|after_or_equal:today',  // Execução: Hoje ou depois
+            'data_vistoria' => 'required|date|before_or_equal:today', 
+            'data_execucao' => 'nullable|date|after_or_equal:today',  
         ], [
-            // Mensagens personalizadas (opcional)
             'data_vistoria.before_or_equal' => 'A data da vistoria não pode ser no futuro.',
             'data_execucao.after_or_equal' => 'A previsão de execução não pode ser no passado.',
         ]);
 
         $os = ServiceOrder::where('contact_id', $request->contact_id)->firstOrFail();
 
-        // Tratamento para Especies (se o seu Model espera array, mas o form manda string)
         $especies = $request->especies;
         if (is_string($especies) && !empty($especies)) {
-            // Transforma "Ipê, Mangueira" em ["Ipê", "Mangueira"] para evitar erro de Array
             $especies = array_map('trim', explode(',', $especies));
         }
 
-        // ATUALIZA TODOS OS DADOS VINDOS DO FORMULÁRIO
         $os->update([
-            // 1. Dados Técnicos (Estavam faltando!)
             'latitude'      => $request->latitude,
             'longitude'     => $request->longitude,
             'especies'      => $especies, 
             'quantidade'    => $request->quantidade,
-
-            // 2. Datas (Agora pega o que o analista digitou)
-            'data_vistoria' => $request->data_vistoria ?? now(), // Usa o input ou data atual se falhar
+            'data_vistoria' => $request->data_vistoria ?? now(),
             'data_execucao' => $request->data_execucao,
-
-            // 3. Checkboxes e Textos
             'motivos'       => $request->motivo ?? null,
             'servicos'      => $request->servico ?? null,
             'equipamentos'  => $request->equip ?? null,
             'observacoes'   => $request->observacoes ?? null,
-            
-            // 4. Controle de Fluxo
             'supervisor_id' => Auth::guard('analyst')->id(),
             'destino'       => null, 
             'status'        => 'analise_concluida'
         ]);
 
-        // ATUALIZA O STATUS DO CONTATO
         $statusVistoriado = Status::where('name', 'Vistoriado')->first();
         if ($statusVistoriado) {
             $os->contact->update(['status_id' => $statusVistoriado->id]);
