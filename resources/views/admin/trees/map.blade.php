@@ -1,4 +1,4 @@
-       @extends('layouts.dashboard')
+@extends('layouts.dashboard')
 
 @section('content')
     {{-- X-DATA PARA CONTROLAR O MODAL DE CADASTRO --}}
@@ -6,7 +6,13 @@
         showModal: false, 
         
         openModal() {
-            this.showModal = true;
+            // Validação simples de HTML antes de abrir o modal
+            const form = document.getElementById('form-create');
+            if (form.checkValidity()) {
+                this.showModal = true;
+            } else {
+                form.reportValidity();
+            }
         },
 
         confirmAction() {
@@ -20,19 +26,25 @@
             </h2>
         </div>
 
-       @if (session('success'))
-            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex justify-between items-center">
-                <div><strong>Sucesso!</strong> {{ session('success') }}</div>
+        {{-- MENSAGEM DE SUCESSO COM BOTÃO DE ZOOM --}}
+        @if (session('success'))
+            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex justify-between items-center shadow-sm">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Sucesso!</strong> {{ session('success') }}</span>
+                </div>
                 
-                {{-- CORREÇÃO 1: Botão leva para a rota HOME (Mapa Principal da Welcome) --}}
-                <a href="{{ route('home') }}" 
-                   class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm transition flex items-center gap-1 decoration-0">
+                @if (session('new_tree_id'))
+                <a href="{{ route('home', ['focus_tree' => session('new_tree_id')]) }}" 
+                   target="_blank"
+                   class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-4 rounded shadow-md transition flex items-center gap-2 decoration-0 transform hover:scale-105">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    Ver no Mapa Principal
+                    Ver no Mapa Público
                 </a>
+                @endif
             </div>
         @endif
 
@@ -112,11 +124,20 @@
                                     else { this.filtered = this.list.filter(item => item.toLowerCase().includes(this.query.toLowerCase())); }
                                     this.open = true;
                                 },
-                                select(name) { this.query = name; this.open = false; }
+                                select(name) { 
+                                    this.query = name; 
+                                    this.open = false; 
+                                    // Atualiza input e dispara evento change
+                                    setTimeout(() => {
+                                        const el = document.getElementById('scientific_name_input');
+                                        el.value = name;
+                                        el.dispatchEvent(new Event('change'));
+                                    }, 50);
+                                }
                             }" x-init="initList()" class="relative">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nome Científico</label>
                             <div class="relative">
-                                <input type="text" name="scientific_name" x-model="query" @input="filter()" @click="filter()" @click.outside="open = false" autocomplete="off" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500" placeholder="Selecione ou digite...">
+                                <input type="text" id="scientific_name_input" name="scientific_name" x-model="query" @input="filter()" @click="filter()" @click.outside="open = false" autocomplete="off" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500" placeholder="Selecione ou digite...">
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></div>
                             </div>
                             <ul x-show="open && filtered.length > 0" x-transition class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto" style="display: none;">
@@ -126,7 +147,7 @@
                             </ul>
                         </div>
 
-                        {{-- NOME VULGAR (CORRIGIDO: Autocomplete Híbrido) --}}
+                        {{-- NOME VULGAR (Autocomplete) --}}
                         <div x-data="{
                                 query: '{{ old('vulgar_name') }}',
                                 open: false,
@@ -138,11 +159,20 @@
                                     else { this.filtered = this.list.filter(item => item.toLowerCase().includes(this.query.toLowerCase())); }
                                     this.open = true;
                                 },
-                                select(name) { this.query = name; this.open = false; }
+                                select(name) { 
+                                    this.query = name; 
+                                    this.open = false; 
+                                    // Atualiza input e dispara evento change
+                                    setTimeout(() => {
+                                        const el = document.getElementById('vulgar_name_input');
+                                        el.value = name;
+                                        el.dispatchEvent(new Event('change'));
+                                    }, 50);
+                                }
                             }" x-init="initList()" class="relative">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nome Vulgar</label>
                             <div class="relative">
-                                <input type="text" name="vulgar_name" x-model="query" @input="filter()" @click="filter()" @click.outside="open = false" autocomplete="off" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500" placeholder="Selecione ou digite...">
+                                <input type="text" id="vulgar_name_input" name="vulgar_name" x-model="query" @input="filter()" @click="filter()" @click.outside="open = false" autocomplete="off" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500" placeholder="Selecione ou digite...">
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></div>
                             </div>
                             <ul x-show="open && filtered.length > 0" x-transition class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto" style="display: none;">
@@ -182,19 +212,21 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
-                            <input type="number" step="0.0000001" id="latitude" name="latitude" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Latitude <span class="text-red-500">*</span></label>
+                            <input type="number" step="0.0000001" id="latitude" name="latitude" required class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                             <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
-                            <input type="number" step="0.0000001" id="longitude" name="longitude" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
+                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Longitude <span class="text-red-500">*</span></label>
+                            <input type="number" step="0.0000001" id="longitude" name="longitude" required class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                             <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
                         </div>
                     </div>
                 </div>
 
-                {{-- SEÇÃO 3: DADOS GERAIS --}}
+                {{-- SEÇÃO 3: DADOS GERAIS (DIÂMETRO REMOVIDO) --}}
                 <div>
                     <div class="flex items-center gap-2 mb-4 border-b pb-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -203,7 +235,7 @@
                         <h4 class="text-xl font-bold text-gray-700">Status da Árvore</h4>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div x-data="{ open: false, selected: '{{ old('health_status') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Estado de Saúde</label>
                             <button @click="open = !open" type="button" class="w-full border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between px-3 py-2 shadow-sm focus:ring-green-500 focus:border-green-500">
@@ -222,43 +254,30 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Data de Plantio</label>
                             <input type="date" name="planted_at" max="{{ now()->format('Y-m-d') }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
                         </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Diâmetro do Tronco (cm)</label>
-                            <input type="number" step="0.01" name="trunk_diameter" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
-                        </div>
                     </div>
                 </div>
 
                 {{-- SEÇÃO 4: DIMENSÕES --}}
                 <div>
                     <div class="flex items-center gap-2 mb-4 border-b pb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                         <h4 class="text-xl font-bold text-gray-700">Dimensões da Árvore</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         @foreach(['cap' => 'CAP (cm)', 'height' => 'Altura (m)', 'crown_height' => 'Altura da Copa (m)', 'crown_diameter_longitudinal' => 'Copa Longitudinal (m)', 'crown_diameter_perpendicular' => 'Copa Perpendicular (m)', 'total_width' => 'Largura Total (m)', 'street_width' => 'Largura da Rua (m)', 'gutter_height' => 'Altura da Gola (m)', 'gutter_width' => 'Largura da Gola (m)', 'gutter_length' => 'Comprimento da Gola (m)'] as $field => $label)
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $label }}</label>
-                            <input type="number" step="0.01" name="{{ $field }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
-                        </div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">{{ $label }}</label><input type="number" step="0.01" name="{{ $field }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500"></div>
                         @endforeach
                     </div>
                 </div>
 
-                {{-- SEÇÃO 5: CARACTERÍSTICAS BIOLÓGICAS (CORRIGIDA) --}}
+                {{-- SEÇÃO 5: CARACTERÍSTICAS BIOLÓGICAS (MANTIDO) --}}
                 <div>
                     <div class="flex items-center gap-2 mb-4 border-b pb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                         <h4 class="text-xl font-bold text-gray-700">Condições Biológicas</h4>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {{-- Bifurcação --}}
                         <div x-data="{ open: false, selected: '{{ old('bifurcation_type') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Bifurcação</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
@@ -270,7 +289,6 @@
                             <input type="hidden" name="bifurcation_type" :value="selected">
                         </div>
 
-                        {{-- Fuste (CORRIGIDO) --}}
                         <div x-data="{ open: false, selected: '{{ old('stem_balance') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio Fuste</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
@@ -278,12 +296,11 @@
                                 <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
                                 <li @click="selected='Maior que 45°'; selectedName='Maior que 45°'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Maior que 45°</li>
                                 <li @click="selected='Menor que 45°'; selectedName='Menor que 45°'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Menor que 45°</li>
-                                <li @click="selected='Acidental ou associada à elevação da superfície do terreno pelo conjunto de raízes no lado oposto à inclinação'; selectedName='Acidental ou associada à elevação da superfície do terreno pelo conjunto de raízes no lado oposto à inclinação'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Acidental ou associada à elevação da superfície do terreno pelo conjunto de raízes no lado oposto à inclinação</li>
+                                <li @click="selected='Acidental...'; selectedName='Acidental...'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Acidental...</li>
                             </ul>
                             <input type="hidden" name="stem_balance" :value="selected">
                         </div>
 
-                        {{-- Copa --}}
                         <div x-data="{ open: false, selected: '{{ old('crown_balance') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio Copa</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
@@ -298,19 +315,14 @@
                     </div>
                 </div>
 
-                {{-- SEÇÃO 6: AMBIENTE (CORRIGIDA) --}}
+                {{-- SEÇÃO 6: AMBIENTE (MANTIDO) --}}
                 <div>
                     <div class="flex items-center gap-2 mb-4 border-b pb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0a8.1 8.1 0 001-8c0-4.42-3.58-8-8-8a8.1 8.1 0 00-1 8m6 8a2 2 0 11-4 0M6 8a2 2 0 11-4 0" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14c-4 0-6-4-6-4m6 4c4 0 6-4 6-4" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0a8.1 8.1 0 001-8c0-4.42-3.58-8-8-8a8.1 8.1 0 00-1 8m6 8a2 2 0 11-4 0M6 8a2 2 0 11-4 0" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14c-4 0-6-4-6-4m6 4c4 0 6-4 6-4" /></svg>
                         <h4 class="text-xl font-bold text-gray-700">Ambiente e Entorno</h4>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        
-                        {{-- Organismos --}}
                         <div x-data="{ open: false, selected: '{{ old('organisms') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Organismos</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
@@ -323,19 +335,17 @@
                             <input type="hidden" name="organisms" :value="selected">
                         </div>
 
-                        {{-- Alvo (CORRIGIDO) --}}
                         <div x-data="{ open: false, selected: '{{ old('target') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Alvo (Fluxo)</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas'; selectedName='Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas</li>
-                                <li @click="selected='Ruas principais ou secundárias com fluxo intermediário de veículos e pessoas'; selectedName='Ruas principais ou secundárias com fluxo intermediário de veículos e pessoas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas principais ou secundárias com fluxo intermediário de veículos e pessoas</li>
-                                <li @click="selected='Avenidas ou ruas principais com fluxo intenso de veículos e pessoas'; selectedName='Avenidas ou ruas principais com fluxo intenso de veículos e pessoas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Avenidas ou ruas principais com fluxo intenso de veículos e pessoas</li>
+                                <li @click="selected='Ruas secundárias...'; selectedName='Ruas secundárias...'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas secundárias...</li>
+                                <li @click="selected='Ruas principais...'; selectedName='Ruas principais...'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas principais...</li>
+                                <li @click="selected='Avenidas...'; selectedName='Avenidas...'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Avenidas...</li>
                             </ul>
                             <input type="hidden" name="target" :value="selected">
                         </div>
 
-                        {{-- Injúrias (CORRIGIDO) --}}
                         <div x-data="{ open: false, selected: '{{ old('injuries') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Injúrias Mecânicas</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
@@ -347,7 +357,6 @@
                             <input type="hidden" name="injuries" :value="selected">
                         </div>
 
-                        {{-- Fiação (CORRIGIDO) --}}
                         <div x-data="{ open: false, selected: '{{ old('wiring_status') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Estado da fiação</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
@@ -362,66 +371,71 @@
                     </div>
                 </div>
 
-                {{-- BOTÃO CADASTRAR (ACIONA MODAL) --}}
-                <button type="button" @click="openModal()"
-                    class="bg-green-600 text-white text-lg rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] active:scale-95 transition px-6 py-3 mt-4">
-                    Adicionar Árvore
-                </button>
-
+                <button type="button" @click="openModal()" class="bg-green-600 text-white text-lg rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] active:scale-95 transition px-6 py-3 mt-4">Adicionar Árvore</button>
             </form>
         </div>
 
-        {{-- MAPA --}}
         <div id="map-section" class="bg-white border border-gray-200 shadow rounded-xl p-8 scroll-mt-24">
             <h3 class="text-2xl font-bold mb-4 text-gray-800">Mapa de Árvores</h3>
             <p class="text-sm text-gray-600 mb-4">Clique no mapa para definir coordenadas.</p>
             <div id="map" class="rounded-xl overflow-hidden" style="height: 500px;"></div>
         </div>
 
-        {{-- MODAL DE CONFIRMAÇÃO (COMPONENTE) --}}
-        <div x-show="showModal" 
-             style="display: none;"
-             class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[9999] flex items-center justify-center backdrop-blur-sm"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
+        <div x-show="showModal" style="display: none;" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[9999] flex items-center justify-center backdrop-blur-sm"
+             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
              @click.stop>
-            
             <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center relative" @click.outside="showModal = false">
-                <div class="mb-4 flex justify-center">
-                    <div class="rounded-full bg-green-100 bg-opacity-50 p-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                    </div>
-                </div>
-
+                <div class="mb-4 flex justify-center"><div class="rounded-full bg-green-100 bg-opacity-50 p-3"><svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg></div></div>
                 <h3 class="text-xl font-bold text-gray-900 mb-2">Cadastrar Árvore?</h3>
                 <p class="text-gray-500 mb-6">Confirma o cadastro desta nova árvore no sistema?</p>
-
                 <div class="flex justify-center gap-4">
-                    <button @click="showModal = false" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
-                        Cancelar
-                    </button>
-                    <button @click="confirmAction()" class="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition shadow-md">
-                        Sim, Cadastrar
-                    </button>
+                    <button @click="showModal = false" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">Cancelar</button>
+                    <button @click="confirmAction()" class="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition shadow-md">Sim, Cadastrar</button>
                 </div>
             </div>
         </div>
-
     </div>
 @endsection
 
 @push('scripts')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    {{-- SCRIPT DO AUTOCOMPLETE BIDIRECIONAL --}}
+    <script>
+        const speciesMap = @json($speciesMap ?? []);
+        const vulgarToScientific = @json($vulgarToScientific ?? []);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const scientificInput = document.getElementById('scientific_name_input'); 
+            const vulgarInput = document.getElementById('vulgar_name_input');
+
+            if (scientificInput && vulgarInput) {
+                // Científico -> Vulgar
+                scientificInput.addEventListener('change', function() {
+                    const selected = this.value;
+                    if (speciesMap[selected]) {
+                        vulgarInput.value = speciesMap[selected];
+                        vulgarInput.dispatchEvent(new Event('input')); 
+                    }
+                });
+
+                // Vulgar -> Científico (REVERSO)
+                vulgarInput.addEventListener('change', function() {
+                    const selected = this.value;
+                    if (vulgarToScientific[selected]) {
+                        scientificInput.value = vulgarToScientific[selected];
+                        scientificInput.dispatchEvent(new Event('input')); 
+                    }
+                });
+            }
+        });
+    </script>
+
+    {{-- SCRIPT DO MAPA (MANTIDO) --}}
     <script>
         document.addEventListener("DOMContentLoaded", async function() {
-            // ... (SEU SCRIPT DE MAPA ORIGINAL AQUI - NÃO ALTERADO) ...
             const map = L.map('map').setView([-22.6091, -43.7089], 14);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
             let tempMarker = null;
@@ -484,7 +498,4 @@
             });
         });
     </script>
-@endpush
-
-
-      
+@endpush    
