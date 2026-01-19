@@ -8,6 +8,7 @@ use App\Models\AdminLog;
 use App\Models\Bairro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; 
+// Importações necessárias para o Excel
 use App\Exports\TreesExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -60,7 +61,7 @@ class TreeController extends Controller
             ->whereNotNull('latitude')->whereNotNull('longitude')
             ->where('latitude', '!=', 0)->where('longitude', '!=', 0);
 
-        // --- Filtros ---
+        // --- APLICAÇÃO DOS FILTROS ---
         if ($request->filled('scientific_name')) {
             $query->where('scientific_name', $request->scientific_name);
         }
@@ -83,7 +84,7 @@ class TreeController extends Controller
                 'trunk_diameter' => $tree->trunk_diameter,
                 'registered_by' => $tree->admin ? $tree->admin->name : 'Sistema',
 
-                // Campos extras para o popup/filtros do mapa
+                // Campos extras para o popup do Admin (usados no JS da home)
                 'health_status' => $tree->health_status,
                 'bifurcation_type' => $tree->bifurcation_type,
                 'stem_balance' => $tree->stem_balance,
@@ -170,7 +171,7 @@ class TreeController extends Controller
 
         $vulgarNames = Tree::whereNotNull('vulgar_name')
             ->where('vulgar_name', '!=', '')
-            ->where('vulgar_name', '!=', 'Não identificada')
+            ->where('vulgar_name', '!=', 'Não identificada') // Opcional: remove o padrão
             ->distinct()
             ->orderBy('vulgar_name')
             ->pluck('vulgar_name');
@@ -179,7 +180,7 @@ class TreeController extends Controller
             'trees' => Tree::with(['bairro'])->get(),
             'bairros' => Bairro::orderBy('nome')->get(),
             'scientificNames' => $scientificNames,
-            'vulgarNames' => $vulgarNames,
+            'vulgarNames' => $vulgarNames, // <--- NÃO ESQUEÇA DE PASSAR AQUI
         ]);
     }
 
@@ -245,7 +246,6 @@ class TreeController extends Controller
 
         // Registro de Log
         if (auth()->guard('admin')->check()) {
-            $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? $tree->scientific_name;
             AdminLog::create([
                 'admin_id' => auth()->guard('admin')->id(),
                 'action' => 'create_tree',
@@ -347,6 +347,7 @@ class TreeController extends Controller
             'address' => 'nullable|string|max:255',
             'bairro_id' => 'nullable|exists:bairros,id',
             'no_species_case' => 'nullable|string|max:255',
+            
             'cap' => 'nullable|numeric|min:0',
             'height' => 'nullable|numeric|min:0',
             'crown_height' => 'nullable|numeric|min:0',
@@ -369,10 +370,16 @@ class TreeController extends Controller
 
         $updateData = $validated;
 
-        if (empty($updateData['scientific_name'])) $updateData['scientific_name'] = 'Não identificada';
-        if (empty($updateData['vulgar_name'])) $updateData['vulgar_name'] = 'Não identificada';
+        if (empty($updateData['scientific_name'])) {
+            $updateData['scientific_name'] = 'Não identificada';
+        }
+        if (empty($updateData['vulgar_name'])) {
+            $updateData['vulgar_name'] = 'Não identificada';
+        }
 
         $tree->update($updateData);
+
+        $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? 'Atualizada';
 
         if (auth('admin')->check()) {
             $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? 'Atualizada';
@@ -408,26 +415,45 @@ class TreeController extends Controller
         return redirect()->route('admin.trees.index')->with('success', 'Árvore excluída!');
     }
 
-    /* ============================================================
-     * ÁREA DO ANALISTA
-     * ============================================================ */
+    // ==========================================================
+    // ÁREA DO ANALISTA
+    // ==========================================================
+
     public function analystMap()
     {
         $bairros = Bairro::orderBy('nome')->get();
+        
+        // 1. Busca todas as árvores para mostrar no mapa
         $trees = Tree::all(); 
 
         $scientificNames = Tree::whereNotNull('scientific_name')
             ->where('scientific_name', '!=', '')
             ->distinct()
             ->orderBy('scientific_name')
-            ->pluck('scientific_name');
+            ->pluck('scientific_name')
+            ->toArray();
 
-        $vulgarNames = Tree::whereNotNull('vulgar_name')
-            ->where('vulgar_name', '!=', '')
-            ->where('vulgar_name', '!=', 'Não identificada')
-            ->distinct()
-            ->orderBy('vulgar_name')
-            ->pluck('vulgar_name');
+        // Lista de apoio para autocomplete
+        $commonSpecies = [
+            'Caesalpinia echinata (Pau-Brasil)',
+            'Handroanthus albus (Ipê-Amarelo)',
+            'Handroanthus heptaphyllus (Ipê-Roxo)',
+            'Tabebuia roseoalba (Ipê-Branco)',
+            'Delonix regia (Flamboyant)',
+            'Spathodea campanulata (Bisnagueira)',
+            'Terminalia catappa (Amendoeira)',
+            'Ficus benjamina (Ficus)',
+            'Mangifera indica (Mangueira)',
+            'Tibouchina granulosa (Quaresmeira)',
+            'Schinus terebinthifolia (Aroeira)',
+            'Jacaranda mimosifolia (Jacarandá-Mimoso)',
+            'Licania tomentosa (Oiti)'
+        ];
+
+        // 4. Junta tudo, remove duplicados e ordena
+        $allSpecies = array_unique(array_merge($registeredSpecies, $commonSpecies));
+        sort($allSpecies);
+        $species = collect($allSpecies)->map(fn($name) => ['name' => $name]);
 
         return view('analista.map', compact('bairros', 'trees', 'scientificNames', 'vulgarNames'));
     }

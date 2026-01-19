@@ -79,9 +79,13 @@
                     {{-- HEADER DA OS --}}
                     <div class="flex justify-between items-center mb-6 border-b pb-4">
                         <div class="flex items-center gap-2">
-                             <img src="{{ asset('images/Brasao_Verde.png') }}" class="h-16 w-auto" alt="Logo">
+                             <img src="{{ asset('images/secretaria_logo.png') }}" class="h-16 w-auto" alt="Logo">
                              <div class="text-xs text-gray-600 leading-tight font-bold uppercase">
-                                Estado do Rio de Janeiro<br>Município de Paracambi<br>Secretaria Municipal de Meio Ambiente
+                                Estado do Rio de Janeiro<br>
+                                Município de Paracambi<br>
+                                Secretaria Municipal de Meio Ambiente<br>
+                                SUPER INTENDÊNCIA DE ÁREAS VERDES<br>
+                                DIRETORIA DE ARBORIZAÇÃO URBANA
                              </div>
                         </div>
                         <div class="text-right">
