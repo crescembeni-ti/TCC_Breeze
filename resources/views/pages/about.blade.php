@@ -10,192 +10,119 @@
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @vite('resources/css/about.css') 
     
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
+    
+    <style>
+        /* Imagem de fundo fixa (Parallax) */
+        body {
+            background-image: url('/images/arvore.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+        /* Ajustes de tipografia */
+        .prose p { margin-bottom: 1rem; line-height: 1.6; color: #4b5563; }
+        .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .prose strong { color: #358054; font-weight: 700; }
+        .prose img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
+    </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-50 text-gray-800">
+<body class="font-sans antialiased text-gray-800 flex flex-col min-h-screen">
 
-    {{-- HEADER ATUALIZADO (Estrutura fina e dividida) --}}
-    <header class="site-header">
+    {{-- HEADER --}}
+    <header class="site-header bg-[#beffb4] border-b-2 border-[#358054] shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center flex-wrap gap-4">
             
-            {{-- LADO ESQUERDO: Logo Site + Texto --}}
+            {{-- LADO ESQUERDO --}}
             <div class="flex items-center gap-3 flex-shrink-0">
-                <a href="{{ route('home') }}" class="flex items-center gap-3">
-                    <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
+                <a href="{{ route('home') }}" class="flex items-center gap-3 group">
+                    <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 sm:h-14 sm:w-14 object-contain transition-transform group-hover:scale-105">
                     <h1 class="text-xl sm:text-2xl font-bold leading-tight">
+                        {{-- CORRIGIDO: Cores originais da marca para melhor contraste --}}
                         <span class="text-[#358054]">Árvores de</span>
-                        <span class="text-[#a0c520]"> Paracambi</span>
+                        <span class="text-[#a0c520]">Paracambi</span>
                     </h1>
                 </a>
             </div>
 
-            {{-- LADO DIREITO: Nova Logo + Menu --}}
+            {{-- LADO DIREITO --}}
             <div class="flex items-center gap-3 sm:gap-6">
+                <img src="{{ asset('images/nova_logo.png') }}" alt="Logo Prefeitura" class="header-logo-right hover:opacity-90 transition-opacity" style="height: 3.5rem; width: auto;">
                 
-                {{-- NOVA LOGO --}}
-                <img src="{{ asset('images/nova_logo.png') }}" 
-                     alt="Logo Prefeitura" 
-                     class="header-logo-right">
-
-                {{-- MENU --}}
-                <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">
-
-                    {{-- ADMIN LOGADO --}}
-                    @if (auth('admin')->check())
-                        {{-- Botão Exclusivo desta página: EDITAR --}}
-                        <a href="{{ route('admin.about.edit') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium shadow-sm transition flex items-center gap-2 text-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            <span class="hidden md:inline">Editar</span>
-                        </a>
-                        
-                        <a href="{{ route('admin.dashboard') }}"
-                            class="btn bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-sm rounded-lg hidden sm:block">
-                            Painel
-                        </a>
-
-                    {{-- USUÁRIO LOGADO --}}
-                    @elseif(auth()->check())
-                        <div class="relative group flex items-center">
-                            <a href="{{ route('dashboard') }}"
-                                class="btn bg-green-600 hover:bg-green-700 text-white hidden sm:block px-4 py-2 text-base rounded-lg">
-                                Menu
-                            </a>
-                            {{-- Tooltip --}}
-                            <div class="absolute bottom-[-55px] left-1/2 transform -translate-x-1/2
-                                bg-gradient-to-r from-[#358054] to-[#a0c520] text-white text-xs font-semibold
-                                py-1.5 px-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100
-                                pointer-events-none transition-all duration-200 whitespace-nowrap">
-                                Painel e opções
-                                <span class="absolute top-[-6px] left-1/2 transform -translate-x-1/2 w-0 h-0
-                                    border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent
-                                    border-b-[6px] border-b-[#358054]"></span>
-                            </div>
-                        </div>
-                        <form method="POST" action="{{ route('logout') }}">@csrf</form>
-
-                    {{-- VISITANTE --}}
-                    @else
-                        <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-sm rounded-lg hidden sm:block">
-                            Entrar
-                        </a>
-                        <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 text-white px-3 py-1.5 text-sm rounded-lg hidden sm:block">
-                            Cadastrar
-                        </a>
-
-                        {{-- MENU MOBILE --}}
-                        <div class="relative inline-block">
-                            <button id="guestMenuBtn"
-                                class="ml-2 btn bg-[#358054] text-white hover:bg-[#2d6e4b] px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 transition-all duration-200">
-                                Menu
-                                <svg id="iconMenu" class="w-5 h-5 transition-all duration-200" fill="none"
-                                    stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M4 6h16" />
-                                    <path d="M4 12h16" />
-                                    <path d="M4 18h16" />
-                                </svg>
-                            </button>
-
-                            <div id="guestMenu" class="hidden absolute right-0 mt-2 w-56 bg-[#e8ffe6] rounded-xl shadow-lg z-50 overflow-hidden border border-green-100">
-                                <a href="{{ route('contact') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Fazer Solicitação</a>
-                                <a href="{{ route('contact.myrequests') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Minhas Solicitações</a>
-                                <a href="{{ route('about') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Sobre o Site</a>
-                            </div>
-                        </div>
-
-                        <script>
-                            (function() {
-                                const btn = document.getElementById('guestMenuBtn');
-                                const menu = document.getElementById('guestMenu');
-                                const icon = document.getElementById('iconMenu');
-                                let aberto = false;
-                                if (!btn || !menu) return;
-                                btn.addEventListener('click', (e) => {
-                                    e.stopPropagation();
-                                    menu.classList.toggle('hidden');
-                                    aberto = !aberto;
-                                    icon.innerHTML = aberto ? `<path d="M6 6l12 12" /><path d="M6 18L18 6" />` : `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`;
-                                });
-                                window.addEventListener('click', () => {
-                                    if (!menu.classList.contains('hidden')) {
-                                        menu.classList.add('hidden');
-                                        icon.innerHTML = `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`;
-                                        aberto = false;
-                                    }
-                                });
-                            })();
-                        </script>
-                    @endif
-                </div>
-                {{-- FIM DO MENU --}}
+                <a href="{{ route('home') }}" class="btn bg-[#358054] text-white hover:bg-[#2d6e4b] px-4 py-2 rounded-lg font-bold shadow-sm transition">
+                    Voltar ao Mapa
+                </a>
+                
+                @if(auth('admin')->check())
+                    <a href="{{ route('admin.about.edit') }}" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow hover:bg-blue-700 transition flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Editar
+                    </a>
+                @endif
             </div>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div class="bg-gradient-to-r from-[#358054] to-[#4caf50] p-8 sm:p-12 text-center text-white">
-                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight text-white">
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+        
+        {{-- BLOCO 1: Título e Introdução --}}
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden mb-10 border border-gray-100">
+            <div class="bg-gradient-to-r from-[#358054] to-[#4caf50] p-8 text-center text-white">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
                     {{ $pageContent->title ?? 'Sobre o Projeto' }}
                 </h1>
-                <p class="text-green-100 text-lg max-w-2xl mx-auto">
-                    Conheça a iniciativa que está transformando a gestão ambiental da nossa cidade.
-                </p>
-            </div>
-
-            <div class="p-8 sm:p-12 space-y-12">
-                @if(!empty($pageContent->content))
-                <section class="prose prose-lg max-w-none text-gray-600">
-                    {!! $pageContent->content !!}
-                </section>
-                @endif
-
-                <hr class="border-gray-100">
-
-                @if(!empty($pageContent->mission_content))
-                <section class="bg-green-50 rounded-xl p-8 border border-green-100">
-                    <h2 class="text-2xl font-bold text-[#358054] mb-4 flex items-center gap-2">
-                        🎯 Nossa Missão
-                    </h2>
-                    <div class="prose prose-green max-w-none">
-                        {!! $pageContent->mission_content !!}
-                    </div>
-                </section>
-                @endif
-
-                @if(!empty($pageContent->how_it_works_content))
-                <section>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        ⚙️ Como Funciona
-                    </h2>
-                    <div class="prose max-w-none text-gray-600">
-                        {!! $pageContent->how_it_works_content !!}
-                    </div>
-                </section>
-                @endif
-
-                @if(!empty($pageContent->benefits_content))
-                <section>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        🌳 Benefícios das Árvores
-                    </h2>
-                    <div class="prose max-w-none text-gray-600">
-                        {!! $pageContent->benefits_content !!}
-                    </div>
-                </section>
-                @endif
             </div>
             
-            <div class="bg-gray-50 p-6 text-center border-t border-gray-100">
-                <p class="text-gray-500 text-sm">
-                    © {{ date('Y') }} Árvores de Paracambi. Todos os direitos reservados.
-                </p>
+            @if(!empty($pageContent->content))
+            <div class="p-8 sm:p-10 text-lg leading-relaxed text-gray-700">
+                <div class="prose max-w-none">
+                    {!! $pageContent->content !!}
+                </div>
             </div>
+            @endif
         </div>
+
+        {{-- BLOCO 2: Seções Dinâmicas (Cards) --}}
+        <div class="grid grid-cols-1 gap-8">
+            @if(!empty($pageContent->sections) && is_array($pageContent->sections))
+                @foreach($pageContent->sections as $section)
+                    <section class="bg-white/95 backdrop-blur-sm rounded-xl shadow-md border-l-4 border-[#358054] overflow-hidden transition-all hover:shadow-lg">
+                        <div class="p-6 sm:p-8">
+                            {{-- Título da Seção --}}
+                            <h2 class="text-2xl font-bold text-[#358054] mb-4 flex items-center gap-3 border-b border-gray-100 pb-3">
+                                {{-- Ícone opcional, se quiser remover basta apagar o SVG --}}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                {{ $section['title'] }}
+                            </h2>
+
+                            {{-- Conteúdo da Seção --}}
+                            <div class="prose max-w-none text-gray-600">
+                                {!! $section['content'] !!}
+                            </div>
+                        </div>
+                    </section>
+                @endforeach
+            @else
+                {{-- Fallback: Se ainda não carregou, recarregue a página --}}
+                <div class="text-center py-12 px-6 bg-white/90 rounded-lg border border-dashed border-gray-300">
+                    <h3 class="text-lg font-medium text-gray-900">Carregando conteúdo...</h3>
+                    <p class="text-gray-500 mt-1">Se os textos padrão não aparecerem, atualize a página.</p>
+                </div>
+            @endif
+        </div>
+
     </main>
+
+    <footer class="bg-white border-t border-gray-200 py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
+            © {{ date('Y') }} Árvores de Paracambi. Todos os direitos reservados.
+        </div>
+    </footer>
 
 </body>
 </html>
