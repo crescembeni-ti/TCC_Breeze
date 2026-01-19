@@ -21,10 +21,18 @@
 
     <div class="bg-white rounded-lg shadow overflow-hidden">
         @if($pendingTrees->isEmpty())
-            <div class="p-10 text-center text-gray-500">
-               <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <p class="text-xl font-semibold">Tudo limpo!</p>
-                <p class="text-sm">Nenhuma árvore pendente de aprovação no momento.</p>
+            {{-- Adicionado: flex flex-col items-center justify-center --}}
+            <div class="p-12 text-center text-gray-500 flex flex-col items-center justify-center">
+                
+                {{-- Ícone aumentado (w-16 h-16) e com margem inferior (mb-4) --}}
+                <div class="bg-green-50 rounded-full p-4 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+
+                <h3 class="text-xl font-bold text-gray-800">Tudo limpo!</h3>
+                <p class="text-sm text-gray-500 mt-1">Nenhuma árvore pendente de aprovação no momento.</p>
             </div>
         @else
             <table class="min-w-full divide-y divide-gray-200">
