@@ -22,7 +22,7 @@
     <div class="bg-white rounded-lg shadow overflow-hidden">
         @if($pendingTrees->isEmpty())
             <div class="p-10 text-center text-gray-500">
-                <div class="mb-4 text-6xl">🎉</div>
+               <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#358054]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <p class="text-xl font-semibold">Tudo limpo!</p>
                 <p class="text-sm">Nenhuma árvore pendente de aprovação no momento.</p>
             </div>
@@ -54,7 +54,7 @@
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-bold text-gray-900">{{ $tree->species->name ?? 'Desconhecida' }}</div>
+                                <div class="text-sm font-bold text-gray-900">{{ $tree->vulgar_name ?? 'Desconhecida' }}</div>
                                 <div class="text-xs text-gray-500">ID: {{ $tree->id }}</div>
                             </td>
                             <td class="px-6 py-4">
