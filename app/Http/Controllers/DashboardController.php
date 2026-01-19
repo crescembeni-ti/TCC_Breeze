@@ -6,34 +6,38 @@ use Illuminate\Http\Request;
 use App\Models\Tree;
 use App\Models\Activity;
 use App\Models\Bairro;
-// use App\Models\Species; // <--- REMOVIDO: A tabela não existe mais
+use App\Models\Contact; // <--- 1. IMPORTANTE: Adicione esta linha para usar o Model Contact
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Obtém o usuário logado (CORREÇÃO AQUI)
+        // Obtém o usuário logado
         $user = auth()->user();
 
-        // 2. Estatísticas
+        // Estatísticas
         $stats = [
             'total_trees' => Tree::count(),
-            'total_activities' => Activity::count(),
             
-            // Conta nomes científicos únicos na tabela trees
+            // 2. MUDANÇA AQUI: Adicione a chave 'total_requests' que a View está pedindo
+            'total_requests' => Contact::count(), 
+            
+            // Mantém a contagem de atividades se quiser, ou remove se não usar mais
+            'total_activities' => Activity::count(), 
+            
             'total_species' => Tree::distinct('scientific_name')->count('scientific_name'),
         ];
 
-        // 3. Atividades recentes (Sem 'species')
+        // Atividades recentes
         $recentActivities = Activity::with(['tree', 'user'])
             ->orderBy('activity_date', 'desc')
             ->take(5)
             ->get();
 
-        // 4. Bairros
+        // Bairros
         $bairros = Bairro::orderBy('nome', 'asc')->get();
 
-        // 5. Retorna a view enviando o $user junto
-        return view('dashboard', compact('stats', 'recentActivities', 'bairros', 'user'));
+        // Retorna a view
+        return view('admin.dashboard', compact('stats', 'recentActivities', 'bairros', 'user'));
     }
 }

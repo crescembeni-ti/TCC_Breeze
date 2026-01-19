@@ -14,7 +14,7 @@
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     
     <style>
-        /* Imagem de fundo fixa (Parallax) */
+        /* Imagem de fundo fixa */
         body {
             background-image: url('/images/arvore.jpeg');
             background-size: cover;
@@ -22,7 +22,6 @@
             background-attachment: fixed;
             background-repeat: no-repeat;
         }
-        /* Ajustes de tipografia */
         .prose p { margin-bottom: 1rem; line-height: 1.6; color: #4b5563; }
         .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
         .prose strong { color: #358054; font-weight: 700; }
@@ -32,23 +31,21 @@
 
 <body class="font-sans antialiased text-gray-800 flex flex-col min-h-screen">
 
-    {{-- HEADER --}}
+    {{-- HEADER VERDE (Cores Corrigidas) --}}
     <header class="site-header bg-[#beffb4] border-b-2 border-[#358054] shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center flex-wrap gap-4">
             
-            {{-- LADO ESQUERDO --}}
             <div class="flex items-center gap-3 flex-shrink-0">
                 <a href="{{ route('home') }}" class="flex items-center gap-3 group">
                     <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 sm:h-14 sm:w-14 object-contain transition-transform group-hover:scale-105">
                     <h1 class="text-xl sm:text-2xl font-bold leading-tight">
-                        {{-- CORRIGIDO: Cores originais da marca para melhor contraste --}}
+                        {{-- AQUI ESTÃO AS CORES CERTAS --}}
                         <span class="text-[#358054]">Árvores de</span>
                         <span class="text-[#a0c520]">Paracambi</span>
                     </h1>
                 </a>
             </div>
 
-            {{-- LADO DIREITO --}}
             <div class="flex items-center gap-3 sm:gap-6">
                 <img src="{{ asset('images/nova_logo.png') }}" alt="Logo Prefeitura" class="header-logo-right hover:opacity-90 transition-opacity" style="height: 3.5rem; width: auto;">
                 
@@ -68,7 +65,7 @@
 
     <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
         
-        {{-- BLOCO 1: Título e Introdução --}}
+        {{-- Título Principal e Introdução --}}
         <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden mb-10 border border-gray-100">
             <div class="bg-gradient-to-r from-[#358054] to-[#4caf50] p-8 text-center text-white">
                 <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
@@ -85,22 +82,18 @@
             @endif
         </div>
 
-        {{-- BLOCO 2: Seções Dinâmicas (Cards) --}}
+        {{-- Seções Dinâmicas (Cards) --}}
         <div class="grid grid-cols-1 gap-8">
             @if(!empty($pageContent->sections) && is_array($pageContent->sections))
                 @foreach($pageContent->sections as $section)
                     <section class="bg-white/95 backdrop-blur-sm rounded-xl shadow-md border-l-4 border-[#358054] overflow-hidden transition-all hover:shadow-lg">
                         <div class="p-6 sm:p-8">
-                            {{-- Título da Seção --}}
                             <h2 class="text-2xl font-bold text-[#358054] mb-4 flex items-center gap-3 border-b border-gray-100 pb-3">
-                                {{-- Ícone opcional, se quiser remover basta apagar o SVG --}}
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 {{ $section['title'] }}
                             </h2>
-
-                            {{-- Conteúdo da Seção --}}
                             <div class="prose max-w-none text-gray-600">
                                 {!! $section['content'] !!}
                             </div>
@@ -108,10 +101,10 @@
                     </section>
                 @endforeach
             @else
-                {{-- Fallback: Se ainda não carregou, recarregue a página --}}
+                {{-- Fallback --}}
                 <div class="text-center py-12 px-6 bg-white/90 rounded-lg border border-dashed border-gray-300">
                     <h3 class="text-lg font-medium text-gray-900">Carregando conteúdo...</h3>
-                    <p class="text-gray-500 mt-1">Se os textos padrão não aparecerem, atualize a página.</p>
+                    <p class="text-gray-500 mt-1">Atualize a página para restaurar as seções padrão.</p>
                 </div>
             @endif
         </div>

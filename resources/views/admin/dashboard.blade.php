@@ -17,9 +17,11 @@
                     <p class="text-4xl font-bold text-[#38c224]">{{ $stats['total_trees'] }}</p>
                 </div>
 
+                {{-- CARD ALTERADO: DE ATIVIDADES PARA SOLICITAÇÕES --}}
                 <div class="bg-blue-50 rounded-lg p-6 text-center border border-blue-100 hover:shadow-md transition">
-                    <h4 class="text-lg font-semibold text-blue-800 mb-2">📊 Atividades</h4>
-                    <p class="text-4xl font-bold text-blue-500">{{ $stats['total_activities'] }}</p>
+                    <h4 class="text-lg font-semibold text-blue-800 mb-2">📬 Solicitações</h4>
+                    {{-- Exibe o total de solicitações --}}
+                    <p class="text-4xl font-bold text-blue-500">{{ $stats['total_requests'] }}</p>
                 </div>
 
                 <div class="bg-yellow-50 rounded-lg p-6 text-center border border-yellow-100 hover:shadow-md transition">
