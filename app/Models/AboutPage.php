@@ -11,19 +11,18 @@ class AboutPage extends Model
 
     /**
      * Os atributos que podem ser atribuídos em massa.
-     * Isso deve bater exatamente com os nomes das colunas na sua Migration
-     * e os 'name' dos inputs no seu formulário.
      */
     protected $fillable = [
         'title',
-        'content',              // Introdução / Visão Geral
-        'mission_title',        // Título da missão (opcional)
-        'mission_content',      // Conteúdo da missão
-        'how_it_works_content', // Como funciona
-        'benefits_content',     // Benefícios
+        'content',  // Introdução Principal (mantida fixa)
+        'sections', // Agora guarda todas as caixas extras dinamicamente (JSON)
     ];
 
-    // O $casts para 'content_blocks' foi removido porque
-    // agora estamos usando colunas de texto simples (longText)
-    // em vez de um JSON complexo.
+    /**
+     * Casts para conversão automática de tipos.
+     * Isso converte o JSON do banco para Array no PHP automaticamente.
+     */
+    protected $casts = [
+        'sections' => 'array',
+    ];
 }
