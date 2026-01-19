@@ -28,7 +28,6 @@
         .map-filter-toggle:hover { background: #2d6e4b; }
         .map-filter-toggle:active { transform: scale(0.98); }
 
-        /* PAINEL DE FILTROS CORRIGIDO */
         .map-filter-panel {
             position: absolute; top: 70px; right: 10px; width: 280px; 
             z-index: 2000; background: white; border-radius: 12px; 
@@ -89,10 +88,10 @@
         .filter-status { margin-top: 8px; padding: 5px; font-size: 11px; text-align: center; color: #6b7280; transition: all 0.2s; }
         .filter-status.vazio { background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; color: #991b1b; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 15px; }
 
-        /* --- LEGENDA FLUTUANTE --- */
+        /* LEGENDA FLUTUANTE */
         .map-legend {
             position: absolute;
-            top: 80px; /* Abaixo dos controles de zoom */
+            top: 80px; 
             left: 10px;
             z-index: 1000;
             background: rgba(255, 255, 255, 0.95);
@@ -102,7 +101,7 @@
             font-family: 'Instrument Sans', sans-serif;
             font-size: 11px;
             color: #374151;
-            display: none; /* Inicia oculta */
+            display: none; 
             min-width: 140px;
             border: 1px solid #e5e7eb;
             animation: fadeIn 0.3s ease;
@@ -136,71 +135,84 @@
 <body class="font-sans antialiased welcome-page">
     <div class="min-h-screen">
 
-        {{-- HEADER --}}
+        {{-- HEADER COMPACTO --}}
         <header class="site-header">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
-                <div class="flex items-center gap-4 flex-shrink-0">
-                    <a href="{{ route('home') }}" class="flex items-center gap-4">
-                        <img src="{{ asset('images/Brasao_Verde.png') }}" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                        <img src="{{ asset('images/logo.png') }}" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                        <h1 class="text-3xl sm:text-4xl font-bold">
+            {{-- Padding reduzido de py-6 para py-3 --}}
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center flex-wrap gap-4">
+                
+                {{-- LADO ESQUERDO: Logo Site Menor --}}
+                <div class="flex items-center gap-3 flex-shrink-0">
+                    <a href="{{ route('home') }}" class="flex items-center gap-3">
+                        {{-- Tamanho reduzido: h-10 w-10 sm:h-14 sm:w-14 --}}
+                        <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
+                        {{-- Texto reduzido: text-xl sm:text-2xl --}}
+                        <h1 class="text-xl sm:text-2xl font-bold leading-tight">
                             <span class="text-[#358054]">Árvores de</span>
                             <span class="text-[#a0c520]"> Paracambi</span>
                         </h1>
                     </a>
                 </div>
 
-                {{-- MENU --}}
-                <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">
-                    @if (auth('admin')->check())
-                        <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Painel Administrativo</a>
-                        <form method="POST" action="{{ route('admin.logout') }}">@csrf</form>
-                    @elseif(auth()->check())
-                        <div class="relative group flex items-center">
-                            <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block px-6 py-3 text-lg rounded-lg">Menu</a>
-                        </div>
-                        <form method="POST" action="{{ route('logout') }}">@csrf</form>
-                    @else
-                        <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block">Entrar</a>
-                        <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block">Cadastrar</a>
+                {{-- LADO DIREITO: Nova Logo + Menu --}}
+                <div class="flex items-center gap-3 sm:gap-6">
+                    
+                    {{-- NOVA LOGO (Tamanho controlado pelo CSS atualizado) --}}
+                    <img src="{{ asset('images/nova_logo.png') }}" 
+                         alt="Logo Prefeitura" 
+                         class="header-logo-right">
 
-                        {{-- MOBILE MENU --}}
-                        <div class="relative inline-block">
-                            <button id="guestMenuBtn" class="ml-3 btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-2 transition-all duration-200">
-                                Menu
-                                <svg id="iconMenu" class="w-6 h-6 transition-all duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />
-                                </svg>
-                            </button>
-                            <div id="guestMenu" class="hidden absolute right-0 mt-2 w-56 bg-[#e8ffe6] rounded-xl shadow-lg z-50 overflow-hidden border border-green-100">
-                                <a href="{{ route('contact') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Fazer Solicitação</a>
-                                <a href="{{ route('contact.myrequests') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Minhas Solicitações</a>
-                                <a href="{{ route('about') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Sobre o Site</a>
+                    {{-- MENU --}}
+                    <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">
+                        @if (auth('admin')->check())
+                            <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block text-sm py-1.5 px-3">Painel</a>
+                            <form method="POST" action="{{ route('admin.logout') }}">@csrf</form>
+                        @elseif(auth()->check())
+                            <div class="relative group flex items-center">
+                                <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block px-4 py-2 text-base rounded-lg">Menu</a>
                             </div>
-                        </div>
-                        <script>
-                            (function() {
-                                const btn = document.getElementById('guestMenuBtn');
-                                const menu = document.getElementById('guestMenu');
-                                const icon = document.getElementById('iconMenu');
-                                let aberto = false;
-                                if (!btn || !menu) return;
-                                btn.addEventListener('click', (e) => {
-                                    e.stopPropagation();
-                                    menu.classList.toggle('hidden');
-                                    aberto = !aberto;
-                                    icon.innerHTML = aberto ? `<path d="M6 6l12 12" /><path d="M6 18L18 6" />` : `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`;
-                                });
-                                window.addEventListener('click', () => {
-                                    if (!menu.classList.contains('hidden')) {
-                                        menu.classList.add('hidden');
-                                        icon.innerHTML = `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`;
-                                        aberto = false;
-                                    }
-                                });
-                            })();
-                        </script>
-                    @endif
+                            <form method="POST" action="{{ route('logout') }}">@csrf</form>
+                        @else
+                            <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block text-sm py-1.5 px-3">Entrar</a>
+                            <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block text-sm py-1.5 px-3">Cadastrar</a>
+
+                            {{-- MOBILE MENU --}}
+                            <div class="relative inline-block">
+                                <button id="guestMenuBtn" class="ml-2 btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-1.5 transition-all duration-200 py-1.5 px-3 text-sm">
+                                    Menu
+                                    <svg id="iconMenu" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />
+                                    </svg>
+                                </button>
+                                <div id="guestMenu" class="hidden absolute right-0 mt-2 w-56 bg-[#e8ffe6] rounded-xl shadow-lg z-50 overflow-hidden border border-green-100">
+                                    <a href="{{ route('contact') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Fazer Solicitação</a>
+                                    <a href="{{ route('contact.myrequests') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Minhas Solicitações</a>
+                                    <a href="{{ route('about') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Sobre o Site</a>
+                                </div>
+                            </div>
+                            <script>
+                                (function() {
+                                    const btn = document.getElementById('guestMenuBtn');
+                                    const menu = document.getElementById('guestMenu');
+                                    const icon = document.getElementById('iconMenu');
+                                    let aberto = false;
+                                    if (!btn || !menu) return;
+                                    btn.addEventListener('click', (e) => {
+                                        e.stopPropagation();
+                                        menu.classList.toggle('hidden');
+                                        aberto = !aberto;
+                                        icon.innerHTML = aberto ? `<path d="M6 6l12 12" /><path d="M6 18L18 6" />` : `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`;
+                                    });
+                                    window.addEventListener('click', () => {
+                                        if (!menu.classList.contains('hidden')) {
+                                            menu.classList.add('hidden');
+                                            icon.innerHTML = `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`;
+                                            aberto = false;
+                                        }
+                                    });
+                                })();
+                            </script>
+                        @endif
+                    </div>
                 </div>
             </div>
         </header>
@@ -339,7 +351,7 @@
             extraAdminHtml += `
                 <div class="admin-divider">Visualização (Admin)</div>
                 <div class="filter-group">
-                    <label class="filter-label" style="color:#358054;">Colorir Mapa Por:</label>
+                    <label class="filter-label" style="color:#358054;">🎨 Colorir Mapa Por:</label>
                     <select id="colorMode" style="border-color:#358054; font-weight:600; color:#358054;">
                         <option value="species">Espécie (Padrão)</option>
                         <option value="injuries">Injúrias</option>

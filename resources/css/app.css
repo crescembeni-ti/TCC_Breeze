@@ -291,4 +291,20 @@
     }
 }
 
+/* =========================================
+   ESTILO GLOBAL DA NOVA LOGO (CABEÇALHO)
+========================================= */
+.header-logo-right {
+    height: 2.5rem; /* Mobile: ~40px (antes era 56px) */
+    width: auto;
+    object-fit: contain;
+    margin-right: 0.75rem;
+}
+
+@media (min-width: 640px) {
+    .header-logo-right {
+        height: 3.5rem; /* Desktop: ~56px (antes era 80px) */
+    }
+}
+
 
