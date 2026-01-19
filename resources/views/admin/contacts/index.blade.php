@@ -20,6 +20,8 @@
 
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     <script src="https://unpkg.com/lucide@latest"></script>
+    {{-- Importante para o x-data funcionar --}}
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -55,41 +57,54 @@
             @endif
 
             {{-- CONTROLE DE FILTROS UNIFICADO --}}
-            <div class="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4 border-b border-gray-100 pb-4">
+            <div class="flex flex-col xl:flex-row items-center justify-between mb-6 gap-6 border-b border-gray-100 pb-4">
                 
                 {{-- 1. Botões de Abas (Status) - Preservam o período selecionado --}}
-                <div class="flex justify-center gap-4 w-full sm:w-auto">
-                    <a href="{{ route('admin.contato.index') }}?filtro=todas&period={{ request('period') }}" 
+                <div class="flex justify-center gap-4 w-full xl:w-auto">
+                    <a href="{{ route('admin.contato.index') }}?filtro=todas&period={{ request('period') }}&date_start={{ request('date_start') }}&date_end={{ request('date_end') }}" 
                        class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all {{ $filtro === 'todas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
                        Todas
                     </a>
                     
-                    <a href="{{ route('admin.contato.index') }}?filtro=pendentes&period={{ request('period') }}" 
+                    <a href="{{ route('admin.contato.index') }}?filtro=pendentes&period={{ request('period') }}&date_start={{ request('date_start') }}&date_end={{ request('date_end') }}" 
                        class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all {{ $filtro === 'pendentes' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
                        Pendentes
                     </a>
                     
-                    <a href="{{ route('admin.contato.index') }}?filtro=resolvidas&period={{ request('period') }}" 
+                    <a href="{{ route('admin.contato.index') }}?filtro=resolvidas&period={{ request('period') }}&date_start={{ request('date_start') }}&date_end={{ request('date_end') }}" 
                        class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all {{ $filtro === 'resolvidas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">
                        Resolvidas
                     </a>
                 </div>
 
                 {{-- 2. Filtro de Data (Novo) - Preserva a aba selecionada --}}
-                <form method="GET" action="{{ route('admin.contato.index') }}" class="flex items-center w-full sm:w-auto">
+                <form method="GET" action="{{ route('admin.contato.index') }}" 
+                      x-data="{ period: '{{ request('period') }}' }" 
+                      class="flex flex-col md:flex-row items-end gap-3 w-full xl:w-auto">
+                    
                     <input type="hidden" name="filtro" value="{{ $filtro }}">
                     
-                    <div class="relative w-full">
-                        <select name="period" onchange="this.form.submit()" 
-                                class="appearance-none w-full sm:w-48 bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-green-500 cursor-pointer shadow-sm">
+                    <div class="relative w-full md:w-auto">
+                        <select name="period" x-model="period" onchange="if(this.value != 'custom') this.form.submit()" 
+                                class="appearance-none w-full md:w-48 bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:border-green-500 cursor-pointer shadow-sm">
                             <option value="" {{ request('period') == '' ? 'selected' : '' }}>Todo o Período</option>
-                            <option value="7_days" {{ request('period') == '7_days' ? 'selected' : '' }}>📅 Últimos 7 dias</option>
-                            <option value="30_days" {{ request('period') == '30_days' ? 'selected' : '' }}>📅 Últimos 30 dias</option>
-                            <option value="year" {{ request('period') == 'year' ? 'selected' : '' }}>📅 Último Ano</option>
+                            <option value="7_days">📅 Últimos 7 dias</option>
+                            <option value="30_days">📅 Últimos 30 dias</option>
+                            <option value="custom">📆 Personalizado...</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                         </div>
+                    </div>
+
+                    {{-- Campos de Data (Aparecem só se "Personalizado") --}}
+                    <div x-show="period === 'custom'" x-transition class="flex gap-2 w-full md:w-auto" style="display: none;">
+                        <input type="date" name="date_start" value="{{ request('date_start') }}" class="rounded-lg border-gray-300 text-sm focus:border-green-500 focus:ring-green-500 w-full md:w-auto">
+                        <span class="self-center text-gray-500">até</span>
+                        <input type="date" name="date_end" value="{{ request('date_end') }}" class="rounded-lg border-gray-300 text-sm focus:border-green-500 focus:ring-green-500 w-full md:w-auto">
+                        <button type="submit" class="bg-[#358054] text-white px-3 py-2 rounded-lg hover:bg-green-700 transition">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </button>
                     </div>
                 </form>
 
@@ -206,6 +221,7 @@
         }
 
         // Função para normalizar strings (remover acentos e minúsculas)
+        // Isso ajuda a encontrar "Centro" se estiver escrito "centro" ou "São José" se for "Sao Jose"
         function normalizeString(str) {
             if (!str) return "";
             return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -255,11 +271,16 @@
                 let pinCount = 0;
 
                 allMsgs.forEach(msg => {
+                    // Tenta encontrar o bairro da mensagem no JSON carregado
                     const bairroMsg = normalizeString(msg.bairro);
                     
                     if (bairrosCenters[bairroMsg]) {
                         let center = bairrosCenters[bairroMsg];
                         
+                        // --- JITTER (Dispersão) ---
+                        // Adiciona um valor aleatório para espalhar os pontos no bairro
+                        // Math.random() - 0.5 gera entre -0.5 e 0.5.
+                        // Multiplicamos por 0.004 (aprox 400m) para espalhar bem.
                         const lat = center.lat + (Math.random() - 0.5) * 0.004;
                         const lng = center.lng + (Math.random() - 0.5) * 0.004;
 
@@ -267,7 +288,7 @@
                         const color = statusColors[statusName] || '#333333';
 
                         const marker = L.circleMarker([lat, lng], {
-                            color: '#fff', 
+                            color: '#fff', // Borda branca para destacar
                             weight: 1,
                             fillColor: color,
                             fillOpacity: 0.8,

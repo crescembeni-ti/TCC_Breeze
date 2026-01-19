@@ -204,13 +204,13 @@ class TreeController extends Controller
             'crown_height' => 'nullable|numeric|min:0',
             'crown_diameter_longitudinal' => 'nullable|numeric|min:0',
             'crown_diameter_perpendicular' => 'nullable|numeric|min:0',
-            'bifurcation_type' => 'nullable|string|max:255',
-            'stem_balance' => 'nullable|string|max:500',
-            'crown_balance' => 'nullable|string|max:255',
+            'bifurcation_type' => 'nullable|string|max:100',
+            'stem_balance' => 'nullable|string|max:100',
+            'crown_balance' => 'nullable|string|max:100',
             'organisms' => 'nullable|string|max:255',
-            'target' => 'nullable|string|max:500',
+            'target' => 'nullable|string|max:255',
             'injuries' => 'nullable|string|max:255',
-            'wiring_status' => 'nullable|string|max:255',
+            'wiring_status' => 'nullable|string|max:100',
             'total_width' => 'nullable|numeric|min:0',
             'street_width' => 'nullable|numeric|min:0',
             'gutter_height' => 'nullable|numeric|min:0',
@@ -228,6 +228,7 @@ class TreeController extends Controller
             $treeData['vulgar_name'] = 'Não identificada';
         }
 
+        // Lógica de aprovação automática
         if (auth()->guard('analyst')->check()) {
             $treeData['admin_id'] = null;
             $treeData['analyst_id'] = auth()->guard('analyst')->id();
@@ -242,6 +243,7 @@ class TreeController extends Controller
 
         $tree = Tree::create($treeData);
 
+        // Registro de Log
         if (auth()->guard('admin')->check()) {
             $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? $tree->scientific_name;
             AdminLog::create([
@@ -354,9 +356,9 @@ class TreeController extends Controller
             'stem_balance' => 'nullable|string|max:500',
             'crown_balance' => 'nullable|string|max:255',
             'organisms' => 'nullable|string|max:255',
-            'target' => 'nullable|string|max:500',
+            'target' => 'nullable|string|max:255',
             'injuries' => 'nullable|string|max:255',
-            'wiring_status' => 'nullable|string|max:255',
+            'wiring_status' => 'nullable|string|max:100',
             'total_width' => 'nullable|numeric|min:0',
             'street_width' => 'nullable|numeric|min:0',
             'gutter_height' => 'nullable|numeric|min:0',

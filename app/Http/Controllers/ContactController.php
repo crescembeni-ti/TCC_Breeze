@@ -12,6 +12,7 @@ use App\Models\Service;
 use App\Models\ServiceOrder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class ContactController extends Controller
 {
@@ -82,8 +83,8 @@ class ContactController extends Controller
      * ÁREA DO ADMIN (GESTÃO)
      * ============================================================ */
 
-    // 4. Listagem Principal (Admin) com Filtros de Status e Data
-   public function adminContactList(Request $request)
+    // 4. Listagem Principal (Admin) com Filtros Avançados
+    public function adminContactList(Request $request)
     {
         $filtro = $request->get('filtro', 'pendentes');
 
@@ -95,7 +96,7 @@ class ContactController extends Controller
                 $q->whereIn('name', ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'])
             );
 
-            // Regra de visibilidade: Admin não vê o que está com analista ou serviço (salvo exceções)
+            // Regra de visibilidade
             $query->where(function ($mainQuery) {
                 $mainQuery->whereDoesntHave('serviceOrder', function ($q) {
                     $q->whereIn('destino', ['analista', 'servico']);
@@ -112,15 +113,19 @@ class ContactController extends Controller
             );
         }
 
-        // --- Filtro de Período (Data) ---
+        // --- Filtro de Período (Atualizado com Personalizado) ---
         if ($request->filled('period')) {
             $period = $request->period;
+
             if ($period == '7_days') {
                 $query->where('created_at', '>=', now()->subDays(7));
             } elseif ($period == '30_days') {
                 $query->where('created_at', '>=', now()->subDays(30));
-            } elseif ($period == 'year') {
-                $query->where('created_at', '>=', now()->subYear());
+            } elseif ($period == 'custom' && $request->filled('date_start') && $request->filled('date_end')) {
+                // Filtro Personalizado (Calendário)
+                $start = Carbon::parse($request->date_start)->startOfDay();
+                $end = Carbon::parse($request->date_end)->endOfDay();
+                $query->whereBetween('created_at', [$start, $end]);
             }
         }
 
@@ -252,7 +257,7 @@ class ContactController extends Controller
         return view('analista.ordens-enviadas', compact('ordensEnviadas'));
     }
 
-    // 12. Salvar Vistoria (Devolver para Admin)
+    // 12. Salvar Vistoria
     public function storeServiceOrder(Request $request)
     {
         $request->validate([
