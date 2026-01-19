@@ -422,38 +422,20 @@ class TreeController extends Controller
     public function analystMap()
     {
         $bairros = Bairro::orderBy('nome')->get();
-        
-        // 1. Busca todas as árvores para mostrar no mapa
         $trees = Tree::all(); 
 
         $scientificNames = Tree::whereNotNull('scientific_name')
             ->where('scientific_name', '!=', '')
             ->distinct()
             ->orderBy('scientific_name')
-            ->pluck('scientific_name')
-            ->toArray();
+            ->pluck('scientific_name');
 
-        // Lista de apoio para autocomplete
-        $commonSpecies = [
-            'Caesalpinia echinata (Pau-Brasil)',
-            'Handroanthus albus (Ipê-Amarelo)',
-            'Handroanthus heptaphyllus (Ipê-Roxo)',
-            'Tabebuia roseoalba (Ipê-Branco)',
-            'Delonix regia (Flamboyant)',
-            'Spathodea campanulata (Bisnagueira)',
-            'Terminalia catappa (Amendoeira)',
-            'Ficus benjamina (Ficus)',
-            'Mangifera indica (Mangueira)',
-            'Tibouchina granulosa (Quaresmeira)',
-            'Schinus terebinthifolia (Aroeira)',
-            'Jacaranda mimosifolia (Jacarandá-Mimoso)',
-            'Licania tomentosa (Oiti)'
-        ];
-
-        // 4. Junta tudo, remove duplicados e ordena
-        $allSpecies = array_unique(array_merge($registeredSpecies, $commonSpecies));
-        sort($allSpecies);
-        $species = collect($allSpecies)->map(fn($name) => ['name' => $name]);
+        $vulgarNames = Tree::whereNotNull('vulgar_name')
+            ->where('vulgar_name', '!=', '')
+            ->where('vulgar_name', '!=', 'Não identificada')
+            ->distinct()
+            ->orderBy('vulgar_name')
+            ->pluck('vulgar_name');
 
         return view('analista.map', compact('bairros', 'trees', 'scientificNames', 'vulgarNames'));
     }
