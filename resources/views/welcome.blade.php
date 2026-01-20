@@ -15,10 +15,12 @@
 
     {{-- ESTILOS --}}
    <style>
+        /* Estilos Gerais */
         .bairro-tooltip { background: rgba(0, 0, 0, 0.65); color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; border: none; }
         .leaflet-popup-content-wrapper { padding: 0; overflow: hidden; border-radius: 12px; }
         .leaflet-popup-content { margin: 0; width: 280px !important; }
 
+        /* Botão de Filtros */
         .map-filter-toggle {
             position: absolute; top: 10px; right: 10px; z-index: 2000; 
             background: #358054; color: white; padding: 10px 16px; border: none; border-radius: 8px; 
@@ -28,6 +30,7 @@
         .map-filter-toggle:hover { background: #2d6e4b; }
         .map-filter-toggle:active { transform: scale(0.98); }
 
+        /* Painel de Filtros */
         .map-filter-panel {
             position: absolute; top: 70px; right: 10px; width: 280px; 
             z-index: 2000; background: white; border-radius: 12px; 
@@ -37,119 +40,96 @@
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
         
-        .filter-header {
-            padding: 10px 14px; border-bottom: 1px solid #f3f4f6; display: flex;
-            justify-content: space-between; align-items: center; flex-shrink: 0;
-        }
+        .filter-header { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .header-title-box { display: flex; gap: 8px; align-items: center; }
         .header-icon { color: #358054; }
         .header-text h3 { margin: 0; font-size: 14px; font-weight: 700; color: #111827; }
         .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
 
-        .filter-content {
-            padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain;
-        }
-
-        .filter-footer {
-            padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6;
-            border-radius: 0 0 12px 12px; flex-shrink: 0;
-        }
+        .filter-content { padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain; }
+        .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .filter-group { margin-bottom: 10px; }
         .filter-label { font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 3px; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
-        
-        .map-filter-panel input, .map-filter-panel select {
-            width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid #d1d5db; 
-            font-size: 13px; outline: none; transition: all 0.2s; background-color: #f9fafb; color: #1f2937;
-        }
-        .map-filter-panel input:focus, .map-filter-panel select:focus {
-            border-color: #358054; background-color: #fff; box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.1);
-        }
+        .map-filter-panel input, .map-filter-panel select { width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 13px; outline: none; transition: all 0.2s; background-color: #f9fafb; color: #1f2937; }
+        .map-filter-panel input:focus, .map-filter-panel select:focus { border-color: #358054; background-color: #fff; box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.1); }
 
-        .admin-divider {
-            border-top: 1px dashed #d1d5db; margin: 15px 0; padding-top: 10px; 
-            text-align: center; font-size: 10px; font-weight: bold; color: #358054; text-transform: uppercase;
-        }
-
+        .admin-divider { border-top: 1px dashed #d1d5db; margin: 15px 0; padding-top: 10px; text-align: center; font-size: 10px; font-weight: bold; color: #358054; text-transform: uppercase; }
         .btn-actions { display: flex; gap: 10px; margin-bottom: 8px; }
         .btn-filter { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #358054; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
         .btn-filter:hover { background: #2d6e4b; }
         .btn-clear { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #9ca3af; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
         .btn-clear:hover { background: #6b7280; }
-        
-        .btn-download {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #358054; 
-            background: white; color: #358054; font-weight: 700; cursor: pointer; 
-            transition: all 0.2s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px;
-        }
+        .btn-download { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #358054; background: white; color: #358054; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px; }
         .btn-download:hover { background: #f0fdf4; }
 
         .filter-status { margin-top: 8px; padding: 5px; font-size: 11px; text-align: center; color: #6b7280; transition: all 0.2s; }
         .filter-status.vazio { background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; color: #991b1b; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 15px; }
 
-        /* LEGENDA FLUTUANTE */
+        /* LEGENDA FLUTUANTE (DADOS DO MAPA) */
         .map-legend {
-            position: absolute;
-            top: 80px; 
-            left: 10px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px 12px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            font-family: 'Instrument Sans', sans-serif;
-            font-size: 11px;
-            color: #374151;
-            display: none; 
-            min-width: 140px;
-            border: 1px solid #e5e7eb;
-            animation: fadeIn 0.3s ease;
+            position: absolute; top: 80px; left: 10px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.95); padding: 10px 12px;
+            border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-family: 'Instrument Sans', sans-serif; font-size: 11px; color: #374151;
+            display: none; min-width: 140px; border: 1px solid #e5e7eb; animation: fadeIn 0.3s ease;
         }
-        .legend-title {
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: #358054;
-            text-transform: uppercase;
-            font-size: 10px;
-            border-bottom: 1px solid #f3f4f6;
-            padding-bottom: 4px;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
-        .legend-color {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            border: 1px solid rgba(0,0,0,0.1);
-            flex-shrink: 0;
-        }
+        .legend-title { font-weight: 700; margin-bottom: 6px; color: #358054; text-transform: uppercase; font-size: 10px; border-bottom: 1px solid #f3f4f6; padding-bottom: 4px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .legend-color { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
-    /* LEGENDA DE MARGEM DE ERRO (TOPO) */
+    /* LEGENDA DE MARGEM DE ERRO COM BOTÃO FECHAR */
 .map-margin-note {
     position: absolute;
-    top: 10px; /* Distância do topo */
+    bottom: 20px;
     left: 50%;
-    transform: translateX(-50%); /* Centraliza exatamente */
-    z-index: 1000; /* Fica acima do mapa */
-    background: rgba(255, 255, 255, 0.9); /* Fundo branco transparente */
-    padding: 5px 12px;
-    border-radius: 20px; /* Borda redonda estilo pílula */
-    font-size: 11px;
+    transform: translateX(-50%);
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    /* Aumentei o padding da direita para 34px para caber o X */
+    padding: 8px 34px 8px 16px; 
+    border-radius: 30px;
+    font-size: 12px;
     font-weight: 600;
-    color: #d97706; /* Cor do texto (Amarelo escuro) */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    border: 1px solid #fcd34d; /* Borda amarela */
+    color: #b45309;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    border: 1px solid #fcd34d;
     white-space: nowrap;
-    pointer-events: none; /* Permite clicar no mapa "através" do aviso */
-    backdrop-filter: blur(2px);
+    
+    /* IMPORTANTE: Mudado de 'none' para 'auto' para permitir clicar no botão */
+    pointer-events: auto; 
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
 }
 
+/* Estilo do Botão X */
+.note-close-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #b45309; /* Mesma cor do texto */
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+    line-height: 1;
+}
+
+.note-close-btn:hover {
+    background-color: rgba(180, 83, 9, 0.1); /* Fundo sutil ao passar o mouse */
+}
     </style>
 </head>
 
@@ -241,21 +221,41 @@
         </header>
 
         {{-- CONTEÚDO PRINCIPAL --}}
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="bg-white rounded-lg shadow p-6 mb-8 relative">
-    <h2 class="text-2xl font-bold text-gray-900 mb-4">Mapa Interativo</h2>
+        L
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
     
-    {{-- MAPA --}}
-    <div id="map" class="z-0 h-[600px] w-full rounded-lg"></div>
+    @if (session('success'))
+        <div id="success-alert" class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center justify-between shadow-md" role="alert">
+            <div class="flex items-center"><strong class="font-bold mr-2">Sucesso!</strong><span class="block sm:inline">{{ session('success') }}</span></div>
+            @if (session('new_tree_id'))
+                <button onclick="focarNovaArvore({{ session('new_tree_id') }})" class="bg-[#358054] hover:bg-[#2d6e4b] text-white font-bold py-1 px-4 rounded text-xs transition-colors shadow-sm ml-4">Ver no Mapa</button>
+            @endif
+        </div>
+    @endif
 
-    {{-- !!! COLE O CÓDIGO ABAIXO AQUI !!! --}}
-    <div class="map-margin-note">
-        ⚠️ Pode conter um leve desvio de localização das árvores devido a margem de erro das coordenadas.
+    {{-- CARD DO MAPA --}}
+    <div class="bg-white rounded-lg shadow p-1 mb-8 relative">
+        
+        <h2 class="text-xl font-bold text-gray-900 mb-2 mt-1 pl-2">Mapa Interativo</h2>
+        
+        <div id="map" class="z-0 w-full rounded-lg" style="height: 80vh;"></div>
+
+        {{-- LEGENDA COM FECHAR (AlpineJS) --}}
+        <div x-data="{ showNote: true }" 
+             x-show="showNote" 
+             x-transition.opacity.duration.300ms
+             class="map-margin-note">
+            
+            ⚠️ Pode conter um leve desvio de localização das árvores devido a margem de erro das coordenadas.
+            
+            <button @click="showNote = false" class="note-close-btn" title="Fechar aviso">
+                &times;
+            </button>
+        </div>
+
     </div>
-    {{-- !!! FIM DO CÓDIGO !!! --}}
-
-</div>
-        </main>
+</main>
 
         <footer class="bg-gray-800 shadow mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
