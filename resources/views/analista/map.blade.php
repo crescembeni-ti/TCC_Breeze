@@ -324,7 +324,7 @@
 
                         {{-- Alvo --}}
                         <div x-data="{ open: false, selected: '{{ old('target') }}', selectedName: '{{ old('target') ?: 'Selecione...' }}' }" class="relative w-full">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Alvo (Fluxo)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Alvo</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
                                 <li @click="selected='Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas'; selectedName='Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas</li>
