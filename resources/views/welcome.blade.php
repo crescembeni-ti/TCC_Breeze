@@ -129,6 +129,27 @@
             flex-shrink: 0;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* LEGENDA DE MARGEM DE ERRO (TOPO) */
+.map-margin-note {
+    position: absolute;
+    top: 10px; /* Distância do topo */
+    left: 50%;
+    transform: translateX(-50%); /* Centraliza exatamente */
+    z-index: 1000; /* Fica acima do mapa */
+    background: rgba(255, 255, 255, 0.9); /* Fundo branco transparente */
+    padding: 5px 12px;
+    border-radius: 20px; /* Borda redonda estilo pílula */
+    font-size: 11px;
+    font-weight: 600;
+    color: #d97706; /* Cor do texto (Amarelo escuro) */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    border: 1px solid #fcd34d; /* Borda amarela */
+    white-space: nowrap;
+    pointer-events: none; /* Permite clicar no mapa "através" do aviso */
+    backdrop-filter: blur(2px);
+}
+
     </style>
 </head>
 
@@ -222,9 +243,18 @@
         {{-- CONTEÚDO PRINCIPAL --}}
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="bg-white rounded-lg shadow p-6 mb-8 relative">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Mapa Interativo</h2>
-                <div id="map" class="z-0"></div>
-            </div>
+    <h2 class="text-2xl font-bold text-gray-900 mb-4">Mapa Interativo</h2>
+    
+    {{-- MAPA --}}
+    <div id="map" class="z-0 h-[600px] w-full rounded-lg"></div>
+
+    {{-- !!! COLE O CÓDIGO ABAIXO AQUI !!! --}}
+    <div class="map-margin-note">
+        ⚠️ Pode conter um leve desvio de localização das árvores devido a margem de erro das coordenadas.
+    </div>
+    {{-- !!! FIM DO CÓDIGO !!! --}}
+
+</div>
         </main>
 
         <footer class="bg-gray-800 shadow mt-12">
