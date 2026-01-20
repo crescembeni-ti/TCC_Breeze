@@ -104,6 +104,24 @@ class AdminServiceController extends Controller
 
         return back()->with('success', 'Ordem de serviço cancelada com sucesso.');
     }
+
+    public function update(Request $request, $id)
+{
+    // Você pode usar o Model ServiceOrder ou o que estiver usando para OS
+    $os = \App\Models\ServiceOrder::findOrFail($id);
+   
+    $os->update([
+        'especies' => $request->especies,
+        'quantidade' => $request->quantidade,
+        'motivos' => $request->motivos, // O Laravel converte array para JSON se o cast estiver no Model
+        'servicos' => $request->servicos,
+        'data_vistoria' => $request->data_vistoria,
+        'data_execucao' => $request->data_execucao,
+        'observacoes' => $request->observacoes,
+    ]);
+
+    return redirect()->back()->with('success', 'Ordem de Serviço atualizada com sucesso!');
+}
     
     // Métodos extras (pendentes, resultados, enviarParaServico) mantenha se você usa
     public function ordensPendentes() { return view('admin.os.pendentes'); } 

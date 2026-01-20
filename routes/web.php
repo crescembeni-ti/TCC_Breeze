@@ -170,6 +170,7 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         Route::get('/os/pendentes', [AdminServiceController::class, 'ordensPendentes'])->name('os.pendentes');
         Route::get('/os/resultados', [AdminServiceController::class, 'resultados'])->name('os.resultados');
         Route::get('/os/{os}', [AdminServiceController::class, 'show'])->name('os.show');
+        Route::put('/os/{os}', [AdminServiceController::class, 'update'])->name('os.update');
         Route::put('/os/{os}/cancelar', [AdminServiceController::class, 'cancelar'])->name('os.cancelar');
         Route::post('/os/{id}/enviar-servico', [AdminServiceController::class, 'enviarParaServico'])->name('os.enviar');
 

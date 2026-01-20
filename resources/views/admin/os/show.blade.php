@@ -1,10 +1,11 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Ordem de Serviço')
+@section('title', 'Editar Ordem de Serviço')
 
 @section('content')
 
 @php
+    // Opções para sincronizar com os dados do Analista
     $todosMotivos = [
         'Risco de Queda' => 'Risco de queda',
         'Conflito rede eletrica' => 'Conflito com rede elétrica',
@@ -31,274 +32,186 @@
     ];
 @endphp
 
-{{-- 
-    Container Principal:
-    - Na tela: padding p-8, borda colorida, sombra.
-    - Na impressão (print): sem borda, sem sombra, padding zero, largura total.
---}}
 <div class="max-w-4xl mx-auto bg-white p-8 shadow-2xl rounded-lg border-t-8 border-[#358054] relative overflow-hidden print:border-0 print:shadow-none print:p-0 print:max-w-full">
+    
+    <form action="{{ route('admin.os.update', $os->id) }}" method="POST">
+        @csrf
+        @method('PUT')
 
-    {{-- MARCA D'ÁGUA (Fundo) --}}
-    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-        {{-- 
-             ATENÇÃO: Verifique se o arquivo 'logo.png' existe em public/images/ 
-             Se trocou o nome, altere abaixo em asset('images/SEU_NOVO_NOME.png')
-        --}}
-        <img src="{{ asset('images/logo.png') }}" 
-             alt="Marca D'água" 
-             class="w-2/3 object-contain opacity-15 print:w-1/2 print:opacity-15">
+        {{-- Mensagens de Feedback --}}
+@if(session('success'))
+    <div class="mb-6 flex items-center gap-3 p-4 text-sm text-green-800 border-l-4 border-green-500 bg-green-50 rounded-r-lg shadow-sm animate-fade-in print:hidden">
+        <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+        <div>
+            <span class="font-bold">Sucesso!</span> {{ session('success') }}
+        </div>
     </div>
+@endif
 
-    {{-- CONTEÚDO (Frente) --}}
-    <div class="relative z-10">
+@if($errors->any())
+    <div class="mb-6 flex items-center gap-3 p-4 text-sm text-red-800 border-l-4 border-red-500 bg-red-50 rounded-r-lg shadow-sm print:hidden">
+        <i data-lucide="alert-circle" class="w-5 h-5 text-red-500"></i>
+        <div>
+            <span class="font-bold">Ops! Verifique os erros:</span>
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+@endif
 
-        {{-- CABEÇALHO --}}
-        <div class="flex justify-between items-center mb-6 border-b pb-4 print:mb-2 print:pb-2 print:border-b-2">
-            <div class="flex items-center gap-3">
-                {{-- 
-                     LOGO DO CABEÇALHO 
-                     Verifique se 'secretaria_logo.png' existe em public/images/
-                --}}
-                <img src="{{ asset('images/secretaria_logo.png') }}" 
-                     class="h-16 w-auto object-contain print:h-12" 
-                     alt="Logo">
-                     
-                <div class="text-xs text-gray-600 leading-tight font-bold uppercase print:text-xs">
-                    ESTADO DO RIO DE JANEIRO<br>
-                    MUNICÍPIO DE PARACAMBI<br>
-                    SECRETARIA MUNICIPAL DE MEIO AMBIENTE<br>
-                    SUPER INTENDÊNCIA DE ÁREAS VERDES<br>
-                    DIRETORIA DE ARBORIZAÇÃO URBANA
-                </div>
-            </div>
-            <div class="text-right">
-                <h3 class="text-lg font-bold text-gray-800 uppercase border-b-2 border-black print:text-lg">ORDEM DE SERVIÇO</h3>
-                <p class="text-sm font-bold mt-1 print:text-sm">Poda e Remoção de Árvores</p>
-            </div>
+        {{-- MARCA D'ÁGUA --}}
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+            <img src="{{ asset('images/logo.png') }}" alt="Marca D'água" class="w-2/3 object-contain opacity-15">
         </div>
 
-        {{-- CORPO DO FORMULÁRIO --}}
-        <div class="text-sm print:text-sm">
-
-            {{-- DADOS DA SOLICITAÇÃO --}}
-            <div class="grid grid-cols-2 gap-4 mb-4 border-b border-gray-300 pb-2 print:mb-1 print:pb-1 print:gap-2">
-                <div>
-                    <label class="font-bold block text-gray-700">Nº Solicitação:</label>
-                    <p class="w-full border-0 border-b border-gray-400 bg-gray-50/80 p-1 print:bg-transparent print:p-0 font-medium">{{ $os->contact->id }}</p>
+        <div class="relative z-10">
+            {{-- CABEÇALHO --}}
+            <div class="flex justify-between items-center mb-6 border-b pb-4 print:mb-2 print:pb-2">
+                <div class="flex items-center gap-3">
+                    <img src="{{ asset('images/secretaria_logo.png') }}" class="h-16 w-auto object-contain print:h-12" alt="Logo">
+                    <div class="text-xs text-gray-600 leading-tight font-bold uppercase">
+                        ESTADO DO RIO DE JANEIRO<br>
+                        MUNICÍPIO DE PARACAMBI<br>
+                        SECRETARIA MUNICIPAL DE MEIO AMBIENTE
+                    </div>
                 </div>
-                <div>
-                    <label class="font-bold block text-gray-700">Data:</label>
-                    <p class="w-full border-0 border-b border-gray-400 bg-gray-50/80 p-1 print:bg-transparent print:p-0 font-medium">{{ \Carbon\Carbon::parse($os->contact->created_at)->format('d/m/Y') }}</p>
+                <div class="text-right">
+                    <h3 class="text-lg font-bold text-gray-800 uppercase border-b-2 border-black">ORDEM DE SERVIÇO</h3>
+                    <p class="text-sm font-bold mt-1">Poda e Remoção de Árvores</p>
                 </div>
             </div>
 
-            {{-- IDENTIFICAÇÃO DA ÁREA --}}
-            <div class="mb-4 border-b border-gray-300 pb-2 print:mb-1 print:pb-1">
-                <h4 class="font-bold underline mb-1 print:mb-0">Identificação da Área</h4>
-                <div class="grid grid-cols-1 gap-2 print:gap-1">
+            <div class="text-sm">
+                {{-- DADOS DA SOLICITAÇÃO --}}
+                <div class="grid grid-cols-2 gap-4 mb-4 border-b border-gray-300 pb-2">
                     <div>
-                        <span class="text-gray-600 font-semibold">Endereço:</span>
-                        <span class="ml-1">{{ $os->contact->rua ?? 'N/A' }}{{ $os->contact->numero ? ', ' . $os->contact->numero : '' }} - {{ $os->contact->bairro ?? 'N/A' }}</span>
+                        <label class="font-bold block text-gray-700">Nº Solicitação:</label>
+                        <p class="p-1 font-medium">{{ $os->contact->id }}</p>
                     </div>
-                    <div class="print:flex print:gap-4">
-                        <div class="print:flex-1">
-                            <span class="text-gray-600 font-semibold">Latitude:</span>
-                            <span class="ml-1">{{ $os->latitude ?? 'N/R' }}</span>
-                        </div>
-                        <div class="print:flex-1">
-                            <span class="text-gray-600 font-semibold">Longitude:</span>
-                            <span class="ml-1">{{ $os->longitude ?? 'N/R' }}</span>
-                        </div>
+                    <div>
+                        <label class="font-bold block text-gray-700">Endereço:</label>
+                        <p class="p-1 font-medium">{{ $os->contact->rua }}, {{ $os->contact->numero }} - {{ $os->contact->bairro }}</p>
                     </div>
                 </div>
-            </div>
 
-            {{-- IDENTIFICAÇÃO DAS ÁRVORES --}}
-            <div class="grid grid-cols-3 gap-4 mb-4 border-b border-gray-300 pb-2 print:mb-1 print:pb-1 print:gap-2">
-                <div class="col-span-2">
-                    <label class="font-bold block">Espécie(s):</label>
-                    <p class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50/80 print:bg-transparent print:p-0">
-                        @if(is_array($os->especies))
-                            {{ implode(', ', $os->especies) }}
-                        @else
-                            {{ $os->especies ?? 'Não informado' }}
-                        @endif
-                    </p>
-                </div>
-                <div>
-                    <label class="font-bold block">Quantidade:</label>
-                    <p class="w-full border-0 border-b border-gray-400 p-1 bg-gray-50/80 print:bg-transparent print:p-0">{{ $os->quantidade ?? 'N/I' }}</p>
-                </div>
-            </div>
-
-            {{-- MOTIVO DA INTERVENÇÃO --}}
-            <div class="mb-4 border-b border-gray-300 pb-2 bg-gray-50/80 p-2 rounded print:bg-transparent print:p-0 print:mb-1 print:border-none">
-                <h4 class="font-bold underline mb-1 print:mb-0">Motivo da Intervenção</h4>
-                <div class="grid grid-cols-2 gap-y-1 print:gap-y-0 print:text-sm">
-                    @foreach ($todosMotivos as $value => $label)
-                        @php $checked = in_array($value, $os->motivos ?? []); @endphp
-                        <div class="flex items-center gap-2 text-gray-700 print:text-black">
-                            <i data-lucide="{{ $checked ? 'check-square' : 'square' }}" class="w-4 h-4 text-{{ $checked ? '[#358054]' : 'gray-400' }} print:w-3.5 print:h-3.5 print:text-black"></i>
-                            <span class="{{ $checked ? 'font-bold' : '' }}">{{ $label }}</span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- SERVIÇOS A SEREM EXECUTADOS --}}
-            <div class="mb-4 border-b border-gray-300 pb-2 bg-gray-50/80 p-2 rounded print:bg-transparent print:p-0 print:mb-1 print:border-none">
-                <h4 class="font-bold underline mb-1 print:mb-0">Serviços a Executar</h4>
-                <div class="grid grid-cols-2 gap-y-1 print:gap-y-0 print:text-sm">
-                    @foreach ($todosServicos as $value => $label)
-                        @php $checked = in_array($value, $os->servicos ?? []); @endphp
-                        <div class="flex items-center gap-2 text-gray-700 print:text-black">
-                            <i data-lucide="{{ $checked ? 'check-square' : 'square' }}" class="w-4 h-4 text-{{ $checked ? '[#358054]' : 'gray-400' }} print:w-3.5 print:h-3.5 print:text-black"></i>
-                            <span class="{{ $checked ? 'font-bold' : '' }}">{{ $label }}</span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- EQUIPAMENTOS E MATERIAIS --}}
-            <div class="mb-4 border-b border-gray-300 pb-2 print:mb-1 print:pb-1">
-                <h4 class="font-bold underline mb-1 print:mb-0">Equipamentos</h4>
-                <div class="flex flex-wrap gap-4 print:gap-3 print:text-sm">
-                    @foreach ($todosEquipamentos as $value => $label)
-                        @php $checked = in_array($value, $os->equipamentos ?? []); @endphp
-                        <div class="flex items-center gap-1 text-gray-700 print:text-black">
-                            <i data-lucide="{{ $checked ? 'check-square' : 'square' }}" class="w-4 h-4 text-{{ $checked ? '[#358054]' : 'gray-400' }} print:w-3.5 print:h-3.5 print:text-black"></i>
-                            <span class="{{ $checked ? 'font-bold' : '' }}">{{ $label }}</span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- RESPONSABILIDADES E PROCEDIMENTOS --}}
-            <div class="mb-4 border-b-2 border-gray-400 pb-2 bg-gray-50/80 p-2 rounded print:bg-transparent print:p-0 print:mb-2 print:border-none">
-                <h4 class="font-bold text-sm text-black mb-2 border-b border-gray-300 print:mb-1 print:text-sm">Procedimentos Obrigatórios</h4>
-                <div class="flex flex-col gap-2 text-xs text-black print:gap-0.5 print:text-[11px]">
-                    <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300 print:p-0 print:border-none">
-                        <span class="mt-0.5 text-[#358054] font-extrabold text-sm print:text-black">&#10003;</span>
-                        <div class="flex-1 flex"><span class="font-bold w-24 shrink-0">Segurança:</span><span>Utilização obrigatória de EPIs</span></div>
+                {{-- COORDENADAS (Latitude e Longitude) --}}
+                <div class="grid grid-cols-2 gap-4 mb-4 border-b border-gray-300 pb-2">
+                    <div>
+                        <label class="font-bold block text-gray-700">Latitude:</label>
+                        <input type="text" name="latitude" value="{{ old('latitude', $os->latitude) }}" 
+                               class="w-full border-gray-300 rounded-md shadow-sm focus:ring-[#358054] focus:border-[#358054] print:border-none">
                     </div>
-                    <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300 print:p-0 print:border-none">
-                        <span class="mt-0.5 text-[#358054] font-extrabold text-sm print:text-black">&#10003;</span>
-                        <div class="flex-1 flex"><span class="font-bold w-24 shrink-0">Sinalização:</span><span>Uso de cones e faixas de segurança</span></div>
-                    </div>
-                    <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300 print:p-0 print:border-none">
-                        <span class="mt-0.5 text-[#358054] font-extrabold text-sm print:text-black">&#10003;</span>
-                        <div class="flex-1 flex"><span class="font-bold w-24 shrink-0">Descarte:</span><span>Destino adequado dos resíduos</span></div>
-                    </div>
-                    <div class="flex items-start gap-2 p-1 rounded border-b border-dotted border-gray-300 print:p-0 print:border-none">
-                        <span class="mt-0.5 text-[#358054] font-extrabold text-sm print:text-black">&#10003;</span>
-                        <div class="flex-1 flex"><span class="font-bold w-24 shrink-0">Registro:</span><span>Fotos antes e depois</span></div>
+                    <div>
+                        <label class="font-bold block text-gray-700">Longitude:</label>
+                        <input type="text" name="longitude" value="{{ old('longitude', $os->longitude) }}" 
+                               class="w-full border-gray-300 rounded-md shadow-sm focus:ring-[#358054] focus:border-[#358054] print:border-none">
                     </div>
                 </div>
-            </div>
 
-            {{-- DATAS E OBSERVAÇÕES --}}
-            <div class="grid grid-cols-2 gap-6 mt-4 print:mt-1 print:gap-4">
-                <div>
-                    <label class="font-bold block text-xs uppercase">DATA VISTORIA:</label>
-                    <p class="w-full border p-1 rounded bg-gray-50/80 print:bg-transparent print:border-gray-400 print:py-0">{{ $os->data_vistoria ? \Carbon\Carbon::parse($os->data_vistoria)->format('d/m/Y') : 'N/A' }}</p>
+                {{-- ESPÉCIES E QUANTIDADE --}}
+                <div class="grid grid-cols-3 gap-4 mb-4 border-b border-gray-300 pb-2">
+                    <div class="col-span-2">
+                        <label class="font-bold block text-gray-700">Espécie(s):</label>
+                        <input type="text" name="especies" value="{{ old('especies', is_array($os->especies) ? implode(', ', $os->especies) : $os->especies) }}" 
+                               class="w-full border-gray-300 rounded-md shadow-sm focus:ring-[#358054] focus:border-[#358054] print:border-none">
+                    </div>
+                    <div>
+                        <label class="font-bold block text-gray-700">Quantidade:</label>
+                        <input type="number" name="quantidade" value="{{ old('quantidade', $os->quantidade) }}" 
+                               class="w-full border-gray-300 rounded-md shadow-sm focus:ring-[#358054] focus:border-[#358054] print:border-none">
+                    </div>
                 </div>
-                <div>
-                    <label class="font-bold block text-xs uppercase">PREVISÃO EXECUÇÃO:</label>
-                    <p class="w-full border p-1 rounded bg-gray-50/80 print:bg-transparent print:border-gray-400 print:py-0">{{ $os->data_execucao ? \Carbon\Carbon::parse($os->data_execucao)->format('d/m/Y') : 'N/A' }}</p>
-                </div>
-                
-                @if ($os->observacoes)
-                <div class="mt-4 col-span-2 print:mt-2">
-                    <label class="font-bold block text-xs uppercase">Observações:</label>
-                    <p class="bg-gray-100/90 p-2 rounded whitespace-pre-wrap print:bg-transparent print:border print:border-gray-300 print:p-1 print:text-xs">{{ $os->observacoes }}</p>
-                </div>
-                @endif
-            </div>
 
-            {{-- ASSINATURAS --}}
-            <div class="grid grid-cols-2 gap-8 mt-12 pt-4 print:mt-6 print:flex print:justify-between">
-                <div class="text-center border-t border-black pt-2 w-full">
-                    <p class="text-xs font-bold">Responsável Técnico</p>
+                {{-- MOTIVOS --}}
+                <div class="mb-4 border-b border-gray-300 pb-2 bg-gray-50 p-2 rounded print:bg-transparent">
+                    <h4 class="font-bold underline mb-2">Motivo da Intervenção</h4>
+                    <div class="grid grid-cols-2 gap-y-2">
+                        @foreach ($todosMotivos as $value => $label)
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="motivos[]" value="{{ $value }}" 
+                                    {{ in_array($value, old('motivos', $os->motivos ?? [])) ? 'checked' : '' }}
+                                    class="rounded border-gray-300 text-[#358054] focus:ring-[#358054]">
+                                <span>{{ $label }}</span>
+                            </label>
+                        @endforeach
+                    </div>
                 </div>
-                <div class="text-center border-t border-black pt-2 w-full">
-                    <p class="text-xs font-bold">Recebido por</p>
+
+                {{-- SERVIÇOS --}}
+                <div class="mb-4 border-b border-gray-300 pb-2 bg-gray-50 p-2 rounded print:bg-transparent">
+                    <h4 class="font-bold underline mb-2">Serviços a Executar</h4>
+                    <div class="grid grid-cols-2 gap-y-2">
+                        @foreach ($todosServicos as $value => $label)
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="servicos[]" value="{{ $value }}" 
+                                    {{ in_array($value, old('servicos', $os->servicos ?? [])) ? 'checked' : '' }}
+                                    class="rounded border-gray-300 text-[#358054] focus:ring-[#358054]">
+                                <span>{{ $label }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- EQUIPAMENTOS E EPI'S --}}
+                <div class="mb-4 border-b border-gray-300 pb-2 bg-gray-50 p-2 rounded print:bg-transparent">
+                    <h4 class="font-bold underline mb-2">Equipamentos e EPI's Necessários</h4>
+                    <div class="grid grid-cols-3 gap-y-2">
+                        @foreach ($todosEquipamentos as $value => $label)
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="equipamentos[]" value="{{ $value }}" 
+                                    {{ in_array($value, old('equipamentos', $os->equipamentos ?? [])) ? 'checked' : '' }}
+                                    class="rounded border-gray-300 text-[#358054] focus:ring-[#358054]">
+                                <span>{{ $label }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- DATAS E OBSERVAÇÕES --}}
+                <div class="grid grid-cols-2 gap-6 mt-4">
+                    <div>
+                        <label class="font-bold block text-xs uppercase text-gray-600">Data Vistoria:</label>
+                        <input type="date" name="data_vistoria" value="{{ old('data_vistoria', $os->data_vistoria ? \Carbon\Carbon::parse($os->data_vistoria)->format('Y-m-d') : '') }}" 
+                               class="w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div>
+                        <label class="font-bold block text-xs uppercase text-gray-600">Previsão Execução:</label>
+                        <input type="date" name="data_execucao" value="{{ old('data_execucao', $os->data_execucao ? \Carbon\Carbon::parse($os->data_execucao)->format('Y-m-d') : '') }}" 
+                               class="w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="font-bold block text-xs uppercase text-gray-600">Observações Técnicas/Admin:</label>
+                        <textarea name="observacoes" rows="3" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-[#358054] focus:border-[#358054]">{{ old('observacoes', $os->observacoes) }}</textarea>
+                    </div>
+                </div>
+
+                {{-- ASSINATURAS (PRINT ONLY) --}}
+                <div class="hidden print:grid grid-cols-2 gap-8 mt-12 pt-4">
+                    <div class="text-center border-t border-black pt-1">
+                        <p class="text-[10px] font-bold">Responsável Técnico</p>
+                    </div>
+                    <div class="text-center border-t border-black pt-1">
+                        <p class="text-[10px] font-bold">Encarregado da Equipe</p>
+                    </div>
+                </div>
+
+                {{-- BOTÕES --}}
+                <div class="mt-8 flex justify-end gap-3 print:hidden">
+                    <a href="{{ route('admin.contato.index') }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition font-semibold">Voltar</a>
+                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center gap-2 font-semibold">
+                        <i data-lucide="printer" class="w-4 h-4"></i> Imprimir
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-[#358054] text-white font-bold rounded-md hover:bg-[#2a6643] transition flex items-center gap-2 shadow-lg">
+                        <i data-lucide="save" class="w-4 h-4"></i> Salvar Alterações
+                    </button>
                 </div>
             </div>
-
         </div>
-
-        {{-- BOTÕES (Não aparecem na impressão) --}}
-        <div class="mt-6 flex flex-row-reverse gap-2 print:hidden">
-            @php
-                if (auth()->guard('analyst')->check()) {
-                    $rotaVoltar = route('analyst.os.enviadas');
-                    $textoBotao = 'Voltar';
-                } else {
-                    $rotaVoltar = route('admin.os.index');
-                    $textoBotao = 'Voltar';
-                }
-            @endphp
-            <a href="{{ $rotaVoltar }}" class="inline-flex justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600">
-                <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> {{ $textoBotao }}
-            </a>
-            <button onclick="window.print()" class="inline-flex justify-center rounded-md bg-[#beffb4] px-3 py-2 text-sm font-semibold text-black shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-[#a0c520]">
-                <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Imprimir
-            </button>
-        </div>
-
-    </div>
+    </form>
 </div>
 
 <script>lucide.createIcons();</script>
-
 @endsection
-
-@push('scripts')
-<style>
-@media print {
-    @page {
-        margin: 0.8cm; 
-        size: A4;
-    }
-
-    body, html {
-        background-color: white !important;
-        background-image: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        color: #000 !important;
-    }
-
-    .site-header, .sidebar, footer, .print\:hidden {
-        display: none !important;
-    }
-    
-    main {
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        background: white !important;
-        border: none !important;
-        box-shadow: none !important;
-    }
-    
-    .shadow-2xl, .border-t-8, .rounded-lg {
-        box-shadow: none !important;
-        border: none !important;
-        border-radius: 0 !important;
-    }
-
-    .max-w-4xl {
-        max-width: 100% !important;
-        padding: 0 !important;
-    }
-    
-    .break-inside-avoid {
-        page-break-inside: avoid;
-    }
-}
-</style>
-@endpush
