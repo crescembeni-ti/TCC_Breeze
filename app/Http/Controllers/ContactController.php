@@ -84,20 +84,42 @@ class ContactController extends Controller
      * ============================================================ */
 
     // 4. Listagem Principal (Admin) com Filtros Avançados
+    // 4. Listagem Principal (Admin) com Filtros Avançados
+    // 4. Listagem Principal (Admin) com Filtros Avançados
     public function adminContactList(Request $request)
     {
         $filtro = $request->get('filtro', 'pendentes');
 
-        $query = Contact::with(['status', 'user', 'serviceOrder.service']);
+        // 1. Query Base (Comum para mapa e tabela - Filtra apenas DATA)
+        $baseQuery = Contact::with(['status', 'user', 'serviceOrder.service']);
 
-        // --- Filtro de Status (Abas) ---
+        // --- Filtro de Período (Aplica a ambos) ---
+        if ($request->filled('period')) {
+            $period = $request->period;
+            if ($period == '7_days') {
+                $baseQuery->where('created_at', '>=', now()->subDays(7));
+            } elseif ($period == '30_days') {
+                $baseQuery->where('created_at', '>=', now()->subDays(30));
+            } elseif ($period == 'custom' && $request->filled('date_start') && $request->filled('date_end')) {
+                $start = Carbon::parse($request->date_start)->startOfDay();
+                $end = Carbon::parse($request->date_end)->endOfDay();
+                $baseQuery->whereBetween('created_at', [$start, $end]);
+            }
+        }
+
+        // 2. DADOS DO MAPA (Clona a base + ignora as abas)
+        // Isso garante que o mapa mostre TUDO do período selecionado
+        $mapMessages = (clone $baseQuery)->get();
+
+        // 3. DADOS DA TABELA (Aplica o filtro da aba + ORDENAÇÃO)
+        $tableQuery = $baseQuery; 
+
         if ($filtro === 'pendentes') {
-            $query->whereHas('status', fn ($q) =>
+            $tableQuery->whereHas('status', fn ($q) =>
                 $q->whereIn('name', ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'])
             );
-
-            // Regra de visibilidade
-            $query->where(function ($mainQuery) {
+            // Regra de visibilidade para pendentes
+            $tableQuery->where(function ($mainQuery) {
                 $mainQuery->whereDoesntHave('serviceOrder', function ($q) {
                     $q->whereIn('destino', ['analista', 'servico']);
                 })
@@ -105,32 +127,19 @@ class ContactController extends Controller
                     $q->where('name', 'Em Execução');
                 });
             });
-        }
-
-        if ($filtro === 'resolvidas') {
-            $query->whereHas('status', fn ($q) =>
+        } elseif ($filtro === 'resolvidas') {
+            $tableQuery->whereHas('status', fn ($q) =>
                 $q->whereIn('name', ['Concluído', 'Indeferido', 'Sem Pendências'])
             );
         }
+        // Se for 'todas', não aplica whereHas extra, pega tudo.
 
-        // --- Filtro de Período (Atualizado com Personalizado) ---
-        if ($request->filled('period')) {
-            $period = $request->period;
-
-            if ($period == '7_days') {
-                $query->where('created_at', '>=', now()->subDays(7));
-            } elseif ($period == '30_days') {
-                $query->where('created_at', '>=', now()->subDays(30));
-            } elseif ($period == 'custom' && $request->filled('date_start') && $request->filled('date_end')) {
-                // Filtro Personalizado (Calendário)
-                $start = Carbon::parse($request->date_start)->startOfDay();
-                $end = Carbon::parse($request->date_end)->endOfDay();
-                $query->whereBetween('created_at', [$start, $end]);
-            }
-        }
+        // ITEM 1: Ordenação latest() aqui garante que o mais recente venha primeiro
+        $messages = $tableQuery->latest()->get(); 
 
         return view('admin.contacts.index', [
-            'messages' => $query->latest()->get(),
+            'messages' => $messages,       // Lista da Tabela (Ordenada)
+            'mapMessages' => $mapMessages, // Lista do Mapa (Completa)
             'allStatuses' => Status::where('name', '!=', 'Cancelado')->get(),
             'analistas' => Analyst::orderBy('name')->get(),
             'servicos' => Service::orderBy('name')->get(),
