@@ -233,7 +233,29 @@
                 arquivosReais.forEach(file => dataTransfer.items.add(file));
                 input.files = dataTransfer.files;
             },
-            submitForm() {
+           submitForm() {
+                // 1. Validação Manual do Tópico
+                const inputTopico = document.querySelector('input[name="topico"]');
+                if (!inputTopico || !inputTopico.value) {
+                    alert('Por favor, selecione uma opção em "Solicitações Frequentes".');
+                    return; // Para a execução e não envia
+                }
+
+                // 2. Validação Manual do Bairro
+                const inputBairro = document.querySelector('input[name="bairro"]');
+                if (!inputBairro || !inputBairro.value) {
+                    alert('Por favor, selecione um Bairro.');
+                    return; // Para a execução e não envia
+                }
+
+                // 3. Validação do Telefone (Opcional, mas recomendado verificar se não está vazio)
+                const inputTelefone = document.getElementById('telefoneInput');
+                if (!inputTelefone.value) {
+                    alert('Por favor, informe um Telefone de contato.');
+                    return;
+                }
+
+                // Se passou por tudo, sincroniza arquivos e envia
                 this.syncFileInput();
                 document.getElementById('contactForm').submit();
             },
