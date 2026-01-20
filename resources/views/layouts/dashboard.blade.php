@@ -26,18 +26,14 @@
 
 <body class="font-sans antialiased flex flex-col min-h-screen">
 
-    {{-- HEADER ATUALIZADO (Fino e com logos separadas) --}}
+    {{-- HEADER ATUALIZADO --}}
     <header class="site-header bg-[#beffb4] border-b-2 border-[#358054] shadow-md">
-        {{-- Padding reduzido para py-3 --}}
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center flex-wrap gap-4">
             
-            {{-- LADO ESQUERDO: Logo Site + Texto (Menores) --}}
+            {{-- LADO ESQUERDO: Logo Site + Texto --}}
             <div class="flex items-center gap-3">
                 <a href="{{ route('home') }}" class="flex items-center gap-3">
-                    {{-- Logo reduzida --}}
                     <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
-                    
-                    {{-- Texto reduzido --}}
                     <h1 class="text-xl sm:text-2xl font-bold leading-tight">
                         <span class="text-[#358054]">Árvores de</span>
                         <span class="text-[#a0c520]">Paracambi</span>
@@ -45,19 +41,20 @@
                 </a>
             </div>
 
-            {{-- LADO DIREITO: Nova Logo + Botão Menu Mobile --}}
+            {{-- LADO DIREITO: Botão Menu + Nova Logo (Ordem Invertida) --}}
             <div class="flex items-center gap-3 sm:gap-6">
                 
-                {{-- Nova Logo (Classe global do app.css) --}}
-                <img src="{{ asset('images/nova_logo.png') }}" 
-                     alt="Logo Prefeitura" 
-                     class="header-logo-right">
-
-                {{-- Botão Menu Mobile (Só aparece em telas pequenas) --}}
+                {{-- 1. Botão Menu Mobile (Agora vem antes) --}}
                 <button @click="open = !open"
                     class="md:hidden bg-[#358054] text-white px-3 py-1.5 rounded-lg shadow font-medium text-sm flex items-center gap-2 hover:bg-[#2d6e4b] transition">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
+
+                {{-- 2. Nova Logo (Agora fica na extrema direita) --}}
+                <img src="{{ asset('images/nova_logo.png') }}" 
+                     alt="Logo Prefeitura" 
+                     class="header-logo-right hover:opacity-90 transition-opacity"
+                     style="height: 3.5rem; width: auto;">
             </div>
 
         </div>

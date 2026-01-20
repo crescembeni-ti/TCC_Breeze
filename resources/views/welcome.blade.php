@@ -153,15 +153,10 @@
                     </a>
                 </div>
 
-                {{-- LADO DIREITO: Nova Logo + Menu --}}
+                {{-- LADO DIREITO: Menu + Nova Logo --}}
                 <div class="flex items-center gap-3 sm:gap-6">
                     
-                    {{-- NOVA LOGO (Tamanho controlado pelo CSS atualizado) --}}
-                    <img src="{{ asset('images/nova_logo.png') }}" 
-                         alt="Logo Prefeitura" 
-                         class="header-logo-right">
-
-                    {{-- MENU --}}
+                    {{-- 1. MENU (Agora vem ANTES da Nova Logo) --}}
                     <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block text-sm py-1.5 px-3">Painel</a>
@@ -213,6 +208,13 @@
                             </script>
                         @endif
                     </div>
+
+                    {{-- 2. NOVA LOGO (MOVIDA PARA O FINAL / DIREITA) --}}
+                    <img src="{{ asset('images/nova_logo.png') }}" 
+                         alt="Logo Prefeitura" 
+                         class="header-logo-right hover:opacity-90 transition-opacity"
+                         style="height: 3.5rem; width: auto;"> {{-- Garante tamanho adequado --}}
+
                 </div>
             </div>
         </header>
