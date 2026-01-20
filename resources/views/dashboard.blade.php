@@ -47,10 +47,7 @@
         <p class="text-4xl font-bold text-[#38c224]">{{ $stats['total_trees'] }}</p>
     </div>
 
-    <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center p-6 w-64 aspect-square">
-        <h4 class="text-xl font-semibold text-green-800">Atividades Registradas</h4><br>
-        <p class="text-4xl font-bold text-[#38c224]">{{ $stats['total_activities'] }}</p>
-    </div>
+   
 
     <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center p-6 w-64 aspect-square">
         <h4 class="text-xl font-semibold text-green-800">Espécies no Mapa</h4><br>
