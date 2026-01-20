@@ -149,6 +149,9 @@
                 <p><strong>Nome:</strong> <span id="view-nome"></span></p>
                 <p><strong>Email:</strong> <span id="view-email"></span></p>
                 <p><strong>Endereço:</strong> <span id="view-endereco"></span></p>
+                <p id="view-telefone-container" style="display: none;">
+                <strong>Telefone:</strong> <span id="view-telefone"></span>
+            </p>
                 <div class="bg-gray-100 p-3 rounded"><p id="view-descricao"></p></div>
                 <button onclick="openFotosModal(currentViewingId)" class="mt-4 w-full bg-[#358054] text-white py-2 rounded-lg">Ver Fotos</button>
             </div>
@@ -414,14 +417,31 @@
                 if (req.ok) { alert('Encaminhado com sucesso!'); location.reload(); } else { alert("Erro ao encaminhar: " + (res.message || 'Verifique o console')); }
             } catch (err) { console.error(err); alert('Erro de conexão.'); }
         }
-        function openViewModal(id) {
+       function openViewModal(id) {
             currentViewingId = id;
-            let m = messages[id];
+            let m = messages[id]; // Pega os dados da mensagem atual
+
+            // Preenche os dados básicos
             document.getElementById('view-topico').textContent = m.topico ?? '';
             document.getElementById('view-nome').textContent = m.user?.name ?? m.nome_solicitante;
             document.getElementById('view-email').textContent = m.user?.email ?? m.email_solicitante;
             document.getElementById('view-endereco').textContent = `${m.bairro}, ${m.rua}, ${m.numero}`;
             document.getElementById('view-descricao').textContent = m.descricao;
+
+            // --- LÓGICA DO TELEFONE CORRIGIDA ---
+            const telefoneContainer = document.getElementById('view-telefone-container');
+            const telefoneSpan = document.getElementById('view-telefone');
+
+            // Tenta encontrar o telefone em várias colunas possíveis (do contato ou do usuário)
+            // A ordem de prioridade é: campo 'telefone' direto > campo 'celular' > campo 'phone' > dados do usuário vinculado
+            let telefoneEncontrado = m.telefone ?? 'Não informado';
+
+            telefoneSpan.textContent = telefoneEncontrado;
+            
+            // Força o container a aparecer sempre
+            telefoneContainer.style.display = 'block'; 
+            // -------------------------------------
+
             document.getElementById('modal-view').classList.remove('hidden');
             document.getElementById('modal-view').classList.add('flex');
         }
