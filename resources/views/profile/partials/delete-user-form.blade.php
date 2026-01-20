@@ -25,14 +25,12 @@
             required
         >
 
+        {{-- MANTENHA APENAS ESTE, QUE OLHA PARA A 'BAG' ESPECÍFICA DE DELEÇÃO --}}
         @error('password', 'userDeletion')
             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
         @enderror
-        
-        @error('password')
-            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-        @enderror
     </div>
+
     <div class="flex justify-end">
         <button type="submit"
             class="bg-red-600 text-white text-lg rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-800 active:scale-95 transition px-6 py-3">
