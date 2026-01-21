@@ -107,15 +107,22 @@
                         <i data-lucide="file-text" class="icon"></i> OS Enviadas
                     </a>
 
-                {{-- ==================== MENU SERVIÇO (ALTERAÇÃO AQUI) ==================== --}}
+               {{-- ==================== MENU SERVIÇO ==================== --}}
                 @elseif (auth('service')->check())
                     <a href="{{ route('service.dashboard') }}" class="sidebar-link">
                         <i data-lucide="layout-dashboard" class="icon"></i> Painel Serviço
                     </a>
-                    {{-- LINHA ALTERADA COM O ÍCONE --}}
-                    <a href="{{ route('service.tasks.index') }}" class="sidebar-link">
-                        <i data-lucide="clipboard-list" class="icon"></i> Minhas Tarefas
+
+                    <a href="{{ route('service.tasks.recebidas') }}" class="sidebar-link">
+                        <i data-lucide="inbox" class="icon"></i> Tarefas Recebidas
                     </a>
+                    <a href="{{ route('service.tasks.em_andamento') }}" class="sidebar-link">
+                        <i data-lucide="play-circle" class="icon"></i> Tarefas Em Andamento
+                    </a>
+                    <a href="{{ route('service.tasks.concluidas') }}" class="sidebar-link">
+                        <i data-lucide="check-circle" class="icon"></i> Tarefas Concluídas
+                    </a>
+
                 {{-- ==================== MENU USUÁRIO ==================== --}}
                 @elseif (auth('web')->check())
                     <a href="{{ route('dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Menu</a>

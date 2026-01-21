@@ -233,7 +233,7 @@
                         <button type="button" @click="open = false" class="bg-gray-100 border border-gray-300 text-gray-700 px-4 py-2 rounded text-xs font-bold hover:bg-gray-200 transition">
                             Fechar
                         </button>
-                        <button type="button" onclick="window.print()" class="bg-[#358054] text-white px-6 py-2 rounded text-xs font-bold shadow-lg hover:bg-green-700 flex items-center gap-2">
+                        <button type="button" onclick="window.print()" class="bg-black text-white px-6 py-2 rounded text-xs font-bold shadow-lg hover:bg-gray-800 flex items-center gap-2">
                             <i data-lucide="printer" class="w-4 h-4"></i> Imprimir OS
                         </button>
                     </div>

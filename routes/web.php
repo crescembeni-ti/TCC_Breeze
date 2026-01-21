@@ -41,7 +41,7 @@ use App\Http\Controllers\Analista\AuthenticatedSessionController as AnalystLogin
 */
 use App\Http\Controllers\Servico\AuthenticatedSessionController as ServiceLoginController;
 use App\Http\Controllers\Servico\ServiceExecutionController;
-// AQUI ESTÁ A CORREÇÃO PRINCIPAL: Importamos o DashboardController da pasta Servico com um apelido
+// IMPORTANTE: Importamos o DashboardController da pasta Servico com um APELIDO para não conflitar com o do usuário
 use App\Http\Controllers\Servico\DashboardController as ServiceDashboardController;
 
 /*
@@ -242,15 +242,28 @@ Route::prefix('pbi-servico')->name('service.')->group(function () {
 
     // ÁREA LOGADA DA EQUIPE TÉCNICA
     Route::middleware(['auth:service', 'preventBack'])->group(function () {
+        
         Route::post('/logout', [ServiceLoginController::class, 'destroy'])->name('logout');
         
-        // Chamada usando o apelido ServiceDashboardController
+        // Dashboard
         Route::get('/dashboard', [ServiceDashboardController::class, 'index'])->name('dashboard');
-        
         Route::get('/profile', fn () => view('servico.profile'))->name('profile.edit');
 
-        // Rotas de Tarefas
-        Route::get('/tarefas', [ServiceExecutionController::class, 'index'])->name('tasks.index'); 
+        // --- ROTAS DE TAREFAS (SEPARADAS) ---
+        
+        // 1. Recebidas (Antiga Index)
+        Route::get('/tarefas/recebidas', [ServiceExecutionController::class, 'recebidas'])
+            ->name('tasks.recebidas'); 
+
+        // 2. Em Andamento
+        Route::get('/tarefas/em-andamento', [ServiceExecutionController::class, 'emAndamento'])
+            ->name('tasks.em_andamento');
+
+        // 3. Concluídas
+        Route::get('/tarefas/concluidas', [ServiceExecutionController::class, 'concluidas'])
+            ->name('tasks.concluidas');
+
+        // --- AÇÕES ---
         Route::post('/tarefas/{id}/confirmar', [ServiceExecutionController::class, 'confirmarRecebimento'])->name('tasks.confirmar');
         Route::post('/tarefas/{id}/concluir', [ServiceExecutionController::class, 'concluir'])->name('tasks.concluir');
         Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])->name('tasks.falha'); 

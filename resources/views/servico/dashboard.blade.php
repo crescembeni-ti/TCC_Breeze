@@ -35,7 +35,7 @@
         <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded shadow hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-blue-700 font-bold text-sm uppercase">Em Andamento</p>
+                    <p class="text-blue-700 font-bold text-sm uppercase">Tarefas Em Andamento</p>
                     {{-- VARIÁVEL DINÂMICA AQUI --}}
                     <h3 class="text-3xl font-bold text-gray-800">{{ $emAndamento ?? 0 }}</h3> 
                 </div>
@@ -46,7 +46,7 @@
         <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded shadow hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-green-700 font-bold text-sm uppercase">Concluídas</p>
+                    <p class="text-green-700 font-bold text-sm uppercase">Tarefas Concluídas</p>
                     {{-- VARIÁVEL DINÂMICA AQUI --}}
                     <h3 class="text-3xl font-bold text-gray-800">{{ $concluidas ?? 0 }}</h3> 
                 </div>
@@ -57,7 +57,7 @@
 
     {{-- Botões de Ação Rápida --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <a href="{{ route('service.tasks.index') }}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-green-50 hover:border-green-300 transition group">
+      <a href="{{ route('service.tasks.recebidas') }}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-green-50 hover:border-green-300 transition group">
             <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 group-hover:text-[#358054] flex items-center gap-2">
                 <i data-lucide="list"></i> Minhas Tarefas
             </h5>

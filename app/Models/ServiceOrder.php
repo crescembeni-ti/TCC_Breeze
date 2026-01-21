@@ -40,6 +40,8 @@ class ServiceOrder extends Model
         // Controle de Fluxo (CRUCIAL PARA SEU PROBLEMA)
         'status',
         'destino', 
+
+        'data_do_visto',
     ];
 
     // AQUI ESTÁ A CORREÇÃO DO ERRO DA TELA
