@@ -107,14 +107,25 @@ class AdminServiceController extends Controller
 
     public function update(Request $request, $id)
 {
+    $request->validate([
+        'data_vistoria' => 'nullable|date|before_or_equal:today',
+        'data_execucao' => 'nullable|date|after_or_equal:today',
+        // outras validações...
+    ], [
+        'data_vistoria.before_or_equal' => 'A data de vistoria não pode ser uma data futura.',
+        'data_execucao.after_or_equal' => 'A data de previsão não pode ser uma data passada.',
+    ]);
     // Você pode usar o Model ServiceOrder ou o que estiver usando para OS
     $os = \App\Models\ServiceOrder::findOrFail($id);
    
     $os->update([
+        'latitude'      => $request->latitude,   // Adicionado
+        'longitude'     => $request->longitude,  // Adicionado
         'especies' => $request->especies,
         'quantidade' => $request->quantidade,
         'motivos' => $request->motivos, // O Laravel converte array para JSON se o cast estiver no Model
         'servicos' => $request->servicos,
+        'equipamentos'  => $request->equipamentos, // Adicionado para salvar os EPIs
         'data_vistoria' => $request->data_vistoria,
         'data_execucao' => $request->data_execucao,
         'observacoes' => $request->observacoes,

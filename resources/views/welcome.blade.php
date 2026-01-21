@@ -614,10 +614,12 @@
             const especieSelect = document.getElementById("especie");
             const bairroSelect = document.getElementById("bairro");
             
+            // Popula Bairros
             allBairros.forEach(b => {
                 const opt = document.createElement("option"); opt.value = b.id; opt.textContent = b.nome; bairroSelect.appendChild(opt);
             });
 
+            // Popula Espécies
             const nomesSet = new Set();
             trees.forEach(t => {
                 let nome = t.vulgar_name;
@@ -631,19 +633,52 @@
                 const opt = document.createElement("option"); opt.value = nome; opt.textContent = nome; especieSelect.appendChild(opt);
             });
 
+            // Popula Filtros de Admin
             if (isAdmin) {
                 adminFieldsConfig.forEach(field => {
                     const select = document.getElementById(field.id);
                     if(select) {
-                        const valoresUnicos = [...new Set(trees.map(t => t[field.key]).filter(v => v))].sort();
-                        valoresUnicos.forEach(valor => {
-                            const opt = document.createElement("option"); opt.value = valor; opt.textContent = valor; select.appendChild(opt);
-                        });
+                        // Limpa opções anteriores (exceto "Todos")
+                        while (select.options.length > 1) { select.remove(1); }
+
+                        // LÓGICA ESPECIAL: Opções Fixas Obrigatórias
+                        let opcoesFixas = [];
+
+                        if (field.id === 'health_status') {
+                            opcoesFixas = ['Boa', 'Regular', 'Ruim'];
+                        } 
+                        else if (field.id === 'crown_balance') {
+                            // Adicionei "Desequilibrada" aqui para garantir que apareça
+                            opcoesFixas = ['Equilibrada', 'Mediamente Equilibrada', 'Desequilibrada', 'Muito Desequilibrada'];
+                        }
+                        else if (field.id === 'organisms') {
+                            // Adicionei "Ausente" aqui para garantir que apareça separado
+                            opcoesFixas = ['Ausente', 'Infestação Inicial', 'Infestação Média', 'Infestação Avançada'];
+                        }
+
+                        // Se tiver opções fixas, usa elas. Se não, pega do banco.
+                        if (opcoesFixas.length > 0) {
+                            opcoesFixas.forEach(valor => {
+                                const opt = document.createElement("option"); 
+                                opt.value = valor; 
+                                opt.textContent = valor; 
+                                select.appendChild(opt);
+                            });
+                        } else {
+                            // Padrão dinâmico para os outros campos
+                            const valoresUnicos = [...new Set(trees.map(t => t[field.key]).filter(v => v))].sort();
+                            valoresUnicos.forEach(valor => {
+                                const opt = document.createElement("option"); 
+                                opt.value = valor; 
+                                opt.textContent = valor; 
+                                select.appendChild(opt);
+                            });
+                        }
                     }
                 });
             }
         }
-
+        
         function atualizarStatus(count, total) {
             const statusDiv = document.getElementById("filterStatus");
             if (!statusDiv) return;

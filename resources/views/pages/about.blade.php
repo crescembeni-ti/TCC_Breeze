@@ -131,7 +131,7 @@
 
     </main>
 
-    <footer class="bg-gray-800 border-t border-gray-2 py-6 mt-auto">
+    <footer class="bg-white border-t border-gray-200 py-6 mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
             © {{ date('Y') }} Árvores de Paracambi. Todos os direitos reservados.
         </div>
