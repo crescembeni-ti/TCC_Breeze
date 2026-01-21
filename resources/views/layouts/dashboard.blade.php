@@ -107,11 +107,15 @@
                         <i data-lucide="file-text" class="icon"></i> OS Enviadas
                     </a>
 
-                {{-- ==================== MENU SERVIÇO ==================== --}}
+                {{-- ==================== MENU SERVIÇO (ALTERAÇÃO AQUI) ==================== --}}
                 @elseif (auth('service')->check())
-                    <a href="{{ route('service.dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Painel Serviço</a>
-                    <a href="{{ route('service.tasks.index') }}" class="sidebar-link"><i data-lucide="tool" class="icon"></i> Minhas Tarefas</a>
-
+                    <a href="{{ route('service.dashboard') }}" class="sidebar-link">
+                        <i data-lucide="layout-dashboard" class="icon"></i> Painel Serviço
+                    </a>
+                    {{-- LINHA ALTERADA COM O ÍCONE --}}
+                    <a href="{{ route('service.tasks.index') }}" class="sidebar-link">
+                        <i data-lucide="clipboard-list" class="icon"></i> Minhas Tarefas
+                    </a>
                 {{-- ==================== MENU USUÁRIO ==================== --}}
                 @elseif (auth('web')->check())
                     <a href="{{ route('dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Menu</a>

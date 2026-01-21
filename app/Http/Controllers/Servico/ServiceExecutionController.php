@@ -3,85 +3,44 @@
 namespace App\Http\Controllers\Servico;
 
 use App\Http\Controllers\Controller;
-use App\Models\Contact;
-use App\Models\Status;
-use App\Models\ServiceOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ServiceOrder;
+use Illuminate\Database\Eloquent\Builder;
 
-class ServiceExecutionController extends Controller
+class DashboardController extends Controller
 {
     public function index()
     {
-        $ordensDeServico = ServiceOrder::with(['contact.status', 'contact']) // Carrega status tb
-            ->where('service_id', Auth::id())
+        $user = Auth::guard('service')->user();
+
+        // 1. TAREFAS PENDENTES
+        // Lógica: Pertence ao usuário, destino é 'servico' E o status do contato é 'Vistoriado'
+        $pendentes = ServiceOrder::where('service_id', $user->id)
             ->where('destino', 'servico')
-            ->orderBy('created_at', 'asc')
-            ->get();
+            ->whereHas('contact.status', function (Builder $query) {
+                $query->where('name', 'Vistoriado');
+            })
+            ->count();
 
-        return view('servico.tarefas', compact('ordensDeServico'));
-    }
+        // 2. EM ANDAMENTO
+        // Lógica: Pertence ao usuário, destino é 'servico' E o status do contato é 'Em Execução'
+        $emAndamento = ServiceOrder::where('service_id', $user->id)
+            ->where('destino', 'servico')
+            ->whereHas('contact.status', function (Builder $query) {
+                $query->where('name', 'Em Execução');
+            })
+            ->count();
 
-    // --- NOVO: CONFIRMAR RECEBIMENTO (VISTO) ---
-   // --- NOVO: CONFIRMAR RECEBIMENTO (VISTO) ---
-    public function confirmarRecebimento($id)
-    {
-        $os = ServiceOrder::with('contact')->findOrFail($id);
+        // 3. CONCLUÍDAS
+        // Lógica: No seu controller, quando conclui, você define 'destino' => null e 'status' => 'concluido'.
+        // Por isso, aqui NÃO filtramos por 'destino', apenas pelo status da OS.
+        $concluidas = ServiceOrder::where('service_id', $user->id)
+            ->where('status', 'concluido')
+            ->count();
 
-        // 1. Busca o ID do status "Em Execução"
-        $statusExecucao = Status::where('name', 'Em Execução')->first();
-
-        if ($statusExecucao) {
-            // 2. Atualiza o status do contato para o Admin ver que começou
-            $os->contact->update(['status_id' => $statusExecucao->id]);
-        }
-
-        // NÃO limpamos o 'destino' aqui, pois a tarefa continua com a equipe
-        return redirect()->route('service.tasks.index')
-            ->with('success', 'Confirmado! Solicitação movida para "Em Execução".');
-    }
-
-    // Serviço concluiu a tarefa
-    public function concluir($id)
-    {
-        $os = ServiceOrder::with('contact')->findOrFail($id);
-
-        $os->update([
-            'data_execucao' => now(),
-            'status' => 'concluido',
-            'destino' => null, 
-        ]);
-
-        $statusConcluido = Status::where('name', 'Concluído')->first();
-        if ($statusConcluido) {
-            $os->contact->update(['status_id' => $statusConcluido->id]);
-        }
-
-        return redirect()->route('service.tasks.index')
-            ->with('success', 'Serviço concluído! A solicitação foi finalizada.');
-    }
-
-    // Serviço não conseguiu fazer
-    public function falha(Request $request, $id)
-    {
-        $os = ServiceOrder::with('contact')->findOrFail($id);
-
-        $motivo = $request->input('motivo_falha');
-        $novaObs = ($os->observacoes ?? '') . " | FALHA REGISTRADA: " . $motivo;
-
-        $os->update([
-            'observacoes' => $novaObs,
-            'status' => 'impedimento',
-            'destino' => null, 
-        ]);
-
-        // Se falhou, volta para Em Análise ou mantém Em Execução para o Admin ver
-        $statusProblema = Status::where('name', 'Em Execução')->first(); 
-        if ($statusProblema) {
-            $os->contact->update(['status_id' => $statusProblema->id]);
-        }
-
-        return redirect()->route('service.tasks.index')
-            ->with('warning', 'Falha registrada e devolvida ao administrador.');
+        // Se a pasta da view for 'servico' (português), mantenha assim. 
+        // Se for 'service' (inglês), mude para 'service.dashboard'
+        return view('servico.dashboard', compact('user', 'pendentes', 'emAndamento', 'concluidas'));
     }
 }
