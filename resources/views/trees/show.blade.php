@@ -38,22 +38,37 @@
 <body class="font-sans antialiased tree-page">
     <div class="min-h-screen">
 
-        {{-- HEADER --}}
-        <header class="site-header">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
-                <div class="flex items-center gap-4">
-                    <a href="{{ route('home') }}" class="flex items-center gap-4">
-                        <img src="{{ asset('images/Brasao_Verde.png') }}" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                        <img src="{{ asset('images/logo.png') }}" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
-                        <h1 class="text-3xl sm:text-4xl font-bold">
+        {{-- HEADER COMPACTO --}}
+        <header class="site-header flex-shrink-0"> 
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center flex-wrap gap-4">
+                
+                {{-- LADO ESQUERDO: Logo Site Menor --}}
+                <div class="flex items-center gap-3 flex-shrink-0">
+                    <a href="{{ route('home') }}" class="flex items-center gap-3">
+                        <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
+                        <h1 class="text-xl sm:text-2xl font-bold leading-tight">
                             <span class="text-[#358054]">Árvores de</span>
-                            <span class="text-[#a0c520]">Paracambi</span>
+                            <span class="text-[#a0c520]"> Paracambi</span>
                         </h1>
                     </a>
                 </div>
-                <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-[#38c224] transition-all duration-300 transform hover:scale-105">
-                Voltar ao Mapa
-                </a>
+
+                {{-- LADO DIREITO: Menu + Nova Logo --}}
+                <div class="flex items-center gap-2 sm:gap-6">
+                    
+                    {{-- 1. MENU --}}
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">
+                            Voltar ao Mapa
+                        </a>
+                    </div>
+
+                    {{-- 2. NOVA LOGO --}}
+                    <img src="{{ asset('images/nova_logo.png') }}" 
+                         alt="Logo Prefeitura" 
+                         class="header-logo-right hover:opacity-90 transition-opacity"
+                         style="height: 3.5rem; width: auto;"> 
+                </div>
             </div>
         </header>
 
