@@ -289,6 +289,41 @@ footer {
 
 @media (max-width: 768px) {
     .sidebar {
-        display: none; /* Esconde a lateral no celular */
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 50;
+        width: 280px;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.3);
     }
-  }
+    
+    main {
+        padding: 15px;
+    }
+
+    .site-header .max-w-7xl {
+        flex-direction: row;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+    }
+
+    .site-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .header-logo-right {
+        height: 2.5rem !important;
+    }
+}
+
+/* Ajustes para o conteúdo do dashboard */
+.bg-white.overflow-hidden.p-8.rounded-lg {
+    padding: 1.5rem !important;
+}
+
+@media (min-width: 640px) {
+    .bg-white.overflow-hidden.p-8.rounded-lg {
+        padding: 2rem !important;
+    }
+}

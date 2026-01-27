@@ -12,6 +12,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/welcome.css'])
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     {{-- ESTILOS --}}
    <style>
@@ -136,6 +137,20 @@
         .leaflet-popup-content {
             width: 220px !important; 
         }
+        .map-legend {
+            top: auto !important;
+            bottom: 80px !important;
+            left: 10px !important;
+            max-width: 150px;
+        }
+        .map-margin-note {
+            font-size: 10px !important;
+            padding: 6px 30px 6px 12px !important;
+            bottom: 10px !important;
+            width: 90%;
+            white-space: normal !important;
+            text-align: center;
+        }
     }
     </style>
 </head>
@@ -176,41 +191,20 @@
                             <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block text-sm py-1.5 px-3">Cadastrar</a>
 
                             {{-- MOBILE MENU --}}
-                            <div class="relative inline-block">
-                                <button id="guestMenuBtn" class="ml-2 btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-1.5 transition-all duration-200 py-1.5 px-3 text-sm">
+                            <div class="relative inline-block sm:hidden" x-data="{ open: false }">
+                                <button @click="open = !open" class="ml-2 btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-1.5 transition-all duration-200 py-1.5 px-3 text-sm">
                                     Menu
-                                    <svg id="iconMenu" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                        <path x-show="!open" d="M4 6h16M4 12h16M4 18h16" />
+                                        <path x-show="open" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
-                                <div id="guestMenu" class="hidden absolute right-0 mt-2 w-56 bg-[#e8ffe6] rounded-xl shadow-lg z-50 overflow-hidden border border-green-100">
+                                <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-56 bg-[#e8ffe6] rounded-xl shadow-lg z-50 overflow-hidden border border-green-100">
                                     <a href="{{ route('contact') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Fazer Solicitação</a>
-                                    <a href="{{ route('contact.myrequests') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Minhas Solicitações</a>
-                                    <a href="{{ route('about') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Sobre o Site</a>
+                                    <a href="{{ route('login') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Entrar</a>
+                                    <a href="{{ route('register') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Cadastrar</a>
                                 </div>
                             </div>
-                            <script>
-                                (function() {
-                                    const btn = document.getElementById('guestMenuBtn');
-                                    const menu = document.getElementById('guestMenu');
-                                    const icon = document.getElementById('iconMenu');
-                                    let aberto = false;
-                                    if (!btn || !menu) return;
-                                    btn.addEventListener('click', (e) => {
-                                        e.stopPropagation();
-                                        menu.classList.toggle('hidden');
-                                        aberto = !aberto;
-                                        icon.innerHTML = aberto ? `<path d="M6 6l12 12" /><path d="M6 18L18 6" />` : `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`;
-                                    });
-                                    window.addEventListener('click', () => {
-                                        if (!menu.classList.contains('hidden')) {
-                                            menu.classList.add('hidden');
-                                            icon.innerHTML = `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`;
-                                            aberto = false;
-                                        }
-                                    });
-                                })();
-                            </script>
                         @endif
                     </div>
 
