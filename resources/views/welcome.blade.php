@@ -191,8 +191,8 @@
 	                    <div class="flex items-center gap-2 sm:gap-4 relative">
 	                        @if (auth('admin')->check())
 	                            <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Painel</a>
-	                        @elseif (auth('analista')->check())
-	                            <a href="{{ route('analista.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Painel</a>
+	                        @elseif (auth('analyst')->check())
+	                            <a href="{{ route('analyst.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Painel</a>
 	                        @elseif(auth()->check())
 	                            <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Menu</a>
 	                        @else
@@ -283,7 +283,7 @@
 
         // --- VERIFICAÇÃO DE PERMISSÕES ---
         const isAdmin = @json(auth('admin')->check());
-        const isAnalista = @json(auth('analista')->check());
+        const isAnalista = @json(auth('analyst')->check());
         const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
         const exportRoute = "{{ route('admin.trees.export') }}";
 
