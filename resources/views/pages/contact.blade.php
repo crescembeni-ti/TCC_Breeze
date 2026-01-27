@@ -30,7 +30,7 @@
 <body class="font-sans antialiased">
 <div class="min-h-screen">
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 md:py-12">
         
         @if (session('success'))
             <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg">
@@ -46,9 +46,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
             {{-- COLUNA DA ESQUERDA: INFOS --}}
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden lg:mr-16">
-                <div class="p-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden lg:mr-8">
+                <div class="p-6 sm:p-8">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
                     <div class="space-y-6">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Endereço</h3>
@@ -98,8 +98,8 @@
             </div>
 
             {{-- COLUNA DA DIREITA: FORMULÁRIO --}}
-            <div class="bg-white rounded-lg shadow-lg p-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">Formulário de Contato</h2>
+            <div class="bg-white rounded-lg shadow-lg p-6 sm:p-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Formulário de Contato</h2>
 
                 <form x-data="fileUploader()" id="contactForm" action="{{ route('contact.store') }}" method="POST" enctype="multipart/form-data" @submit.prevent="submitForm" class="space-y-6">
                     @csrf

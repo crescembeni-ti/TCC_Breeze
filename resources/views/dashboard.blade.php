@@ -3,12 +3,12 @@
 @section('title', 'Painel do Usuário')
 
 @section('content')
-    <div class="bg-white overflow-hidden p-8 rounded-lg" style="box-shadow: 0 4px 12px rgba(56, 194, 36, 0.3);">
-        <h2 class="text-3xl font-bold text-[#358054] mb-4">Bem-vindo, {{ $user->name }}</h2>
-        <p class="text-gray-700 text-lg">
-            Continue nos ajudando a cuidar das árvores da nossa cidade! <br>
+    <div class="bg-white overflow-hidden p-4 sm:p-8 rounded-lg" style="box-shadow: 0 4px 12px rgba(56, 194, 36, 0.3);">
+        <h2 class="text-2xl sm:text-3xl font-bold text-[#358054] mb-4">Bem-vindo, {{ $user->name }}</h2>
+        <p class="text-gray-600 sm:text-gray-700 text-base sm:text-lg">
+            Continue nos ajudando a cuidar das árvores da nossa cidade! <br class="hidden sm:block">
             Cada ação, cada solicitação e cada cuidado faz a diferença para manter Paracambi mais verde, saudável e bonita.
-            <br>
+            <br class="hidden sm:block">
             Juntos, estamos construindo um futuro mais sustentável e cheio de vida.
         </p>
 
@@ -30,30 +30,28 @@
 
         {{-- Texto introdutório para as estatísticas --}}
         <div class="mt-10 text-center">
-            <h3 class="text-2xl font-semibold text-[#358054] mb-3">Cuidar da natureza é cuidar da nossa cidade</h3>
-            <p class="text-gray-700 text-lg leading-relaxed max-w-5xl mx-auto">
-                Paracambi segue comprometida com a preservação e o monitoramento de suas árvores!<br>
+            <h3 class="text-xl sm:text-2xl font-semibold text-[#358054] mb-3">Cuidar da natureza é cuidar da nossa cidade</h3>
+            <p class="text-gray-600 sm:text-gray-700 text-base sm:text-lg leading-relaxed max-w-5xl mx-auto">
+                Paracambi segue comprometida com a preservação e o monitoramento de suas árvores!<br class="hidden sm:block">
                 O mapeamento ambiental reflete o empenho da população e da gestão pública em proteger nosso patrimônio
-                natural.<br>
+                natural.<br class="hidden sm:block">
                 Abaixo, você confere alguns dados que representam esse compromisso com o meio ambiente.
             </p>
         </div>
 
 
         {{-- Estatísticas --}}
-        <div class="flex justify-center flex-wrap gap-6 mt-8">
-    <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center w-full max-w-xs sm:w-64 aspect-square">
-        <h4 class="text-xl font-semibold text-green-800">Total de Árvores</h4><br>
-        <p class="text-4xl font-bold text-[#38c224]">{{ $stats['total_trees'] }}</p>
-    </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 max-w-2xl mx-auto">
+            <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center p-6 aspect-square sm:aspect-auto sm:py-10">
+                <h4 class="text-lg sm:text-xl font-semibold text-green-800">Total de Árvores</h4>
+                <p class="text-4xl sm:text-5xl font-bold text-[#38c224] mt-2">{{ $stats['total_trees'] }}</p>
+            </div>
 
-   
-
-    <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center p-6 w-64 aspect-square">
-        <h4 class="text-xl font-semibold text-green-800">Espécies no Mapa</h4><br>
-        <p class="text-4xl font-bold text-[#38c224]">{{ $stats['total_species'] }}</p>
-    </div>
-</div>
+            <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center p-6 aspect-square sm:aspect-auto sm:py-10">
+                <h4 class="text-lg sm:text-xl font-semibold text-green-800">Espécies no Mapa</h4>
+                <p class="text-4xl sm:text-5xl font-bold text-[#38c224] mt-2">{{ $stats['total_species'] }}</p>
+            </div>
+        </div>
 
 
 
