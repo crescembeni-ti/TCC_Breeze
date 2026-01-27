@@ -130,10 +130,29 @@
     
         @media (max-width: 640px) {
         .map-filter-panel {
-            width: 94% !important; 
-            right: 3% !important;  
-            max-height: calc(100vh - 80px) !important;
-            top: 60px !important;
+            position: fixed !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            z-index: 9999 !important;
+        }
+        .filter-content {
+            padding: 20px !important;
+            padding-bottom: 100px !important; /* Espaço extra para não cobrir o último campo */
+        }
+        .filter-footer {
+            position: sticky !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            background: white !important;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1) !important;
+            padding: 15px !important;
         }
         .leaflet-popup-content {
             width: 220px !important; 
@@ -423,7 +442,7 @@
                         <p id="headerCounter" style="margin: 0; font-size: 11px; color: #358054; font-weight: 700;">Carregando...</p>
                     </div>
                 </div>
-                <button id="closePanelBtn" style="background:none; border:none; color:#9ca3af; cursor:pointer; font-size:18px; padding: 4px; line-height: 1;">✕</button>
+                <button id="closePanelBtn" style="background:none; border:none; color:#9ca3af; cursor:pointer; font-size:24px; padding: 10px; line-height: 1;">✕</button>
             </div>
 
             <div class="filter-content">
@@ -454,8 +473,18 @@
         
         map.getContainer().appendChild(panel);
 
-        toggleBtn.addEventListener("click", (e) => { L.DomEvent.stop(e); panel.classList.toggle("open"); });
-        panel.querySelector('#closePanelBtn').addEventListener("click", (e) => { L.DomEvent.stop(e); panel.classList.remove("open"); });
+        toggleBtn.addEventListener("click", (e) => { 
+            L.DomEvent.stop(e); 
+            panel.classList.toggle("open");
+            if (panel.classList.contains("open") && window.innerWidth < 640) {
+                document.body.style.overflow = 'hidden'; // Trava o scroll do fundo no mobile
+            }
+        });
+        panel.querySelector('#closePanelBtn').addEventListener("click", (e) => { 
+            L.DomEvent.stop(e); 
+            panel.classList.remove("open");
+            document.body.style.overflow = ''; // Libera o scroll
+        });
 
         /* VARIÁVEIS GLOBAIS */
         let currentTrees = [], allTrees = [], filteredTrees = [], treeIndexGlobal = 0, treeMarkers = {};
