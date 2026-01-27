@@ -154,6 +154,23 @@ a:hover>svg {
   }
 }
 
+@media (max-width: 360px) {
+  .min-h-screen {
+    padding: 1rem !important;
+  }
+
+  .sm\:max-w-md {
+    width: 100%;
+    padding: 1.25rem;
+  }
+
+  button,
+  .x-primary-button {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+}
+
 .relative {
   position: relative;
 }
@@ -177,4 +194,3 @@ button[aria-label="Mostrar ou ocultar senha"]:hover {
 button[aria-label="Mostrar ou ocultar senha"] svg {
   pointer-events: none;
 }
-

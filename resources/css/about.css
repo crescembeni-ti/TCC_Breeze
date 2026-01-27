@@ -112,3 +112,35 @@ header .btn:hover {
   box-shadow: 0 12px 28px rgba(0,0,0,0.1);
 }
 
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll;
+  }
+
+  main {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  main h3.text-2xl {
+    font-size: 1.25rem;
+  }
+
+  header .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  main {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  main a.btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+}
