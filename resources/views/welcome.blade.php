@@ -37,7 +37,7 @@
             z-index: 2000; background: white; border-radius: 12px; 
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); display: none; 
             flex-direction: column; font-family: 'Instrument Sans', sans-serif;
-            max-height: calc(100% - 40px); /* Garante que caiba na altura do mapa */
+            max-height: calc(100% - 60px); /* Reduzi um pouco para dar folga no PC */
             overflow-y: auto; /* Permite rolar o painel inteiro se necessário */
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
@@ -49,7 +49,7 @@
         .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
 
         .filter-content { padding: 12px 16px; flex-shrink: 0; }
-        .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
+        .filter-footer { padding: 10px 14px 20px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .filter-group { margin-bottom: 10px; }
