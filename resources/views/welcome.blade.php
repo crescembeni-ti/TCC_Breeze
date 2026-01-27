@@ -31,14 +31,14 @@
         .map-filter-toggle:hover { background: #2d6e4b; }
         .map-filter-toggle:active { transform: scale(0.98); }
 
-        /* Painel de Filtros - Desktop */
+        /* Painel de Filtros */
         .map-filter-panel {
             position: absolute; top: 70px; right: 10px; width: 320px; 
             z-index: 2000; background: white; border-radius: 12px; 
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); display: none; 
             flex-direction: column; font-family: 'Instrument Sans', sans-serif;
-            max-height: calc(100% - 80px); /* Ajusta à altura do mapa */
-            overflow: hidden;
+            max-height: calc(100% - 40px); /* Garante que caiba na altura do mapa */
+            overflow-y: auto; /* Permite rolar o painel inteiro se necessário */
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
         
@@ -48,8 +48,8 @@
         .header-text h3 { margin: 0; font-size: 14px; font-weight: 700; color: #111827; }
         .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
 
-        .filter-content { padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-        .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; z-index: 10; }
+        .filter-content { padding: 12px 16px; flex-shrink: 0; }
+        .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .filter-group { margin-bottom: 10px; }
@@ -131,30 +131,19 @@
     
         @media (max-width: 640px) {
         .map-filter-panel {
-            position: fixed !important;
-            top: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            max-height: 100vh !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            z-index: 9999 !important;
+            width: 90% !important; 
+            right: 5% !important;  
+            max-height: 80% !important;
+            top: 60px !important;
+            position: absolute !important;
+            border-radius: 12px !important;
+            z-index: 2000 !important;
         }
         .filter-content {
-            padding: 20px !important;
-            padding-bottom: 20px !important;
+            padding: 12px 16px !important;
         }
         .filter-footer {
-            position: relative !important;
-            bottom: auto !important;
-            width: 100% !important;
-            background: #f9fafb !important;
-            box-shadow: none !important;
-            padding: 15px !important;
-            border-top: 1px solid #f3f4f6 !important;
+            padding: 10px 14px !important;
         }
         .leaflet-popup-content {
             width: 220px !important; 
