@@ -42,7 +42,7 @@
         {{-- HEADER --}}
         <header class="site-header">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center flex-wrap gap-4">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 w-full sm:w-auto justify-center sm:justify-start text-center sm:text-left">
                     <a href="{{ route('home') }}" class="flex items-center gap-4">
                         <img src="{{ asset('images/Brasao_Verde.png') }}" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
                         <img src="{{ asset('images/logo.png') }}" class="h-16 w-16 sm:h-20 sm:w-20 object-contain">
@@ -52,7 +52,7 @@
                         </h1>
                     </a>
                 </div>
-                <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-[#38c224] transition-all duration-300 transform hover:scale-105">
+                <a href="{{ route('home') }}" class="btn bg-green-600 hover:bg-[#38c224] transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-center">
                 Voltar ao Mapa
                 </a>
             </div>

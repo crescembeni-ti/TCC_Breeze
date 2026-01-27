@@ -148,7 +148,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center flex-wrap gap-4">
                 
                 {{-- LADO ESQUERDO: Logo Site Menor --}}
-                <div class="flex items-center gap-3 flex-shrink-0">
+                <div class="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto justify-center sm:justify-start">
                     <a href="{{ route('home') }}" class="flex items-center gap-3">
                         <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
                         <h1 class="text-xl sm:text-2xl font-bold leading-tight">
@@ -159,7 +159,7 @@
                 </div>
 
                 {{-- LADO DIREITO: Menu + Nova Logo --}}
-                <div class="flex items-center gap-3 sm:gap-6">
+                <div class="flex items-center gap-3 sm:gap-6 w-full sm:w-auto justify-between sm:justify-end">
                     
                     {{-- 1. MENU --}}
                     <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">

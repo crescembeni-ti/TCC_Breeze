@@ -107,3 +107,33 @@ body:before {
         transform: translateY(0);
     }
 }
+
+@media (max-width: 768px) {
+    body {
+        background-attachment: scroll;
+    }
+
+    #tree-map {
+        aspect-ratio: 4 / 3;
+    }
+}
+
+@media (max-width: 640px) {
+    .tree-card {
+        padding: 1rem;
+    }
+
+    .tree-card:has(#tree-map) {
+        padding: 1rem;
+    }
+
+    .tree-card:has(#tree-map) #tree-map {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .activity-item {
+        padding-left: 0.75rem;
+    }
+}

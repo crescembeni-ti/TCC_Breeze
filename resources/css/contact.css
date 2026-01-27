@@ -194,3 +194,46 @@ form .btn:hover {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-column {
+    border-left: 0;
+    border-top: 4px solid #059669;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    background-attachment: scroll;
+  }
+
+  main {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  form input,
+  form textarea {
+    font-size: 0.95rem;
+  }
+
+  .bg-white.rounded-lg.shadow-lg {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1.text-3xl {
+    font-size: 1.5rem;
+  }
+
+  main a.btn,
+  main button.btn {
+    width: 100%;
+    text-align: center;
+  }
+}

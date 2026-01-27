@@ -71,7 +71,7 @@ header.site-header {
 
 /* MAPA */
 #map {
-    height: 600px;
+    height: clamp(320px, 65vh, 700px);
     width: 100%;
     border-radius: 0.5rem;
     border: 2px solid #358054;
@@ -362,6 +362,10 @@ main {
 
 /* Ajustes específicos para o header e menu mobile */
 @media (max-width: 768px) {
+    body.welcome-page {
+        background-attachment: scroll;
+    }
+
     header.site-header {
         padding-top: 1rem;
         padding-bottom: 1rem;
@@ -370,6 +374,10 @@ main {
     .site-header h1 {
         font-size: 1.75rem;
         text-align: center;
+    }
+
+    .header-logo-right {
+        height: 2.5rem;
     }
 
     .menu-button {
@@ -399,6 +407,31 @@ main {
     }
 }
 
+@media (max-width: 640px) {
+    .map-filter-toggle {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    #map {
+        height: clamp(260px, 55vh, 520px);
+    }
+
+    .map-filter-panel {
+        width: 90%;
+        right: 50%;
+        transform: translateX(50%) translateY(-20px) scale(0.98);
+    }
+
+    .map-filter-panel.open {
+        transform: translateX(50%) translateY(0) scale(1);
+    }
+
+    .autocomplete-list {
+        width: 100%;
+    }
+}
+
 @media (max-width: 480px) {
     .site-header h1 {
         font-size: 1.5rem;
@@ -412,6 +445,14 @@ main {
     .menu-dropdown {
         top: 65px;
         width: 95%;
+    }
+
+    .stats-card {
+        width: 100%;
+    }
+
+    .popup-nav {
+        gap: 0.5rem;
     }
 }
 
