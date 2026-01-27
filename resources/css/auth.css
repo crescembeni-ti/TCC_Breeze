@@ -22,7 +22,8 @@ body {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 1.25rem;
   padding: 2rem;
-  width: 400px;
+  width: min(400px, 100%);
+  max-width: 100%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.8s ease-out;
   transition: all 0.3s ease;
@@ -177,4 +178,3 @@ button[aria-label="Mostrar ou ocultar senha"]:hover {
 button[aria-label="Mostrar ou ocultar senha"] svg {
   pointer-events: none;
 }
-

@@ -11,18 +11,24 @@ body {
     background-position: center center;
     background-repeat: no-repeat;
     position: relative;
+    min-height: 100%;
 }
 
 body:before {
     content: "";
     position: fixed; /* Usar fixed para garantir que a imagem de fundo não se mova */
-    top: 0;
-    left: 0;
-    width: 100vw; /* Ajuste para a tela inteira */
-    height: 100vh;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     background: inherit;
     filter: blur(3px);
     z-index: -1;
+}
+
+@media (max-width: 768px) {
+    body {
+        background-attachment: scroll;
+    }
 }
 
 /* HEADER: gradiente igual ao padrão */

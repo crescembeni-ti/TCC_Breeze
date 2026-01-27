@@ -6,8 +6,19 @@
    BASE GLOBAL
 ==================================*/
 
-* {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
 }
 
 @layer base {
@@ -306,5 +317,4 @@
         height: 3.5rem; /* Desktop: ~56px (antes era 80px) */
     }
 }
-
 
