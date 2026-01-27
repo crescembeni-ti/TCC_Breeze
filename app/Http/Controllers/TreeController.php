@@ -359,6 +359,7 @@ class TreeController extends Controller
                 'description' => 'Árvore atualizada (ID ' . $tree->id . ') - Nome: ' . $nomeLog
             ]); 
         }
+        $route = auth('admin')->check() ? 'admin.trees.edit' : 'admin.trees.edit'; // A rota é a mesma, mas o middleware agora permite ambos
         return redirect()->route('admin.trees.edit', $tree->id)->with('success', 'Árvore atualizada com sucesso!');
     }
 

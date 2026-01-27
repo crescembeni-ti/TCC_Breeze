@@ -121,7 +121,7 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
     });
 
     // ÁREA AUTENTICADA ADMIN
-    Route::middleware(['auth:admin', 'preventBack'])->group(function () {
+    Route::middleware(['auth:admin,analyst', 'preventBack'])->group(function () {
         Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
         Route::get('/dashboard', [TreeController::class, 'adminDashboard'])->name('dashboard');
 
@@ -148,8 +148,8 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         // --------------------------
 
         Route::get('/trees', [TreeController::class, 'adminTreeList'])->name('trees.index');
-        Route::get('/trees/{tree}/edit', [TreeController::class, 'adminTreeEdit'])->name('trees.edit');
-        Route::patch('/trees/{tree}', [TreeController::class, 'adminTreeUpdate'])->name('trees.update');
+        Route::get('/trees/{tree}/edit', [TreeController::class, 'adminTreeEdit'])->name('trees.edit')->middleware('auth:admin,analyst');
+        Route::patch('/trees/{tree}', [TreeController::class, 'adminTreeUpdate'])->name('trees.update')->middleware('auth:admin,analyst');
         Route::delete('/trees/{tree}', [TreeController::class, 'adminTreeDestroy'])->name('trees.destroy');
 
         /*
