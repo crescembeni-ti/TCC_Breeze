@@ -37,7 +37,7 @@
             z-index: 2000; background: white; border-radius: 12px; 
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); display: none; 
             flex-direction: column; font-family: 'Instrument Sans', sans-serif;
-            max-height: calc(100% - 100px); overflow: hidden;
+            max-height: calc(100vh - 100px); overflow: hidden;
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
         
@@ -47,7 +47,7 @@
         .header-text h3 { margin: 0; font-size: 14px; font-weight: 700; color: #111827; }
         .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
 
-        .filter-content { padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain; }
+        .filter-content { padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
         .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -132,8 +132,8 @@
         .map-filter-panel {
             width: 94% !important; 
             right: 3% !important;  
-            max-height: 85vh;
-            top: 55px !important;
+            max-height: calc(100vh - 80px) !important;
+            top: 60px !important;
         }
         .leaflet-popup-content {
             width: 220px !important; 
