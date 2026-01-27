@@ -20,7 +20,7 @@
 <body class="font-sans antialiased login-bg"
     style="background-image: url('{{ asset('images/bosque.jpeg') }}'); background-size:cover;">
 
-    <div class="min-h-screen flex flex-col items-center justify-center">
+    <div class="min-h-screen flex flex-col items-center justify-center sm:justify-center py-12 sm:py-0">
 
         {{-- Card principal --}}
         <div class="w-full sm:max-w-md px-8 py-6 bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl animate-fadeInUp">

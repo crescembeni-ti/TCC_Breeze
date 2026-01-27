@@ -130,6 +130,17 @@
 .note-close-btn:hover {
     background-color: rgba(180, 83, 9, 0.1); /* Fundo sutil ao passar o mouse */
 }
+/* Adicione isso ao final do seu <style>, antes de fechar a tag */
+@media (max-width: 640px) {
+    .map-filter-panel {
+        width: 90% !important; /* Ocupa 90% da tela no celular */
+        right: 5% !important;  /* Centraliza */
+        max-height: 70vh;      /* Evita que cubra a tela toda */
+    }
+    .leaflet-popup-content {
+        width: 220px !important; /* Popups menores no mapa */
+    }
+}
     </style>
 </head>
 
@@ -239,7 +250,7 @@
         
         <h2 class="text-xl font-bold text-gray-900 mb-2 mt-1 pl-2">Mapa Interativo</h2>
         
-        <div id="map" class="z-0 w-full rounded-lg" style="height: 80vh;"></div>
+       <div id="map" class="z-0 w-full rounded-lg h-[60vh] md:h-[80vh]"></div>
 
         {{-- LEGENDA COM FECHAR (AlpineJS) --}}
         <div x-data="{ showNote: true }" 

@@ -28,14 +28,14 @@
         #lightbox-admin { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); display: none; align-items: center; justify-content: center; z-index: 99999; }
         #lightbox-admin img { max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
         #lightbox-close-admin { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer; }
-        #map-contacts { height: 600px; width: 100%; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 1; }
+        #map-contacts { width: 100%; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 1; }
     </style>
 </head>
 
 <body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen">
 
-    <main class="flex-1 p-10">
-        <div class="bg-white shadow-sm rounded-lg p-8">
+    <main class="flex-1 p-4 md:p-10">
+       <div class="bg-white shadow-sm rounded-lg p-4 md:p-8">
             <div class="flex items-center justify-center mb-6 flex-wrap gap-3 text-center">
                 <h2 class="text-3xl font-bold text-[#358054] text-center">Mensagens de Contato</h2>
             </div>
@@ -105,7 +105,7 @@
             <div class="flex flex-col lg:flex-row gap-6 mt-4">
                 {{-- Mapa --}}
                 <div class="lg:w-3/4 relative">
-                    <div id="map-contacts"></div>
+                    <div id="map-contacts" class="w-full h-80 lg:h-[600px] z-0"></div>
                     <p id="map-status" class="text-xs text-center text-gray-500 mt-2">Iniciando mapa...</p>
                 </div>
                 

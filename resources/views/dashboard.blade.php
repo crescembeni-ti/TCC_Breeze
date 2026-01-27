@@ -15,7 +15,7 @@
         {{-- Carrossel de imagens --}}
         <div class="relative w-full max-w-8x1 mx-auto rounded-xl overflow-hidden shadow-lg cursor-pointer mt-8"
             id="carrossel">
-            <div class="slides relative w-full h-[600px]">
+           <div class="slides relative w-full h-64 sm:h-96 md:h-[600px]">
                 <img src="{{ asset('images/fabrica.jpeg') }}"
                     class="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000"
                     alt="imagem 1">
@@ -42,7 +42,7 @@
 
         {{-- Estatísticas --}}
         <div class="flex justify-center flex-wrap gap-6 mt-8">
-    <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center p-6 w-64 aspect-square">
+    <div class="card text-center bg-white shadow-lg rounded-lg flex flex-col items-center justify-center w-full max-w-xs sm:w-64 aspect-square">
         <h4 class="text-xl font-semibold text-green-800">Total de Árvores</h4><br>
         <p class="text-4xl font-bold text-[#38c224]">{{ $stats['total_trees'] }}</p>
     </div>

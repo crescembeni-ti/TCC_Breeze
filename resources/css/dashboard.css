@@ -286,3 +286,9 @@ footer {
     box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.15),
         0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none; /* Esconde a lateral no celular */
+    }
+  }

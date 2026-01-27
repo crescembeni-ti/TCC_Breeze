@@ -136,7 +136,7 @@
                 {{-- COLUNA 2: MAPA --}}
                 <div class="bg-white p-6 pb-0 tree-card rounded-2xl shadow-lg">
                     <h2 class="text-2xl font-bold text-[#358054] mb-4">Localização</h2>
-                    <div id="tree-map" class="rounded-lg w-full h-[500px] lg:h-full min-h-[500px]"></div>
+                    <div id="tree-map" class="rounded-lg w-full h-80 md:h-[500px] lg:h-full min-h-[320px]"></div>
                 </div>
 
             </div>

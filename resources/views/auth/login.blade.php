@@ -1,8 +1,8 @@
 <x-guest-layout>
     <div class="text-center mb-6">
-        <div class="flex items-center justify-center gap-8">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-24 w-24 object-contain">
-            <h1 class="text-3xl font-bold leading-tight">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Árvores de Paracambi" class="h-16 w-16 sm:h-24 sm:w-24 object-contain">
+            <h1 class="text-2xl sm:text-3xl font-bold leading-tight">
                 <span class="text-[#358054]">Bem-vindo</span><br>
                 <span class="text-[#a0c520]">de volta</span>
             </h1>

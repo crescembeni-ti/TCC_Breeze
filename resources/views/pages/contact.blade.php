@@ -46,7 +46,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
             {{-- COLUNA DA ESQUERDA: INFOS --}}
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden mr-16">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden lg:mr-16">
                 <div class="p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
                     <div class="space-y-6">

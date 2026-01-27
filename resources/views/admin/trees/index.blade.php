@@ -23,8 +23,8 @@
 
 
     <!-- CONTEÚDO PRINCIPAL -->
-    <main class="flex-1 p-10">
-        <div class="bg-white shadow-sm rounded-lg p-8">
+    <main class="flex-1 p-4 md:p-10">
+        <div class="bg-white shadow-sm rounded-lg p-4 md:p-8">
             <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <h2 class="text-3xl font-bold text-[#358054]">Gerenciar Árvores</h2>
 
