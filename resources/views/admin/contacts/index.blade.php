@@ -21,6 +21,7 @@
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -457,19 +458,84 @@
         }
         function closeForwardModal() { document.getElementById('modal-forward').classList.add('hidden'); document.getElementById('modal-forward').classList.remove('flex'); }
         async function submitForwardForm(e) {
-            e.preventDefault(); if (!currentForwardingId) return;
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const url = `/pbi-admin/contacts/${currentForwardingId}/forward`;
-            const type = document.getElementById('forward_type').value;
-            const selectedId = document.getElementById('forward-user-select').value;
-            if(!selectedId) { alert("Selecione."); return; }
-            const fd = new FormData(); fd.append('_method', 'PATCH');
-            if (type === 'analista') fd.append('analyst_id', selectedId); else fd.append('service_id', selectedId);
-            try {
-                const req = await fetch(url, { method: "POST", headers: { "X-CSRF-TOKEN": token, 'Accept': 'application/json' }, body: fd });
-                if (req.ok) { alert('Sucesso!'); location.reload(); } else alert("Erro.");
-            } catch (err) { console.error(err); }
+        e.preventDefault(); 
+        if (!currentForwardingId) return;
+
+        const type = document.getElementById('forward_type').value;
+        const select = document.getElementById('forward-user-select');
+        const selectedId = select.value;
+        const selectedName = select.options[select.selectedIndex].text;
+
+        if(!selectedId) { 
+        Swal.fire({
+            icon: 'warning',
+            title: 'Atenção',
+            text: 'Por favor, selecione um destino antes de continuar.',
+            confirmButtonColor: '#358054'
+        });
+        return; 
+    }
+
+    const destino = type === 'analista' ? 'o analista' : 'a equipe de serviço';
+
+    // POPUP MODERNO COM SWEETALERT2
+    const result = await Swal.fire({
+        title: 'Confirmar encaminhamento?',
+        text: `Você está prestes a enviar esta solicitação para ${destino}: "${selectedName}".`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#358054',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, encaminhar!',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+    });
+
+    // Se o usuário confirmou
+    if (result.isConfirmed) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const url = `/pbi-admin/contacts/${currentForwardingId}/forward`;
+        
+        const fd = new FormData(); 
+        fd.append('_method', 'PATCH');
+        if (type === 'analista') fd.append('analyst_id', selectedId); 
+        else fd.append('service_id', selectedId);
+
+        try {
+            // Mostra um estado de carregamento
+            Swal.fire({
+                title: 'Encaminhando...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            const req = await fetch(url, { 
+                method: "POST", 
+                headers: { "X-CSRF-TOKEN": token, 'Accept': 'application/json' }, 
+                body: fd 
+            });
+
+            if (req.ok) { 
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso!',
+                    text: 'Solicitação encaminhada com êxito.',
+                    confirmButtonColor: '#358054'
+                });
+                location.reload(); 
+            } else {
+                throw new Error();
+            }
+        } catch (err) { 
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Houve um problema ao processar a requisição.',
+                confirmButtonColor: '#358054'
+            });
         }
+    }
+}
     </script>
 </body>
 </html>

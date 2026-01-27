@@ -12,7 +12,7 @@ use App\Http\Controllers\TreeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardController; // Painel do Usuário Comum
 use App\Http\Controllers\NoticiaController;
 use App\Http\Controllers\AboutPageController;
 
@@ -41,7 +41,8 @@ use App\Http\Controllers\Analista\AuthenticatedSessionController as AnalystLogin
 */
 use App\Http\Controllers\Servico\AuthenticatedSessionController as ServiceLoginController;
 use App\Http\Controllers\Servico\ServiceExecutionController;
-use App\Http\Controllers\Servico\ServiceDashboardController;
+// IMPORTANTE: Importamos o DashboardController da pasta Servico com um APELIDO para não conflitar com o do usuário
+use App\Http\Controllers\Servico\DashboardController as ServiceDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -241,28 +242,31 @@ Route::prefix('pbi-servico')->name('service.')->group(function () {
 
     // ÁREA LOGADA DA EQUIPE TÉCNICA
     Route::middleware(['auth:service', 'preventBack'])->group(function () {
+        
         Route::post('/logout', [ServiceLoginController::class, 'destroy'])->name('logout');
         
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        // Dashboard
+        Route::get('/dashboard', [ServiceDashboardController::class, 'index'])->name('dashboard');
         Route::get('/profile', fn () => view('servico.profile'))->name('profile.edit');
 
-        // --- ROTAS DE TAREFAS ---
+        // --- ROTAS DE TAREFAS (SEPARADAS) ---
         
-        // 1. Listar Tarefas
-        Route::get('/tarefas', [ServiceExecutionController::class, 'index'])
-            ->name('tasks.index'); 
+        // 1. Recebidas (Antiga Index)
+        Route::get('/tarefas/recebidas', [ServiceExecutionController::class, 'recebidas'])
+            ->name('tasks.recebidas'); 
 
-        // 2. Confirmar Recebimento (Botão Visto)
-        Route::post('/tarefas/{id}/confirmar', [ServiceExecutionController::class, 'confirmarRecebimento'])
-            ->name('tasks.confirmar');
+        // 2. Em Andamento
+        Route::get('/tarefas/em-andamento', [ServiceExecutionController::class, 'emAndamento'])
+            ->name('tasks.em_andamento');
 
-        // 3. Concluir Tarefa
-        Route::post('/tarefas/{id}/concluir', [ServiceExecutionController::class, 'concluir'])
-            ->name('tasks.concluir');
+        // 3. Concluídas
+        Route::get('/tarefas/concluidas', [ServiceExecutionController::class, 'concluidas'])
+            ->name('tasks.concluidas');
 
-        // 4. Registrar Falha
-        Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])
-            ->name('tasks.falha'); 
+        // --- AÇÕES ---
+        Route::post('/tarefas/{id}/confirmar', [ServiceExecutionController::class, 'confirmarRecebimento'])->name('tasks.confirmar');
+        Route::post('/tarefas/{id}/concluir', [ServiceExecutionController::class, 'concluir'])->name('tasks.concluir');
+        Route::post('/tarefas/{id}/falha', [ServiceExecutionController::class, 'falha'])->name('tasks.falha'); 
     });
 });
 
