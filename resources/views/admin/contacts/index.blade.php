@@ -48,18 +48,18 @@
             @endif
 
             {{-- FILTROS --}}
-            <div class="flex flex-col xl:flex-row items-center justify-between mb-6 gap-6 border-b border-gray-100 pb-4">
+            <div class="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 w-full xl:w-auto">
                 
                 {{-- Abas de Status --}}
                 <div class="flex justify-center gap-4 w-full xl:w-auto">
                     <a href="{{ route('admin.contato.index') }}?filtro=todas&period={{ request('period') }}&date_start={{ request('date_start') }}&date_end={{ request('date_end') }}" 
-                       class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all {{ $filtro === 'todas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Todas</a>
+                       class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all w-full sm:w-auto {{ $filtro === 'todas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Todas</a>
                     
                     <a href="{{ route('admin.contato.index') }}?filtro=pendentes&period={{ request('period') }}&date_start={{ request('date_start') }}&date_end={{ request('date_end') }}" 
-                       class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all {{ $filtro === 'pendentes' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Pendentes</a>
+                       class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all w-full sm:w-auto {{ $filtro === 'pendentes' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Pendentes</a>
                     
                     <a href="{{ route('admin.contato.index') }}?filtro=resolvidas&period={{ request('period') }}&date_start={{ request('date_start') }}&date_end={{ request('date_end') }}" 
-                       class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all {{ $filtro === 'resolvidas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Resolvidas</a>
+                       class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all w-full sm:w-auto{{ $filtro === 'resolvidas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Resolvidas</a>
                 </div>
 
                 {{-- Filtro de Data --}}

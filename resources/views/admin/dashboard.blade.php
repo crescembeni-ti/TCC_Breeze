@@ -3,28 +3,30 @@
 @section('title', 'Painel Administrativo')
 
 @section('content')
-    <div class="bg-white shadow-sm rounded-lg p-8 mb-6">
-        <h2 class="text-3xl font-bold text-[#358054] mb-4">Painel Administrativo</h2>
-        <p class="text-gray-700 text-lg mb-6">
+    {{-- Ajustado padding para mobile: p-4 md:p-8 --}}
+    <div class="bg-white shadow-sm rounded-lg p-4 md:p-8 mb-6">
+        <h2 class="text-2xl md:text-3xl font-bold text-[#358054] mb-4">Painel Administrativo</h2>
+        <p class="text-gray-700 text-base md:text-lg mb-6">
             Bem-vindo, <span class="font-semibold">{{ Auth::guard('admin')->user()->name }}</span>!
             <br>Use o menu à esquerda para gerenciar árvores, mensagens e solicitações.
         </p>
 
         @if (isset($stats))
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 border-t pt-6 border-gray-100">
+            {{-- Ajustado grid: sm:grid-cols-2 para tablet --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 border-t pt-6 border-gray-100">
                 <div class="bg-green-50 rounded-lg p-6 text-center border border-green-100 hover:shadow-md transition">
                     <h4 class="text-lg font-semibold text-green-800 mb-2">🌳 Árvores</h4>
                     <p class="text-4xl font-bold text-[#38c224]">{{ $stats['total_trees'] }}</p>
                 </div>
 
-                {{-- CARD ALTERADO: DE ATIVIDADES PARA SOLICITAÇÕES --}}
+                {{-- CARD SOLICITAÇÕES --}}
                 <div class="bg-blue-50 rounded-lg p-6 text-center border border-blue-100 hover:shadow-md transition">
                     <h4 class="text-lg font-semibold text-blue-800 mb-2">📬 Solicitações</h4>
-                    {{-- Exibe o total de solicitações --}}
                     <p class="text-4xl font-bold text-blue-500">{{ $stats['total_requests'] }}</p>
                 </div>
 
-                <div class="bg-yellow-50 rounded-lg p-6 text-center border border-yellow-100 hover:shadow-md transition">
+                {{-- O card de espécies pode ocupar duas colunas no tablet se desejar, mas padrão é ok --}}
+                <div class="bg-yellow-50 rounded-lg p-6 text-center border border-yellow-100 hover:shadow-md transition sm:col-span-2 lg:col-span-1">
                     <h4 class="text-lg font-semibold text-yellow-800 mb-2">🌿 Espécies</h4>
                     <p class="text-4xl font-bold text-yellow-600">{{ $stats['total_species'] }}</p>
                 </div>
@@ -32,10 +34,10 @@
         @endif
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
         
         <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4 border-b border-gray-100 pb-4">
-            <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
                 📋 Histórico de Atividades
             </h2>
 
@@ -73,12 +75,12 @@
                     </div>
                 </div>
 
-                {{-- CAMPOS DE DATA (Aparecem só se "Personalizado" for escolhido) --}}
-                <div x-show="period === 'custom'" x-transition class="flex gap-2 w-full md:w-auto" style="display: none;">
+                {{-- CAMPOS DE DATA --}}
+                <div x-show="period === 'custom'" x-transition class="flex flex-col sm:flex-row gap-2 w-full md:w-auto" style="display: none;">
                     <input type="date" name="date_start" value="{{ request('date_start') }}" class="rounded-lg border-gray-300 text-sm focus:border-green-500 focus:ring-green-500 w-full md:w-auto">
-                    <span class="self-center text-gray-500">até</span>
+                    <span class="self-center text-gray-500 hidden sm:inline">até</span>
                     <input type="date" name="date_end" value="{{ request('date_end') }}" class="rounded-lg border-gray-300 text-sm focus:border-green-500 focus:ring-green-500 w-full md:w-auto">
-                    <button type="submit" class="bg-[#358054] text-white px-3 py-2 rounded-lg hover:bg-green-700 transition">
+                    <button type="submit" class="bg-[#358054] text-white px-3 py-2 rounded-lg hover:bg-green-700 transition w-full sm:w-auto flex justify-center items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </button>
                 </div>
@@ -88,7 +90,6 @@
 
         <div class="space-y-3">
             @forelse($adminLogs as $log)
-                {{-- Lógica de cores mantida --}}
                 @php
                     $isCreate = Str::contains($log->action, 'create');
                     $isUpdate = Str::contains($log->action, 'update');
@@ -98,8 +99,8 @@
                     $borderColor = $isCreate ? 'border-green-200' : ($isUpdate ? 'border-blue-200' : ($isDelete ? 'border-red-200' : 'border-gray-200'));
                 @endphp
 
-                <div class="flex items-start gap-4 p-4 rounded-lg border {{ $borderColor }} {{ $bgColor }} transition hover:shadow-sm">
-                    <div class="shrink-0 mt-1">
+                <div class="flex flex-col sm:flex-row items-start gap-4 p-4 rounded-lg border {{ $borderColor }} {{ $bgColor }} transition hover:shadow-sm">
+                    <div class="shrink-0 mt-1 hidden sm:block">
                         @if($isCreate)
                             <div class="p-2 bg-green-200 text-green-700 rounded-full">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -119,11 +120,18 @@
                         @endif
                     </div>
 
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-900">
-                            {{ $log->description }}
-                        </p>
-                        <div class="flex flex-wrap items-center gap-2 mt-1 text-sm text-gray-500">
+                    <div class="flex-1 w-full">
+                        <div class="flex justify-between items-start w-full">
+                            <p class="font-medium text-gray-900 text-sm sm:text-base break-words">
+                                {{ $log->description }}
+                            </p>
+                            {{-- Ícone visível apenas no mobile, alinhado à direita --}}
+                            <span class="sm:hidden text-xs font-bold uppercase tracking-wider px-2 py-1 rounded bg-white bg-opacity-50">
+                                @if($isCreate) Novo @elseif($isUpdate) Edit @elseif($isDelete) Del @endif
+                            </span>
+                        </div>
+                        
+                        <div class="flex flex-wrap items-center gap-2 mt-2 text-xs sm:text-sm text-gray-500">
                             <span class="flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                 {{ $log->admin->name ?? 'Sistema' }}

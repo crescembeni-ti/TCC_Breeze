@@ -81,83 +81,76 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
     /* LEGENDA DE MARGEM DE ERRO COM BOTÃO FECHAR */
-.map-margin-note {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    background: rgba(255, 255, 255, 0.95);
-    /* Aumentei o padding da direita para 34px para caber o X */
-    padding: 8px 34px 8px 16px; 
-    border-radius: 30px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #b45309;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    border: 1px solid #fcd34d;
-    white-space: nowrap;
+    .map-margin-note {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 8px 34px 8px 16px; 
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #b45309;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        border: 1px solid #fcd34d;
+        white-space: nowrap;
+        pointer-events: auto; 
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+    }
+
+    .note-close-btn {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background: transparent;
+        color: #b45309; 
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background 0.2s;
+        line-height: 1;
+    }
+
+    .note-close-btn:hover {
+        background-color: rgba(180, 83, 9, 0.1);
+    }
     
-    /* IMPORTANTE: Mudado de 'none' para 'auto' para permitir clicar no botão */
-    pointer-events: auto; 
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-}
-
-/* Estilo do Botão X */
-.note-close-btn {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    border: none;
-    background: transparent;
-    color: #b45309; /* Mesma cor do texto */
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background 0.2s;
-    line-height: 1;
-}
-
-.note-close-btn:hover {
-    background-color: rgba(180, 83, 9, 0.1); /* Fundo sutil ao passar o mouse */
-}
-/* Adicione isso ao final do seu <style>, antes de fechar a tag */
-@media (max-width: 640px) {
-    .map-filter-panel {
-        width: 90% !important; /* Ocupa 90% da tela no celular */
-        right: 5% !important;  /* Centraliza */
-        max-height: 70vh;      /* Evita que cubra a tela toda */
+    @media (max-width: 640px) {
+        .map-filter-panel {
+            width: 90% !important; 
+            right: 5% !important;  
+            max-height: 70vh;      
+        }
+        .leaflet-popup-content {
+            width: 220px !important; 
+        }
     }
-    .leaflet-popup-content {
-        width: 220px !important; /* Popups menores no mapa */
-    }
-}
     </style>
 </head>
 
 <body class="font-sans antialiased welcome-page">
-    <div class="min-h-screen">
+    <div class="min-h-screen flex flex-col"> 
 
         {{-- HEADER COMPACTO --}}
-        <header class="site-header">
-            {{-- Padding reduzido de py-6 para py-3 --}}
+        <header class="site-header flex-shrink-0"> 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center flex-wrap gap-4">
                 
                 {{-- LADO ESQUERDO: Logo Site Menor --}}
                 <div class="flex items-center gap-3 flex-shrink-0">
                     <a href="{{ route('home') }}" class="flex items-center gap-3">
-                        {{-- Tamanho reduzido: h-10 w-10 sm:h-14 sm:w-14 --}}
                         <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
-                        {{-- Texto reduzido: text-xl sm:text-2xl --}}
                         <h1 class="text-xl sm:text-2xl font-bold leading-tight">
                             <span class="text-[#358054]">Árvores de</span>
                             <span class="text-[#a0c520]"> Paracambi</span>
@@ -168,7 +161,7 @@
                 {{-- LADO DIREITO: Menu + Nova Logo --}}
                 <div class="flex items-center gap-3 sm:gap-6">
                     
-                    {{-- 1. MENU (Agora vem ANTES da Nova Logo) --}}
+                    {{-- 1. MENU --}}
                     <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block text-sm py-1.5 px-3">Painel</a>
@@ -221,54 +214,54 @@
                         @endif
                     </div>
 
-                    {{-- 2. NOVA LOGO (MOVIDA PARA O FINAL / DIREITA) --}}
+                    {{-- 2. NOVA LOGO --}}
                     <img src="{{ asset('images/nova_logo.png') }}" 
                          alt="Logo Prefeitura" 
                          class="header-logo-right hover:opacity-90 transition-opacity"
-                         style="height: 3.5rem; width: auto;"> {{-- Garante tamanho adequado --}}
-
+                         style="height: 3.5rem; width: auto;"> 
                 </div>
             </div>
         </header>
 
-        {{-- CONTEÚDO PRINCIPAL --}}
-        L
-
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-    
-    @if (session('success'))
-        <div id="success-alert" class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center justify-between shadow-md" role="alert">
-            <div class="flex items-center"><strong class="font-bold mr-2">Sucesso!</strong><span class="block sm:inline">{{ session('success') }}</span></div>
-            @if (session('new_tree_id'))
-                <button onclick="focarNovaArvore({{ session('new_tree_id') }})" class="bg-[#358054] hover:bg-[#2d6e4b] text-white font-bold py-1 px-4 rounded text-xs transition-colors shadow-sm ml-4">Ver no Mapa</button>
+        {{-- CONTEÚDO PRINCIPAL MODIFICADO --}}
+        {{-- Mudei py-2 para py-8 sm:py-12 (mais espaçamento do topo e fundo) --}}
+        {{-- Adicionei flex flex-col justify-center para tentar centralizar verticalmente se sobrar espaço --}}
+        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full flex flex-col justify-center">
+            
+            @if (session('success'))
+                <div id="success-alert" class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center justify-between shadow-md" role="alert">
+                    <div class="flex items-center"><strong class="font-bold mr-2">Sucesso!</strong><span class="block sm:inline">{{ session('success') }}</span></div>
+                    @if (session('new_tree_id'))
+                        <button onclick="focarNovaArvore({{ session('new_tree_id') }})" class="bg-[#358054] hover:bg-[#2d6e4b] text-white font-bold py-1 px-4 rounded text-xs transition-colors shadow-sm ml-4">Ver no Mapa</button>
+                    @endif
+                </div>
             @endif
-        </div>
-    @endif
 
-    {{-- CARD DO MAPA --}}
-    <div class="bg-white rounded-lg shadow p-1 mb-8 relative">
-        
-        <h2 class="text-xl font-bold text-gray-900 mb-2 mt-1 pl-2">Mapa Interativo</h2>
-        
-       <div id="map" class="z-0 w-full rounded-lg h-[60vh] md:h-[80vh]"></div>
+            {{-- CARD DO MAPA --}}
+            <div class="bg-white rounded-lg shadow p-1 mb-8 relative w-full">
+                
+                <h2 class="text-xl font-bold text-gray-900 mb-2 mt-1 pl-2">Mapa Interativo</h2>
+                
+                <div id="map" class="z-0 w-full rounded-lg h-[60vh] md:h-[80vh]"></div>
 
-        {{-- LEGENDA COM FECHAR (AlpineJS) --}}
-        <div x-data="{ showNote: true }" 
-             x-show="showNote" 
-             x-transition.opacity.duration.300ms
-             class="map-margin-note">
-            
-            ⚠️ Pode conter um leve desvio de localização das árvores devido a margem de erro das coordenadas.
-            
-            <button @click="showNote = false" class="note-close-btn" title="Fechar aviso">
-                &times;
-            </button>
-        </div>
+                {{-- LEGENDA COM FECHAR (AlpineJS) --}}
+                <div x-data="{ showNote: true }" 
+                     x-show="showNote" 
+                     x-transition.opacity.duration.300ms
+                     class="map-margin-note">
+                    
+                    ⚠️ Pode conter um leve desvio de localização das árvores devido a margem de erro das coordenadas.
+                    
+                    <button @click="showNote = false" class="note-close-btn" title="Fechar aviso">
+                        &times;
+                    </button>
+                </div>
 
-    </div>
-</main>
+            </div>
+        </main>
 
-        <footer class="bg-gray-800 shadow mt-12">
+        {{-- FOOTER --}}
+        <footer class="bg-gray-800 shadow mt-auto flex-shrink-0">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
             </div>

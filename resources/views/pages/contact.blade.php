@@ -30,8 +30,8 @@
 <body class="font-sans antialiased">
 <div class="min-h-screen">
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
+        
         @if (session('success'))
             <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg">
                 <p class="font-bold">Sucesso!</p>
@@ -173,7 +173,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Anexar Fotos (Máx. 3)</label>
                         <input type="file" class="hidden" id="inputFotos" name="fotos[]" @accept="image/*" multiple @change="addFiles">
                         <button type="button" onclick="document.getElementById('inputFotos').click()" class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">Selecionar Fotos</button>
-                        <div class="grid grid-cols-3 gap-4 mt-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
                             <template x-for="(foto, index) in fotos" :key="index">
                                 <div class="relative">
                                     <img :src="foto.url" class="w-full h-24 object-cover rounded-lg border shadow cursor-pointer" @click="openImage(foto.url)">
