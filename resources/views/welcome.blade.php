@@ -33,11 +33,11 @@
 
         /* Painel de Filtros */
         .map-filter-panel {
-            position: absolute; top: 70px; right: 10px; width: 280px; 
+            position: absolute; top: 70px; right: 10px; width: 320px; 
             z-index: 2000; background: white; border-radius: 12px; 
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); display: none; 
             flex-direction: column; font-family: 'Instrument Sans', sans-serif;
-            max-height: calc(100% - 80px); overflow: hidden;
+            max-height: calc(100% - 100px); overflow: hidden;
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
         
@@ -48,7 +48,7 @@
         .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
 
         .filter-content { padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain; }
-        .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+        .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .filter-group { margin-bottom: 10px; }
@@ -57,15 +57,15 @@
         .map-filter-panel input:focus, .map-filter-panel select:focus { border-color: #358054; background-color: #fff; box-shadow: 0 0 0 3px rgba(53, 128, 84, 0.1); }
 
         .admin-divider { border-top: 1px dashed #d1d5db; margin: 15px 0; padding-top: 10px; text-align: center; font-size: 10px; font-weight: bold; color: #358054; text-transform: uppercase; }
-        .btn-actions { display: flex; gap: 10px; margin-bottom: 8px; }
-        .btn-filter { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #358054; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
+        .btn-actions { display: flex; gap: 8px; margin-bottom: 4px; }
+        .btn-filter { flex: 1.5; padding: 8px; border-radius: 8px; border: none; background: #358054; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
         .btn-filter:hover { background: #2d6e4b; }
-        .btn-clear { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #9ca3af; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
+        .btn-clear { flex: 1; padding: 8px; border-radius: 8px; border: none; background: #9ca3af; color: white; font-weight: 700; cursor: pointer; transition: background 0.2s; font-size: 13px; }
         .btn-clear:hover { background: #6b7280; }
-        .btn-download { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #358054; background: white; color: #358054; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        .btn-download { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #358054; background: white; color: #358054; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px; }
         .btn-download:hover { background: #f0fdf4; }
 
-        .filter-status { margin-top: 8px; padding: 5px; font-size: 11px; text-align: center; color: #6b7280; transition: all 0.2s; }
+        .filter-status { margin-top: 4px; padding: 4px; font-size: 12px; font-weight: 600; text-align: center; color: #358054; transition: all 0.2s; }
         .filter-status.vazio { background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; color: #991b1b; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 15px; }
 
         /* LEGENDA FLUTUANTE (DADOS DO MAPA) */
@@ -130,10 +130,10 @@
     
         @media (max-width: 640px) {
         .map-filter-panel {
-            width: 90% !important; 
-            right: 5% !important;  
-            max-height: 80vh;
-            top: 60px !important;
+            width: 94% !important; 
+            right: 3% !important;  
+            max-height: 85vh;
+            top: 55px !important;
         }
         .leaflet-popup-content {
             width: 220px !important; 
@@ -420,7 +420,7 @@
                     </div>
                     <div class="header-text">
                         <h3>Explorar Mapa</h3>
-                        <p>Filtros</p>
+                        <p id="headerCounter" style="margin: 0; font-size: 11px; color: #358054; font-weight: 700;">Carregando...</p>
                     </div>
                 </div>
                 <button id="closePanelBtn" style="background:none; border:none; color:#9ca3af; cursor:pointer; font-size:18px; padding: 4px; line-height: 1;">✕</button>
@@ -676,7 +676,12 @@
         
         function atualizarStatus(count, total) {
             const statusDiv = document.getElementById("filterStatus");
+            const headerCounter = document.getElementById("headerCounter");
+            const countText = count === 0 ? "Nenhuma encontrada" : `${count} encontradas`;
+            
+            if (headerCounter) headerCounter.innerText = countText;
             if (!statusDiv) return;
+            
             statusDiv.className = "filter-status"; 
             if (count === 0) {
                 statusDiv.classList.add("vazio");
