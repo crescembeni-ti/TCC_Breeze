@@ -22,6 +22,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 
 <body class="font-sans antialiased flex flex-col min-h-screen">
@@ -42,10 +45,10 @@
             </div>
 
             {{-- LADO DIREITO: Botão Menu + Nova Logo (Ordem Invertida) --}}
-            <div class="flex items-center gap-3 sm:gap-6">
+            <div class="flex items-center gap-3 sm:gap-6" x-data>
                 
-                {{-- 1. Botão Menu Mobile (Agora vem antes) --}}
-                <button @click="open = !open"
+                {{-- 1. Botão Menu Mobile --}}
+                <button @click="$dispatch('toggle-menu')"
                     class="md:hidden bg-[#358054] text-white px-3 py-1.5 rounded-lg shadow font-medium text-sm flex items-center gap-2 hover:bg-[#2d6e4b] transition">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
@@ -60,13 +63,23 @@
         </div>
     </header>
 
-    <div x-data="{ open: false }" class="flex flex-1">
+    <div x-data="{ open: false }" @toggle-menu.window="open = !open" class="flex flex-1 relative">
 
         {{-- Overlay para fechar o menu mobile ao clicar fora --}}
-        <div x-show="open" @click="open = false" class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+        <div x-show="open" 
+             x-cloak
+             @click="open = false" 
+             class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" 
+             x-transition:enter="transition ease-out duration-300" 
+             x-transition:enter-start="opacity-0" 
+             x-transition:enter-end="opacity-100" 
+             x-transition:leave="transition ease-in duration-200" 
+             x-transition:leave-start="opacity-100" 
+             x-transition:leave-end="opacity-0"></div>
 
         <aside :class="open ? 'translate-x-0' : '-translate-x-full'"
-            class="sidebar bg-[#358054] text-white flex flex-col py-8 px-4 transform transition-transform duration-300 md:translate-x-0 rounded-br-2xl md:rounded-none flex-shrink-0 z-50">
+            x-cloak
+            class="sidebar bg-[#358054] text-white flex flex-col py-8 px-4 fixed md:relative top-0 left-0 h-full md:h-auto w-64 transform transition-transform duration-300 md:translate-x-0 z-50 shadow-xl md:shadow-none">
 
             <nav class="space-y-4">
                 {{-- ==================== MENU ADMIN ==================== --}}

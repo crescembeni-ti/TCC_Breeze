@@ -289,13 +289,14 @@ footer {
 
 @media (max-width: 768px) {
     .sidebar {
-        position: fixed;
+        position: fixed !important;
         top: 0;
         left: 0;
-        height: 100vh;
+        height: 100vh !important;
         z-index: 50;
-        width: 280px;
+        width: 260px;
         box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+        transition: transform 0.3s ease-in-out;
     }
     
     main {
