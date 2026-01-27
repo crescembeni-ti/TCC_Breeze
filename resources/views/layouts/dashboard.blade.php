@@ -1,218 +1,119 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Painel') - Árvores de Paracambi</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>@yield('title', 'Painel') - {{ config('app.name', 'Laravel') }}</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
 
-    @vite([
-        'resources/css/app.css',
-        'resources/js/app.js',
-        'resources/css/dashboard.css',
-        'resources/css/perfil.css'
-    ])
-
-    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
-
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    @vite(['resources/css/app.css', 'resources/css/dashboard.css', 'resources/js/app.js'])
+    
+    {{-- Alpine.js é essencial para abrir/fechar o menu --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
+<body class="font-sans antialiased bg-gray-100">
+    
+    {{-- O x-data aqui controla o estado do menu (aberto/fechado) --}}
+    <div class="flex h-screen overflow-hidden bg-gray-100" x-data="{ sidebarOpen: false }">
 
-<body class="font-sans antialiased flex flex-col min-h-screen">
-
-    {{-- HEADER ATUALIZADO --}}
-    <header class="site-header bg-[#beffb4] border-b-2 border-[#358054] shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center flex-wrap gap-4">
-            
-            {{-- LADO ESQUERDO: Logo Site + Texto --}}
-            <div class="flex items-center gap-3">
-                <a href="{{ route('home') }}" class="flex items-center gap-3">
-                    <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
-                    <h1 class="text-xl sm:text-2xl font-bold leading-tight">
-                        <span class="text-[#358054]">Árvores de</span>
-                        <span class="text-[#a0c520]">Paracambi</span>
-                    </h1>
-                </a>
-            </div>
-
-            {{-- LADO DIREITO: Botão Menu + Nova Logo (Ordem Invertida) --}}
-            <div class="flex items-center gap-3 sm:gap-6">
-                
-                {{-- 1. Botão Menu Mobile (Agora vem antes) --}}
-                <button @click="open = !open"
-                    class="md:hidden bg-[#358054] text-white px-3 py-1.5 rounded-lg shadow font-medium text-sm flex items-center gap-2 hover:bg-[#2d6e4b] transition">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
-                </button>
-
-                {{-- 2. Nova Logo (Agora fica na extrema direita) --}}
-                <img src="{{ asset('images/nova_logo.png') }}" 
-                     alt="Logo Prefeitura" 
-                     class="header-logo-right hover:opacity-90 transition-opacity"
-                     style="height: 3.5rem; width: auto;">
-            </div>
-
+        {{-- 1. OVERLAY ESCURO (Só aparece no mobile quando o menu está aberto) --}}
+        <div x-show="sidebarOpen" 
+             @click="sidebarOpen = false" 
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden">
         </div>
-    </header>
 
-    <div x-data="{ open: false }" class="flex flex-1">
+        {{-- 2. SIDEBAR (Menu Lateral) --}}
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+               class="fixed inset-y-0 left-0 z-30 w-64 overflow-y-auto transition-transform duration-300 transform bg-[#1f2937] lg:translate-x-0 lg:static lg:inset-0 shadow-xl">
+            
+            {{-- Cabeçalho da Sidebar --}}
+            <div class="flex items-center justify-center mt-8">
+                <div class="flex items-center gap-3 px-4">
+                    <img src="{{ asset('images/logo.png') }}" class="h-10 w-auto">
+                    <span class="text-white text-xl font-bold">Admin</span>
+                </div>
+            </div>
 
-        <aside :class="open ? 'translate-x-0' : '-translate-x-full'"
-            class="sidebar bg-[#358054] text-white flex flex-col py-8 px-4 transform transition-transform duration-300 md:translate-x-0 rounded-br-2xl md:rounded-none flex-shrink-0">
-
-            <nav class="space-y-4">
-                {{-- ==================== MENU ADMIN ==================== --}}
-                @if (auth('admin')->check())
-                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Painel Admin</a>
-                    <a href="{{ route('admin.map') }}" class="sidebar-link"><i data-lucide="map-pin" class="icon"></i> Cadastrar Árvores</a>
-                    <a href="{{ route('admin.trees.index') }}" class="sidebar-link"><i data-lucide="edit-3" class="icon"></i> Editar Árvores</a>
-
-                    {{-- Link de Aprovações --}}
-                    <a href="{{ route('admin.trees.pending') }}" class="sidebar-link relative flex items-center justify-between pr-4">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="check-circle" class="icon"></i> 
-                            <span>Aprovações</span>
-                        </div>
-                        @php
-                            $pendingCount = \App\Models\Tree::where('aprovado', false)->count();
-                        @endphp
-                        @if($pendingCount > 0)
-                            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                                {{ $pendingCount }}
-                            </span>
-                        @endif
-                    </a>
-
-                    <a href="{{ route('admin.contato.index') }}" class="sidebar-link"><i data-lucide="inbox" class="icon"></i> Solicitações</a>
-                    <a href="{{ route('admin.os.index') }}" class="sidebar-link"><i data-lucide="file-text" class="icon"></i> Ordens de Serviço</a>
-                    <a href="{{ route('admin.profile.edit') }}" class="sidebar-link"><i data-lucide="user" class="icon"></i> Meu Perfil</a>
-                    <a href="{{ route('admin.accounts.index') }}" class="sidebar-link"><i data-lucide="users" class="icon"></i> Gerenciar Contas</a>
-                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
-
-                {{-- ==================== MENU ANALISTA ==================== --}}
-                @elseif (auth('analyst')->check())
-                    <a href="{{ route('analyst.dashboard') }}" class="sidebar-link">
-                        <i data-lucide="layout-dashboard" class="icon"></i> Painel Analista
-                    </a>
-                    <a href="{{ route('analyst.map') }}" class="sidebar-link"><i data-lucide="map-pin" class="icon"></i> Cadastrar Árvores</a>
-                    <a href="{{ route('analyst.vistorias.pendentes') }}" class="sidebar-link">
-                        <i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes
-                    </a>
-                    <a href="{{ url('/pbi-analista/ordens-enviadas') }}" class="sidebar-link">
-                        <i data-lucide="file-text" class="icon"></i> OS Enviadas
-                    </a>
-
-               {{-- ==================== MENU SERVIÇO ==================== --}}
-                @elseif (auth('service')->check())
-                    <a href="{{ route('service.dashboard') }}" class="sidebar-link">
-                        <i data-lucide="layout-dashboard" class="icon"></i> Painel Serviço
-                    </a>
-
-                    <a href="{{ route('service.tasks.recebidas') }}" class="sidebar-link">
-                        <i data-lucide="inbox" class="icon"></i> Tarefas Recebidas
-                    </a>
-                    <a href="{{ route('service.tasks.em_andamento') }}" class="sidebar-link">
-                        <i data-lucide="play-circle" class="icon"></i> Tarefas Em Andamento
-                    </a>
-                    <a href="{{ route('service.tasks.concluidas') }}" class="sidebar-link">
-                        <i data-lucide="check-circle" class="icon"></i> Tarefas Concluídas
-                    </a>
-
-                {{-- ==================== MENU USUÁRIO ==================== --}}
-                @elseif (auth('web')->check())
-                    <a href="{{ route('dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Menu</a>
-                    <a href="{{ route('contact') }}" class="sidebar-link"><i data-lucide="send" class="icon"></i> Nova Solicitação</a>
-                    <a href="{{ route('contact.myrequests') }}" class="sidebar-link"><i data-lucide="clipboard-list" class="icon"></i> Minhas Solicitações</a>
-                    <a href="{{ route('profile.edit') }}" class="sidebar-link"><i data-lucide="user" class="icon"></i> Meu Perfil</a>
-                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
-                @endif
-            </nav>
-
-            <hr class="border-t-2 border-green-400 my-6 opacity-80">
-
-            @if(auth('admin')->check() || auth('web')->check())
-                <a href="{{ route('home') }}" class="sidebar-link">
-                    <i data-lucide="arrow-left-circle" class="icon"></i> Voltar ao Mapa
+            {{-- Links de Navegação --}}
+            <nav class="mt-10 px-4 space-y-2">
+                
+                <a href="{{ route('admin.dashboard') }}" 
+                   class="flex items-center px-4 py-3 {{ request()->routeIs('admin.dashboard') ? 'bg-[#358054] text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' }} rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    <span class="mx-4 font-medium">Dashboard</span>
                 </a>
-            @endif
 
-            {{-- LOGOUT MULTI-GUARD --}}
-            @if (auth('admin')->check())
-                <form method="POST" action="{{ route('admin.logout') }}" class="mt-2">
+                <a href="{{ route('admin.trees.index') }}" 
+                   class="flex items-center px-4 py-3 {{ request()->routeIs('admin.trees.*') ? 'bg-[#358054] text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' }} rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    <span class="mx-4 font-medium">Árvores</span>
+                </a>
+
+                <a href="{{ route('admin.service-orders.index') }}" 
+                   class="flex items-center px-4 py-3 {{ request()->routeIs('admin.service-orders.*') ? 'bg-[#358054] text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' }} rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    <span class="mx-4 font-medium">Ordens de Serviço</span>
+                </a>
+
+                <a href="{{ route('admin.contacts.index') }}" 
+                   class="flex items-center px-4 py-3 {{ request()->routeIs('admin.contacts.*') ? 'bg-[#358054] text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' }} rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <span class="mx-4 font-medium">Solicitações</span>
+                </a>
+
+                <a href="{{ route('admin.profile.edit') }}" 
+                   class="flex items-center px-4 py-3 {{ request()->routeIs('admin.profile.*') ? 'bg-[#358054] text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' }} rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span class="mx-4 font-medium">Perfil Admin</span>
+                </a>
+
+                {{-- Logout --}}
+                <form method="POST" action="{{ route('admin.logout') }}" class="mt-8 pt-8 border-t border-gray-700">
                     @csrf
-                    <a href="#" class="sidebar-link logout-btn">
-                        <i data-lucide="log-out" class="icon"></i> Sair
-                    </a>
+                    <button type="submit" class="flex w-full items-center px-4 py-3 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        <span class="mx-4 font-medium">Sair</span>
+                    </button>
                 </form>
-
-            @elseif (auth('analyst')->check())
-                <form method="POST" action="{{ route('analyst.logout') }}" class="mt-2">
-                    @csrf
-                    <a href="#" class="sidebar-link logout-btn">
-                        <i data-lucide="log-out" class="icon"></i> Sair
-                    </a>
-                </form>
-
-            @elseif (auth('service')->check())
-                <form method="POST" action="{{ route('service.logout') }}" class="mt-2">
-                    @csrf
-                    <a href="#" class="sidebar-link logout-btn">
-                        <i data-lucide="log-out" class="icon"></i> Sair
-                    </a>
-                </form>
-
-            @elseif (auth('web')->check())
-                <form method="POST" action="{{ route('logout') }}" class="mt-2">
-                    @csrf
-                    <a href="#" class="sidebar-link logout-btn">
-                        <i data-lucide="log-out" class="icon"></i> Sair
-                    </a>
-                </form>
-            @endif
-
+            </nav>
         </aside>
 
-        <main class="flex-1 p-10 overflow-y-auto">
-            @yield('content')
-        </main>
+        {{-- 3. CONTEÚDO PRINCIPAL (Main Content) --}}
+        <div class="flex-1 flex flex-col overflow-hidden">
+            
+            {{-- HEADER MOBILE (Só aparece em telas pequenas) --}}
+            <header class="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 lg:hidden">
+                <div class="flex items-center gap-3">
+                    {{-- BOTÃO HAMBÚRGUER --}}
+                    <button @click="sidebarOpen = true" class="text-gray-500 focus:outline-none focus:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <span class="text-lg font-bold text-[#358054]">Admin Panel</span>
+                </div>
+                
+                {{-- Avatarzinho ou Nome no Mobile (Opcional) --}}
+                <div class="text-sm font-semibold text-gray-600">
+                    {{ Auth::guard('admin')->user()->name ?? 'Admin' }}
+                </div>
+            </header>
 
+            {{-- ÁREA DE ROLAGEM --}}
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-6">
+                @yield('content')
+            </main>
+        </div>
     </div>
-
-    <footer class="bg-gray-800 text-white shadow mt-auto py-4 text-center">
-        © {{ date('Y') }} Árvores de Paracambi.
-    </footer>
-
-    <script>lucide.createIcons();</script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll(".logout-btn").forEach(btn => {
-                btn.addEventListener("click", function (e) {
-                    e.preventDefault();
-                    Swal.fire({
-                        title: "Deseja realmente sair?",
-                        text: "Você precisará fazer login novamente.",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#358054",
-                        cancelButtonColor: "#d33",
-                        confirmButtonText: "Sim, sair",
-                        cancelButtonText: "Cancelar",
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            this.closest("form").submit();
-                        }
-                    });
-                });
-            });
-        });
-    </script>
-
-    @stack('scripts')
 </body>
 </html>
