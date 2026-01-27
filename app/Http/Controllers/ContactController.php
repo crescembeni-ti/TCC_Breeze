@@ -309,4 +309,23 @@ class ContactController extends Controller
         return redirect()->route('analyst.dashboard')
             ->with('success', 'Vistoria concluída! Dados salvos com sucesso.');
     }
+
+    // 13. Cancelar Solicitação (Usuário)
+    public function cancelRequest(Contact $contact)
+    {
+        // Verifica se a solicitação pertence ao usuário logado
+        if ($contact->user_id !== Auth::id()) {
+            return back()->withErrors(['cancel_error' => 'Ação não autorizada.']);
+        }
+
+        // Verifica se o status permite cancelamento (Em Análise ou Deferido)
+        if (!in_array($contact->status->name, ['Em Análise', 'Deferido'])) {
+            return back()->withErrors(['cancel_error' => 'Esta solicitação não pode mais ser cancelada.']);
+        }
+
+        // Deleta a solicitação permanentemente (conforme pedido: não aparece mais para o usuário nem para o admin)
+        $contact->delete();
+
+        return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada e removida com sucesso.');
+    }
 }

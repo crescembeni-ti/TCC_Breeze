@@ -263,25 +263,16 @@
                                             <div class="p-2 bg-red-100 rounded-full text-red-600">
                                                 <i data-lucide="alert-octagon" class="w-6 h-6"></i>
                                             </div>
-                                            <h3 class="text-xl font-bold text-gray-900">Cancelar Solicitação?</h3>
+                                            <h3 class="text-xl font-bold text-gray-900">Tem certeza que deseja cancelar?</h3>
                                         </div>
 
                                         <form method="POST" action="{{ route('contact.cancel', $request) }}">
-                                            @csrf @method('PATCH')
+                                            @csrf @method('DELETE')
                                             
                                             <p class="text-sm text-gray-600 leading-relaxed">
                                                 Você está prestes a cancelar a solicitação <strong>#{{ $request->id }}</strong>. 
-                                                Esta ação é irreversível e a secretaria não dará continuidade ao atendimento.
+                                                Esta ação é irreversível e ela será removida da sua lista.
                                             </p>
-
-                                            <div class="mt-4">
-                                                <label for="justificativa-{{ $request->id }}" class="block text-sm font-semibold text-gray-700 mb-1">
-                                                    Motivo do cancelamento (Opcional)
-                                                </label>
-                                                <textarea name="justificativa_cancelamento" id="justificativa-{{ $request->id }}" rows="3"
-                                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-sm"
-                                                    placeholder="Digite o motivo..."></textarea>
-                                            </div>
 
                                             <div class="mt-6 flex justify-end gap-3">
                                                 <button type="button" @click="showCancelModal = false"

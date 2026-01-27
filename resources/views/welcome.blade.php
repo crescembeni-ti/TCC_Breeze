@@ -48,7 +48,7 @@
         .header-text p { margin: 0; font-size: 11px; color: #6b7280; }
 
         .filter-content { padding: 12px 16px; overflow-y: auto; flex: 1; overscroll-behavior: contain; }
-        .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; }
+        .filter-footer { padding: 10px 14px; background: #f9fafb; border-top: 1px solid #f3f4f6; border-radius: 0 0 12px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .filter-group { margin-bottom: 10px; }
@@ -128,11 +128,12 @@
         background-color: rgba(180, 83, 9, 0.1);
     }
     
-    @media (max-width: 640px) {
+        @media (max-width: 640px) {
         .map-filter-panel {
             width: 90% !important; 
             right: 5% !important;  
-            max-height: 70vh;      
+            max-height: 80vh;
+            top: 60px !important;
         }
         .leaflet-popup-content {
             width: 220px !important; 

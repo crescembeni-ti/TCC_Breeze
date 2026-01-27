@@ -51,9 +51,11 @@
         @endif
 
         {{-- BARRA DE STATUS --}}
+        @if($msgStatus)
         <div class="mb-4 p-2 {{ $canEditTech ? 'bg-green-50 border-green-500 text-green-800' : 'bg-yellow-50 border-yellow-500 text-yellow-800' }} border-l-4 font-bold text-sm print:hidden">
-            <i data-lucide="{{ $canEditTech ? 'edit-2' : 'lock' }}" class="w-4 h-4 inline mr-1"></i> {{ $msgStatus }}
+            {{ $msgStatus }}
         </div>
+        @endif
 
         {{-- FORMULÁRIO --}}
         @if($canEditTech || $canEditObs)

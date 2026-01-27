@@ -171,7 +171,7 @@
                     {{-- FOTOS (ALPINE) --}}
                     <div class="space-y-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Anexar Fotos (Máx. 3)</label>
-                        <input type="file" class="hidden" id="inputFotos" name="fotos[]" @accept="image/*" multiple @change="addFiles">
+                        <input type="file" class="hidden" id="inputFotos" name="fotos[]" accept="image/*" multiple @change="addFiles">
                         <button type="button" onclick="document.getElementById('inputFotos').click()" class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">Selecionar Fotos</button>
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
                             <template x-for="(foto, index) in fotos" :key="index">

@@ -4,11 +4,11 @@
 <div class="p-6">
     
     {{-- CABEÇALHO COM FUNDO VERDE --}}
-    <div class="bg-[#358054] p-6 rounded-lg shadow-md mb-6 flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+    <div class="bg-[#358054] p-4 sm:p-6 rounded-lg shadow-md mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 text-center sm:text-left">
             🌳 Árvores Pendentes de Aprovação
         </h2>
-        <a href="{{ route('admin.dashboard') }}" class="bg-white text-[#358054] px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition shadow-sm text-sm flex items-center gap-2">
+        <a href="{{ route('admin.dashboard') }}" class="bg-white text-[#358054] px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition shadow-sm text-sm flex items-center gap-2 w-full sm:w-auto justify-center">
             ⬅ Voltar ao Painel
         </a>
     </div>
@@ -35,79 +35,80 @@
                 <p class="text-sm text-gray-500 mt-1">Nenhuma árvore pendente de aprovação no momento.</p>
             </div>
         @else
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cadastrado Por</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Espécie</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Localização</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Cadastro</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($pendingTrees as $tree)
-                        <tr class="hover:bg-gray-50 transition">
-                            {{-- QUEM CADASTROU --}}
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($tree->analyst)
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                                        👤 {{ $tree->analyst->name }}
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
-                                        🖥️ Sistema
-                                    </span>
-                                @endif
-                            </td>
-
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-bold text-gray-900">{{ $tree->vulgar_name ?? 'Desconhecida' }}</div>
-                                <div class="text-xs text-gray-500">ID: {{ $tree->id }}</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900 truncate max-w-xs" title="{{ $tree->address }}">
-                                    {{ Str::limit($tree->address, 35) }}
-                                </div>
-                                <div class="text-xs text-gray-500">{{ $tree->bairro->nome ?? 'Bairro não informado' }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $tree->created_at->format('d/m/Y') }} <br>
-                                <span class="text-xs">{{ $tree->created_at->format('H:i') }}</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex justify-end gap-2">
-                                    {{-- Ver --}}
-                                    <a href="{{ route('admin.trees.edit', $tree->id) }}" target="_blank" 
-                                       class="text-blue-600 hover:text-blue-900 bg-blue-50 border border-blue-200 px-3 py-1 rounded-md text-xs font-bold transition hover:bg-blue-100">
-                                        👁️ Ver
-                                    </a>
-
-                                    {{-- Aprovar --}}
-                                    <form action="{{ route('admin.trees.approve', $tree->id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja aprovar e publicar esta árvore?')">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" 
-                                                class="text-white bg-green-600 hover:bg-green-700 border border-green-700 px-3 py-1 rounded-md text-xs font-bold shadow-sm transition transform hover:scale-105">
-                                            ✅ Aprovar
-                                        </button>
-                                    </form>
-                                    
-                                    {{-- Recusar --}}
-                                    <form action="{{ route('admin.trees.destroy', $tree->id) }}" method="POST" onsubmit="return confirm('ATENÇÃO: Isso excluirá a árvore permanentemente. Confirmar recusa?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                                class="text-red-600 hover:bg-red-50 border border-red-200 px-3 py-1 rounded-md text-xs font-bold transition">
-                                            ❌ Recusar
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cadastrado Por</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Espécie</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Localização</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Data</th>
+                            <th class="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($pendingTrees as $tree)
+                            <tr class="hover:bg-gray-50 transition">
+                                {{-- QUEM CADASTROU --}}
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                    @if($tree->analyst)
+                                        <span class="px-2 py-0.5 inline-flex text-[10px] sm:text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                                            👤 {{ Str::limit($tree->analyst->name, 10) }}
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-0.5 inline-flex text-[10px] sm:text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                                            🖥️ Sistema
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-bold text-gray-900">{{ $tree->vulgar_name ?? 'Desconhecida' }}</div>
+                                    <div class="text-[10px] text-gray-500 md:hidden">{{ Str::limit($tree->address, 20) }}</div>
+                                </td>
+                                <td class="px-4 sm:px-6 py-4 hidden md:table-cell">
+                                    <div class="text-sm text-gray-900 truncate max-w-xs" title="{{ $tree->address }}">
+                                        {{ Str::limit($tree->address, 35) }}
+                                    </div>
+                                    <div class="text-xs text-gray-500">{{ $tree->bairro->nome ?? 'Bairro não informado' }}</div>
+                                </td>
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                                    {{ $tree->created_at->format('d/m/Y') }}
+                                </td>
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end gap-1 sm:gap-2">
+                                        {{-- Ver --}}
+                                        <a href="{{ route('admin.trees.edit', $tree->id) }}" target="_blank" 
+                                           class="text-blue-600 hover:text-blue-900 bg-blue-50 border border-blue-200 px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold transition">
+                                            👁️
+                                        </a>
+
+                                        {{-- Aprovar --}}
+                                        <form action="{{ route('admin.trees.approve', $tree->id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja aprovar e publicar esta árvore?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" 
+                                                    class="text-white bg-green-600 hover:bg-green-700 border border-green-700 px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold shadow-sm transition">
+                                                ✅
+                                            </button>
+                                        </form>
+                                        
+                                        {{-- Recusar --}}
+                                        <form action="{{ route('admin.trees.destroy', $tree->id) }}" method="POST" onsubmit="return confirm('ATENÇÃO: Isso excluirá a árvore permanentemente. Confirmar recusa?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    class="text-red-600 hover:bg-red-50 border border-red-200 px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold transition">
+                                                ❌
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         @endif
     </div>
 </div>

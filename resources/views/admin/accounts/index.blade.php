@@ -40,55 +40,61 @@
     + Criar {{ ucfirst($type) }}
     </button>
 
-    {{-- TABELA --}}
-    <table class="min-w-full bg-white border border-gray-200">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="px-4 py-2 text-left">ID</th>
-                <th class="px-4 py-2 text-left">Nome</th>
-                <th class="px-4 py-2 text-left">Email</th>
-                @if ($type !== 'admin')
-                    <th class="px-4 py-2 text-left">CPF</th>
-                @endif
-                <th class="px-4 py-2 text-right">Ações</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach ($data as $item)
-                <tr class="border-t">
-                    <td class="px-4 py-2 text-left">{{ $item->id }}</td>
-                    <td class="px-4 py-2 text-left">{{ $item->name }}</td>
-                    <td class="px-4 py-2 text-left">{{ $item->email }}</td>
-
+    {{-- TABELA RESPONSIVA --}}
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-4 py-2 text-left text-sm sm:text-base">ID</th>
+                    <th class="px-4 py-2 text-left text-sm sm:text-base">Nome</th>
+                    <th class="px-4 py-2 text-left text-sm sm:text-base hidden md:table-cell">Email</th>
                     @if ($type !== 'admin')
-                        <td class="px-4 py-2 text-left" id="cpf-{{ $item->id }}">{{ $item->cpf }}</td>
+                        <th class="px-4 py-2 text-left text-sm sm:text-base hidden lg:table-cell">CPF</th>
                     @endif
+                    <th class="px-4 py-2 text-right text-sm sm:text-base">Ações</th>
+                </tr>
+            </thead>
 
-                    <td class="px-4 py-2 text-right space-x-2">
+            <tbody>
+                @foreach ($data as $item)
+                    <tr class="border-t">
+                        <td class="px-4 py-2 text-left text-sm">{{ $item->id }}</td>
+                        <td class="px-4 py-2 text-left text-sm">
+                            <div class="font-medium">{{ $item->name }}</div>
+                            <div class="text-xs text-gray-500 md:hidden">{{ $item->email }}</div>
+                        </td>
+                        <td class="px-4 py-2 text-left text-sm hidden md:table-cell">{{ $item->email }}</td>
 
-                        {{-- EDITAR (REMOVIDO PARA ADMINS) --}}
-                        @if($type !== 'admin')
-                            <button 
-                                onclick="openEdit({{ $item->id }}, '{{ $item->name }}', '{{ $item->email }}', '{{ $item->cpf ?? '' }}', '{{ $type }}')"
-                                class="bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] transition duration-200 px-3 py-1 text-xs">
-                                Editar
-                            </button>
+                        @if ($type !== 'admin')
+                            <td class="px-4 py-2 text-left text-sm hidden lg:table-cell" id="cpf-{{ $item->id }}">{{ $item->cpf }}</td>
                         @endif
 
-                        {{-- EXCLUIR --}}
-                        <button onclick="openDeleteModal({{ $item->id }}, '{{ $item->name }}')"
-                                data-id="{{ $item->id }}" 
-                                data-name="{{ $item->name }}"
-                                data-url="{{ route('admin.accounts.destroy', [$type, $item->id]) }}"
-                                class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-500 transition duration-200 px-3 py-1 text-xs">
-                            Excluir
-                        </button>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+                        <td class="px-4 py-2 text-right">
+                            <div class="flex flex-col sm:flex-row justify-end gap-2">
+                                {{-- EDITAR (REMOVIDO PARA ADMINS) --}}
+                                @if($type !== 'admin')
+                                    <button 
+                                        onclick="openEdit({{ $item->id }}, '{{ $item->name }}', '{{ $item->email }}', '{{ $item->cpf ?? '' }}', '{{ $type }}')"
+                                        class="bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 px-3 py-1 text-xs whitespace-nowrap">
+                                        Editar
+                                    </button>
+                                @endif
+
+                                {{-- EXCLUIR --}}
+                                <button onclick="openDeleteModal({{ $item->id }}, '{{ $item->name }}')"
+                                        data-id="{{ $item->id }}" 
+                                        data-name="{{ $item->name }}"
+                                        data-url="{{ route('admin.accounts.destroy', [$type, $item->id]) }}"
+                                        class="bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 px-3 py-1 text-xs whitespace-nowrap">
+                                    Excluir
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
     <div class="mt-4">
         {{ $data->links() }}
