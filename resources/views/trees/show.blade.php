@@ -30,8 +30,7 @@
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @vite(['resources/css/trees.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/trees.css'])
 
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
