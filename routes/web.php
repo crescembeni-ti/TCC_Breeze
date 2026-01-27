@@ -101,7 +101,7 @@ Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
     Route::get('/contato', [ContactController::class, 'index'])->name('contact');
     Route::post('/contato', [ContactController::class, 'store'])->name('contact.store');
     Route::get('/minhas-solicitacoes', [ContactController::class, 'userRequestList'])->name('contact.myrequests');
-    Route::patch('/minhas-solicitacoes/{contact}/cancelar', [ContactController::class, 'cancelRequest'])->name('contact.cancel');
+    Route::delete('/minhas-solicitacoes/{contact}/cancelar', [ContactController::class, 'cancelRequest'])->name('contact.cancel');
 });
 
 /*
