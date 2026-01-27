@@ -174,35 +174,31 @@
                 </div>
 
                 {{-- LADO DIREITO: Menu + Nova Logo --}}
-                <div class="flex items-center gap-3 sm:gap-6">
+                <div class="flex items-center gap-2 sm:gap-6">
                     
                     {{-- 1. MENU --}}
-                    <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ open: false }">
+                    <div class="flex items-center gap-2 sm:gap-4 relative">
                         @if (auth('admin')->check())
-                            <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block text-sm py-1.5 px-3">Painel</a>
-                            <form method="POST" action="{{ route('admin.logout') }}">@csrf</form>
+                            <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Painel</a>
                         @elseif(auth()->check())
-                            <div class="relative group flex items-center">
-                                <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block px-4 py-2 text-base rounded-lg">Menu</a>
-                            </div>
-                            <form method="POST" action="{{ route('logout') }}">@csrf</form>
+                            <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Menu</a>
                         @else
                             <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block text-sm py-1.5 px-3">Entrar</a>
                             <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block text-sm py-1.5 px-3">Cadastrar</a>
 
-                            {{-- MOBILE MENU --}}
+                            {{-- MOBILE MENU PARA VISITANTES --}}
                             <div class="relative inline-block sm:hidden" x-data="{ open: false }">
-                                <button @click="open = !open" class="ml-2 btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-1.5 transition-all duration-200 py-1.5 px-3 text-sm">
-                                    Menu
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                <button @click="open = !open" class="btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-1.5 transition-all duration-200 py-1.5 px-3 text-xs">
+                                    Entrar
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                                         <path x-show="!open" d="M4 6h16M4 12h16M4 18h16" />
                                         <path x-show="open" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
-                                <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-56 bg-[#e8ffe6] rounded-xl shadow-lg z-50 overflow-hidden border border-green-100">
-                                    <a href="{{ route('contact') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Fazer Solicitação</a>
-                                    <a href="{{ route('login') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Entrar</a>
-                                    <a href="{{ route('register') }}" class="block px-4 py-3 font-semibold !text-gray-800 hover:!text-green-700 hover:bg-[#d9f5d6] transition-colors">Cadastrar</a>
+                                <div x-show="open" x-cloak @click.outside="open = false" class="absolute right-0 mt-2 w-48 bg-[#e8ffe6] rounded-xl shadow-lg z-50 overflow-hidden border border-green-100">
+                                    <a href="{{ route('login') }}" class="block px-4 py-3 text-sm font-semibold text-gray-800 hover:text-green-700 hover:bg-[#d9f5d6]">Entrar</a>
+                                    <a href="{{ route('register') }}" class="block px-4 py-3 text-sm font-semibold text-gray-800 hover:text-green-700 hover:bg-[#d9f5d6]">Cadastrar</a>
+                                    <a href="{{ route('contact') }}" class="block px-4 py-3 text-sm font-semibold text-gray-800 hover:text-green-700 hover:bg-[#d9f5d6]">Fazer Solicitação</a>
                                 </div>
                             </div>
                         @endif

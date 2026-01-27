@@ -11,7 +11,8 @@ export default defineConfig({
                 'resources/css/welcome.css',
                 'resources/css/auth.css',
                 'resources/css/perfil.css',
-                'resources/css/dashboard.css', // ✅ ADICIONE ESTA LINHA
+                'resources/css/dashboard.css',
+                'resources/css/trees.css',
                 'resources/js/app.js',
             ],
             refresh: true,
