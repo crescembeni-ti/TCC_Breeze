@@ -71,7 +71,7 @@ header.site-header {
 
 /* MAPA */
 #map {
-    height: 600px;
+    height: clamp(320px, 65vh, 700px);
     width: 100%;
     border-radius: 0.5rem;
     border: 2px solid #358054;
@@ -362,6 +362,10 @@ main {
 
 /* Ajustes específicos para o header e menu mobile */
 @media (max-width: 768px) {
+    body.welcome-page {
+        background-attachment: scroll;
+    }
+
     header.site-header {
         padding-top: 1rem;
         padding-bottom: 1rem;
@@ -370,6 +374,10 @@ main {
     .site-header h1 {
         font-size: 1.75rem;
         text-align: center;
+    }
+
+    .header-logo-right {
+        height: 2.5rem;
     }
 
     .menu-button {
@@ -396,6 +404,13 @@ main {
         height: 1px;
         background-color: #e5e7eb;
         margin: 0.5rem 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .map-filter-toggle {
+        padding: 8px 12px;
+        font-size: 0.85rem;
     }
 }
 
