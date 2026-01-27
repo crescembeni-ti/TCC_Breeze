@@ -88,11 +88,6 @@
     font-size: 1.5rem;
     text-align: center;
   }
-
-  .site-header {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
 }
 
 /* ===== MENU HAMBÚRGUER ===== */
@@ -311,4 +306,5 @@
         height: 3.5rem; /* Desktop: ~56px (antes era 80px) */
     }
 }
+
 

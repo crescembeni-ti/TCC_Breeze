@@ -412,24 +412,6 @@ main {
         padding: 8px 12px;
         font-size: 0.85rem;
     }
-
-    #map {
-        height: clamp(260px, 55vh, 520px);
-    }
-
-    .map-filter-panel {
-        width: 90%;
-        right: 50%;
-        transform: translateX(50%) translateY(-20px) scale(0.98);
-    }
-
-    .map-filter-panel.open {
-        transform: translateX(50%) translateY(0) scale(1);
-    }
-
-    .autocomplete-list {
-        width: 100%;
-    }
 }
 
 @media (max-width: 480px) {
@@ -445,14 +427,6 @@ main {
     .menu-dropdown {
         top: 65px;
         width: 95%;
-    }
-
-    .stats-card {
-        width: 100%;
-    }
-
-    .popup-nav {
-        gap: 0.5rem;
     }
 }
 
