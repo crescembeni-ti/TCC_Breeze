@@ -115,13 +115,14 @@
                     <a href="{{ route('analyst.dashboard') }}" class="sidebar-link">
                         <i data-lucide="layout-dashboard" class="icon"></i> Painel Analista
                     </a>
-                    <a href="{{ route('analyst.map') }}" class="sidebar-link"><i data-lucide="map-pin" class="icon"></i> Cadastrar Árvores</a>
-                    <a href="{{ route('analyst.vistorias.pendentes') }}" class="sidebar-link">
-                        <i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes
-                    </a>
-                    <a href="{{ url('/pbi-analista/ordens-enviadas') }}" class="sidebar-link">
-                        <i data-lucide="file-text" class="icon"></i> OS Enviadas
-                    </a>
+	                    <a href="{{ route('analyst.map') }}" class="sidebar-link"><i data-lucide="map-pin" class="icon"></i> Cadastrar Árvores</a>
+	                    <a href="{{ route('admin.trees.index') }}" class="sidebar-link"><i data-lucide="edit-3" class="icon"></i> Editar Árvores</a>
+	                    <a href="{{ route('analyst.vistorias.pendentes') }}" class="sidebar-link">
+	                        <i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes
+	                    </a>
+	                    <a href="{{ url('/pbi-analista/ordens-enviadas') }}" class="sidebar-link">
+	                        <i data-lucide="file-text" class="icon"></i> OS Enviadas
+	                    </a>
 
                {{-- ==================== MENU SERVIÇO ==================== --}}
                 @elseif (auth('service')->check())
@@ -151,11 +152,11 @@
 
             <hr class="border-t-2 border-green-400 my-6 opacity-80">
 
-            @if(auth('admin')->check() || auth('web')->check())
-                <a href="{{ route('home') }}" class="sidebar-link">
-                    <i data-lucide="arrow-left-circle" class="icon"></i> Voltar ao Mapa
-                </a>
-            @endif
+	            @if(auth('admin')->check() || auth('web')->check() || auth('analyst')->check())
+	                <a href="{{ route('home') }}" class="sidebar-link">
+	                    <i data-lucide="arrow-left-circle" class="icon"></i> Voltar ao Mapa
+	                </a>
+	            @endif
 
             {{-- LOGOUT MULTI-GUARD --}}
             @if (auth('admin')->check())

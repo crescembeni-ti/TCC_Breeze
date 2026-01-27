@@ -54,7 +54,11 @@
 
         <div class="perfil-box inline-block">
             <h2 class="text-3xl font-bold text-[#358054] mb-0">
-                Painel de Administração – Editar Árvore
+                @if(auth('admin')->check())
+                    Painel de Administração – Editar Árvore
+                @else
+                    Painel do Analista – Editar Árvore
+                @endif
             </h2>
         </div>
 
@@ -462,11 +466,11 @@
                         </div>
                     </div>
                 </div>	                {{-- BOTÕES DE AÇÃO --}}
-	                <div class="flex flex-wrap gap-4 pt-6 border-t">
-	                    <button type="button" @click="openModal('save')" class="bg-green-600 text-white text-lg rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] active:scale-95 transition px-8 py-3">Salvar Alterações</button>
-	                    <button x-show="!isAnalista" type="button" @click="openModal('delete')" class="bg-red-600 text-white text-lg rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-800 active:scale-95 transition px-8 py-3">Excluir Árvore</button>
-	                </div>ndex') }}" class="bg-gray-100 text-gray-700 text-lg rounded-md shadow-sm hover:bg-gray-200 transition px-8 py-3 decoration-0">Voltar para Lista</a>
-                </div>
+		                <div class="flex flex-wrap gap-4 pt-6 border-t">
+		                    <button type="button" @click="openModal('save')" class="bg-green-600 text-white text-lg rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] active:scale-95 transition px-8 py-3">Salvar Alterações</button>
+		                    <button x-show="!isAnalista" type="button" @click="openModal('delete')" class="bg-red-600 text-white text-lg rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-800 active:scale-95 transition px-8 py-3">Excluir Árvore</button>
+                            <a href="{{ route('admin.trees.index') }}" class="bg-gray-100 text-gray-700 text-lg rounded-md shadow-sm hover:bg-gray-200 transition px-8 py-3 decoration-0 flex items-center justify-center">Voltar para Lista</a>
+		                </div>
             </form>
         </div>
 

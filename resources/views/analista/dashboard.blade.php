@@ -75,15 +75,7 @@
             </div>
         </div>
 
-        {{-- BOTÃO VOLTAR AO MAPA --}}
-        <div class="mt-8 flex justify-center">
-            <a href="{{ route('home') }}" class="inline-flex items-center px-6 py-3 bg-[#358054] hover:bg-[#2d6e4b] text-white font-bold rounded-lg shadow-md transition-all duration-200 gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-7-7 7-7M2 13h22" />
-                </svg>
-                Voltar ao Mapa
-            </a>
-        </div>
+
     </div>
 
 @endsection
