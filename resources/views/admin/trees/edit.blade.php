@@ -264,26 +264,36 @@
                         <h4 class="text-xl font-bold text-gray-700">Localização</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-	                        <div>
-	                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
-	                            <label class="block text-sm font-medium text-gray-700 mb-1">Latitude <span class="text-red-500">*</span></label>
-	                            <input type="number" step="0.0000001" id="latitude" name="latitude" required 
-	                                value="{{ old('latitude', $tree->latitude) }}"
-                                    :disabled="isAnalista"
-                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
-	                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500">
-	                            <p x-show="!isAnalista" class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
-	                        </div>
-	                        <div>
-	                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
-	                            <label class="block text-sm font-medium text-gray-700 mb-1">Longitude <span class="text-red-500">*</span></label>
-	                            <input type="number" step="0.0000001" id="longitude" name="longitude" required
-	                                value="{{ old('longitude', $tree->longitude) }}"
-                                    :disabled="isAnalista"
-                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
-	                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500">
-	                            <p x-show="!isAnalista" class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
-	                        </div>
+		                        <div>
+		                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
+		                            <label class="block text-sm font-medium text-gray-700 mb-1">Latitude <span class="text-red-500">*</span></label>
+		                            <input type="number" step="0.0000001" id="latitude_display" 
+		                                value="{{ old('latitude', $tree->latitude) }}"
+	                                    disabled
+	                                    class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 bg-gray-200 cursor-not-allowed"
+                                        :class="!isAnalista ? 'hidden' : ''">
+                                    <input x-show="!isAnalista" type="number" step="0.0000001" id="latitude" name="latitude" 
+		                                value="{{ old('latitude', $tree->latitude) }}"
+		                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500"
+                                        :disabled="isAnalista">
+                                    <input x-show="isAnalista" type="hidden" name="latitude" value="{{ old('latitude', $tree->latitude) }}">
+		                            <p x-show="!isAnalista" class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
+		                        </div>
+		                        <div>
+		                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
+		                            <label class="block text-sm font-medium text-gray-700 mb-1">Longitude <span class="text-red-500">*</span></label>
+		                            <input type="number" step="0.0000001" id="longitude_display"
+		                                value="{{ old('longitude', $tree->longitude) }}"
+	                                    disabled
+	                                    class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 bg-gray-200 cursor-not-allowed"
+                                        :class="!isAnalista ? 'hidden' : ''">
+                                    <input x-show="!isAnalista" type="number" step="0.0000001" id="longitude" name="longitude" 
+		                                value="{{ old('longitude', $tree->longitude) }}"
+		                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500"
+                                        :disabled="isAnalista">
+                                    <input x-show="isAnalista" type="hidden" name="longitude" value="{{ old('longitude', $tree->longitude) }}">
+		                            <p x-show="!isAnalista" class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
+		                        </div>
                     </div>
                 </div>
 
@@ -593,10 +603,19 @@
             }
 
             map.on("click", async e => {
+                if ({{ auth('analyst')->check() ? 'true' : 'false' }}) return;
                 const lat = e.latlng.lat.toFixed(7);
                 const lng = e.latlng.lng.toFixed(7);
-                latInput.value = lat;
-                lngInput.value = lng;
+                
+                if(latInput) latInput.value = lat;
+                if(lngInput) lngInput.value = lng;
+
+                // Atualiza campos hidden (caso existam para o analista)
+                const latHidden = document.querySelector('input[type="hidden"][name="latitude"]');
+                const lngHidden = document.querySelector('input[type="hidden"][name="longitude"]');
+                if(latHidden) latHidden.value = lat;
+                if(lngHidden) lngHidden.value = lng;
+
                 if (tempMarker) map.removeLayer(tempMarker);
                 tempMarker = L.marker([lat, lng]).addTo(map).bindPopup("Nova Localização").openPopup();
                 const info = await buscarEndereco(lat, lng);
