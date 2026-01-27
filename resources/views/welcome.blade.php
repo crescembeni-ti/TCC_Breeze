@@ -442,7 +442,6 @@
                     </div>
                     <div class="header-text">
                         <h3>Explorar Mapa</h3>
-                        <p id="headerCounter" style="margin: 0; font-size: 11px; color: #358054; font-weight: 700;">Carregando...</p>
                     </div>
                 </div>
                 <button id="closePanelBtn" style="background:none; border:none; color:#9ca3af; cursor:pointer; font-size:24px; padding: 10px; line-height: 1;">✕</button>
@@ -709,7 +708,7 @@
         function atualizarStatus(count, total) {
             const statusDiv = document.getElementById("filterStatus");
             const headerCounter = document.getElementById("headerCounter");
-            const countText = count === 0 ? "Nenhuma encontrada" : `${count} encontradas`;
+            
             
             if (headerCounter) headerCounter.innerText = countText;
             if (!statusDiv) return;
