@@ -318,14 +318,14 @@ class ContactController extends Controller
             return back()->withErrors(['cancel_error' => 'Ação não autorizada.']);
         }
 
-        // Verifica se o status permite cancelamento (Em Análise ou Deferido)
-        if (!in_array($contact->status->name, ['Em Análise', 'Deferido'])) {
+        // Verifica se o status permite cancelamento (Apenas "Em Análise")
+        if ($contact->status->name !== 'Em Análise') {
             return back()->withErrors(['cancel_error' => 'Esta solicitação não pode mais ser cancelada.']);
         }
 
         // Deleta a solicitação permanentemente (conforme pedido: não aparece mais para o usuário nem para o admin)
         $contact->delete();
 
-        return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada e removida com sucesso.');
+        return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada com sucesso.');
     }
 }
