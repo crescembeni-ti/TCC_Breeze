@@ -7,7 +7,7 @@
     <div x-data="{ 
         showModal: false, 
         modalType: '', // 'delete' ou 'save'
-        isAnalista: {{ auth('analista')->check() ? 'true' : 'false' }},
+        isAnalista: {{ auth('analyst')->check() ? 'true' : 'false' }},
         
         openModal(type) {
             this.modalType = type;
