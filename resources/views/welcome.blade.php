@@ -185,15 +185,17 @@
                 </div>
 
                 {{-- LADO DIREITO: Menu + Nova Logo --}}
-                <div class="flex items-center gap-2 sm:gap-6">
-                    
-                    {{-- 1. MENU --}}
-                    <div class="flex items-center gap-2 sm:gap-4 relative">
-                        @if (auth('admin')->check())
-                            <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Painel</a>
-                        @elseif(auth()->check())
-                            <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Menu</a>
-                        @else
+	                <div class="flex items-center gap-2 sm:gap-6">
+	                    
+	                    {{-- 1. MENU --}}
+	                    <div class="flex items-center gap-2 sm:gap-4 relative">
+	                        @if (auth('admin')->check())
+	                            <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Painel</a>
+	                        @elseif (auth('analista')->check())
+	                            <a href="{{ route('analista.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Painel</a>
+	                        @elseif(auth()->check())
+	                            <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Menu</a>
+	                        @else
                             <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block text-sm py-1.5 px-3">Entrar</a>
                             <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block text-sm py-1.5 px-3">Cadastrar</a>
 
@@ -279,13 +281,14 @@
         const INITIAL_ZOOM = 14;
         const PARACAMBI_BOUNDS = [[-22.7000, -43.8500], [-22.5000, -43.5500]];
 
-        // --- VERIFICAÇÃO DE ADMIN ---
+        // --- VERIFICAÇÃO DE PERMISSÕES ---
         const isAdmin = @json(auth('admin')->check());
+        const isAnalista = @json(auth('analista')->check());
         const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
         const exportRoute = "{{ route('admin.trees.export') }}";
 
-        // Configuração dos Campos Extras do Admin
-        const adminFieldsConfig = [
+        // Configuração dos Campos Extras do Admin/Analista
+        let adminFieldsConfig = [
             { id: 'health_status', label: 'Estado da Árvore', key: 'health_status' },
             { id: 'bifurcation_type', label: 'Tipo de Bifurcação', key: 'bifurcation_type' },
             { id: 'stem_balance', label: 'Equilíbrio Fuste', key: 'stem_balance' },
@@ -295,6 +298,14 @@
             { id: 'injuries', label: 'Injúrias', key: 'injuries' },
             { id: 'wiring_status', label: 'Estado da Fiação', key: 'wiring_status' },
         ];
+
+        if (isAnalista) {
+            adminFieldsConfig = [
+                { id: 'stem_balance', label: 'Equilíbrio Fuste', key: 'stem_balance' },
+                { id: 'target', label: 'Alvo', key: 'target' },
+                { id: 'wiring_status', label: 'Estado da Fiação', key: 'wiring_status' },
+            ];
+        }
 
         const map = L.map('map', {
             center: INITIAL_VIEW, zoom: INITIAL_ZOOM, minZoom: 13, maxBounds: PARACAMBI_BOUNDS, maxBoundsViscosity: 1.0
@@ -384,20 +395,21 @@
         let extraAdminHtml = '';
         let downloadBtnHtml = '';
 
-        if (isAdmin) {
+        if (isAdmin || isAnalista) {
+            const title = isAdmin ? 'Admin' : 'Analista';
             extraAdminHtml += `
-                <div class="admin-divider">Visualização (Admin)</div>
+                <div class="admin-divider">Visualização (${title})</div>
                 <div class="filter-group">
                     <label class="filter-label" style="color:#358054;">🎨 Colorir Mapa Por:</label>
                     <select id="colorMode" style="border-color:#358054; font-weight:600; color:#358054;">
                         <option value="species">Espécie (Padrão)</option>
-                        <option value="injuries">Injúrias</option>
+                        ${!isAnalista ? '<option value="injuries">Injúrias</option>' : ''}
                         <option value="target">Alvo (Fluxo)</option>
                         <option value="wiring_status">Conflito com Fiação</option>
-                        <option value="organisms">Organismos</option>
-                        <option value="crown_balance">Equilíbrio de Copa</option>
+                        ${!isAnalista ? '<option value="organisms">Organismos</option>' : ''}
+                        ${!isAnalista ? '<option value="crown_balance">Equilíbrio de Copa</option>' : ''}
                         <option value="stem_balance">Equilíbrio de Fuste</option>
-                        <option value="health_status">Estado de Saúde</option>
+                        ${!isAnalista ? '<option value="health_status">Estado de Saúde</option>' : ''}
                     </select>
                 </div>
                 <div class="admin-divider">Filtros Avançados</div>
@@ -649,7 +661,7 @@
             });
 
             // Popula Filtros de Admin
-            if (isAdmin) {
+            if (isAdmin || isAnalista) {
                 adminFieldsConfig.forEach(field => {
                     const select = document.getElementById(field.id);
                     if(select) {
@@ -773,7 +785,7 @@
             const buscaVal = document.getElementById("search").value.toLowerCase().trim();
 
             const adminFilters = {};
-            if (isAdmin) {
+            if (isAdmin || isAnalista) {
                 adminFieldsConfig.forEach(field => {
                     const el = document.getElementById(field.id);
                     if (el && el.value) adminFilters[field.key] = el.value;
@@ -793,7 +805,7 @@
                 }
 
                 let okAdmin = true;
-                if (isAdmin) {
+                if (isAdmin || isAnalista) {
                     for (const [key, val] of Object.entries(adminFilters)) {
                         if ((tree[key] || "") != val) { okAdmin = false; break; }
                     }
@@ -826,7 +838,7 @@
             if (especieVal) params.append('vulgar_name', especieVal);
             if (buscaVal) params.append('search', buscaVal);
 
-            if (isAdmin) {
+            if (isAdmin || isAnalista) {
                 adminFieldsConfig.forEach(field => {
                     const el = document.getElementById(field.id);
                     if (el && el.value) params.append(field.key, el.value);
@@ -862,7 +874,7 @@
                 }
 
                 let adminButton = '';
-                if (isAdmin) {
+                if (isAdmin || isAnalista) {
                     const editUrl = editRouteTemplate.replace('ID_PLACEHOLDER', tree.id);
                     adminButton = `
                         <a href="${editUrl}" style="color: white !important;" class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
@@ -925,7 +937,7 @@
                     document.getElementById("bairro").value = "";
                     document.getElementById("especie").value = "";
                     document.getElementById("search").value = "";
-                    if (isAdmin) {
+                    if (isAdmin || isAnalista) {
                         adminFieldsConfig.forEach(f => { const el = document.getElementById(f.id); if(el) el.value = ""; });
                         const cm = document.getElementById("colorMode");
                         if(cm) { cm.value = "species"; updateLegend('species'); }

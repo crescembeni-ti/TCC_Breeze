@@ -7,6 +7,7 @@
     <div x-data="{ 
         showModal: false, 
         modalType: '', // 'delete' ou 'save'
+        isAnalista: {{ auth('analista')->check() ? 'true' : 'false' }},
         
         openModal(type) {
             this.modalType = type;
@@ -110,8 +111,10 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Endereço</label>
                             <input type="text" id="address" name="address" maxlength="255" 
                                 value="{{ old('address', $tree->address) }}"
-                                class="block w-full rounded-md border border-gray-300 bg-gray-50 text-gray-800 shadow-sm px-3 py-2 focus:ring-green-500 focus:border-green-500" />
-                            <p class="text-xs text-gray-500 mt-1">Clique no mapa para atualizar</p>
+                                :disabled="isAnalista"
+                                :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                class="block w-full rounded-md border border-gray-300 text-gray-800 shadow-sm px-3 py-2 focus:ring-green-500 focus:border-green-500" />
+                            <p x-show="!isAnalista" class="text-xs text-gray-500 mt-1">Clique no mapa para atualizar</p>
                         </div>
 
                         {{-- Bairro --}}
@@ -120,14 +123,17 @@
                                 selected: '{{ old('bairro_id', $tree->bairro_id) }}', 
                                 selectedName: '{{ optional($tree->bairro)->nome ?? 'Selecione um bairro' }}' 
                             }" 
-                            @set-bairro-map.window="selected = $event.detail.id; selectedName = $event.detail.nome"
+                            @set-bairro-map.window="if(!isAnalista) { selected = $event.detail.id; selectedName = $event.detail.nome }"
                             class="relative w-full">
                             
                             <label class="block text-sm font-medium text-gray-700 mb-1">Bairro</label>
                             
-                            <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500">
+                            <button @click="if(!isAnalista) open = !open" type="button" 
+                                :disabled="isAnalista"
+                                :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500">
                                 <span x-text="selectedName"></span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg x-show="!isAnalista" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -169,7 +175,10 @@
                             }" x-init="initList()" class="relative">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nome Científico</label>
                             <div class="relative">
-                                <input type="text" id="scientific_name_input" name="scientific_name" x-model="query" @input="filter()" @click="filter()" @click.outside="open = false" autocomplete="off" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500" placeholder="Selecione ou digite...">
+	                                <input type="text" id="scientific_name_input" name="scientific_name" x-model="query" @input="if(!isAnalista) filter()" @click="if(!isAnalista) filter()" @click.outside="open = false" autocomplete="off" 
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                    class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500" placeholder="Selecione ou digite...">
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></div>
                             </div>
                             <ul x-show="open && filtered.length > 0" x-transition class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto" style="display: none;">
@@ -204,7 +213,10 @@
                             }" x-init="initList()" class="relative">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nome Vulgar</label>
                             <div class="relative">
-                                <input type="text" id="vulgar_name_input" name="vulgar_name" x-model="query" @input="filter()" @click="filter()" @click.outside="open = false" autocomplete="off" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500" placeholder="Selecione ou digite...">
+	                                <input type="text" id="vulgar_name_input" name="vulgar_name" x-model="query" @input="if(!isAnalista) filter()" @click="if(!isAnalista) filter()" @click.outside="open = false" autocomplete="off" 
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                    class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500" placeholder="Selecione ou digite...">
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></div>
                             </div>
                             <ul x-show="open && filtered.length > 0" x-transition class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto" style="display: none;">
@@ -217,19 +229,24 @@
                         {{-- Caso não tenha espécie --}}
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Caso não tenha espécie</label>
-                            <div class="flex flex-col justify-start">
-                                <input type="text" name="no_species_case" value="{{ old('no_species_case', $tree->no_species_case) }}"
-                                    class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500"
-                                    placeholder="Informe se não identificada">
-                                <p class="text-xs text-gray-500 mt-1">Utilize este campo apenas se a espécie não for encontrada.</p>
-                            </div>
+	                            <div class="flex flex-col justify-start">
+	                                <input type="text" name="no_species_case" value="{{ old('no_species_case', $tree->no_species_case) }}"
+	                                    :disabled="isAnalista"
+	                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+	                                    class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500"
+	                                    placeholder="Informe se não identificada">
+	                                <p x-show="!isAnalista" class="text-xs text-gray-500 mt-1">Utilize este campo apenas se a espécie não for encontrada.</p>
+	                            </div>
                         </div>
 
                         {{-- Descrição --}}
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Descrição da Árvore</label>
-                            <textarea name="description" rows="4" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500 placeholder-gray-400" placeholder="Detalhes sobre a saúde, poda, entorno ou observações...">{{ old('description', $tree->description) }}</textarea>
-                        </div>
+	                        <div class="md:col-span-2">
+	                            <label class="block text-sm font-medium text-gray-700 mb-1">Descrição da Árvore</label>
+	                            <textarea name="description" rows="4" 
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                    class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500 placeholder-gray-400" placeholder="Detalhes sobre a saúde, poda, entorno ou observações...">{{ old('description', $tree->description) }}</textarea>
+	                        </div>
                     </div>
                 </div>
 
@@ -243,22 +260,26 @@
                         <h4 class="text-xl font-bold text-gray-700">Localização</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Latitude <span class="text-red-500">*</span></label>
-                            <input type="number" step="0.0000001" id="latitude" name="latitude" required 
-                                value="{{ old('latitude', $tree->latitude) }}"
-                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
-                            <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
-                        </div>
-                        <div>
-                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Longitude <span class="text-red-500">*</span></label>
-                            <input type="number" step="0.0000001" id="longitude" name="longitude" required
-                                value="{{ old('longitude', $tree->longitude) }}"
-                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
-                            <p class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
-                        </div>
+	                        <div>
+	                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
+	                            <label class="block text-sm font-medium text-gray-700 mb-1">Latitude <span class="text-red-500">*</span></label>
+	                            <input type="number" step="0.0000001" id="latitude" name="latitude" required 
+	                                value="{{ old('latitude', $tree->latitude) }}"
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+	                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500">
+	                            <p x-show="!isAnalista" class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
+	                        </div>
+	                        <div>
+	                            {{-- REQUIRED E ASTERISCO ADICIONADOS --}}
+	                            <label class="block text-sm font-medium text-gray-700 mb-1">Longitude <span class="text-red-500">*</span></label>
+	                            <input type="number" step="0.0000001" id="longitude" name="longitude" required
+	                                value="{{ old('longitude', $tree->longitude) }}"
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+	                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500">
+	                            <p x-show="!isAnalista" class="text-xs text-gray-500 mt-1">Clique no mapa para preencher</p>
+	                        </div>
                     </div>
                 </div>
 
@@ -272,26 +293,31 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div x-data="{ open: false, selected: '{{ old('health_status', $tree->health_status) }}', selectedName: '{{ old('health_status', $tree->health_status) ?: 'Selecione...' }}' }" class="relative w-full">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado de Saúde</label>
-                            <button @click="open = !open" type="button" class="w-full border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between px-3 py-2 shadow-sm focus:ring-green-500 focus:border-green-500">
-                                <span x-text="selectedName"></span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </button>
-                            <ul x-show="open" @click.outside="open = false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Boa'; selectedName='Boa'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Boa</li>
-                                <li @click="selected='Regular'; selectedName='Regular'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Regular</li>
-                                <li @click="selected='Ruim'; selectedName='Ruim'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruim</li>
-                            </ul>
-                            <input type="hidden" name="health_status" :value="selected">
-                        </div>
+	                        <div x-data="{ open: false, selected: '{{ old('health_status', $tree->health_status) }}', selectedName: '{{ old('health_status', $tree->health_status) ?: 'Selecione...' }}' }" class="relative w-full">
+	                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado de Saúde</label>
+	                            <button @click="if(!isAnalista) open = !open" type="button" 
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                    class="w-full border border-gray-300 rounded-lg text-left flex items-center justify-between px-3 py-2 shadow-sm focus:ring-green-500 focus:border-green-500">
+	                                <span x-text="selectedName"></span>
+	                                <svg x-show="!isAnalista" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+	                            </button>
+	                            <ul x-show="open" @click.outside="open = false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
+	                                <li @click="selected='Boa'; selectedName='Boa'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Boa</li>
+	                                <li @click="selected='Regular'; selectedName='Regular'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Regular</li>
+	                                <li @click="selected='Ruim'; selectedName='Ruim'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruim</li>
+	                            </ul>
+	                            <input type="hidden" name="health_status" :value="selected">
+	                        </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Data de Plantio</label>
-                            <input type="date" name="planted_at" max="{{ now()->format('Y-m-d') }}" 
-                                value="{{ old('planted_at', $tree->planted_at ? $tree->planted_at->format('Y-m-d') : '') }}"
-                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
-                        </div>
+	                        <div>
+	                            <label class="block text-sm font-medium text-gray-700 mb-1">Data de Plantio</label>
+	                            <input type="date" name="planted_at" max="{{ now()->format('Y-m-d') }}" 
+	                                value="{{ old('planted_at', $tree->planted_at ? $tree->planted_at->format('Y-m-d') : '') }}"
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+	                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500">
+	                        </div>
                     </div>
                 </div>
 
@@ -304,12 +330,15 @@
                         <h4 class="text-xl font-bold text-gray-700">Dimensões da Árvore</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        @foreach(['cap' => 'CAP (cm)', 'height' => 'Altura (m)', 'crown_height' => 'Altura da Copa (m)', 'crown_diameter_longitudinal' => 'Copa Longitudinal (m)', 'crown_diameter_perpendicular' => 'Copa Perpendicular (m)', 'total_width' => 'Largura Total (m)', 'street_width' => 'Largura da Rua (m)', 'gutter_height' => 'Altura da Gola (m)', 'gutter_width' => 'Largura da Gola (m)', 'gutter_length' => 'Comprimento da Gola (m)'] as $field => $label)
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $label }}</label>
-                            <input type="number" step="0.01" name="{{ $field }}" value="{{ old($field, $tree->$field) }}" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500">
-                        </div>
-                        @endforeach
+	                        @foreach(['cap' => 'CAP (cm)', 'height' => 'Altura (m)', 'crown_height' => 'Altura da Copa (m)', 'crown_diameter_longitudinal' => 'Copa Longitudinal (m)', 'crown_diameter_perpendicular' => 'Copa Perpendicular (m)', 'total_width' => 'Largura Total (m)', 'street_width' => 'Largura da Rua (m)', 'gutter_height' => 'Altura da Gola (m)', 'gutter_width' => 'Largura da Gola (m)', 'gutter_length' => 'Comprimento da Gola (m)'] as $field => $label)
+	                        <div>
+	                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $label }}</label>
+	                            <input type="number" step="0.01" name="{{ $field }}" value="{{ old($field, $tree->$field) }}" 
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                    class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500">
+	                        </div>
+	                        @endforeach
                     </div>
                 </div>
 
@@ -321,11 +350,14 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div x-data="{ open: false, selected: '{{ old('bifurcation_type', $tree->bifurcation_type) }}', selectedName: '{{ old('bifurcation_type', $tree->bifurcation_type) ?: 'Selecione...' }}' }" class="relative w-full">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Bifurcação</label>
-                            <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
-                            <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
+	                        <div x-data="{ open: false, selected: '{{ old('bifurcation_type', $tree->bifurcation_type) }}', selectedName: '{{ old('bifurcation_type', $tree->bifurcation_type) ?: 'Selecione...' }}' }" class="relative w-full">
+	                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Bifurcação</label>
+	                            <button @click="if(!isAnalista) open = !open" type="button" 
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg x-show="!isAnalista" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+	                            <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
+	                                <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
                                 <li @click="selected='U'; selectedName='U'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">U</li>
                                 <li @click="selected='V'; selectedName='V'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">V</li>
                             </ul>
@@ -344,11 +376,14 @@
                             <input type="hidden" name="stem_balance" :value="selected">
                         </div>
 
-                        <div x-data="{ open: false, selected: '{{ old('crown_balance', $tree->crown_balance) }}', selectedName: '{{ old('crown_balance', $tree->crown_balance) ?: 'Selecione...' }}' }" class="relative w-full">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio Copa</label>
-                            <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
-                            <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Equilibrada'; selectedName='Equilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Equilibrada</li>
+	                        <div x-data="{ open: false, selected: '{{ old('crown_balance', $tree->crown_balance) }}', selectedName: '{{ old('crown_balance', $tree->crown_balance) ?: 'Selecione...' }}' }" class="relative w-full">
+	                            <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio Copa</label>
+	                            <button @click="if(!isAnalista) open = !open" type="button" 
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg x-show="!isAnalista" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+	                            <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
+	                                <li @click="selected='Equilibrada'; selectedName='Equilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Equilibrada</li>
                                 <li @click="selected='Medianamente Desequilibrada'; selectedName='Medianamente Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Medianamente Desequilibrada</li>
                                 <li @click="selected='Desequilibrada'; selectedName='Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Desequilibrada</li>
                                 <li @click="selected='Muito Desequilibrada'; selectedName='Muito Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Muito Desequilibrada</li>
@@ -370,12 +405,15 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         
-                        {{-- Organismos --}}
-                        <div x-data="{ open: false, selected: '{{ old('organisms', $tree->organisms) }}', selectedName: '{{ old('organisms', $tree->organisms) ?: 'Selecione...' }}' }" class="relative w-full">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Organismos</label>
-                            <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
-                            <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
+	                        {{-- Organismos --}}
+	                        <div x-data="{ open: false, selected: '{{ old('organisms', $tree->organisms) }}', selectedName: '{{ old('organisms', $tree->organisms) ?: 'Selecione...' }}' }" class="relative w-full">
+	                            <label class="block text-sm font-medium text-gray-700 mb-1">Organismos</label>
+	                            <button @click="if(!isAnalista) open = !open" type="button" 
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg x-show="!isAnalista" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+	                            <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
+	                                <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
                                 <li @click="selected='Infestação Inicial'; selectedName='Infestação Inicial'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Infestação Inicial</li>
                                 <li @click="selected='Infestação Média'; selectedName='Infestação Média'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Infestação Média</li>
                                 <li @click="selected='Infestação Avançada'; selectedName='Infestação Avançada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Infestação Avançada</li>
@@ -395,12 +433,15 @@
                             <input type="hidden" name="target" :value="selected">
                         </div>
 
-                        {{-- Injúrias --}}
-                        <div x-data="{ open: false, selected: '{{ old('injuries', $tree->injuries) }}', selectedName: '{{ old('injuries', $tree->injuries) ?: 'Selecione...' }}' }" class="relative w-full">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Injúrias Mecânicas</label>
-                            <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
-                            <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Leves ou Ausentes'; selectedName='Leves ou Ausentes'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Leves ou Ausentes</li>
+	                        {{-- Injúrias --}}
+	                        <div x-data="{ open: false, selected: '{{ old('injuries', $tree->injuries) }}', selectedName: '{{ old('injuries', $tree->injuries) ?: 'Selecione...' }}' }" class="relative w-full">
+	                            <label class="block text-sm font-medium text-gray-700 mb-1">Injúrias Mecânicas</label>
+	                            <button @click="if(!isAnalista) open = !open" type="button" 
+                                    :disabled="isAnalista"
+                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg x-show="!isAnalista" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+	                            <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
+	                                <li @click="selected='Leves ou Ausentes'; selectedName='Leves ou Ausentes'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Leves ou Ausentes</li>
                                 <li @click="selected='Moderadas'; selectedName='Moderadas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Moderadas</li>
                                 <li @click="selected='Graves'; selectedName='Graves'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Graves</li>
                             </ul>
@@ -420,13 +461,11 @@
                             <input type="hidden" name="wiring_status" :value="selected">
                         </div>
                     </div>
-                </div>
-
-                {{-- BOTÕES DE AÇÃO --}}
-                <div class="flex flex-wrap gap-4 pt-6 border-t">
-                    <button type="button" @click="openModal('save')" class="bg-green-600 text-white text-lg rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] active:scale-95 transition px-8 py-3">Salvar Alterações</button>
-                    <button type="button" @click="openModal('delete')" class="bg-red-50 text-red-600 border border-red-200 text-lg rounded-md shadow-sm hover:bg-red-100 transition px-8 py-3">Excluir Árvore</button>
-                    <a href="{{ route('admin.trees.index') }}" class="bg-gray-100 text-gray-700 text-lg rounded-md shadow-sm hover:bg-gray-200 transition px-8 py-3 decoration-0">Voltar para Lista</a>
+                </div>	                {{-- BOTÕES DE AÇÃO --}}
+	                <div class="flex flex-wrap gap-4 pt-6 border-t">
+	                    <button type="button" @click="openModal('save')" class="bg-green-600 text-white text-lg rounded-md shadow-md hover:bg-green-700 hover:shadow-lg active:bg-[#38c224] active:scale-95 transition px-8 py-3">Salvar Alterações</button>
+	                    <button x-show="!isAnalista" type="button" @click="openModal('delete')" class="bg-red-600 text-white text-lg rounded-md shadow-md hover:bg-red-700 hover:shadow-lg active:bg-red-800 active:scale-95 transition px-8 py-3">Excluir Árvore</button>
+	                </div>ndex') }}" class="bg-gray-100 text-gray-700 text-lg rounded-md shadow-sm hover:bg-gray-200 transition px-8 py-3 decoration-0">Voltar para Lista</a>
                 </div>
             </form>
         </div>
