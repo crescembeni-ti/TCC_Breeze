@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Credenciais inválidas.',
+            'email' => __('auth.failed'),
         ]);
     }
 

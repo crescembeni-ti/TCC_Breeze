@@ -105,35 +105,41 @@
 
             <div class="flex flex-col lg:flex-row gap-6 mt-4">
                 {{-- Mapa --}}
-                <div class="lg:w-3/4 relative">
+                <div class="w-full lg:w-3/4 relative order-2 lg:order-1">
                     <div id="map-contacts" class="w-full h-80 lg:h-[600px] z-0"></div>
                     <p id="map-status" class="text-xs text-center text-gray-500 mt-2">Iniciando mapa...</p>
                 </div>
                 
                 {{-- Painel Lateral Mapa --}}
-                <div class="lg:w-1/4 space-y-6">
+                <div class="w-full lg:w-1/4 space-y-6 order-1 lg:order-2">
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
                         <h4 class="font-bold text-gray-700 mb-3 flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i> Filtros do Mapa</h4>
                         
-                        <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Filtrar por Status</label>
-                        <select id="map-status-filter" class="w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-[#358054] focus:ring-[#358054] mb-3">
-                            <option value="">Todos os Status</option>
-                            @foreach ($statusColors as $status => $color)
-                                <option value="{{ $status }}">{{ $status }}</option>
-                            @endforeach
-                        </select>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Filtrar por Status</label>
+                                <select id="map-status-filter" class="w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-[#358054] focus:ring-[#358054]">
+                                    <option value="">Todos os Status</option>
+                                    @foreach ($statusColors as $status => $color)
+                                        <option value="{{ $status }}">{{ $status }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                        <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Filtrar por Bairro</label>
-                        <select id="map-bairro-filter" class="w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-[#358054] focus:ring-[#358054] mb-3">
-                            <option value="">Todos os Bairros</option>
-                        </select>
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Filtrar por Bairro</label>
+                                <select id="map-bairro-filter" class="w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-[#358054] focus:ring-[#358054]">
+                                    <option value="">Todos os Bairros</option>
+                                </select>
+                            </div>
+                        </div>
 
-                        <div class="bg-white p-2 rounded border border-gray-200 mb-3 text-center">
+                        <div class="bg-white p-2 rounded border border-gray-200 my-4 text-center">
                             <span class="text-xs text-gray-500 block">Encontrados</span>
                             <span id="map-counter" class="text-xl font-bold text-[#358054]">0</span>
                         </div>
 
-                        <div class="space-y-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
                             <button id="btn-clear-map" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-semibold rounded transition"><i data-lucide="x" class="w-3 h-3"></i> Limpar Filtros</button>
                             <button id="btn-export-map" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#217346] hover:bg-[#1e6b41] text-white text-sm font-semibold rounded transition shadow-sm"><i data-lucide="file-spreadsheet" class="w-3 h-3"></i> Baixar Excel</button>
                         </div>

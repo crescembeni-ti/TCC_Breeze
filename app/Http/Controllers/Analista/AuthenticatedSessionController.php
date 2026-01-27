@@ -38,7 +38,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         throw ValidationException::withMessages([
-            'email' => 'As credenciais fornecidas são inválidas para o painel de analista.',
+            'email' => __('auth.failed'),
         ]);
     }
 
