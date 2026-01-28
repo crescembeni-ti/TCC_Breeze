@@ -35,8 +35,8 @@
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
 
-<body class="font-sans antialiased tree-page min-h-screen flex flex-col">
-    <div class="flex-grow flex flex-col">
+<body class="font-sans antialiased tree-page">
+    <div class="min-h-screen flex flex-col">
 
         {{-- HEADER COMPACTO --}}
         <header class="site-header flex-shrink-0"> 
@@ -165,10 +165,16 @@
     </div>
 
     <style>
-        /* Garante que o body e o html ocupem toda a altura */
+        /* Garante que o rodapé fique sempre na base */
         html, body {
             height: 100%;
             margin: 0;
+        }
+        .tree-page {
+            background-image: url('/images/bosque.jpeg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
         }
     </style>
 
