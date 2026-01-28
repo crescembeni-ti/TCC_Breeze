@@ -346,8 +346,21 @@ class TreeController extends Controller
         ]);
 
         $updateData = $validated;
-        if (empty($updateData['scientific_name'])) $updateData['scientific_name'] = 'Não identificada';
-        if (empty($updateData['vulgar_name'])) $updateData['vulgar_name'] = 'Não identificada';
+
+        // TRAVA DE SEGURANÇA BACKEND: Se for Analista, filtra apenas os campos permitidos
+        if (auth('analyst')->check()) {
+            $updateData = $request->only([
+                'stem_balance', 
+                'wiring_status', 
+                'target'
+            ]);
+            
+            // Mantém os dados originais que não podem ser alterados
+            // Isso evita que um hacker envie campos extras via Postman/Inspecionar
+        } else {
+            if (empty($updateData['scientific_name'])) $updateData['scientific_name'] = 'Não identificada';
+            if (empty($updateData['vulgar_name'])) $updateData['vulgar_name'] = 'Não identificada';
+        }
         
         $tree->update($updateData);
         

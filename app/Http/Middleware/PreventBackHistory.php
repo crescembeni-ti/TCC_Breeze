@@ -70,8 +70,32 @@ class PreventBackHistory
          */
         $response = $next($request);
 
-        // Sempre remove o cache das páginas protegidas
-        return $this->noCache($response);
+        // Sempre remove o cache das páginas protegidas e adiciona headers de segurança
+        return $this->addSecurityHeaders($this->noCache($response));
+    }
+
+    /**
+     * Adiciona cabeçalhos de segurança para proteger contra Clickjacking, XSS e Sniffing
+     */
+    private function addSecurityHeaders($response)
+    {
+        if ($response instanceof BinaryFileResponse || $response instanceof StreamedResponse) {
+            return $response;
+        }
+
+        if (method_exists($response, 'header')) {
+            return $response->header('X-Frame-Options', 'SAMEORIGIN')
+                            ->header('X-Content-Type-Options', 'nosniff')
+                            ->header('X-XSS-Protection', '1; mode=block')
+                            ->header('Referrer-Policy', 'strict-origin-when-cross-origin');
+        }
+
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('X-XSS-Protection', '1; mode=block');
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+        return $response;
     }
 
     /**
