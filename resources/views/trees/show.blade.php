@@ -35,8 +35,8 @@
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
 
-<body class="font-sans antialiased tree-page">
-    <div class="min-h-screen flex flex-col">
+<body class="font-sans antialiased tree-page min-h-screen flex flex-col">
+    <div class="flex-grow flex flex-col">
 
         {{-- HEADER COMPACTO --}}
         <header class="site-header flex-shrink-0"> 
@@ -163,6 +163,14 @@
         </footer>
 
     </div>
+
+    <style>
+        /* Garante que o body e o html ocupem toda a altura */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+    </style>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
