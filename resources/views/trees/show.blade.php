@@ -174,12 +174,6 @@
             height: 100%;
             margin: 0;
         }
-        .tree-page {
-            background-image: url('/images/bosque.jpeg');
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-        }
     </style>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
