@@ -36,7 +36,7 @@
 </head>
 
 <body class="font-sans antialiased tree-page">
-    <div class="min-h-screen">
+    <div class="min-h-screen flex flex-col">
 
         {{-- HEADER COMPACTO --}}
         <header class="site-header flex-shrink-0"> 
@@ -72,7 +72,7 @@
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
+        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                 {{-- COLUNA 1: INFORMAÇÕES DA ÁRVORE --}}
@@ -156,7 +156,7 @@
             </div>
         </main>
 
-        <footer class="bg-gray-800 shadow mt-12">
+        <footer class="bg-gray-800 shadow mt-auto">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
             </div>
@@ -188,8 +188,8 @@
             weight: 2,
             opacity: 0.9,
             fillOpacity: 0.85
-        }).addTo(map).bindPopup(`<strong>${nomePopup}</strong>`).openPopup();
-     </div>
+        }).addTo(map).bindPopup(`<strong>${nomePrincipal}</strong>`).openPopup();
+    </script>
 
     {{-- VLibras --}}
     <div vw class="enabled">
