@@ -63,7 +63,7 @@
                                 </td>
 
                                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-bold text-gray-900">{{ $tree->vulgar_name ?? 'Desconhecida' }}</div>
+                                    <div class="text-sm text-gray-900">{{ $tree->vulgar_name ?? 'Desconhecida' }}</div>
                                     <div class="text-[10px] text-gray-500 md:hidden">{{ Str::limit($tree->address, 20) }}</div>
                                 </td>
                                 <td class="px-4 sm:px-6 py-4 hidden md:table-cell">
@@ -80,7 +80,7 @@
                                         {{-- Ver --}}
                                         <a href="{{ route('admin.trees.edit', $tree->id) }}" target="_blank" 
                                            class="text-blue-600 hover:text-blue-900 bg-blue-50 border border-blue-200 px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold transition">
-                                            👁️
+                                            👁️Ver
                                         </a>
 
                                         {{-- Aprovar --}}
@@ -89,7 +89,7 @@
                                             @method('PATCH')
                                             <button type="submit" 
                                                     class="text-white bg-green-600 hover:bg-green-700 border border-green-700 px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold shadow-sm transition">
-                                                ✅
+                                                ✅Aprovar
                                             </button>
                                         </form>
                                         
@@ -99,7 +99,7 @@
                                             @method('DELETE')
                                             <button type="submit" 
                                                     class="text-red-600 hover:bg-red-50 border border-red-200 px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold transition">
-                                                ❌
+                                                ❌Reprovar
                                             </button>
                                         </form>
                                     </div>
