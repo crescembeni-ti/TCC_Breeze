@@ -28,6 +28,13 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Proteção contra ataques de força bruta no login (máximo 5 tentativas por minuto por IP)
+        RateLimiter::for('login', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip())->response(function (Request $request, array $headers) {
+                return back()->with('error', 'Muitas tentativas de login. Por favor, aguarde 1 minuto.');
+            });
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

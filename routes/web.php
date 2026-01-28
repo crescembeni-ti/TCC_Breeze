@@ -117,7 +117,7 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
     // LOGIN ADMIN
     Route::middleware(['guest:admin', 'guard.only:admin'])->group(function () {
         Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
-        Route::post('/login', [AdminLoginController::class, 'store'])->name('login.store');
+        Route::post('/login', [AdminLoginController::class, 'store'])->name('login.store')->middleware('throttle:login');
     });
 
     // ÁREA AUTENTICADA ADMIN
@@ -201,7 +201,7 @@ Route::prefix('pbi-analista')->name('analyst.')->group(function () {
 
     Route::middleware(['guest:analyst', 'guard.only:analyst'])->group(function () {
         Route::get('/login', [AnalystLoginController::class, 'create'])->name('login');
-        Route::post('/login', [AnalystLoginController::class, 'store'])->name('login.store');
+        Route::post('/login', [AnalystLoginController::class, 'store'])->name('login.store')->middleware('throttle:login');
     });
 
         Route::middleware(['auth:analyst', 'preventBack'])->group(function () {
@@ -237,7 +237,7 @@ Route::prefix('pbi-servico')->name('service.')->group(function () {
     // Rota de Login
     Route::middleware(['guest:service', 'guard.only:service'])->group(function () {
         Route::get('/login', [ServiceLoginController::class, 'create'])->name('login');
-        Route::post('/login', [ServiceLoginController::class, 'store'])->name('login.store');
+        Route::post('/login', [ServiceLoginController::class, 'store'])->name('login.store')->middleware('throttle:login');
     });
 
     // ÁREA LOGADA DA EQUIPE TÉCNICA

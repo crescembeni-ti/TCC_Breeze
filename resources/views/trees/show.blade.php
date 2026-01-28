@@ -169,10 +169,16 @@
     {{-- REMOVIDAS AS DIVS DE FECHAMENTO EXTRAS --}}
 
     <style>
-        /* Garante que o body e o html ocupem toda a altura */
+        /* Garante que o rodapé fique sempre na base */
         html, body {
             height: 100%;
             margin: 0;
+        }
+        .tree-page {
+            background-image: url('/images/bosque.jpeg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
         }
     </style>
 
