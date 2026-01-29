@@ -15,17 +15,22 @@ use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
 /**
- * Controlador responsável pelas solicitações de serviço (contatos).
- * Gerencia o fluxo desde o cidadão pedindo um serviço até o encaminhamento para analistas e equipes técnicas.
+ * Controlador responsável pela gestão de solicitações de serviço (Contatos).
+ * Este é um dos principais controladores do sistema, gerenciando o fluxo de vida de um pedido:
+ * 1. Criação pelo Cidadão.
+ * 2. Triagem pelo Administrador.
+ * 3. Vistoria pelo Analista.
+ * 4. Encaminhamento para Execução.
  */
 class ContactController extends Controller
 {
     /* ============================================================
-     * ÁREA DO CIDADÃO (USUÁRIO COMUM)
+     * ÁREA DO CIDADÃO (USUÁRIO FINAL)
      * ============================================================ */
     
     /**
-     * Exibe o formulário onde o cidadão pode solicitar um serviço (poda, remoção, etc).
+     * Exibe o formulário de solicitação de serviço para o cidadão.
+     * Carrega as listas de bairros e tópicos (assuntos) para preencher os campos de seleção.
      */
     public function index()
     {
@@ -36,12 +41,16 @@ class ContactController extends Controller
     }
 
     /**
-     * Salva a solicitação do cidadão no banco de dados.
-     * Inclui upload de fotos e definição do status inicial como "Em Análise".
+     * Processa e armazena uma nova solicitação enviada pelo cidadão.
+     * 
+     * Blocos de lógica:
+     * - Validação: Garante que os campos obrigatórios e fotos estejam no formato correto.
+     * - Upload: Salva até 3 imagens no disco 'public' dentro da pasta 'solicitacoes'.
+     * - Persistência: Cria o registro vinculando ao usuário logado e define o status inicial "Em Análise".
      */
     public function store(Request $request)
     {
-        // Valida os dados do formulário
+        // Regras de validação para os dados recebidos do formulário
         $request->validate([
             'topico' => 'required|string|max:255',
             'telefone' => 'required|string|max:20', 
@@ -52,7 +61,7 @@ class ContactController extends Controller
             'fotos.*' => 'image|max:2048',
         ]);
 
-        // Processa o upload das fotos (máximo 3)
+        // Gerenciamento de arquivos de imagem
         $paths = [];
         if ($request->hasFile('fotos')) {
             foreach ($request->file('fotos') as $foto) {
@@ -60,7 +69,7 @@ class ContactController extends Controller
             }
         }
 
-        // Cria o registro da solicitação
+        // Inserção no banco de dados com dados do solicitante extraídos do Auth
         Contact::create([
             'topico' => $request->topico,
             'telefone' => $request->telefone, 
@@ -79,7 +88,8 @@ class ContactController extends Controller
     }
 
     /**
-     * Lista as solicitações feitas pelo usuário logado.
+     * Recupera e exibe a lista de solicitações feitas pelo próprio usuário.
+     * Filtra para não mostrar solicitações que foram canceladas.
      */
     public function userRequestList()
     {
@@ -94,21 +104,25 @@ class ContactController extends Controller
     }
 
     /* ============================================================
-     * ÁREA DO ADMIN (GESTÃO)
+     * ÁREA ADMINISTRATIVA (GESTÃO E TRIAGEM)
      * ============================================================ */
 
     /**
-     * Lista todas as solicitações para o Administrador.
-     * Possui filtros por período e abas (Pendentes, Resolvidas, Todas).
+     * Painel principal do Administrador para gerenciar todos os contatos.
+     * 
+     * Funcionalidades:
+     * - Filtro Temporal: Permite ver solicitações de hoje, 7 dias, 30 dias ou datas específicas.
+     * - Abas de Status: Separa o que está "Pendente" do que já foi "Resolvido".
+     * - Mapa: Prepara os dados geográficos para exibição no mapa de calor/pontos.
      */
     public function adminContactList(Request $request)
     {
         $filtro = $request->get('filtro', 'pendentes');
 
-        // Query base com relacionamentos necessários
+        // Inicializa a query com os relacionamentos para evitar o problema N+1
         $baseQuery = Contact::with(['status', 'user', 'serviceOrder.service']);
 
-        // Filtro de Período (7 dias, 30 dias ou data personalizada)
+        // Lógica de filtragem por período de tempo usando Carbon
         if ($request->filled('period')) {
             $period = $request->period;
             if ($period == '7_days') {
@@ -122,17 +136,19 @@ class ContactController extends Controller
             }
         }
 
-        // Dados para o mapa (mostra tudo do período)
+        // Clone da query para o mapa (independente do filtro de abas)
         $mapMessages = (clone $baseQuery)->get();
 
-        // Dados para a tabela (aplica filtros das abas)
+        // Aplicação de filtros de status conforme a aba selecionada
         $tableQuery = $baseQuery; 
 
         if ($filtro === 'pendentes') {
+            // Considera pendente tudo que ainda está em fluxo operacional
             $tableQuery->whereHas('status', fn ($q) =>
                 $q->whereIn('name', ['Em Análise', 'Deferido', 'Vistoriado', 'Em Execução'])
             );
-            // Regra para mostrar apenas o que ainda não foi totalmente encaminhado
+            
+            // Regra específica: oculta o que já foi encaminhado e não está "Em Execução"
             $tableQuery->where(function ($mainQuery) {
                 $mainQuery->whereDoesntHave('serviceOrder', function ($q) {
                     $q->whereIn('destino', ['analista', 'servico']);
@@ -142,6 +158,7 @@ class ContactController extends Controller
                 });
             });
         } elseif ($filtro === 'resolvidas') {
+            // Considera resolvida as solicitações finalizadas ou negadas
             $tableQuery->whereHas('status', fn ($q) =>
                 $q->whereIn('name', ['Concluído', 'Indeferido', 'Sem Pendências'])
             );
@@ -160,31 +177,37 @@ class ContactController extends Controller
     }
 
     /**
-     * Atualiza o status de uma solicitação (ex: Deferir, Indeferir).
+     * Altera o status de uma solicitação e registra uma justificativa se necessário.
+     * Exemplo: Se for marcar como 'Indeferido', a justificativa torna-se obrigatória.
      */
     public function adminContactUpdateStatus(Request $request, Contact $contact)
     {
         $indeferido = Status::where('name', 'Indeferido')->first()->id;
+        
         $request->validate([
             'status_id' => 'required|exists:statuses,id',
             'justificativa' => Rule::requiredIf($request->status_id == $indeferido),
         ]);
+
         $contact->update($request->only('status_id', 'justificativa'));
         return back()->with('success', 'Status atualizado.');
     }
 
     /* ============================================================
-     * ENCAMINHAMENTO (ADMIN -> OUTROS)
+     * FLUXO DE ENCAMINHAMENTO (ADMIN -> ANALISTA/EQUIPE)
      * ============================================================ */
 
     /**
-     * Rota que decide se a solicitação vai para um Analista ou para a Equipe de Serviço.
+     * Ponto de decisão: Encaminha o pedido para vistoria técnica ou para execução direta.
      */
     public function forward(Request $request, $id)
     {
         $contact = Contact::findOrFail($id);
 
+        // Se houver ID de analista na requisição, chama o método de envio para analista
         if ($request->has('analyst_id')) return $this->sendToAnalyst($request, $contact);
+        
+        // Se houver ID de serviço, cria/busca a OS e envia para a equipe de campo
         if ($request->has('service_id')) {
             $os = ServiceOrder::firstOrCreate(['contact_id' => $contact->id]);
             return $this->sendToService($request, $os);
@@ -194,7 +217,7 @@ class ContactController extends Controller
     }
 
     /**
-     * Encaminha a solicitação para um Analista realizar a vistoria técnica.
+     * Vincula um analista à solicitação e cria/atualiza a Ordem de Serviço com destino 'analista'.
      */
     public function sendToAnalyst(Request $request, Contact $contact)
     {
@@ -216,7 +239,7 @@ class ContactController extends Controller
     }
 
     /**
-     * Encaminha a solicitação diretamente para a Equipe de Serviço (Execução).
+     * Vincula uma equipe de serviço à Ordem de Serviço e define o status como 'pendente_aceite'.
      */
     public function sendToService(Request $request, ServiceOrder $os)
     {
@@ -232,24 +255,28 @@ class ContactController extends Controller
     }
 
     /* ============================================================
-     * ÁREA DO ANALISTA
+     * ÁREA DO ANALISTA (VISTORIA TÉCNICA)
      * ============================================================ */
     
     /**
-     * Exibe o painel do Analista com contadores de vistorias.
+     * Dashboard específico para o Analista logado.
+     * Mostra contadores de vistorias pendentes e concluídas, além de uma lista rápida.
      */
     public function analystDashboard()
     {
         $analystId = Auth::guard('analyst')->id();
 
+        // Contagem de ordens aguardando vistoria
         $countPendentes = ServiceOrder::where('analyst_id', $analystId)
             ->where('destino', 'analista')
             ->count();
 
+        // Contagem de vistorias já finalizadas
         $countConcluidas = ServiceOrder::where('analyst_id', $analystId)
             ->where('status', 'analise_concluida')
             ->count();
 
+        // Lista as últimas 5 vistorias pendentes
         $vistorias = ServiceOrder::with(['contact.user']) 
             ->where('analyst_id', $analystId)
             ->where('destino', 'analista')
@@ -261,7 +288,7 @@ class ContactController extends Controller
     }
 
     /**
-     * Lista todas as vistorias que o analista precisa realizar.
+     * Lista completa de todas as vistorias pendentes para o analista logado.
      */
     public function vistoriasPendentes()
     {
@@ -277,7 +304,7 @@ class ContactController extends Controller
     }
 
     /**
-     * Histórico de vistorias já concluídas pelo analista.
+     * Exibe o histórico de análises já concluídas pelo profissional.
      */
     public function ordensEnviadas()
     {
@@ -293,7 +320,13 @@ class ContactController extends Controller
     }
 
     /**
-     * Salva os dados técnicos da vistoria realizada pelo analista.
+     * Salva o laudo técnico da vistoria.
+     * 
+     * Blocos de lógica:
+     * - Validação: Checa datas e existência da solicitação.
+     * - Tratamento de Dados: Converte a string de espécies em um array JSON.
+     * - Atualização: Salva coordenadas, equipamentos necessários e observações técnicas.
+     * - Fluxo: Muda o status da solicitação original para "Vistoriado".
      */
     public function storeServiceOrder(Request $request)
     {
@@ -305,13 +338,13 @@ class ContactController extends Controller
 
         $os = ServiceOrder::where('contact_id', $request->contact_id)->firstOrFail();
 
-        // Processa a lista de espécies (converte string separada por vírgula em array)
+        // Conversão de espécies: transforma "Ipê, Carvalho" em ["Ipê", "Carvalho"]
         $especies = $request->especies;
         if (is_string($especies) && !empty($especies)) {
             $especies = array_map('trim', explode(',', $especies));
         }
 
-        // Atualiza a Ordem de Serviço com os dados técnicos
+        // Persistência dos dados do laudo na Ordem de Serviço
         $os->update([
             'latitude'      => $request->latitude,
             'longitude'     => $request->longitude,
@@ -328,7 +361,7 @@ class ContactController extends Controller
             'status'        => 'analise_concluida'
         ]);
 
-        // Atualiza o status da solicitação original para "Vistoriado"
+        // Sincronização do status da solicitação pai
         $statusVistoriado = Status::where('name', 'Vistoriado')->first();
         if ($statusVistoriado) {
             $os->contact->update(['status_id' => $statusVistoriado->id]);
@@ -339,22 +372,21 @@ class ContactController extends Controller
     }
 
     /**
-     * Permite que o cidadão cancele sua própria solicitação.
-     * Só é permitido se o status ainda for "Em Análise".
+     * Permite ao cidadão cancelar sua própria solicitação, desde que o processo ainda não tenha iniciado.
      */
     public function cancelRequest(Contact $contact)
     {
-        // Segurança: Verifica se a solicitação é mesmo do usuário logado
+        // Proteção: Garante que um usuário não cancele o pedido de outro
         if ($contact->user_id !== Auth::id()) {
             return back()->withErrors(['cancel_error' => 'Ação não autorizada.']);
         }
 
-        // Regra de Negócio: Só cancela se ainda não começou a ser processada
+        // Proteção: Impede o cancelamento se a prefeitura já iniciou o atendimento
         if ($contact->status->name !== 'Em Análise') {
             return back()->withErrors(['cancel_error' => 'Esta solicitação não pode mais ser cancelada.']);
         }
 
-        // Deleta permanentemente para não poluir o sistema
+        // Remoção física do registro
         $contact->delete();
 
         return redirect()->route('contact.myrequests')->with('success', 'Solicitação cancelada com sucesso.');
