@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tree;
-use App\Models\Activity;
 use App\Models\AdminLog;
 use App\Models\Bairro;
 use Illuminate\Http\Request;
@@ -31,15 +30,9 @@ class TreeController extends Controller
         // Coleta números para os cards de estatísticas
         $stats = [
             'total_trees' => Tree::where('aprovado', true)->count(),
-            'total_activities' => Activity::count(),
             'total_species' => Tree::where('aprovado', true)->distinct('scientific_name')->count('scientific_name'), 
         ];
 
-        // Pega as 5 atividades mais recentes (podas, vistorias, etc)
-        $recentActivities = Activity::with(['tree', 'user'])
-            ->orderBy('activity_date', 'desc')
-            ->take(5)
-            ->get();
 
         // Lista de bairros para o filtro
         $bairros = Bairro::orderBy('nome')->get();
@@ -61,7 +54,7 @@ class TreeController extends Controller
             ->orderBy('vulgar_name')
             ->pluck('vulgar_name');
 
-        return view('welcome', compact('stats', 'recentActivities', 'bairros', 'scientificNames', 'vulgarNames'));
+        return view('welcome', compact('stats', 'bairros', 'scientificNames', 'vulgarNames'));
     }
 
     /* ============================================================
@@ -133,7 +126,7 @@ class TreeController extends Controller
      */
     public function show($id)
     {
-        $tree = Tree::with(['activities.user', 'admin'])->findOrFail($id);
+        $tree = Tree::with(['admin'])->findOrFail($id);
         return view('trees.show', compact('tree'));
     }
 
@@ -149,7 +142,6 @@ class TreeController extends Controller
         $stats = [
             'total_trees' => Tree::count(),
             'total_requests' => Contact::count(),
-            'total_activities' => Activity::count(),
             'total_species' => Tree::distinct('scientific_name')->count('scientific_name'),
         ];
 

@@ -9,11 +9,9 @@ use Illuminate\Support\Facades\Route;
 */
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TreeController;
-use App\Http\Controllers\PageController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController; // Painel do Usuário Comum
-use App\Http\Controllers\NoticiaController;
 use App\Http\Controllers\AboutPageController;
 
 /*
@@ -178,10 +176,7 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         // Outros
         Route::get('/trees/pending', [TreeController::class, 'pendingTrees'])->name('trees.pending');
         Route::patch('/trees/{id}/approve', [TreeController::class, 'approveTree'])->name('trees.approve');
-        Route::get('/noticias', [NoticiaController::class, 'index'])->name('noticias.index');
-        Route::get('/noticias/create', [NoticiaController::class, 'create'])->name('noticias.create');
-        Route::post('/noticias', [NoticiaController::class, 'store'])->name('noticias.store');
-
+       
         Route::prefix('accounts')->name('accounts.')->group(function () {
             Route::get('/', [AccountManagementController::class, 'index'])->name('index');
             Route::post('/store', [AccountManagementController::class, 'store'])->name('store');

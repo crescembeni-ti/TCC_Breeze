@@ -52,13 +52,6 @@ class Tree extends Model
         return $this->belongsTo(Bairro::class);
     }
 
-    /**
-     * Uma árvore pode ter várias Atividades (histórico).
-     */
-    public function activities(): HasMany
-    {
-        return $this->hasMany(Activity::class);
-    }
 
     /**
      * Uma árvore pode ter sido cadastrada por um Administrador.
