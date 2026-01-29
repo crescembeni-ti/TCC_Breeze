@@ -184,10 +184,16 @@
                     </a>
                 </div>
 
-                {{-- LADO DIREITO: Menu + Nova Logo --}}
-	                <div class="flex items-center gap-2 sm:gap-6">
+	                {{-- LADO DIREITO: Menu + Nova Logo --}}
+	                <div class="flex flex-col-reverse sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
 	                    
-	                    {{-- 1. MENU --}}
+	                    {{-- 2. NOVA LOGO (Aparece em cima no mobile se usarmos flex-col-reverse ou ordem) --}}
+	                    <img src="{{ asset('images/nova_logo.png') }}" 
+	                         alt="Logo Prefeitura" 
+	                         class="header-logo-right hover:opacity-90 transition-opacity order-1 sm:order-2"
+	                         style="height: 3.5rem; width: auto;"> 
+
+	                    {{-- 1. MENU (Aparece embaixo no mobile) --}}
 	                    <div class="flex items-center gap-2 sm:gap-4 relative">
 	                        @if (auth('admin')->check())
 	                            <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Painel</a>
@@ -196,42 +202,36 @@
 	                        @elseif(auth()->check())
 	                            <a href="{{ route('dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Menu</a>
 	                        @else
-                            <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block text-sm py-1.5 px-3">Entrar</a>
-                            <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block text-sm py-1.5 px-3">Cadastrar</a>
-
-                            {{-- MOBILE MENU PARA VISITANTES --}}
-                            <div class="relative inline-block sm:hidden" x-data="{ open: false }">
-                                <button @click="open = !open" class="btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-1.5 transition-all duration-200 py-1.5 px-3 text-xs">
-                                    Menu
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                                        <path x-show="!open" d="M4 6h16M4 12h16M4 18h16" />
-                                        <path x-show="open" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                                <div x-show="open" x-cloak @click.outside="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl z-[5000] overflow-hidden border border-gray-200">
-                                    <div class="p-2 flex flex-col gap-1">
-                                        <a href="{{ route('login') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-bold text-white bg-[#358054] hover:bg-[#2d6e4b] rounded-lg transition-colors">
-                                            Entrar
-                                        </a>
-                                        <a href="{{ route('register') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-bold text-white bg-[#a0c520] hover:bg-[#8eb01c] rounded-lg transition-colors">
-                                            Cadastrar
-                                        </a>
-                                        <div class="h-px bg-gray-100 my-1"></div>
-                                        <a href="{{ route('contact') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                                            Fazer Solicitação
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-
-                    {{-- 2. NOVA LOGO --}}
-                    <img src="{{ asset('images/nova_logo.png') }}" 
-                         alt="Logo Prefeitura" 
-                         class="header-logo-right hover:opacity-90 transition-opacity"
-                         style="height: 3.5rem; width: auto;"> 
-                </div>
+	                            <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block text-sm py-1.5 px-3">Entrar</a>
+	                            <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block text-sm py-1.5 px-3">Cadastrar</a>
+	
+	                            {{-- MOBILE MENU PARA VISITANTES --}}
+	                            <div class="relative inline-block sm:hidden" x-data="{ open: false }">
+	                                <button @click="open = !open" class="btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-1.5 transition-all duration-200 py-1.5 px-3 text-xs">
+	                                    Menu
+	                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+	                                        <path x-show="!open" d="M4 6h16M4 12h16M4 18h16" />
+	                                        <path x-show="open" d="M6 18L18 6M6 6l12 12" />
+	                                    </svg>
+	                                </button>
+	                                <div x-show="open" x-cloak @click.outside="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl z-[5000] overflow-hidden border border-gray-200">
+	                                    <div class="p-2 flex flex-col gap-1">
+	                                        <a href="{{ route('login') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-bold text-white bg-[#358054] hover:bg-[#2d6e4b] rounded-lg transition-colors">
+	                                            Entrar
+	                                        </a>
+	                                        <a href="{{ route('register') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-bold text-gray-800 bg-[#a0c520] hover:bg-[#8eb01c] rounded-lg transition-colors">
+	                                            Cadastrar
+	                                        </a>
+	                                        <div class="h-px bg-gray-100 my-1"></div>
+	                                        <a href="{{ route('contact') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+	                                            Fazer Solicitação
+	                                        </a>
+	                                    </div>
+	                                </div>
+	                            </div>
+	                        @endif
+	                    </div>
+	                </div>
             </div>
         </header>
 
