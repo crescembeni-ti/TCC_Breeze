@@ -230,7 +230,7 @@
 
             {{-- BOTÕES --}}
             <div class="mt-8 flex justify-end gap-3 print:hidden">
-                <a href="{{ route('admin.os.index') }}" class="inline-flex items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500">
+                <a href="{{ route('admin.contato.index') }}" class="inline-flex items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500">
                     <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Voltar
                 </a>
                 <button type="button" onclick="window.print()" class="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-black shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition">
