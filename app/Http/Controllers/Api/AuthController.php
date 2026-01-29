@@ -6,25 +6,29 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
-
-// --- Imports Adicionados para o Registro ---
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-
-// --- IMPORT ADICIONADO PARA A FOTO ---
 use Illuminate\Support\Facades\Storage;
+use App\Mail\PasswordResetCodeMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
-// --- IMPORTS ADICIONADOS PARA REDEFINIÇÃO DE SENHA ---
-use App\Mail\PasswordResetCodeMail; // O E-mail que criamos
-use Illuminate\Support\Facades\Mail; // Para enviar o e-mail
-use Illuminate\Support\Facades\DB;   // Para a transação
-use Carbon\Carbon; // Para o tempo de expiração
-
+/**
+ * Controlador de Autenticação da API.
+ * Responsável por fornecer acesso seguro ao Aplicativo Móvel (Android/iOS).
+ * Gerencia Tokens de Acesso (Sanctum), Registro de Usuários, Recuperação de Senha 
+ * via e-mail e Gestão de Perfil (Foto e Dados).
+ */
 class AuthController extends Controller
 {
     /**
-     * Lida com a tentativa de login da API
-     * (CORRIGIDO PARA USAR HASH::CHECK - Corrige o "Falha no login")
+     * Autentica o usuário e gera um Token de Acesso (Bearer Token).
+     * 
+     * Blocos de lógica:
+     * - Validação: Checa se e-mail e senha foram enviados.
+     * - Verificação Manual: Busca o usuário e valida o Hash da senha (evita bugs de sessão web).
+     * - Emissão de Token: Utiliza o Laravel Sanctum para criar uma "chave" persistente para o app.
      */
     public function login(Request $request)
     {
@@ -33,131 +37,123 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        // =======================================================
-        //  CORREÇÃO APLICADA (Substitui Auth::attempt)
-        // =======================================================
-        
-        // 1. Tenta encontrar o usuário pelo e-mail
+        // Busca o usuário para validação manual de credenciais
         $user = User::where('email', $request->email)->first();
 
-        // 2. Verifica se o usuário existe E se a senha está correta
         if (!$user || !Hash::check($request->password, $user->password)) {
-            // Se o usuário não existir OU a senha estiver errada
             throw ValidationException::withMessages([
                 'email' => ['As credenciais estão incorretas.'],
             ]);
         }
         
-        // 3. Cria o Token (a "chave" de acesso)
+        // Gera o token que será enviado no cabeçalho Authorization do app
         $token = $user->createToken('auth_token_do_app')->plainTextToken;
 
-        // 4. Envia o token e os dados do usuário de volta para o app
         return response()->json([
-            'accessToken' => $token, // Nome bate com o LoginResponse do Android
+            'accessToken' => $token, 
             'token_type' => 'Bearer',
             'user' => $user
         ]);
     }
 
     /**
-     * Lida com a tentativa de registro da API
-     * (CORRIGIDO O ERRO 'unction')
+     * Registra um novo cidadão através do aplicativo.
+     * 
+     * Blocos de lógica:
+     * - Unicidade: Garante que o e-mail não esteja cadastrado.
+     * - Segurança: Criptografa a senha antes de salvar.
+     * - Auto-Login: Já retorna o token de acesso após o cadastro para fluidez do app.
      */
-    public function register(Request $request) // <-- CORRIGIDO AQUI
+    public function register(Request $request)
     {
-        // 1. Validação (bate com os campos do seu app)
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::min(6)],
         ]);
 
-        // 2. Criação do Usuário
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Criptografa a senha
+            'password' => Hash::make($request->password),
         ]);
 
-        // 3. Cria o token de acesso para o novo usuário
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        // 4. Retorna a mesma resposta do Login (para logar o usuário automaticamente)
         return response()->json([
-            'accessToken' => $token, // Nome bate com o LoginResponse do Android
+            'accessToken' => $token, 
             'token_type' => 'Bearer',
             'user' => $user
-        ], 201); // 201 = Created
+        ], 201);
     }
 
     /**
-     * Lida com o logout
+     * Invalida o token atual, realizando o logout do dispositivo.
      */
     public function logout(Request $request)
     {
-        // Revoga o token que foi usado para fazer esta requisição
         $request->user()->currentAccessToken()->delete();
-
         return response()->json(['message' => 'Logout realizado com sucesso']);
     }
 
     /**
-     * Atualiza a foto de perfil do usuário.
+     * Gerencia o upload e substituição da foto de perfil via API.
+     * 
+     * Blocos de lógica:
+     * - Limpeza: Apaga o arquivo físico antigo do storage para economizar espaço.
+     * - Armazenamento: Salva a nova imagem na pasta 'avatars' dentro do disco público.
      */
     public function updatePhoto(Request $request)
     {
-        // 1. Valida se o arquivo 'photo' foi enviado e é uma imagem
         $request->validate([
             'photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $user = $request->user();
 
-        // 2. Apaga a foto antiga, se ela existir
+        // Remove a foto anterior do servidor
         if ($user->profile_photo_path) {
             Storage::disk('public')->delete($user->profile_photo_path);
         }
 
-        // 3. Salva a nova foto (ex: em 'storage/app/public/avatars')
+        // Salva o novo arquivo
         $path = $request->file('photo')->store('avatars', 'public');
 
-        // 4. Salva o caminho no banco de dados
         $user->update([
             'profile_photo_path' => $path,
         ]);
 
         return response()->json([
             'message' => 'Foto atualizada com sucesso',
-            'path' => Storage::url($path) // Retorna a nova URL
+            'path' => Storage::url($path)
         ]);
     }
 
     /**
-     * NOVO MÉTODO 1: Pedir o código
-     * (CORRIGIDO PARA REMOVER HASH E USAR FILA - Corrige o "Timeout")
+     * Inicia o processo de recuperação de senha enviando um código de 6 dígitos.
+     * 
+     * Blocos de lógica:
+     * - Geração: Cria um código numérico aleatório.
+     * - Expiração: Define uma janela de 10 minutos para o uso do código.
+     * - Fila (Queue): Envia o e-mail em segundo plano para não travar a resposta do app.
      */
     public function forgotPassword(Request $request)
     {
-        // 1. Valida o e-mail
         $request->validate(['email' => 'required|email|exists:users,email']);
 
-        // 2. Encontra o usuário
         $user = User::where('email', $request->email)->first();
-
-        // 3. Gera um código de 6 dígitos
         $code = random_int(100000, 999999);
 
-        // 4. Salva o código PURO e a expiração no banco
+        // Salva o código temporário no perfil do usuário
         $user->update([
-            'email_verification_code' => $code, // <-- MUDANÇA (Removemos o Hash::make)
+            'email_verification_code' => $code, 
             'email_verification_code_expires_at' => Carbon::now()->addMinutes(10)
         ]);
 
-        // 5. Envia o e-mail (usando a fila)
         try {
-            Mail::to($user->email)->queue(new PasswordResetCodeMail($code)); // <-- MUDANÇA (->queue)
+            // Utiliza queue para performance
+            Mail::to($user->email)->queue(new PasswordResetCodeMail($code));
         } catch (\Exception $e) {
-            // Se o envio de e-mail falhar
             return response()->json(['message' => 'Erro ao enviar e-mail. Verifique sua configuração.'], 500);
         }
 
@@ -165,35 +161,35 @@ class AuthController extends Controller
     }
 
     /**
-     * NOVO MÉTODO 2: Redefinir a senha
-     * (CORRIGIDO PARA CHECAR O CÓDIGO PURO)
+     * Valida o código recebido por e-mail e define a nova senha.
+     * 
+     * Blocos de lógica:
+     * - Verificação de Tempo: Checa se o código ainda é válido (não expirou).
+     * - Transação: Garante que a troca de senha e a limpeza do código ocorram juntas.
      */
     public function resetPassword(Request $request)
     {
-        // 1. Valida todos os campos
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'code' => 'required|string|min:6|max:6',
             'password' => ['required', 'confirmed', Rules\Password::min(6)],
         ]);
 
-        // 2. Encontra o usuário
         $user = User::where('email', $request->email)->first();
 
-        // 3. Verifica o código e a expiração
+        // Valida integridade do código e tempo de expiração
         if (!$user || 
             !$user->email_verification_code_expires_at ||
             Carbon::now()->isAfter($user->email_verification_code_expires_at) ||
-            // --- MUDANÇA (Compara texto puro, não o hash) ---
             $request->code != $user->email_verification_code) 
         {
             return response()->json(['message' => 'Código inválido ou expirado.'], 401);
         }
 
-        // 4. Se tudo estiver OK, atualiza a senha
+        // Atualiza a senha e limpa os campos temporários
         DB::transaction(function () use ($user, $request) {
             $user->update([
-                'password' => Hash::make($request->password), // A nova senha AINDA é criptografada
+                'password' => Hash::make($request->password),
                 'email_verification_code' => null,
                 'email_verification_code_expires_at' => null
             ]);
@@ -203,7 +199,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Salva o token FCM (Firebase) do dispositivo do usuário.
+     * Salva o Token do Firebase (FCM) para permitir o envio de notificações push para o celular.
      */
     public function updateFcmToken(Request $request)
     {
@@ -211,26 +207,29 @@ class AuthController extends Controller
             'fcm_token' => 'required|string',
         ]);
 
-        $user = $request->user(); // Pega o usuário logado
+        $user = $request->user(); 
         $user->update([
             'fcm_token' => $request->fcm_token,
         ]);
 
         return response()->json(['message' => 'Token FCM salvo com sucesso.']);
     }
-public function updateProfile(Request $request)
+
+    /**
+     * Atualiza os dados básicos do perfil (Nome) e permite a troca de senha 
+     * validando a senha atual para segurança extra.
+     */
+    public function updateProfile(Request $request)
     {
         $user = $request->user();
 
-        // 1. Validação
         $request->validate([
             'name' => 'required|string|max:255',
-            // A senha atual é obrigatória APENAS se o usuário tentar mudar a senha
             'current_password' => 'nullable|required_with:password|string',
             'password' => ['nullable', 'confirmed', Rules\Password::min(6)],
         ]);
 
-        // 2. Se o usuário enviou uma nova senha, verifica a atual
+        // Se houver tentativa de mudar a senha, exige a confirmação da atual
         if ($request->filled('current_password')) {
             if (!Hash::check($request->current_password, $user->password)) {
                 return response()->json([
@@ -239,11 +238,9 @@ public function updateProfile(Request $request)
                 ], 422);
             }
             
-            // Atualiza a senha
             $user->password = Hash::make($request->password);
         }
 
-        // 3. Atualiza o nome
         $user->name = $request->name;
         $user->save();
 
@@ -253,21 +250,20 @@ public function updateProfile(Request $request)
         ]);
     }
 
+    /**
+     * Exclui permanentemente a conta do usuário solicitada via app.
+     * Remove fotos e limpa registros vinculados (cascata).
+     */
     public function deleteAccount(Request $request)
     {
         $user = $request->user();
 
-        // 1. Apaga a foto de perfil do armazenamento, se existir
         if ($user->profile_photo_path) {
             Storage::disk('public')->delete($user->profile_photo_path);
         }
 
-        // 2. Apaga o usuário do banco de dados
-        // (Como configuramos 'onDelete cascade' nas migrations de Contacts,
-        // as solicitações dele serão apagadas automaticamente pelo banco)
         $user->delete();
 
         return response()->json(['message' => 'Conta excluída com sucesso.']);
     }
-
 }

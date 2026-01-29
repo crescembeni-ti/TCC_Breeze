@@ -14,13 +14,25 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage; 
 use Illuminate\Support\Facades\Log;
-
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 
+/**
+ * Controlador de API para gestão de solicitações (Contatos).
+ * Este controlador é o principal ponto de interação entre o Aplicativo Android e o Servidor.
+ * Além de gerenciar os dados, ele integra-se com o Firebase (FCM) para enviar notificações 
+ * push em tempo real para o celular do cidadão.
+ */
 class ContatoApiController extends Controller
 {
-    // --- 1. Salvar Solicitação ---
+    /**
+     * Cria uma nova solicitação enviada via aplicativo.
+     * 
+     * Blocos de lógica:
+     * - Validação: Checa campos de endereço, título e imagem.
+     * - Upload: Salva a foto enviada pelo celular no storage público.
+     * - Resposta: Retorna o objeto JSON da solicitação criada (essencial para o app atualizar a lista local).
+     */
     public function storeApi(Request $request)
     {
         $user = $request->user(); 
@@ -42,7 +54,7 @@ class ContatoApiController extends Controller
         $statusEmAnalise = Status::where('name', 'Em Análise')->first();
         $statusEmAnaliseId = $statusEmAnalise ? $statusEmAnalise->id : 1; 
 
-        $dataToSave = [
+        $contact = Contact::create([
             'user_id' => $user->id, 
             'nome_solicitante' => $user->name,
             'email_solicitante' => $user->email,
@@ -54,18 +66,18 @@ class ContatoApiController extends Controller
             'numero' => $validated['numero'],
             'status_id' => $statusEmAnaliseId,
             'justificativa' => null,
-        ];
-        
-        $contact = Contact::create($dataToSave); 
+        ]); 
 
-        // CORREÇÃO: Retorna JSON, não redirect
         return response()->json([
             'message' => 'Solicitação criada com sucesso!',
             'data' => $contact 
         ], 201);
     }
 
-    // --- 2. Listar Minhas Solicitações ---
+    /**
+     * Lista as solicitações do usuário logado na API.
+     * Filtra solicitações canceladas para limpar a visão do usuário no app.
+     */
     public function userRequestListApi(Request $request)
     {
         $user = $request->user();
@@ -77,25 +89,37 @@ class ContatoApiController extends Controller
             $query->where('status_id', '!=', $statusCancelado->id);
         }
         
-        $myRequests = $query->get();
-        return response()->json($myRequests);
+        return response()->json($query->get());
     }
     
-    // --- 3. Listar Todas (Admin) ---
+    /**
+     * Lista todas as solicitações (Visão Administrativa na API).
+     */
     public function adminRequestListApi(Request $request)
     {
         $solicitacoes = Contact::with('status', 'user')->latest()->get();
         return response()->json($solicitacoes);
     }
 
-    // --- 4. Listar Analistas (Novo) ---
+    /**
+     * Retorna a lista de funcionários com perfil de Analista.
+     * Utilizado no app administrativo para designar responsáveis.
+     */
     public function getAnalystsList()
     {
         $analysts = User::where('role', 'analista')->select('id', 'name', 'email')->get();
         return response()->json($analysts);
     }
 
-    // --- 5. Atualizar Status e Designar ---
+    /**
+     * Atualiza o status de uma solicitação via API e dispara Notificação Push.
+     * 
+     * Blocos de lógica:
+     * - Cache: Otimiza a busca do ID de status 'Indeferido'.
+     * - Validação: Exige justificativa apenas se o status for 'Indeferido'.
+     * - Integração Firebase: Se o usuário tiver um fcm_token salvo, envia uma notificação 
+     *   personalizada com os dados da atualização para o celular.
+     */
     public function adminUpdateStatusApi(Request $request, Contact $contact)
     {
         $statusIndeferidoId = Cache::remember('status_indeferido_id', 3600, function () {
@@ -121,14 +145,13 @@ class ContatoApiController extends Controller
             $dataToSave['justificativa'] = null;
         }
         
-        // Atualiza o funcionário designado
         if ($request->has('designated_to')) {
             $dataToSave['designated_to'] = $validated['designated_to'];
         }
 
         $contact->update($dataToSave);
         
-        // Enviar Notificação
+        // Envio de Notificação Push via Firebase Cloud Messaging (FCM)
         try {
             $contact->load('status', 'user', 'responsible'); 
             $user = $contact->user; 
@@ -136,7 +159,6 @@ class ContatoApiController extends Controller
 
             if ($fcmToken) {
                 $messaging = app('firebase.messaging');
-                
                 $responsavelNome = $contact->responsible ? $contact->responsible->name : 'Ninguém';
                 
                 $notification = Notification::create(
@@ -144,21 +166,15 @@ class ContatoApiController extends Controller
                     'Status: ' . $contact->status->name . '. Responsável: ' . $responsavelNome
                 );
 
+                // Constrói a mensagem com dados extras para o app abrir na tela correta
                 $message = CloudMessage::withTarget('token', $fcmToken)
                     ->withNotification($notification)
                     ->withData([
                         'click_action' => 'OPEN_SOLICITACAO_DETALHES', 
                         'solicitacao_id' => (string)$contact->id, 
-                        'EXTRA_ADMIN_ID' => (string)$contact->id,
                         'EXTRA_ADMIN_TITULO' => $contact->topico,
-                        'EXTRA_ADMIN_DATA' => $contact->created_at->toIso8601String(),
                         'EXTRA_ADMIN_STATUS' => $contact->status->name,
-                        'EXTRA_ADMIN_USUARIO' => $contact->user->name,
                         'EXTRA_ADMIN_IMAGE_URI' => $contact->foto_path ? Storage::url($contact->foto_path) : '',
-                        'EXTRA_ADMIN_DESCRICAO' => $contact->descricao ?? '',
-                        'EXTRA_ADMIN_BAIRRO' => $contact->bairro,
-                        'EXTRA_ADMIN_RUA' => $contact->rua,
-                        'EXTRA_ADMIN_NUMERO' => $contact->numero
                     ]);
 
                 $messaging->send($message);
@@ -174,24 +190,18 @@ class ContatoApiController extends Controller
         ]);
     }
     
-    // --- 6. Listar por Abas ---
+    /**
+     * Filtra solicitações por grupos de status (Abas) na API.
+     * Agrupa status como 'pendentes', 'andamento' ou 'finalizadas' para facilitar a navegação no app.
+     */
     public function adminRequestListByStatusApi(Request $request, $statusName)
     {
-        $statusNomes = [];
-        switch ($statusName) {
-            case 'pendentes':
-                $statusNomes = ['Em Análise'];
-                break;
-            case 'andamento':
-                $statusNomes = ['Deferido', 'Vistoriado', 'Em Execução'];
-                break;
-            case 'finalizadas':
-                $statusNomes = ['Concluído', 'Sem Pendências', 'Indeferido', 'Cancelado'];
-                break;
-            default:
-                $statusNomes = [$statusName];
-                break;
-        }
+        $statusNomes = match ($statusName) {
+            'pendentes' => ['Em Análise'],
+            'andamento' => ['Deferido', 'Vistoriado', 'Em Execução'],
+            'finalizadas' => ['Concluído', 'Sem Pendências', 'Indeferido', 'Cancelado'],
+            default => [$statusName],
+        };
 
         $statusIds = Status::whereIn('name', $statusNomes)->pluck('id');
 

@@ -9,9 +9,23 @@ use App\Models\ServiceOrder;
 use App\Models\Status;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * Controlador responsável pela execução das Ordens de Serviço (OS) pelas equipes de campo.
+ * Este controlador gerencia o ciclo de vida operacional da OS após o encaminhamento pelo Admin:
+ * 1. Recebimento e Aceite (Visto).
+ * 2. Monitoramento do que está em andamento.
+ * 3. Finalização do serviço.
+ */
 class ServiceExecutionController extends Controller
 {
-    // 1. RECEBIDAS (Status: Vistoriado)
+    /**
+     * Lista as ordens que acabaram de chegar para a equipe (Aguardando Visto).
+     * 
+     * Blocos de lógica:
+     * - Identificação: Filtra pelo ID da equipe de serviço logada.
+     * - Status do Contato: Busca solicitações que estão com o status "Vistoriado".
+     * - Status Interno: Garante que a OS esteja em estado de espera ('pendente_aceite').
+     */
     public function recebidas()
     {
         $user = Auth::guard('service')->user();
@@ -19,10 +33,8 @@ class ServiceExecutionController extends Controller
         $ordens = ServiceOrder::with(['contact.status', 'contact'])
             ->where('service_id', $user->id)
             ->whereHas('contact.status', function (Builder $query) {
-                // Filtra EXATAMENTE pelo nome do status
                 $query->where('name', 'Vistoriado');
             })
-            // Garante que a OS interna também não esteja concluída ou em execução (dupla checagem)
             ->where(function($q) {
                 $q->where('status', 'pendente_aceite')
                   ->orWhere('status', 'enviada')
@@ -34,7 +46,10 @@ class ServiceExecutionController extends Controller
         return view('servico.tarefas-recebidas', compact('ordens'));
     }
 
-    // 2. EM ANDAMENTO (Status: Em Execução)
+    /**
+     * Lista as ordens que a equipe já aceitou e estão sendo executadas no momento.
+     * Filtra solicitações cujo status do contato é "Em Execução".
+     */
     public function emAndamento()
     {
         $user = Auth::guard('service')->user();
@@ -50,14 +65,16 @@ class ServiceExecutionController extends Controller
         return view('servico.tarefas-em-andamento', compact('ordens'));
     }
 
-    // 3. CONCLUÍDAS (Status: Concluído)
+    /**
+     * Exibe o histórico de todos os serviços já finalizados pela equipe logada.
+     * Utiliza o status interno 'concluido' da Ordem de Serviço para compor o histórico.
+     */
     public function concluidas()
     {
         $user = Auth::guard('service')->user();
 
         $ordens = ServiceOrder::with(['contact.status', 'contact'])
             ->where('service_id', $user->id)
-            // Aqui filtramos pelo status interno da OS para garantir histórico
             ->where('status', 'concluido')
             ->orderBy('updated_at', 'desc')
             ->get();
@@ -65,52 +82,65 @@ class ServiceExecutionController extends Controller
         return view('servico.tarefas-concluidas', compact('ordens'));
     }
 
-    // --- AÇÕES ---
+    /* ============================================================
+     * AÇÕES OPERACIONAIS
+     * ============================================================ */
 
+    /**
+     * Registra o "Visto" da equipe na Ordem de Serviço, iniciando formalmente o trabalho.
+     * 
+     * Blocos de lógica:
+     * - Transição de Status: Altera o status da solicitação pai para "Em Execução".
+     * - Auditoria: Registra a data e hora exata em que a equipe visualizou e aceitou o serviço (`data_do_visto`).
+     * - Fluxo: Move a tarefa da aba "Recebidas" para "Em Andamento".
+     */
     public function confirmarRecebimento($id)
     {
         $os = ServiceOrder::findOrFail($id);
         
-        // 1. Busca o ID correto do status "Em Execução" no banco
+        // Localiza o status correto para sincronização
         $statusEmExecucao = Status::where('name', 'Em Execução')->first();
 
         if (!$statusEmExecucao) {
             return redirect()->back()->with('error', 'Erro: Status "Em Execução" não encontrado no banco de dados.');
         }
 
-        // 2. Atualiza o status do CONTATO (Isso faz aparecer na aba "Em Andamento" e atualiza pro Admin)
+        // Sincroniza o status global da solicitação
         $os->contact->status_id = $statusEmExecucao->id;
         $os->contact->save();
 
-        // 3. Atualiza o status interno da OS e a data de visualização
+        // Atualiza os dados internos de controle da OS
         $os->status = 'em_execucao';
-        
-        // AQUI ESTÁ A ALTERAÇÃO SOLICITADA:
         $os->data_do_visto = now(); 
-        
         $os->save();
 
-        // Redireciona para a lista correta
         return redirect()->route('service.tasks.em_andamento')
             ->with('success', 'Ordem iniciada! Movida para "Em Andamento".');
     }
 
+    /**
+     * Finaliza o serviço e move a Ordem para o histórico de concluídas.
+     * 
+     * Blocos de lógica:
+     * - Fechamento: Altera o status interno para 'concluido'.
+     * - Notificação Admin: Altera o status do contato para "Concluído", informando ao administrador 
+     *   que a solicitação foi resolvida.
+     */
     public function concluir(Request $request, $id)
     {
         $os = ServiceOrder::findOrFail($id);
         
-        // 1. Busca o ID correto do status "Concluído"
         $statusConcluido = Status::where('name', 'Concluído')->first();
 
         if (!$statusConcluido) {
             return redirect()->back()->with('error', 'Erro: Status "Concluído" não encontrado no banco.');
         }
 
-        // 2. Atualiza status interno da OS
+        // Finaliza o ciclo de vida da OS
         $os->status = 'concluido';
         $os->save();
 
-        // 3. Atualiza o status do CONTATO (Isso faz cair no filtro "Resolvidas" do Admin)
+        // Atualiza o status final da solicitação original
         $os->contact->status_id = $statusConcluido->id;
         $os->contact->save();
 
@@ -118,12 +148,15 @@ class ServiceExecutionController extends Controller
             ->with('success', 'Serviço concluído com sucesso!');
     }
 
+    /**
+     * Registra uma falha ou impedimento na execução do serviço.
+     * Útil para casos onde a equipe vai ao local mas não consegue realizar a poda/remoção.
+     */
     public function falha(Request $request, $id)
     {
         $os = ServiceOrder::findOrFail($id);
         
         $os->status = 'falha'; 
-        // $os->motivo_falha = $request->motivo_falha; 
         $os->save();
 
         return redirect()->back()->with('error', 'Falha registrada.');
