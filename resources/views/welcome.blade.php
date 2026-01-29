@@ -202,16 +202,25 @@
                             {{-- MOBILE MENU PARA VISITANTES --}}
                             <div class="relative inline-block sm:hidden" x-data="{ open: false }">
                                 <button @click="open = !open" class="btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-1.5 transition-all duration-200 py-1.5 px-3 text-xs">
-                                    Entrar
+                                    Menu
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                                         <path x-show="!open" d="M4 6h16M4 12h16M4 18h16" />
                                         <path x-show="open" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
-                                <div x-show="open" x-cloak @click.outside="open = false" class="absolute right-0 mt-2 w-48 bg-[#e8ffe6] rounded-xl shadow-lg z-50 overflow-hidden border border-green-100">
-                                    <a href="{{ route('login') }}" class="block px-4 py-3 text-sm font-semibold text-gray-800 hover:text-green-700 hover:bg-[#d9f5d6]">Entrar</a>
-                                    <a href="{{ route('register') }}" class="block px-4 py-3 text-sm font-semibold text-gray-800 hover:text-green-700 hover:bg-[#d9f5d6]">Cadastrar</a>
-                                    <a href="{{ route('contact') }}" class="block px-4 py-3 text-sm font-semibold text-gray-800 hover:text-green-700 hover:bg-[#d9f5d6]">Fazer Solicitação</a>
+                                <div x-show="open" x-cloak @click.outside="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl z-[5000] overflow-hidden border border-gray-200">
+                                    <div class="p-2 flex flex-col gap-1">
+                                        <a href="{{ route('login') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-bold text-white bg-[#358054] hover:bg-[#2d6e4b] rounded-lg transition-colors">
+                                            Entrar
+                                        </a>
+                                        <a href="{{ route('register') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-bold text-white bg-[#a0c520] hover:bg-[#8eb01c] rounded-lg transition-colors">
+                                            Cadastrar
+                                        </a>
+                                        <div class="h-px bg-gray-100 my-1"></div>
+                                        <a href="{{ route('contact') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                                            Fazer Solicitação
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         @endif
