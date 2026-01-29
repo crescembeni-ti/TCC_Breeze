@@ -307,8 +307,8 @@ class TreeController extends Controller
      */
     public function pendingTrees() 
     { 
-        $trees = Tree::where('aprovado', 0)->with('analyst')->get(); 
-        return view('admin.trees.pending', compact('trees')); 
+        $pendingTrees = Tree::where('aprovado', 0)->with('analyst')->get(); 
+        return view('admin.trees.pending', compact('pendingTrees')); 
     }
 
     /**
