@@ -34,7 +34,7 @@ class AuthenticatedSessionController extends Controller
 
             $request->session()->regenerate();
 
-            return redirect()->intended(route('analyst.dashboard'));
+            return redirect()->route('analyst.dashboard');
         }
 
         throw ValidationException::withMessages([
