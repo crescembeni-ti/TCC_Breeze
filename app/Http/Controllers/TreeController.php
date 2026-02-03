@@ -236,27 +236,37 @@ class TreeController extends Controller
             'vulgar_name' => 'nullable|string|max:255',
             'scientific_name' => 'nullable|string|max:255',
             'no_species_case' => 'nullable|string|max:255',
-            'cap' => 'nullable|numeric|min:0',
-            'height' => 'nullable|numeric|min:0',
-            'crown_height' => 'nullable|numeric|min:0',
-            'crown_diameter_longitudinal' => 'nullable|numeric|min:0',
-            'crown_diameter_perpendicular' => 'nullable|numeric|min:0',
-            'bifurcation_type' => 'nullable|string|max:500',
-            'stem_balance' => 'nullable|string|max:500',
-            'crown_balance' => 'nullable|string|max:500',
-            'organisms' => 'nullable|string|max:255',
-            'target' => 'nullable|string|max:500',
-            'injuries' => 'nullable|string|max:255',
-            'wiring_status' => 'nullable|string|max:100',
-            'total_width' => 'nullable|numeric|min:0',
-            'street_width' => 'nullable|numeric|min:0',
-            'gutter_height' => 'nullable|numeric|min:0',
-            'gutter_width' => 'nullable|numeric|min:0',
-            'gutter_length' => 'nullable|numeric|min:0',
+            'cap' => 'nullable|numeric|min:0', 
+            'height' => 'nullable|numeric|min:0', 
+            'crown_height' => 'nullable|numeric|min:0', 
+            'crown_diameter_longitudinal' => 'nullable|numeric|min:0', 
+            'crown_diameter_perpendicular' => 'nullable|numeric|min:0', 
+            'bifurcation_type' => 'nullable|string|max:500', 
+            'stem_balance' => 'nullable|string|max:500', 
+            'crown_balance' => 'nullable|string|max:500', 
+            'organisms' => 'nullable|string|max:255', 
+            'target' => 'nullable|string|max:500', 
+            'injuries' => 'nullable|string|max:255', 
+            'wiring_status' => 'nullable|string|max:100', 
+            'total_width' => 'nullable|numeric|min:0', 
+            'street_width' => 'nullable|numeric|min:0', 
+            'gutter_height' => 'nullable|numeric|min:0', 
+            'gutter_width' => 'nullable|numeric|min:0', 
+            'gutter_length' => 'nullable|numeric|min:0', 
             'description' => 'nullable|string|max:1000',
+            'cap1' => 'nullable|numeric|min:0', 'cap2' => 'nullable|numeric|min:0', 'cap3' => 'nullable|numeric|min:0', 'cap4' => 'nullable|numeric|min:0', 'cap5' => 'nullable|numeric|min:0',
+            'cap6' => 'nullable|numeric|min:0', 'cap7' => 'nullable|numeric|min:0', 'cap8' => 'nullable|numeric|min:0', 'cap9' => 'nullable|numeric|min:0', 'cap10' => 'nullable|numeric|min:0',
+            'cap11' => 'nullable|numeric|min:0', 'cap12' => 'nullable|numeric|min:0', 'cap13' => 'nullable|numeric|min:0', 'cap14' => 'nullable|numeric|min:0', 'cap15' => 'nullable|numeric|min:0',
+            'cap16' => 'nullable|numeric|min:0', 'cap17' => 'nullable|numeric|min:0', 'cap18' => 'nullable|numeric|min:0', 'cap19' => 'nullable|numeric|min:0', 'cap20' => 'nullable|numeric|min:0',
         ]);
 
         $treeData = $validated;
+        // Calcular DAPs
+        for ($i = 1; $i <= 20; $i++) {
+            if (!empty($treeData["cap$i"])) {
+                $treeData["dap$i"] = round($treeData["cap$i"] / pi(), 2);
+            }
+        }
         if (empty($treeData['scientific_name'])) $treeData['scientific_name'] = 'Não identificada';
         if (empty($treeData['vulgar_name'])) $treeData['vulgar_name'] = 'Não identificada';
 
@@ -384,10 +394,25 @@ class TreeController extends Controller
             'gutter_height' => 'nullable|numeric|min:0', 
             'gutter_width' => 'nullable|numeric|min:0', 
             'gutter_length' => 'nullable|numeric|min:0', 
-            'description' => 'nullable|string|max:1000'
+            'description' => 'nullable|string|max:1000',
+            'cap1' => 'nullable|numeric|min:0', 'cap2' => 'nullable|numeric|min:0', 'cap3' => 'nullable|numeric|min:0', 'cap4' => 'nullable|numeric|min:0', 'cap5' => 'nullable|numeric|min:0',
+            'cap6' => 'nullable|numeric|min:0', 'cap7' => 'nullable|numeric|min:0', 'cap8' => 'nullable|numeric|min:0', 'cap9' => 'nullable|numeric|min:0', 'cap10' => 'nullable|numeric|min:0',
+            'cap11' => 'nullable|numeric|min:0', 'cap12' => 'nullable|numeric|min:0', 'cap13' => 'nullable|numeric|min:0', 'cap14' => 'nullable|numeric|min:0', 'cap15' => 'nullable|numeric|min:0',
+            'cap16' => 'nullable|numeric|min:0', 'cap17' => 'nullable|numeric|min:0', 'cap18' => 'nullable|numeric|min:0', 'cap19' => 'nullable|numeric|min:0', 'cap20' => 'nullable|numeric|min:0',
         ]);
 
         $updateData = $validated;
+        // Calcular DAPs
+        for ($i = 1; $i <= 20; $i++) {
+            if (isset($updateData["cap$i"])) {
+                if (!empty($updateData["cap$i"])) {
+                    $updateData["dap$i"] = round($updateData["cap$i"] / pi(), 2);
+                } else {
+                    $updateData["cap$i"] = null;
+                    $updateData["dap$i"] = null;
+                }
+            }
+        }
 
         // TRAVA DE SEGURANÇA BACKEND: Se for Analista, filtra apenas os campos permitidos
         if (auth('analyst')->check()) {

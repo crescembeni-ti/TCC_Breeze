@@ -344,15 +344,73 @@
                         <h4 class="text-xl font-bold text-gray-700">Dimensões da Árvore</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-	                        @foreach(['cap' => 'CAP (cm)', 'height' => 'Altura (m)', 'crown_height' => 'Altura da Copa (m)', 'crown_diameter_longitudinal' => 'Copa Longitudinal (m)', 'crown_diameter_perpendicular' => 'Copa Perpendicular (m)', 'total_width' => 'Largura Total (m)', 'street_width' => 'Largura da Rua (m)', 'gutter_height' => 'Altura da Gola (m)', 'gutter_width' => 'Largura da Gola (m)', 'gutter_length' => 'Comprimento da Gola (m)'] as $field => $label)
-	                        <div>
-	                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $label }}</label>
-	                            <input type="number" step="0.01" name="{{ $field }}" value="{{ old($field, $tree->$field) }}" 
-                                    :disabled="isAnalista"
-                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
-                                    class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500">
-	                        </div>
-	                        @endforeach
+                                {{-- Campos CAP e DAP Dinâmicos --}}
+                                <div class="md:col-span-3" x-data="{ 
+                                    caps: [
+                                        @for($i = 1; $i <= 20; $i++)
+                                            @if($tree->{'cap'.$i} || $i == 1)
+                                                { id: {{ $i }}, cap: '{{ old('cap'.$i, $tree->{'cap'.$i}) }}', dap: '{{ $tree->{'dap'.$i} }}' },
+                                            @endif
+                                        @endfor
+                                    ],
+                                    nextId: {{ ($tree->cap20 ? 21 : (collect(range(1, 20))->last(fn($i) => !empty($tree->{'cap'.$i})) ?? 1) + 1) }},
+                                    addCap() {
+                                        if (this.caps.length < 20) {
+                                            this.caps.push({ id: this.nextId, cap: '', dap: '' });
+                                            this.nextId++;
+                                        }
+                                    },
+                                    removeCap(index) {
+                                        if (this.caps.length > 1) {
+                                            this.caps.splice(index, 1);
+                                        }
+                                    }
+                                }">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 uppercase">Circunferências (CAP) e Diâmetros (DAP)</label>
+                                        <button type="button" @click="addCap()" x-show="caps.length < 20 && !isAnalista" 
+                                            class="bg-[#358054] text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-700 transition flex items-center gap-1">
+                                            <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Tronco
+                                        </button>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                        <template x-for="(item, index) in caps" :key="index">
+                                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 relative group">
+                                                <div class="flex flex-col gap-2">
+                                                    <div>
+                                                        <label class="text-[10px] font-bold text-gray-500 uppercase">CAP <span x-text="index + 1"></span> (cm)</label>
+                                                        <input type="number" step="0.01" :name="'cap' + item.id" x-model="item.cap"
+                                                            :disabled="isAnalista"
+                                                            :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'"
+                                                            class="w-full border border-gray-300 rounded-md shadow-sm px-2 py-1 text-sm focus:ring-green-500 focus:border-green-500">
+                                                    </div>
+                                                    <div x-show="item.cap">
+                                                        <label class="text-[10px] font-bold text-gray-500 uppercase">DAP (Automático)</label>
+                                                        <div class="bg-gray-100 px-2 py-1 rounded text-sm text-gray-600 font-mono border border-dashed border-gray-300" 
+                                                            x-text="item.cap ? (item.cap / 3.14159).toFixed(2) + ' m' : '-'">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button type="button" @click="removeCap(index)" x-show="caps.length > 1 && !isAnalista"
+                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition">
+                                                    <i data-lucide="x" class="w-3 h-3"></i>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                {{-- Outras Dimensões --}}
+		                        @foreach(['height' => 'Altura (m)', 'crown_height' => 'Altura da Copa (m)', 'crown_diameter_longitudinal' => 'Copa Longitudinal (m)', 'crown_diameter_perpendicular' => 'Copa Perpendicular (m)', 'total_width' => 'Largura Total (m)', 'street_width' => 'Largura da Rua (m)', 'gutter_height' => 'Altura da Gola (m)', 'gutter_width' => 'Largura da Gola (m)', 'gutter_length' => 'Comprimento da Gola (m)'] as $field => $label)
+		                        <div>
+		                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $label }}</label>
+		                            <input type="number" step="0.01" name="{{ $field }}" value="{{ old($field, $tree->$field) }}" 
+	                                    :disabled="isAnalista"
+	                                    :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'"
+		                                class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-gray-800 focus:ring-green-500 focus:border-green-500">
+		                        </div>
+		                        @endforeach
                     </div>
                 </div>
 

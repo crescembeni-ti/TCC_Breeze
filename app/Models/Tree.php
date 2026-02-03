@@ -25,6 +25,10 @@ class Tree extends Model
         'target', 'injuries', 'wiring_status', 'total_width', 'street_width',
         'gutter_height', 'gutter_width', 'gutter_length', 'no_species_case', 'description',
         'admin_id', 'aprovado', 'analyst_id',
+        'cap1', 'cap2', 'cap3', 'cap4', 'cap5', 'cap6', 'cap7', 'cap8', 'cap9', 'cap10',
+        'cap11', 'cap12', 'cap13', 'cap14', 'cap15', 'cap16', 'cap17', 'cap18', 'cap19', 'cap20',
+        'dap1', 'dap2', 'dap3', 'dap4', 'dap5', 'dap6', 'dap7', 'dap8', 'dap9', 'dap10',
+        'dap11', 'dap12', 'dap13', 'dap14', 'dap15', 'dap16', 'dap17', 'dap18', 'dap19', 'dap20',
     ];
 
     /**
