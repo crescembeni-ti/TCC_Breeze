@@ -299,7 +299,7 @@ class TreeController extends Controller
      */
     public function pendingTrees() 
     { 
-        $pendingTrees = Tree::where('aprovado', 0)->with('analyst')->get(); 
+        $pendingTrees = Tree::where('aprovado', 0)->with('analyst')->latest()->get(); 
         return view('admin.trees.pending', compact('pendingTrees')); 
     }
 
@@ -325,7 +325,7 @@ class TreeController extends Controller
      */
     public function adminTreeList() 
     { 
-        $trees = Tree::all(); 
+        $trees = Tree::latest()->get(); 
         return view('admin.trees.index', compact('trees')); 
     }
 
@@ -454,7 +454,7 @@ class TreeController extends Controller
      */
     public function analystTreeList() 
     { 
-        $trees = Tree::all(); 
+        $trees = Tree::latest()->get(); 
         return view('analista.trees.index', compact('trees')); 
     }
 }
