@@ -260,7 +260,7 @@
                     </div>
                     {{-- Campos CAP e DAP Dinâmicos --}}
                     <div class="mb-8" x-data="{ 
-                        caps: [{ id: 1, cap: '', dap: '' }],
+                        caps: [{ id: '', cap: '', dap: '', label: 'CAP' }],
                         nextId: 2,
                         addCap() {
                             if (this.caps.length < 20) {
@@ -287,7 +287,7 @@
                                 <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 relative group">
                                     <div class="flex flex-col gap-2">
                                         <div>
-                                            <label class="text-[10px] font-bold text-gray-500 uppercase">CAP <span x-text="index + 1"></span> (cm)</label>
+                                            <label class="text-[10px] font-bold text-gray-500 uppercase" x-text="item.label || ('CAP ' + item.id)"></label>
                                             <input type="number" step="0.01" :name="'cap' + item.id" x-model="item.cap"
                                                 class="w-full border border-gray-300 rounded-md shadow-sm px-2 py-1 text-sm focus:ring-green-500 focus:border-green-500 bg-white">
                                         </div>

@@ -347,13 +347,14 @@
                                 {{-- Campos CAP e DAP Dinâmicos --}}
                                 <div class="md:col-span-3" x-data="{ 
                                     caps: [
-                                        @for($i = 1; $i <= 20; $i++)
-                                            @if($tree->{'cap'.$i} || $i == 1)
-                                                { id: {{ $i }}, cap: '{{ old('cap'.$i, $tree->{'cap'.$i}) }}', dap: '{{ $tree->{'dap'.$i} }}' },
+                                        { id: '', cap: '{{ old('cap', $tree->cap) }}', dap: '{{ $tree->dap1 }}', label: 'CAP' },
+                                        @for($i = 2; $i <= 20; $i++)
+                                            @if($tree->{'cap'.$i})
+                                                { id: {{ $i }}, cap: '{{ old('cap'.$i, $tree->{'cap'.$i}) }}', dap: '{{ $tree->{'dap'.$i} }}', label: 'CAP {{ $i }}' },
                                             @endif
                                         @endfor
                                     ],
-                                    nextId: {{ ($tree->cap20 ? 21 : (collect(range(1, 20))->last(fn($i) => !empty($tree->{'cap'.$i})) ?? 1) + 1) }},
+                                    nextId: {{ (collect(range(2, 20))->last(fn($i) => !empty($tree->{'cap'.$i})) ?? 1) + 1 }},
                                     addCap() {
                                         if (this.caps.length < 20) {
                                             this.caps.push({ id: this.nextId, cap: '', dap: '' });
@@ -379,7 +380,7 @@
                                             <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 relative group">
                                                 <div class="flex flex-col gap-2">
                                                     <div>
-                                                        <label class="text-[10px] font-bold text-gray-500 uppercase">CAP <span x-text="index + 1"></span> (cm)</label>
+                                                        <label class="text-[10px] font-bold text-gray-500 uppercase" x-text="item.label || ('CAP ' + item.id)"></label>
                                                         <input type="number" step="0.01" :name="'cap' + item.id" x-model="item.cap"
                                                             :disabled="isAnalista"
                                                             :class="isAnalista ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'"
