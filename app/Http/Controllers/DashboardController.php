@@ -37,7 +37,6 @@ class DashboardController extends Controller
             'total_requests' => Contact::whereHas('status', function ($query) {
                 $query->where('name', 'Em Análise'); 
             })->count(),
-            'total_activities' => Activity::count(),
             'total_species' => Tree::distinct('scientific_name')->count('scientific_name'),
         ];
 
