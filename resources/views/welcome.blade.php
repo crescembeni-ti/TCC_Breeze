@@ -82,12 +82,8 @@
         .legend-color { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
-    /* CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO */
-    .shading-stats-box {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 1000;
+    /* CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO (FORA DO MAPA) */
+    .shading-stats-box-external {
         background: linear-gradient(135deg, rgba(53, 128, 84, 0.98) 0%, rgba(45, 110, 75, 0.98) 100%);
         padding: 16px;
         border-radius: 12px;
@@ -95,9 +91,11 @@
         font-family: 'Instrument Sans', sans-serif;
         color: white;
         width: 200px;
+        min-width: 200px;
         border: 2px solid rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
         animation: slideInLeft 0.4s ease-out;
+        flex-shrink: 0;
     }
 
     .shading-stats-title {
@@ -242,11 +240,11 @@
             white-space: normal !important;
             text-align: center;
         }
-        .shading-stats-box {
-            width: 160px !important;
+        .shading-stats-box-external {
+            width: 100% !important;
+            min-width: unset !important;
             padding: 12px !important;
-            top: 10px !important;
-            left: 10px !important;
+            margin-bottom: 8px;
         }
         .shading-stats-title {
             font-size: 9px !important;
@@ -348,12 +346,16 @@
 
             {{-- CARD DO MAPA --}}
             <div class="bg-white rounded-lg shadow p-1 mb-8 relative w-full">
+            {{-- CARD DO MAPA --}}
+            <div class="bg-white rounded-lg shadow p-1 mb-8 relative w-full">
                 
                 <h2 class="text-xl font-bold text-gray-900 mb-2 mt-1 pl-2">Mapa Interativo</h2>
                 
-                <div id="map" class="z-0 w-full rounded-lg h-[60vh] md:h-[80vh]">
-                    {{-- CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO --}}
-                    <div class="shading-stats-box">
+                {{-- LAYOUT COM GRID: Caixa de Estatísticas + Mapa --}}
+                <div class="flex flex-col md:flex-row gap-2 md:gap-3 p-2">
+                    
+                    {{-- CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO (FORA DO MAPA) --}}
+                    <div class="shading-stats-box-external">
                         <div class="shading-stats-title">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="5"></circle>
@@ -377,13 +379,17 @@
                         </div>
                         
                         <div class="shading-stat-item">
-                            <div class="shading-stat-label">Área Total</div>
+                            <div class="shading-stat-label">Sombreamento Total</div>
                             <div class="shading-stat-value">
                                 <span id="stats-shading-area">0</span>
                                 <span class="shading-stat-unit">m²</span>
                             </div>
                         </div>
                     </div>
+                    
+                    {{-- MAPA --}}
+                    <div id="map" class="z-0 flex-1 rounded-lg h-[60vh] md:h-[80vh] relative"></div>
+                    
                 </div>
 
                 {{-- LEGENDA COM FECHAR (AlpineJS) --}}

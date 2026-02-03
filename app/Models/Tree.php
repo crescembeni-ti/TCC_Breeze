@@ -17,7 +17,7 @@ class Tree extends Model
         'bairro_id', 'latitude', 'longitude', 'trunk_diameter', 'health_status',
         'planted_at', 'address', 'photo',
         'vulgar_name', 'scientific_name', 'cap', 'height', 'crown_height',
-        'crown_diameter_longitudinal', 'crown_diameter_perpendicular',
+        'crown_diameter_longitudinal', 'crown_diameter_perpendicular', 'shading_area',
         'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms',
         'target', 'injuries', 'wiring_status', 'total_width', 'street_width',
         'gutter_height', 'gutter_width', 'gutter_length', 'no_species_case', 'description',
