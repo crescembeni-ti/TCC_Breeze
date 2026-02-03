@@ -254,7 +254,7 @@ class TreeController extends Controller
             'gutter_width' => 'nullable|numeric|min:0', 
             'gutter_length' => 'nullable|numeric|min:0', 
             'description' => 'nullable|string|max:1000',
-            'cap1' => 'nullable|numeric|min:0', 'cap2' => 'nullable|numeric|min:0', 'cap3' => 'nullable|numeric|min:0', 'cap4' => 'nullable|numeric|min:0', 'cap5' => 'nullable|numeric|min:0',
+            'cap2' => 'nullable|numeric|min:0', 'cap3' => 'nullable|numeric|min:0', 'cap4' => 'nullable|numeric|min:0', 'cap5' => 'nullable|numeric|min:0',
             'cap6' => 'nullable|numeric|min:0', 'cap7' => 'nullable|numeric|min:0', 'cap8' => 'nullable|numeric|min:0', 'cap9' => 'nullable|numeric|min:0', 'cap10' => 'nullable|numeric|min:0',
             'cap11' => 'nullable|numeric|min:0', 'cap12' => 'nullable|numeric|min:0', 'cap13' => 'nullable|numeric|min:0', 'cap14' => 'nullable|numeric|min:0', 'cap15' => 'nullable|numeric|min:0',
             'cap16' => 'nullable|numeric|min:0', 'cap17' => 'nullable|numeric|min:0', 'cap18' => 'nullable|numeric|min:0', 'cap19' => 'nullable|numeric|min:0', 'cap20' => 'nullable|numeric|min:0',
@@ -262,7 +262,12 @@ class TreeController extends Controller
 
         $treeData = $validated;
         // Calcular DAPs
-        for ($i = 1; $i <= 20; $i++) {
+        // dap1 corresponde ao 'cap' original
+        if (!empty($treeData["cap"])) {
+            $treeData["dap1"] = round($treeData["cap"] / pi(), 2);
+        }
+        // dap2..20 correspondem aos cap2..20
+        for ($i = 2; $i <= 20; $i++) {
             if (!empty($treeData["cap$i"])) {
                 $treeData["dap$i"] = round($treeData["cap$i"] / pi(), 2);
             }
@@ -395,7 +400,7 @@ class TreeController extends Controller
             'gutter_width' => 'nullable|numeric|min:0', 
             'gutter_length' => 'nullable|numeric|min:0', 
             'description' => 'nullable|string|max:1000',
-            'cap1' => 'nullable|numeric|min:0', 'cap2' => 'nullable|numeric|min:0', 'cap3' => 'nullable|numeric|min:0', 'cap4' => 'nullable|numeric|min:0', 'cap5' => 'nullable|numeric|min:0',
+            'cap2' => 'nullable|numeric|min:0', 'cap3' => 'nullable|numeric|min:0', 'cap4' => 'nullable|numeric|min:0', 'cap5' => 'nullable|numeric|min:0',
             'cap6' => 'nullable|numeric|min:0', 'cap7' => 'nullable|numeric|min:0', 'cap8' => 'nullable|numeric|min:0', 'cap9' => 'nullable|numeric|min:0', 'cap10' => 'nullable|numeric|min:0',
             'cap11' => 'nullable|numeric|min:0', 'cap12' => 'nullable|numeric|min:0', 'cap13' => 'nullable|numeric|min:0', 'cap14' => 'nullable|numeric|min:0', 'cap15' => 'nullable|numeric|min:0',
             'cap16' => 'nullable|numeric|min:0', 'cap17' => 'nullable|numeric|min:0', 'cap18' => 'nullable|numeric|min:0', 'cap19' => 'nullable|numeric|min:0', 'cap20' => 'nullable|numeric|min:0',
@@ -403,7 +408,16 @@ class TreeController extends Controller
 
         $updateData = $validated;
         // Calcular DAPs
-        for ($i = 1; $i <= 20; $i++) {
+        // dap1 corresponde ao 'cap' original
+        if (isset($updateData["cap"])) {
+            if (!empty($updateData["cap"])) {
+                $updateData["dap1"] = round($updateData["cap"] / pi(), 2);
+            } else {
+                $updateData["dap1"] = null;
+            }
+        }
+        // dap2..20 correspondem aos cap2..20
+        for ($i = 2; $i <= 20; $i++) {
             if (isset($updateData["cap$i"])) {
                 if (!empty($updateData["cap$i"])) {
                     $updateData["dap$i"] = round($updateData["cap$i"] / pi(), 2);
