@@ -21,54 +21,54 @@
     {{-- Cards de Estatísticas Rápidas --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         
-        <div class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded shadow hover:shadow-md transition">
+        <div class="bg-orange-50 border-l-4 border-orange-500 p-8 rounded shadow hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-orange-700 font-bold text-sm uppercase">Tarefas Pendentes</p>
+                    <p class="text-orange-700 font-bold text-lg uppercase">Tarefas Pendentes</p>
                     {{-- VARIÁVEL DINÂMICA AQUI --}}
-                    <h3 class="text-3xl font-bold text-gray-800">{{ $pendentes ?? 0 }}</h3> 
+                    <h3 class="text-5xl font-bold text-gray-800">{{ $pendentes ?? 0 }}</h3> 
                 </div>
-                <i data-lucide="clock" class="w-10 h-10 text-orange-300"></i>
+                <i data-lucide="clock" class="w-16 h-16 text-orange-300"></i>
             </div>
         </div>
 
-        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded shadow hover:shadow-md transition">
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-8 rounded shadow hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-blue-700 font-bold text-sm uppercase">Tarefas Em Andamento</p>
+                    <p class="text-blue-700 font-bold text-lg uppercase">Tarefas Em Andamento</p>
                     {{-- VARIÁVEL DINÂMICA AQUI --}}
-                    <h3 class="text-3xl font-bold text-gray-800">{{ $emAndamento ?? 0 }}</h3> 
+                    <h3 class="text-5xl font-bold text-gray-800">{{ $emAndamento ?? 0 }}</h3> 
                 </div>
-                <i data-lucide="play-circle" class="w-10 h-10 text-blue-300"></i>
+                <i data-lucide="play-circle" class="w-16 h-16 text-blue-300"></i>
             </div>
         </div>
 
-        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded shadow hover:shadow-md transition">
+        <div class="bg-green-50 border-l-4 border-green-500 p-8 rounded shadow hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-green-700 font-bold text-sm uppercase">Tarefas Concluídas</p>
+                    <p class="text-green-700 font-bold text-lg uppercase">Tarefas Concluídas</p>
                     {{-- VARIÁVEL DINÂMICA AQUI --}}
-                    <h3 class="text-3xl font-bold text-gray-800">{{ $concluidas ?? 0 }}</h3> 
+                    <h3 class="text-5xl font-bold text-gray-800">{{ $concluidas ?? 0 }}</h3> 
                 </div>
-                <i data-lucide="check-circle" class="w-10 h-10 text-green-300"></i>
+                <i data-lucide="check-circle" class="w-16 h-16 text-green-300"></i>
             </div>
         </div>
     </div>
 
     {{-- Botões de Ação Rápida --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <a href="{{ route('service.tasks.recebidas') }}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-green-50 hover:border-green-300 transition group">
-            <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 group-hover:text-[#358054] flex items-center gap-2">
-                <i data-lucide="list"></i> Minhas Tarefas
+    <div class="grid grid-cols-1 gap-6">
+      <a href="{{ route('service.tasks.recebidas') }}" class="block p-8 bg-white border border-gray-200 rounded-lg shadow hover:bg-green-50 hover:border-green-300 transition group">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 group-hover:text-[#358054] flex items-center gap-2">
+                <i data-lucide="list" class="w-8 h-8"></i> Minhas Tarefas
             </h5>
-            <p class="font-normal text-gray-700">Visualize a lista completa de ordens de serviço atribuídas a você.</p>
+            <p class="text-lg font-normal text-gray-700">Visualize a lista completa de ordens de serviço atribuídas a você.</p>
         </a>
         
-        <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow opacity-75">
-            <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
-                <i data-lucide="calendar"></i> Agenda (Em breve)
+        <div class="block p-8 bg-white border border-gray-200 rounded-lg shadow opacity-75">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+                <i data-lucide="calendar" class="w-8 h-8"></i> Agenda (Em breve)
             </h5>
-            <p class="font-normal text-gray-700">O calendário de serviços estará disponível em breve.</p>
+            <p class="text-lg font-normal text-gray-700">O calendário de serviços estará disponível em breve.</p>
         </div>
     </div>
 </div>
