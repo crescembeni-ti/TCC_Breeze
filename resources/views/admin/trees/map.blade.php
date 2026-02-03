@@ -278,8 +278,7 @@
                             <label class="block text-sm font-bold text-gray-700 uppercase">Circunferências (CAP) e Diâmetros (DAP)</label>
                             <button type="button" @click="addCap()" x-show="caps.length < 20" 
                                 class="bg-[#358054] text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-700 transition flex items-center gap-1">
-                                <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Tronco
-                            </button>
+                                <i data-lucide="plus" class="w-4 h-4"></i> Adicionar CAP
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
