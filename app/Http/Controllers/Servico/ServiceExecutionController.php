@@ -69,15 +69,29 @@ class ServiceExecutionController extends Controller
      * Exibe o histórico de todos os serviços já finalizados pela equipe logada.
      * Utiliza o status interno 'concluido' da Ordem de Serviço para compor o histórico.
      */
-    public function concluidas()
+    public function concluidas(Request $request)
     {
         $user = Auth::guard('service')->user();
 
-        $ordens = ServiceOrder::with(['contact.status', 'contact'])
+        $query = ServiceOrder::with(['contact.status', 'contact'])
             ->where('service_id', $user->id)
-            ->where('status', 'concluido')
-            ->orderBy('updated_at', 'desc')
-            ->get();
+            ->where('status', 'concluido');
+
+        // Filtro de Data (Lógica copiada do ContactController)
+        if ($request->filled('period')) {
+            $period = $request->period;
+            if ($period == '7_days') {
+                $query->where('updated_at', '>=', now()->subDays(7));
+            } elseif ($period == '30_days') {
+                $query->where('updated_at', '>=', now()->subDays(30));
+            } elseif ($period == 'custom' && $request->filled('date_start') && $request->filled('date_end')) {
+                $start = \Carbon\Carbon::parse($request->date_start)->startOfDay();
+                $end = \Carbon\Carbon::parse($request->date_end)->endOfDay();
+                $query->whereBetween('updated_at', [$start, $end]);
+            }
+        }
+
+        $ordens = $query->orderBy('updated_at', 'desc')->get();
 
         return view('servico.tarefas-concluidas', compact('ordens'));
     }
