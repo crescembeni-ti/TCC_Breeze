@@ -13,17 +13,17 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- Ícone do site -->
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>
 
-<body class="font-sans antialiased login-bg"
-    style="background-image: url('{{ asset('images/drone_fabrica.jpeg') }}'); background-size:cover;">
+{{-- ALTERAÇÃO AQUI: Adicionado bg-fixed, bg-center, bg-no-repeat e removido login-bg --}}
+<body class="font-sans antialiased min-h-screen bg-fixed bg-center bg-no-repeat bg-cover"
+    style="background-image: url('{{ asset('images/drone_fabrica.jpeg') }}');">
 
     <div class="min-h-screen flex flex-col items-center justify-center sm:justify-center py-12 sm:py-0">
 
         {{-- Card principal --}}
-        <div class="w-full sm:max-w-md px-8 py-6 bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl animate-fadeInUp">
+        <div class="w-full sm:max-w-md px-8 py-6 bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl animate-fadeInUp relative z-10">
             {{ $slot }}
         </div>
 
