@@ -16,14 +16,16 @@ class Tree extends Model
     protected $fillable = [
         'bairro_id', 'latitude', 'longitude', 'trunk_diameter', 'health_status',
         'planted_at', 'address', 'photo',
-        'vulgar_name', 'scientific_name', 'cap', 'height', 'crown_height',
+        'vulgar_name', 'scientific_name', 'height', 'crown_height',
         'crown_diameter_longitudinal', 'crown_diameter_perpendicular', 'shading_area',
         'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms',
         'target', 'injuries', 'wiring_status', 'total_width', 'street_width',
         'gutter_height', 'gutter_width', 'gutter_length', 'no_species_case', 'description',
         'admin_id', 'aprovado', 'analyst_id',
-        'cap2', 'cap3', 'cap4', 'cap5', 'cap6', 'cap7', 'cap8', 'cap9', 'cap10',
+        // CAP (Circunferência à Altura do Peito)
+        'cap', 'cap2', 'cap3', 'cap4', 'cap5', 'cap6', 'cap7', 'cap8', 'cap9', 'cap10',
         'cap11', 'cap12', 'cap13', 'cap14', 'cap15', 'cap16', 'cap17', 'cap18', 'cap19', 'cap20',
+        // DAP (Diâmetro à Altura do Peito)
         'dap1', 'dap2', 'dap3', 'dap4', 'dap5', 'dap6', 'dap7', 'dap8', 'dap9', 'dap10',
         'dap11', 'dap12', 'dap13', 'dap14', 'dap15', 'dap16', 'dap17', 'dap18', 'dap19', 'dap20',
     ];
@@ -38,6 +40,24 @@ class Tree extends Model
         'longitude' => 'float',
         'aprovado' => 'boolean',
     ];
+
+    /**
+     * BOOT: Cálculo automático de shading_area
+     * Calcula a área de sombreamento antes de salvar/atualizar
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::saving(function ($tree) {
+            // Calcula shading_area usando a fórmula: (π * longitudinal * perpendicular) / 4
+            if ($tree->crown_diameter_longitudinal && $tree->crown_diameter_perpendicular) {
+                $tree->shading_area = (M_PI * $tree->crown_diameter_longitudinal * $tree->crown_diameter_perpendicular) / 4;
+            } else {
+                $tree->shading_area = 0;
+            }
+        });
+    }
 
     /**
      * RELACIONAMENTO: Bairro
