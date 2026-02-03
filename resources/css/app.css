@@ -255,7 +255,7 @@
 
     /* ===== FUNDO DO LOGIN ===== */
     body.login-bg {
-        background-image: url('/images/bosque.jpeg');
+        background-image: url('/images/drone_fabrica.jpeg');
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;

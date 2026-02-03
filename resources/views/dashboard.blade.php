@@ -16,13 +16,13 @@
         <div class="relative w-full max-w-8x1 mx-auto rounded-xl overflow-hidden shadow-lg cursor-pointer mt-8"
             id="carrossel">
            <div class="slides relative w-full h-64 sm:h-96 md:h-[600px]">
-                <img src="{{ asset('images/fabrica.jpeg') }}"
+                <img src="{{ asset('images/fotofabrica2.jpeg') }}"
                     class="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000"
                     alt="imagem 1">
                 <img src="{{ asset('images/arvore.jpeg') }}"
                     class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
                     alt="imagem 2">
-                <img src="{{ asset('images/fotofabrica.jpg') }}"
+                <img src="{{ asset('images/avoperario2.jpeg') }}"
                     class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
                     alt="imagem 3">
             </div>

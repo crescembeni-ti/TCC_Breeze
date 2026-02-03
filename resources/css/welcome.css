@@ -12,7 +12,7 @@
 /* Adicione este novo bloco no topo do arquivo */
 /* ADICIONE ISTO NO TOPO do seu resources/css/welcome.css */
 body.welcome-page {
-    background-image: url('/public/images/fotofabrica.jpg');
+    background-image: url('/public/images/fotofabrica2.jpeg');
     background-size: cover;
     background-attachment: fixed;
     background-position: center center;

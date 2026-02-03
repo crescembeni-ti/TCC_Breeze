@@ -444,7 +444,7 @@
             downloadBtnHtml = `
                 <button id="downloadCsv" class="btn-download">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    Baixar Relatório (Excel)
+                    Baixar Relatório (CSV)
                 </button>
             `;
         }
@@ -837,22 +837,74 @@
         }
 
         function downloadCSV() {
-            const params = new URLSearchParams();
-            const bairroVal = document.getElementById("bairro").value;
-            const especieVal = document.getElementById("especie").value;
-            const buscaVal = document.getElementById("search").value;
+            // Usa as árvores filtradas atualmente, ou todas se não houver filtro ativo
+            const data = (filteredTrees.length > 0) ? filteredTrees : allTrees;
 
-            if (bairroVal) params.append('bairro_id', bairroVal);
-            if (especieVal) params.append('vulgar_name', especieVal);
-            if (buscaVal) params.append('search', buscaVal);
+            if (!data || data.length === 0) {
+                alert("Não há dados para exportar.");
+                return;
+            }
 
+            // Cabeçalhos (Estáticos)
+            let headers = ['ID', 'Espécie', 'Nome Popular', 'Bairro', 'Endereço', 'Diâmetro (cm)'];
+            // Chaves correspondentes no objeto tree
+            let keys = ['id', 'species_name', 'vulgar_name', 'bairro_nome', 'address', 'trunk_diameter'];
+
+            // Cabeçalhos Dinâmicos (Admin/Analista)
             if (isAdmin || isAnalista) {
-                adminFieldsConfig.forEach(field => {
-                    const el = document.getElementById(field.id);
-                    if (el && el.value) params.append(field.key, el.value);
+                adminFieldsConfig.forEach(f => {
+                    headers.push(f.label);
+                    keys.push(f.key);
                 });
             }
-            window.open(`${exportRoute}?${params.toString()}`, '_blank');
+
+            // Função auxiliar para escapar caracteres especiais do CSV (vírgulas, aspas, quebras de linha)
+            const escapeCsv = (text) => {
+                if (text === null || text === undefined) return '';
+                let str = String(text);
+                // Se contém separador (usando ponto e vírgula para PT-BR), quebra de linha ou aspas duplas, envolve em aspas
+                if (str.includes(';') || str.includes('\n') || str.includes('"')) {
+                    return `"${str.replace(/"/g, '""')}"`; // Escapa aspas internas duplicando-as
+                }
+                return str;
+            };
+
+            // Monta o conteúdo do CSV
+            // Adiciona BOM para o Excel reconhecer UTF-8 (acentos) corretamente
+            let csvContent = headers.join(';') + '\n';
+
+            data.forEach(tree => {
+                let row = [];
+                // Processa campos fixos manualmente para garantir mapeamento correto (bairro pode vir de ID)
+                row.push(escapeCsv(tree.id));
+                row.push(escapeCsv(tree.species_name || ''));
+                row.push(escapeCsv(tree.vulgar_name || ''));
+                
+                // Lógica do Bairro (nome direto ou busca pelo ID)
+                const bairroName = tree.bairro_nome || allBairros.find(b => b.id == tree.bairro_id)?.nome || '';
+                row.push(escapeCsv(bairroName));
+                
+                row.push(escapeCsv(tree.address || ''));
+                row.push(escapeCsv(tree.trunk_diameter || ''));
+
+                // Processa campos dinâmicos
+                if (isAdmin || isAnalista) {
+                    adminFieldsConfig.forEach(f => {
+                        row.push(escapeCsv(tree[f.key] || ''));
+                    });
+                }
+                csvContent += row.join(';') + '\n';
+            });
+
+            // Cria o arquivo Blob e dispara o download
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'relatorio_arvores.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
         function criarConteudoPopup(listaArvores, indexInicial) {
