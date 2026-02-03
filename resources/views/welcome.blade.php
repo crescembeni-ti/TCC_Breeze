@@ -82,6 +82,86 @@
         .legend-color { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
+    /* CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO */
+    .shading-stats-box {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+        background: linear-gradient(135deg, rgba(53, 128, 84, 0.98) 0%, rgba(45, 110, 75, 0.98) 100%);
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+        font-family: 'Instrument Sans', sans-serif;
+        color: white;
+        width: 200px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        animation: slideInLeft 0.4s ease-out;
+    }
+
+    .shading-stats-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .shading-stat-item {
+        margin-bottom: 10px;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        border-left: 3px solid #a0c520;
+    }
+
+    .shading-stat-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .shading-stat-label {
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 3px;
+    }
+
+    .shading-stat-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: white;
+        line-height: 1;
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+    }
+
+    .shading-stat-unit {
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
     /* LEGENDA DE MARGEM DE ERRO COM BOTÃO FECHAR */
     .map-margin-note {
         position: absolute;
@@ -161,6 +241,29 @@
             width: 90%;
             white-space: normal !important;
             text-align: center;
+        }
+        .shading-stats-box {
+            width: 160px !important;
+            padding: 12px !important;
+            top: 10px !important;
+            left: 10px !important;
+        }
+        .shading-stats-title {
+            font-size: 9px !important;
+            margin-bottom: 8px !important;
+        }
+        .shading-stat-item {
+            padding: 6px !important;
+            margin-bottom: 8px !important;
+        }
+        .shading-stat-label {
+            font-size: 8px !important;
+        }
+        .shading-stat-value {
+            font-size: 16px !important;
+        }
+        .shading-stat-unit {
+            font-size: 9px !important;
         }
     }
     </style>
@@ -248,7 +351,40 @@
                 
                 <h2 class="text-xl font-bold text-gray-900 mb-2 mt-1 pl-2">Mapa Interativo</h2>
                 
-                <div id="map" class="z-0 w-full rounded-lg h-[60vh] md:h-[80vh]"></div>
+                <div id="map" class="z-0 w-full rounded-lg h-[60vh] md:h-[80vh]">
+                    {{-- CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO --}}
+                    <div class="shading-stats-box">
+                        <div class="shading-stats-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                            Sombreamento
+                        </div>
+                        
+                        <div class="shading-stat-item">
+                            <div class="shading-stat-label">Árvores</div>
+                            <div class="shading-stat-value">
+                                <span id="stats-tree-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="shading-stat-item">
+                            <div class="shading-stat-label">Área Total</div>
+                            <div class="shading-stat-value">
+                                <span id="stats-shading-area">0</span>
+                                <span class="shading-stat-unit">m²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {{-- LEGENDA COM FECHAR (AlpineJS) --}}
                 <div x-data="{ showNote: true }" 
@@ -734,6 +870,42 @@
             }
         }
 
+        // Função para calcular área de sombreamento usando a fórmula fornecida
+        function calcularSombreamento(tree) {
+            const longitudinal = parseFloat(tree.crown_diameter_longitudinal) || 0;
+            const perpendicular = parseFloat(tree.crown_diameter_perpendicular) || 0;
+            
+            if (longitudinal === 0 || perpendicular === 0) {
+                return 0;
+            }
+            
+            // Fórmula: (π * crown_diameter_longitudinal * crown_diameter_perpendicular) / 4
+            const area = (Math.PI * longitudinal * perpendicular) / 4;
+            return area;
+        }
+
+        // Função para atualizar as estatísticas de sombreamento
+        function atualizarEstatisticasSombreamento(trees) {
+            const treeCountEl = document.getElementById('stats-tree-count');
+            const shadingAreaEl = document.getElementById('stats-shading-area');
+            
+            if (!treeCountEl || !shadingAreaEl) return;
+            
+            const totalTrees = trees.length;
+            let totalShadingArea = 0;
+            
+            trees.forEach(tree => {
+                totalShadingArea += calcularSombreamento(tree);
+            });
+            
+            // Atualiza os valores na interface com animação
+            treeCountEl.textContent = totalTrees.toLocaleString('pt-BR');
+            shadingAreaEl.textContent = totalShadingArea.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
         function exibirArvores(trees) {
             markersLayer.clearLayers();
             treeMarkers = {};
@@ -741,6 +913,9 @@
             currentTrees = trees;
             treeIndexGlobal = 0;
             atualizarStatus(trees.length, allTrees.length);
+            
+            // Atualiza as estatísticas de sombreamento
+            atualizarEstatisticasSombreamento(trees);
 
             if (trees.length === 0) return;
 
