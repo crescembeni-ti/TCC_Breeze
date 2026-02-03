@@ -882,21 +882,21 @@
 
         // Função para calcular área de sombreamento usando a fórmula fornecida
         function calcularSombreamento(tree) {
-            // Se já tiver o valor calculado no banco, usa ele
-            if (tree.shading_area !== undefined && tree.shading_area !== null && parseFloat(tree.shading_area) > 0) {
-                return parseFloat(tree.shading_area);
-            }
-
+            // Tenta pegar os diâmetros primeiro (mais confiável para cálculo em tempo real)
             const longitudinal = parseFloat(tree.crown_diameter_longitudinal) || 0;
             const perpendicular = parseFloat(tree.crown_diameter_perpendicular) || 0;
             
-            if (longitudinal === 0 || perpendicular === 0) {
-                return 0;
+            // Se tiver os diâmetros, calcula na hora (garante que reflita mudanças imediatas)
+            if (longitudinal > 0 && perpendicular > 0) {
+                return (Math.PI * longitudinal * perpendicular) / 4;
+            }
+
+            // Se não tiver diâmetros mas tiver o valor pré-calculado do banco, usa ele
+            if (tree.shading_area !== undefined && tree.shading_area !== null) {
+                return parseFloat(tree.shading_area) || 0;
             }
             
-            // Fórmula: (π * crown_diameter_longitudinal * crown_diameter_perpendicular) / 4
-            const area = (Math.PI * longitudinal * perpendicular) / 4;
-            return area;
+            return 0;
         }
 
         // Função para atualizar as estatísticas de sombreamento

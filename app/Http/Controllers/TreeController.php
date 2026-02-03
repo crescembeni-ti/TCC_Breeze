@@ -101,6 +101,9 @@ class TreeController extends Controller
             'target' => $tree->target,
             'injuries' => $tree->injuries,
             'wiring_status' => $tree->wiring_status,
+            'shading_area' => $tree->shading_area,
+            'crown_diameter_longitudinal' => $tree->crown_diameter_longitudinal,
+            'crown_diameter_perpendicular' => $tree->crown_diameter_perpendicular,
         ]);
     }
 
