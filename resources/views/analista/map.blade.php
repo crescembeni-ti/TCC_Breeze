@@ -135,7 +135,7 @@
                             </ul>
                         </div>
 
-                        {{-- NOME VULGAR (Autocomplete Bidirecional) --}}
+                        {{-- NOME POPULAR (Autocomplete Bidirecional) --}}
                         <div x-data="{
                                 query: '{{ old('vulgar_name') }}',
                                 open: false,

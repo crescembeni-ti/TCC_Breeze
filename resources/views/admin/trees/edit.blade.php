@@ -192,7 +192,7 @@
                             </ul>
                         </div>
 
-                        {{-- NOME VULGAR (Autocomplete Bidirecional) --}}
+                        {{-- NOME POPULAR (Autocomplete Bidirecional) --}}
                         <div x-data="{
                                 query: '{{ old('vulgar_name', $tree->vulgar_name) }}',
                                 open: false,
@@ -215,7 +215,7 @@
                                     }, 50);
                                 }
                             }" x-init="initList()" class="relative">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nome Vulgar</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nome Popular</label>
                             <div class="relative">
 	                                <input type="text" id="vulgar_name_input" name="vulgar_name" x-model="query" @input="if(!isAnalista) filter()" @click="if(!isAnalista) filter()" @click.outside="open = false" autocomplete="off" 
                                     :disabled="isAnalista"

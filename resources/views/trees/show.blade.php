@@ -7,7 +7,7 @@
     
     {{-- LÓGICA DE EXIBIÇÃO DO NOME (PHP) --}}
     @php
-        // 1. Pega o nome vulgar salvo
+        // 1. Pega o nome popular salvo
         $nomePrincipal = $tree->vulgar_name;
 
         // 2. Se o nome for "Não identificada" ou vazio, MAS tiver o caso específico (ex: Mamão), usa o caso específico
@@ -88,7 +88,7 @@
 
                     {{-- NOME / ESPÉCIE --}}
                     <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
-                        <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Nome Comum / Espécie</h3>
+                        <h3 class="text-sm font-bold text-[#166534] uppercase tracking-wide mb-1">Nome Popular / Espécie</h3>
                         
                         {{-- TÍTULO GRANDE --}}
                         <p class="text-lg text-gray-900 font-bold">

@@ -144,7 +144,7 @@
                             </ul>
                         </div>
 
-                        {{-- NOME VULGAR (Autocomplete Bidirecional) --}}
+                        {{-- NOME POPULAR (Autocomplete Bidirecional) --}}
                         <div x-data="{
                                 query: '{{ old('vulgar_name') }}',
                                 open: false,
@@ -165,7 +165,7 @@
                                     el.dispatchEvent(new Event('change'));
                                 }
                             }" x-init="initList()" class="relative">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nome Vulgar</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nome Popular</label>
                             <div class="relative">
                                 <input type="text" id="vulgar_name_input" name="vulgar_name" x-model="query" @input="filter()" @click="filter()" @click.outside="open = false" autocomplete="off" class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 bg-gray-50 text-gray-800 focus:ring-green-500 focus:border-green-500" placeholder="Selecione ou digite...">
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></div>
