@@ -63,13 +63,6 @@
             </h5>
             <p class="font-normal text-gray-700">Visualize a lista completa de ordens de serviço atribuídas a você.</p>
         </a>
-        
-        <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow opacity-75">
-            <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
-                <i data-lucide="calendar"></i> Agenda (Em breve)
-            </h5>
-            <p class="font-normal text-gray-700">O calendário de serviços estará disponível em breve.</p>
-        </div>
     </div>
 </div>
 @endsection

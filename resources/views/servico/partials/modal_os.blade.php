@@ -35,7 +35,7 @@
                     <div class="grid grid-cols-2 gap-4 border-b border-gray-300 pb-2">
                         <div>
                             <label class="font-bold mb-1 uppercase text-black">Nº Solicitação:</label>
-                            <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black" x-text="item.contact ? '#' + item.contact.id : ''"></p>
+                            <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black" x-text="item.contact ? + item.contact.id : ''"></p>
                         </div>
                         <div>
                             <label class="font-bold mb-1 uppercase text-black">Data de Emissão:</label>
@@ -154,7 +154,7 @@
                             <form method="POST" :action="'/pbi-servico/tarefas/' + item.id + '/confirmar'" class="inline">
                                 @csrf
                                 <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded text-xs font-bold shadow-lg flex items-center gap-2">
-                                    <i data-lucide="play" class="w-4 h-4"></i> Visto
+                                    <i data-lucide="eye" class="w-4 h-4"></i> Visto
                                 </button>
                             </form>
                         @endif
