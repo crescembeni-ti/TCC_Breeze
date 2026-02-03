@@ -6,8 +6,34 @@
     
     {{-- CABEÇALHO DA PÁGINA --}}
     <header class="bg-white shadow mb-8 rounded-lg p-6">
-        <h2 class="text-3xl font-semibold text-gray-700">Histórico de Conclusão</h2>
-        <p class="text-gray-500 mt-1">Serviços finalizados pela equipe técnica.</p>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-semibold text-gray-700">Histórico de Conclusão</h2>
+                <p class="text-gray-500 mt-1">Serviços finalizados pela equipe técnica.</p>
+            </div>
+
+            {{-- Filtro de Data --}}
+            <form method="GET" action="{{ route('service.tasks.concluidas') }}" x-data="{ period: '{{ request('period') }}' }" class="flex flex-col md:flex-row items-end gap-3 w-full md:w-auto">
+                <div class="relative w-full md:w-auto">
+                    <select name="period" x-model="period" onchange="if(this.value != 'custom') this.form.submit()" class="appearance-none w-full md:w-48 bg-gray-50 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:border-green-500 cursor-pointer shadow-sm">
+                        <option value="" {{ request('period') == '' ? 'selected' : '' }}>Todo o Período</option>
+                        <option value="7_days">📅 Últimos 7 dias</option>
+                        <option value="30_days">📅 Últimos 30 dias</option>
+                        <option value="custom">📆 Personalizado...</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg></div>
+                </div>
+                <div x-show="period === 'custom'" x-transition class="flex gap-2 w-full md:w-auto" style="display: none;">
+                    <input type="date" name="date_start" value="{{ request('date_start') }}" class="rounded-lg border-gray-300 text-sm focus:border-green-500 w-full md:w-auto">
+                    <span class="self-center text-gray-500">até</span>
+                    <input type="date" name="date_end" value="{{ request('date_end') }}" class="rounded-lg border-gray-300 text-sm focus:border-green-500 w-full md:w-auto">
+                    <button type="submit" class="bg-[#358054] text-white px-3 py-2 rounded-lg hover:bg-green-700 transition"><i data-lucide="search" class="w-4 h-4"></i></button>
+                </div>
+                @if(request()->filled('period'))
+                    <a href="{{ route('service.tasks.concluidas') }}" class="text-gray-500 hover:text-gray-700 flex items-center gap-1 text-sm underline">Limpar</a>
+                @endif
+            </form>
+        </div>
     </header>
 
     {{-- CONTEÚDO PRINCIPAL --}}
