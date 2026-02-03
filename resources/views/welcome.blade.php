@@ -84,18 +84,20 @@
 
     /* CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO (FORA DO MAPA) */
     .shading-stats-box-external {
-        background: linear-gradient(135deg, rgba(53, 128, 84, 0.98) 0%, rgba(45, 110, 75, 0.98) 100%);
+        background: linear-gradient(135deg, #358054 0%, #2d6e4b 100%);
         padding: 16px;
         border-radius: 12px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
         font-family: 'Instrument Sans', sans-serif;
         color: white;
-        width: 200px;
-        min-width: 200px;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
+        width: 220px;
+        min-width: 220px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         animation: slideInLeft 0.4s ease-out;
         flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
     }
 
     .shading-stats-title {
@@ -668,6 +670,8 @@
             allTrees = data;
             popularSelects(allTrees);
             exibirArvores(allTrees);
+            // Garante atualização das estatísticas no carregamento inicial
+            atualizarEstatisticasSombreamento(allTrees);
         });
 
         /* --- FUNÇÃO PARA ATUALIZAR A LEGENDA --- */
@@ -878,6 +882,11 @@
 
         // Função para calcular área de sombreamento usando a fórmula fornecida
         function calcularSombreamento(tree) {
+            // Se já tiver o valor calculado no banco, usa ele
+            if (tree.shading_area !== undefined && tree.shading_area !== null && parseFloat(tree.shading_area) > 0) {
+                return parseFloat(tree.shading_area);
+            }
+
             const longitudinal = parseFloat(tree.crown_diameter_longitudinal) || 0;
             const perpendicular = parseFloat(tree.crown_diameter_perpendicular) || 0;
             
