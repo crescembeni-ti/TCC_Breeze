@@ -422,6 +422,8 @@
                         ${!isAnalista ? '<option value="organisms">Organismos</option>' : ''}
                         ${!isAnalista ? '<option value="crown_balance">Equilíbrio de Copa</option>' : ''}
                         <option value="stem_balance">Equilíbrio de Fuste</option>
+                        <option value="target">Alvo</option>
+                        <option value="wiring_status">Estado da Fiação</option>
                         ${!isAnalista ? '<option value="health_status">Estado de Saúde</option>' : ''}
                     </select>
                 </div>
