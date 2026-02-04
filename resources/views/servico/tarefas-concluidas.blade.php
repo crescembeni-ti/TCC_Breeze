@@ -106,9 +106,13 @@
                                     }
                                 @endphp
                                 @if(is_array($fotos) && count($fotos) > 0)
-                                    <button @click="showPhoto = true; photoUrl = '/storage/{{ $fotos[0] }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
-                                        <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
-                                    </button>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($fotos as $foto)
+                                            <button @click="showPhoto = true; photoUrl = '/storage/{{ $foto }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                                <i data-lucide="image" class="w-4 h-4"></i> Foto {{ $loop->iteration }}
+                                            </button>
+                                        @endforeach
+                                    </div>
                                 @elseif($os->contact->foto_path)
                                     <button @click="showPhoto = true; photoUrl = '{{ Storage::url($os->contact->foto_path) }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
                                         <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
