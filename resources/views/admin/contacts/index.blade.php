@@ -180,6 +180,41 @@
     <div id="lightbox-admin" onclick="if(event.target === this) closeLightbox()" style="display: none;"><span id="lightbox-close-admin" onclick="closeLightbox()">×</span><img id="lightbox-img-admin" src="" onclick="event.stopPropagation()"></div>
     <div id="modal-status" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50"><div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative"><button onclick="closeStatusModal()" class="absolute top-3 right-3 text-gray-600"><i data-lucide="x"></i></button><h2 class="text-2xl font-bold text-blue-700 mb-4">Atualizar Status</h2><form id="status-form" onsubmit="return submitStatusForm(event)" class="space-y-3">@csrf @method('PATCH')<label class="font-semibold">Status</label><select name="status_id" id="status-select" class="w-full rounded-md border-gray-300 shadow-sm">@foreach ($allStatuses as $status)<option value="{{ $status->id }}">{{ $status->name }}</option>@endforeach</select><div id="just-box"><label class="font-semibold">Justificativa</label><textarea name="justificativa" id="status-justificativa" class="w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea></div><button class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Salvar</button></form></div></div>
     <div id="modal-forward" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50"><div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative"><button onclick="closeForwardModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"><i data-lucide="x"></i></button><h2 id="forward-title" class="text-2xl font-bold text-orange-700 mb-4">Encaminhar Solicitação</h2><form id="forward-form" onsubmit="return submitForwardForm(event)" class="space-y-3">@csrf @method('PATCH')<input type="hidden" name="forward_type" id="forward_type"><label id="forward-label" class="font-semibold">Selecione:</label><select id="forward-user-select" class="w-full rounded-md border-gray-300 shadow-sm" required><option value="">Carregando...</option></select><button id="forward-save-btn" class="w-full px-3 py-2 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700">Confirmar Encaminhamento</button></form></div></div>
+    
+    <div id="modal-history" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-xl overflow-hidden relative">
+            <div class="bg-[#358054] p-4 flex justify-between items-center">
+                <h3 class="text-white font-bold flex items-center gap-2">
+                    <i data-lucide="history" class="w-5 h-5"></i> Histórico de Responsáveis
+                </h3>
+                <button onclick="closeHistoryModal()" class="text-white/80 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="bg-blue-50 p-3 rounded-full"><i data-lucide="user-check" class="w-6 h-6 text-blue-600"></i></div>
+                    <div>
+                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Analista Responsável</p>
+                        <p id="hist-analista" class="text-gray-900 font-bold text-lg"></p>
+                        <p id="hist-analista-obs" class="text-xs text-gray-400 mt-1 hidden">Atualizado diretamente pelo Admin</p>
+                    </div>
+                </div>
+                <div class="border-l-2 border-dashed border-gray-200 ml-6 h-4"></div>
+                <div class="flex items-start gap-4">
+                    <div class="bg-green-50 p-3 rounded-full"><i data-lucide="hammer" class="w-6 h-6 text-green-600"></i></div>
+                    <div>
+                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Equipe de Serviço</p>
+                        <p id="hist-servico" class="text-gray-900 font-bold text-lg"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 text-center">
+                <button onclick="closeHistoryModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg transition">Fechar</button>
+            </div>
+        </div>
+    </div>
 
     {{-- SCRIPTS --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -268,8 +303,14 @@
                 const temOS = m.service_order && m.service_order.id;
                 const statusOS = ['Vistoriado', 'Em Execução', 'Concluído', 'Indeferido', 'Sem Pendências'];
                 if (temOS && statusOS.some(s => statusName.includes(s))) {
+                    if (currentFilter === 'resolvidas') {
+                        actionButtons += `<button onclick="openHistoryModal(${m.id})" class="bg-blue-50 text-blue-700 hover:bg-blue-100 p-1.5 rounded transition border border-blue-200 mr-2" title="Ver Responsáveis"><i data-lucide="users" class="w-4 h-4"></i></button>`;
+                    }
                     actionButtons += `<a href="/pbi-admin/os/${m.service_order.id}" class="inline-flex items-center justify-center px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947] mr-2"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i> Ver OS</a>`;
                 } else {
+                    if (currentFilter === 'resolvidas') {
+                        actionButtons += `<button onclick="openHistoryModal(${m.id})" class="bg-blue-50 text-blue-700 hover:bg-blue-100 p-1.5 rounded transition border border-blue-200 mr-2" title="Ver Responsáveis"><i data-lucide="users" class="w-4 h-4"></i></button>`;
+                    }
                     actionButtons += `<button onclick="openViewModal(${m.id})" class="px-3 py-1.5 bg-[#358054] text-white rounded text-xs font-semibold hover:bg-[#2d6947] mr-2">Ver</button>`;
                 }
                 actionButtons += `<button onclick="openStatusModal(${m.id})" class="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700">Status</button>`;
@@ -469,6 +510,20 @@
             document.getElementById('modal-forward').classList.remove('hidden'); document.getElementById('modal-forward').classList.add('flex');
         }
         function closeForwardModal() { document.getElementById('modal-forward').classList.add('hidden'); document.getElementById('modal-forward').classList.remove('flex'); }
+        function openHistoryModal(id) {
+            const m = messagesById[id] || messagesList.find(x => x.id == id);
+            if(!m) return;
+            const os = m.service_order;
+            const analista = os?.analyst?.name || os?.supervisor?.name || 'Não passou por analista';
+            const servico = os?.service?.name || 'Não atribuído';
+            document.getElementById('hist-analista').textContent = analista;
+            document.getElementById('hist-servico').textContent = servico;
+            document.getElementById('hist-analista-obs').classList.toggle('hidden', !!(os?.analyst || os?.supervisor));
+            document.getElementById('modal-history').classList.remove('hidden');
+            document.getElementById('modal-history').classList.add('flex');
+            if(window.lucide) lucide.createIcons();
+        }
+        function closeHistoryModal() { document.getElementById('modal-history').classList.add('hidden'); document.getElementById('modal-history').classList.remove('flex'); }
         async function submitForwardForm(e) {
         e.preventDefault(); 
         if (!currentForwardingId) return;
