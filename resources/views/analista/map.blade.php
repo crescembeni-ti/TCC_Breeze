@@ -286,7 +286,7 @@
                                                 class="w-full border border-gray-300 rounded-md shadow-sm px-2 py-1 text-sm focus:ring-green-500 focus:border-green-500 bg-white">
                                         </div>
                                         <div x-show="item.cap">
-                                            <label class="text-[10px] font-bold text-gray-500 uppercase">DAP (Automático)</label>
+                                            <label class="text-[10px] font-bold text-gray-500 uppercase">DAP</label>
                                             <div class="bg-gray-100 px-2 py-1 rounded text-sm text-gray-600 font-mono border border-dashed border-gray-300" 
                                                 x-text="item.cap ? (item.cap / 3.14159).toFixed(2) + ' m' : '-'">
                                             </div>
