@@ -3,15 +3,9 @@
 
 @section('conten<div x-data="{ 
     open: false, 
-    showPhoto: false, 
     showLightbox: false,
     photoUrl: '', 
-    item: { id: '', contact: { status: {} }, motivos: [], servicos: [], equipamentos: [] },
-    currentPhotos: [],
-    openCarousel(photos) {
-        this.currentPhotos = photos;
-        this.showPhoto = true;
-    }
+    item: { id: '', contact: { status: {} }, motivos: [], servicos: [], equipamentos: [] }
 }">    
     {{-- CABEÇALHO DA PÁGINA --}}
     <header class="bg-white shadow mb-8 rounded-lg p-6">
@@ -115,12 +109,16 @@
                                     }
                                 @endphp
                                 @if(is_array($fotos) && count($fotos) > 0)
-                                    <button @click="openCarousel({{ json_encode($fotos) }})" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
-                                        <i data-lucide="images" class="w-4 h-4"></i> Ver Fotos
-                                    </button>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($fotos as $index => $foto)
+                                            <button @click="photoUrl = '/storage/{{ $foto }}'; showLightbox = true;" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                                <i data-lucide="image" class="w-4 h-4"></i> Foto {{ $index + 1 }}
+                                            </button>
+                                        @endforeach
+                                    </div>
                                 @elseif($os->contact->foto_path)
-                                    <button @click="showPhoto = true; photoUrl = '{{ Storage::url($os->contact->foto_path) }}'; currentPhotos = [];" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
-                                        <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
+                                    <button @click="photoUrl = '{{ Storage::url($os->contact->foto_path) }}'; showLightbox = true;" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                        <i data-lucide="image" class="w-4 h-4"></i> Foto 1
                                     </button>
                                 @else
                                     <span class="text-gray-400 italic">Sem foto</span>
@@ -142,43 +140,7 @@
         </div>
     @endif
 
-    {{-- MODAL DE FOTOS (ESTILO ADMIN CORRIGIDO) --}}
-    <div x-show="showPhoto" 
-         class="fixed inset-0 z-[9999] flex items-center justify-center p-4" 
-         style="display: none;" 
-         x-cloak>
-        <div class="fixed inset-0 bg-black bg-opacity-60 transition-opacity" @click="showPhoto = false"></div>
-        
-        <div class="relative bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden transform transition-all z-10 mx-auto">
-            {{-- Header do Modal --}}
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                <h2 class="text-xl font-bold text-[#358054] flex-1 text-center">Fotos</h2>
-                <button @click="showPhoto = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            
-            {{-- Conteúdo das Fotos --}}
-            <div class="p-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[65vh] overflow-y-auto custom-scrollbar pr-1">
-                    <template x-for="(photo, index) in currentPhotos" :key="index">
-                        <div class="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 shadow-sm border border-gray-200">
-                            <img :src="'/storage/' + photo" 
-                                 class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                 @click="photoUrl = '/storage/' + photo; showLightbox = true;">
-                        </div>
-                    </template>
-                    <template x-if="currentPhotos.length === 0 && photoUrl">
-                        <div class="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 shadow-sm border border-gray-200">
-                            <img :src="photoUrl" 
-                                 class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                 @click="showLightbox = true;">
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     {{-- LIGHTBOX PARA AMPLIAR (ESTILO ADMIN) --}}
     <div x-show="showLightbox" 
