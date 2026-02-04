@@ -540,19 +540,41 @@
                 } catch (e) { return { rua: "" }; }
             }
 
+            async function atualizarPorCoordenadas(lat, lng, moverMapa = false) {
+                if (!lat || !lng) return;
+                
+                if (tempMarker) map.removeLayer(tempMarker);
+                tempMarker = L.marker([lat, lng]).addTo(map).bindPopup("Coordenada selecionada").openPopup();
+                
+                if (moverMapa) {
+                    map.setView([lat, lng], 18);
+                }
+
+                const info = await buscarEndereco(lat, lng);
+                if(addressInput) addressInput.value = info.rua || "";
+                
+                const bairroData = detectarBairro(parseFloat(lat), parseFloat(lng));
+                if (bairroData) {
+                    window.dispatchEvent(new CustomEvent('set-bairro-map', { detail: { id: bairroData.id, nome: bairroData.nome } }));
+                }
+            }
+
             map.on("click", async e => {
                 const lat = e.latlng.lat.toFixed(7);
                 const lng = e.latlng.lng.toFixed(7);
                 latInput.value = lat;
                 lngInput.value = lng;
-                if (tempMarker) map.removeLayer(tempMarker);
-                tempMarker = L.marker([lat, lng]).addTo(map).bindPopup("Coordenada selecionada").openPopup();
-                const info = await buscarEndereco(lat, lng);
-                if(addressInput) addressInput.value = info.rua || "";
-                const bairroData = detectarBairro(parseFloat(lat), parseFloat(lng));
-                if (bairroData) {
-                    window.dispatchEvent(new CustomEvent('set-bairro-map', { detail: { id: bairroData.id, nome: bairroData.nome } }));
-                }
+                atualizarPorCoordenadas(lat, lng);
+            });
+
+            [latInput, lngInput].forEach(input => {
+                input.addEventListener("change", () => {
+                    const lat = parseFloat(latInput.value);
+                    const lng = parseFloat(lngInput.value);
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        atualizarPorCoordenadas(lat, lng, true);
+                    }
+                });
             });
         });
     </script>
