@@ -110,9 +110,9 @@
          class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6" 
          style="display: none;" 
          x-cloak>
-        <div class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showConfirmModal = false"></div>
+        <div class="fixed inset-0 transition-opacity bg-black" @click="showConfirmModal = false"></div>
         
-        <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-2xl transition-all sm:p-8">
+        <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-2xl transition-all sm:p-8 z-10">
             <div class="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full mb-6">
                 <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
