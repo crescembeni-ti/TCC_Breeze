@@ -120,7 +120,7 @@ class ContactController extends Controller
         $filtro = $request->get('filtro', 'pendentes');
 
         // Inicializa a query com os relacionamentos para evitar o problema N+1
-        $baseQuery = Contact::with(['status', 'user', 'serviceOrder.service']);
+        $baseQuery = Contact::with(['status', 'user', 'serviceOrder.service', 'serviceOrder.analyst', 'serviceOrder.supervisor']);
 
         // Lógica de filtragem por período de tempo usando Carbon
         if ($request->filled('period')) {

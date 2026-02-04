@@ -70,4 +70,9 @@ class ServiceOrder extends Model
     {
         return $this->belongsTo(Service::class, 'service_id');
     }
+
+    public function supervisor()
+    {
+        return $this->belongsTo(Analyst::class, 'supervisor_id');
+    }
 }
