@@ -335,7 +335,7 @@
         </header>
 
         {{-- CONTEÚDO PRINCIPAL MODIFICADO --}}
-        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full flex flex-col justify-center">
+        <main class="flex-grow max-w-[98%] mx-auto px-2 sm:px-4 lg:px-6 py-8 sm:py-12 w-full flex flex-col justify-center">
             
             @if (session('success'))
                 <div id="success-alert" class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center justify-between shadow-md" role="alert">
@@ -347,14 +347,12 @@
             @endif
 
             {{-- CARD DO MAPA --}}
-            <div class="bg-white rounded-lg shadow p-1 mb-8 relative w-full">
-            {{-- CARD DO MAPA --}}
-            <div class="bg-white rounded-lg shadow p-1 mb-8 relative w-full">
+            <div class="bg-white rounded-lg shadow p-0.5 mb-8 relative w-full max-w-[98%] mx-auto">
                 
                 <h2 class="text-xl font-bold text-gray-900 mb-2 mt-1 pl-2">Mapa Interativo</h2>
                 
                 {{-- LAYOUT COM GRID: Caixa de Estatísticas + Mapa --}}
-                <div class="flex flex-col md:flex-row gap-2 md:gap-3 p-2">
+                <div class="flex flex-col md:flex-row gap-2 md:gap-3 p-1">
                     
                     {{-- CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO (FORA DO MAPA) --}}
                     <div class="shading-stats-box-external">
@@ -390,7 +388,7 @@
                     </div>
                     
                     {{-- MAPA --}}
-                    <div id="map" class="z-0 flex-1 rounded-lg h-[60vh] md:h-[80vh] relative"></div>
+                    <div id="map" class="z-0 flex-1 rounded-lg h-[70vh] md:h-[85vh] relative"></div>
                     
                 </div>
 
