@@ -5,7 +5,18 @@
 @section('content')
 
 {{-- ESTADO GLOBAL DO ALPINE --}}
-<div x-data="{ open: false, showLightbox: false, photoUrl: '', item: { contact: {}, motivos: [], servicos: [], equipamentos: [] } }">
+<div x-data="{ 
+    open: false, 
+    showPhoto: false, 
+    showLightbox: false,
+    photoUrl: '', 
+    item: { contact: {}, motivos: [], servicos: [], equipamentos: [] },
+    currentPhotos: [],
+    openCarousel(photos) {
+        this.currentPhotos = photos;
+        this.showPhoto = true;
+    }
+}">
 
     {{-- CABEÇALHO DA LISTAGEM --}}
     <header class="bg-white shadow mb-8 rounded-lg p-6 flex flex-col md:flex-row justify-between items-center">
@@ -71,13 +82,13 @@
                                     @if(is_array($fotos) && count($fotos) > 0)
                                         <div class="flex flex-wrap gap-2">
                                             @foreach($fotos as $index => $foto)
-                                                <button @click="photoUrl = '/storage/{{ $foto }}'; showLightbox = true;" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                                <button @click="photoUrl = '/storage/{{ $foto }}'; showPhoto = true; currentPhotos = {{ json_encode($fotos) }};" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
                                                     <i data-lucide="image" class="w-4 h-4"></i> Foto {{ $index + 1 }}
                                                 </button>
                                             @endforeach
                                         </div>
                                     @elseif($os->contact->foto_path)
-                                        <button @click="photoUrl = '{{ Storage::url($os->contact->foto_path) }}'; showLightbox = true;" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                        <button @click="photoUrl = '{{ Storage::url($os->contact->foto_path) }}'; showPhoto = true; currentPhotos = [];" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
                                             <i data-lucide="image" class="w-4 h-4"></i> Foto 1
                                         </button>
                                     @else
@@ -102,16 +113,28 @@
 
 
 
-    {{-- LIGHTBOX PARA AMPLIAR (ESTILO ADMIN) --}}
-    <div x-show="showLightbox" 
-         class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/95 p-4" 
+    {{-- MODAL DE FOTO CENTRALIZADO (ESTILO ADMIN CORRIGIDO) --}}
+    <div x-show="showPhoto" 
+         class="fixed inset-0 z-[9999] flex items-center justify-center p-4" 
          style="display: none;" 
-         x-cloak 
-         @click.self="showLightbox = false">
-        <button @click="showLightbox = false" class="absolute top-5 right-10 text-white text-5xl cursor-pointer hover:text-gray-300 transition-colors z-[10001]">&times;</button>
-        <img :src="photoUrl" 
-             class="max-w-full max-h-full sm:max-w-[90vw] sm:max-h-[90vh] object-contain shadow-2xl rounded-sm"
-             @click.stop>
+         x-cloak>
+        <div class="fixed inset-0 bg-black/75 transition-opacity" @click="showPhoto = false"></div>
+        
+        <div class="relative bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden transform transition-all z-10 mx-auto">
+            {{-- Botão Fechar no Canto Superior Direito --}}
+            <button @click="showPhoto = false" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors z-20 bg-white/80 rounded-full p-1 shadow-sm">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            {{-- Conteúdo da Foto --}}
+            <div class="p-2">
+                <div class="relative aspect-auto max-h-[80vh] overflow-hidden rounded-lg bg-gray-100 shadow-inner">
+                    <img :src="photoUrl" 
+                         class="w-full h-full object-contain mx-auto"
+                         @click.stop>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- MODAL DE VISUALIZAÇÃO (LAYOUT IDÊNTICO À SHOW BLADE COM MARCA D'ÁGUA) --}}
