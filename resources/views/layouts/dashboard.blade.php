@@ -109,8 +109,7 @@
                     <a href="{{ route('admin.os.index') }}" class="sidebar-link"><i data-lucide="file-text" class="icon"></i> Ordens de Serviço</a>
                     <a href="{{ route('admin.profile.edit') }}" class="sidebar-link"><i data-lucide="user" class="icon"></i> Meu Perfil</a>
                     <a href="{{ route('admin.accounts.index') }}" class="sidebar-link"><i data-lucide="users" class="icon"></i> Gerenciar Contas</a>
-                    <a href="{{ route('admin.about.edit') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
-                    <a href="{{ route('admin.about.edit') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
+	                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
 
 
                 {{-- ==================== MENU ANALISTA ==================== --}}
