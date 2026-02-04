@@ -69,7 +69,8 @@
             </div>
             @endif
 
-            <form id="form-create" method="POST" action="{{ route('admin.map.store') }}" class="space-y-10">
+            {{-- FORMULÁRIO COM ENCTYPE PARA UPLOAD --}}
+            <form id="form-create" method="POST" action="{{ route('admin.map.store') }}" class="space-y-10" enctype="multipart/form-data">
                 @csrf
 
                 {{-- SEÇÃO 1: IDENTIFICAÇÃO --}}
@@ -188,6 +189,14 @@
                             </div>
                         </div>
 
+                        {{-- CAMPO DE FOTO ADICIONADO AQUI --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Foto da Árvore</label>
+                            <input type="file" name="photo" accept="image/*" 
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition shadow-sm border border-gray-200 rounded-lg cursor-pointer" />
+                            <p class="text-xs text-gray-500 mt-1">Formatos: JPG, PNG, WEBP. Máx: 10MB.</p>
+                        </div>
+
                         {{-- Descrição --}}
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Descrição da Árvore</label>
@@ -279,6 +288,7 @@
                             <button type="button" @click="addCap()" x-show="caps.length < 20" 
                                 class="bg-[#358054] text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-700 transition flex items-center gap-1">
                                 <i data-lucide="plus" class="w-4 h-4"></i> Adicionar CAP
+                            </button>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">

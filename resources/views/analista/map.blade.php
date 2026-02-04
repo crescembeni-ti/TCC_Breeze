@@ -58,7 +58,8 @@
             </div>
             @endif
 
-            <form id="form-create" method="POST" action="{{ route('analyst.map.store') }}" class="space-y-10">
+            {{-- FORMULÁRIO COM UPLOAD HABILITADO --}}
+            <form id="form-create" method="POST" action="{{ route('analyst.map.store') }}" class="space-y-10" enctype="multipart/form-data">
                 @csrf
 
                 {{-- SEÇÃO 1: IDENTIFICAÇÃO --}}
@@ -179,6 +180,14 @@
                                     placeholder="Informe se não identificada">
                                 <p class="text-xs text-gray-500 mt-1">Utilize este campo apenas se a espécie não for encontrada.</p>
                             </div>
+                        </div>
+
+                        {{-- CAMPO DE FOTO (NOVO) --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Foto da Árvore</label>
+                            <input type="file" name="photo" accept="image/*" 
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition shadow-sm border border-gray-200 rounded-lg cursor-pointer" />
+                            <p class="text-xs text-gray-500 mt-1">Formatos: JPG, PNG, WEBP. Máx: 10MB.</p>
                         </div>
 
                         {{-- Descrição --}}
@@ -364,7 +373,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         
                         {{-- Organismos --}}
-                        <div x-data="{ open: false, selected: '{{ old('organisms') }}', selectedName: '{{ old('organisms') ?: 'Selecione...' }}' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('organisms') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Organismos</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
@@ -377,7 +386,7 @@
                         </div>
 
                         {{-- Alvo --}}
-                        <div x-data="{ open: false, selected: '{{ old('target') }}', selectedName: '{{ old('target') ?: 'Selecione...' }}' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('target') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Alvo</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
@@ -389,7 +398,7 @@
                         </div>
 
                         {{-- Injúrias --}}
-                        <div x-data="{ open: false, selected: '{{ old('injuries') }}', selectedName: '{{ old('injuries') ?: 'Selecione...' }}' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('injuries') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Injúrias Mecânicas</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
@@ -401,12 +410,12 @@
                         </div>
 
                         {{-- Fiação --}}
-                        <div x-data="{ open: false, selected: '{{ old('wiring_status') }}', selectedName: '{{ old('wiring_status') ?: 'Selecione...' }}' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('wiring_status') }}', selectedName: 'Selecione...' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Estado da fiação</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Não interfere'; selectedName='Não interfere'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Não interfere</li>
-                                <li @click="selected='Pode interferir'; selectedName='Pode interferir'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Pode interferir</li>
+                                <li @click="selected='Não Interfere'; selectedName='Não Interfere'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Não Interfere</li>
+                                <li @click="selected='Pode Interferir'; selectedName='Pode Interferir'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Pode Interferir</li>
                                 <li @click="selected='Interfere'; selectedName='Interfere'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Interfere</li>
                                 <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
                             </ul>
