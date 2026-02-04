@@ -702,6 +702,28 @@
             exibirArvores(allTrees);
             // Garante atualização das estatísticas no carregamento inicial
             atualizarEstatisticasSombreamento(allTrees);
+
+            // LÓGICA DE FOCO EM ÁRVORE ESPECÍFICA (URL PARAM focus_tree)
+            const urlParams = new URLSearchParams(window.location.search);
+            const focusId = urlParams.get('focus_tree');
+            if (focusId && treeMarkers[focusId]) {
+                const marker = treeMarkers[focusId];
+                const tree = allTrees.find(t => t.id == focusId);
+                if (tree) {
+                    setTimeout(() => {
+                        // Centraliza com zoom
+                        map.setView([tree.latitude, tree.longitude], 19, { animate: true });
+                        
+                        // Pequeno delay para o mapa terminar de mover e abrir o popup
+                        setTimeout(() => {
+                            // Prepara o popup e abre
+                            const targetPoint = map.latLngToContainerPoint([tree.latitude, tree.longitude]).add([0, -100]);
+                            map.setView(map.containerPointToLatLng(targetPoint), 19, { animate: true });
+                            marker.bindPopup(criarConteudoPopup(allTrees, allTrees.indexOf(tree))).openPopup();
+                        }, 500);
+                    }, 800);
+                }
+            }
         });
 
         /* --- FUNÇÃO PARA ATUALIZAR A LEGENDA --- */
