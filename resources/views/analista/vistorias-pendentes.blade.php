@@ -99,24 +99,43 @@
         </div>
     </div>
 
-    {{-- MODAL DE FOTOS (ESTILO ADMIN) --}}
-    <div x-show="showPhoto" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4" style="display: none;" x-cloak>
-        <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative">
-            <button @click="showPhoto = false" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
-                <i data-lucide="x"></i>
+    {{-- MODAL DE FOTOS (ESTILO ADMIN CORRIGIDO) --}}
+    <div x-show="showPhoto" 
+         class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6" 
+         style="display: none;" 
+         x-cloak>
+        <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity" @click="showPhoto = false"></div>
+        
+        <div class="relative bg-white w-full max-w-3xl rounded-2xl shadow-2xl p-6 sm:p-8 overflow-hidden transform transition-all z-10">
+            <button @click="showPhoto = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
             </button>
-            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Fotos</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-auto p-2">
+            
+            <h2 class="text-2xl font-bold text-[#358054] mb-6 text-center">Fotos da Solicitação</h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto p-1 custom-scrollbar">
                 <template x-for="(photo, index) in currentPhotos" :key="index">
-                    <img :src="'/storage/' + photo" 
-                         class="w-full h-64 object-cover rounded-lg shadow cursor-pointer hover:opacity-80"
-                         @click="photoUrl = '/storage/' + photo; showLightbox = true;">
+                    <div class="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-md transition-all">
+                        <img :src="'/storage/' + photo" 
+                             class="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-110"
+                             @click="photoUrl = '/storage/' + photo; showLightbox = true;">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all pointer-events-none"></div>
+                    </div>
                 </template>
                 <template x-if="currentPhotos.length === 0 && photoUrl">
-                    <img :src="photoUrl" 
-                         class="w-full h-64 object-cover rounded-lg shadow cursor-pointer hover:opacity-80"
-                         @click="showLightbox = true;">
+                    <div class="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-md transition-all">
+                        <img :src="photoUrl" 
+                             class="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-110"
+                             @click="showLightbox = true;">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all pointer-events-none"></div>
+                    </div>
                 </template>
+            </div>
+            
+            <div class="mt-6 flex justify-center">
+                <button @click="showPhoto = false" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold transition-colors">
+                    Fechar
+                </button>
             </div>
         </div>
     </div>
