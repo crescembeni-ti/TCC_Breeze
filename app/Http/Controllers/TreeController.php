@@ -305,7 +305,8 @@ class TreeController extends Controller
         }
 
         $trees = $query->get();
-        return view('admin.trees.index', compact('trees')); 
+        $bairros = Bairro::orderBy('nome')->get();
+        return view('admin.trees.index', compact('trees', 'bairros')); 
     }
 
     public function adminTreeEdit(Tree $tree) 
@@ -485,6 +486,7 @@ class TreeController extends Controller
         }
 
         $trees = $query->get();
-        return view('admin.trees.index', compact('trees')); 
+        $bairros = Bairro::orderBy('nome')->get();
+        return view('admin.trees.index', compact('trees', 'bairros')); 
     }
 }

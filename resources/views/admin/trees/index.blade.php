@@ -31,12 +31,7 @@
                     <p class="text-gray-600 mt-1">Consulte e gerencie o inventário de árvores cadastradas.</p>
                 </div>
                 
-                {{-- BOTÃO EXPORTAR (Se existir a rota) --}}
-                @if(Route::has('admin.trees.export'))
-                <a href="{{ route('admin.trees.export', request()->all()) }}" class="flex items-center gap-2 bg-[#358054] text-white px-4 py-2 rounded-lg hover:bg-[#2d6947] transition shadow-sm font-semibold">
-                    <i data-lucide="download" class="w-4 h-4"></i> Exportar Excel
-                </a>
-                @endif
+
             </div>
 
             {{-- ÁREA DE FILTROS --}}
@@ -52,8 +47,14 @@
                     {{-- Filtro por Bairro --}}
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Bairro</label>
-                        <input type="text" name="bairro" value="{{ request('bairro') }}" placeholder="Nome do bairro..." 
-                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#358054] focus:ring-[#358054] text-sm">
+                        <select name="bairro" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#358054] focus:ring-[#358054] text-sm">
+                            <option value="">Todos os Bairros</option>
+                            @foreach($bairros as $b)
+                                <option value="{{ $b->nome }}" {{ request('bairro') == $b->nome ? 'selected' : '' }}>
+                                    {{ $b->nome }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
 
                     {{-- Ordenação --}}
