@@ -117,23 +117,27 @@
                     <a href="{{ route('analyst.dashboard') }}" class="sidebar-link">
                         <i data-lucide="layout-dashboard" class="icon"></i> Painel Analista
                     </a>
-	                    <a href="{{ route('analyst.map') }}" class="sidebar-link"><i data-lucide="map-pin" class="icon"></i> Cadastrar Árvores</a>
-	                    <a href="{{ route('admin.trees.index') }}" class="sidebar-link"><i data-lucide="edit-3" class="icon"></i> Editar Árvores</a>
+	                    <a href="{{ route('analyst.map') }}" class="sidebar-link">
+                            <i data-lucide="map-pin" class="icon"></i> Cadastrar Árvores
+                        </a>
+	                    <a href="{{ route('admin.trees.index') }}" class="sidebar-link">
+                            <i data-lucide="edit-3" class="icon"></i> Editar Árvores
+                        </a>
 	                    <a href="{{ route('analyst.vistorias.pendentes') }}" class="sidebar-link">
 	                        <i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes
 	                    </a>
-		                    <a href="{{ url('/pbi-analista/ordens-enviadas') }}" class="sidebar-link">
-		                        <i data-lucide="file-text" class="icon"></i> OS Enviadas
-		                    </a>
-		                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
+		                 <a href="{{ url('/pbi-analista/ordens-enviadas') }}" class="sidebar-link">
+		                     <i data-lucide="file-text" class="icon"></i> OS Enviadas
+		                </a>
+		                <a href="{{ route('about') }}" class="sidebar-link">
+                            <i data-lucide="info" class="icon"></i> Sobre o Site
+                        </a>
 
                {{-- ==================== MENU SERVIÇO ==================== --}}
-		                @elseif (auth('service')->check())
-	                    <a href="{{ route('service.dashboard') }}" class="sidebar-link">
-	                        <i data-lucide="layout-dashboard" class="icon"></i> Painel Serviço
-	                    </a>
-	                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
-
+		         @elseif (auth('service')->check())
+	                <a href="{{ route('service.dashboard') }}" class="sidebar-link">
+	                     <i data-lucide="layout-dashboard" class="icon"></i> Painel Serviço
+	                 </a>
                     <a href="{{ route('service.tasks.recebidas') }}" class="sidebar-link">
                         <i data-lucide="inbox" class="icon"></i> Tarefas Recebidas
                     </a>
@@ -143,14 +147,27 @@
                     <a href="{{ route('service.tasks.concluidas') }}" class="sidebar-link">
                         <i data-lucide="check-circle" class="icon"></i> Tarefas Concluídas
                     </a>
+                    <a href="{{ route('about') }}" class="sidebar-link">    
+                        <i data-lucide="info" class="icon"></i> Sobre o Site
+                    </a>
 
                 {{-- ==================== MENU USUÁRIO ==================== --}}
                 @elseif (auth('web')->check())
-                    <a href="{{ route('dashboard') }}" class="sidebar-link"><i data-lucide="layout-dashboard" class="icon"></i> Menu</a>
-                    <a href="{{ route('contact') }}" class="sidebar-link"><i data-lucide="send" class="icon"></i> Nova Solicitação</a>
-                    <a href="{{ route('contact.myrequests') }}" class="sidebar-link"><i data-lucide="clipboard-list" class="icon"></i> Minhas Solicitações</a>
-                    <a href="{{ route('profile.edit') }}" class="sidebar-link"><i data-lucide="user" class="icon"></i> Meu Perfil</a>
-                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
+                    <a href="{{ route('dashboard') }}" class="sidebar-link">
+                        <i data-lucide="layout-dashboard" class="icon"></i> Menu
+                    </a>
+                    <a href="{{ route('contact') }}" class="sidebar-link">
+                        <i data-lucide="send" class="icon"></i> Nova Solicitação
+                    </a>
+                    <a href="{{ route('contact.myrequests') }}" class="sidebar-link">
+                        <i data-lucide="clipboard-list" class="icon"></i> Minhas Solicitações
+                    </a>
+                    <a href="{{ route('profile.edit') }}" class="sidebar-link">
+                        <i data-lucide="user" class="icon"></i> Meu Perfil
+                   </a>
+                   <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon">
+                      </i> Sobre o Site
+                   </a>
                 @endif
             </nav>
 

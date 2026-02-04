@@ -31,47 +31,15 @@
 
         </div>
 
-        {{-- TABELA PRINCIPAL DE VISTORIAS --}}
-        <div class="bg-white overflow-hidden shadow-md sm:rounded-lg">
-            <div class="p-6">
-                <h3 class="text-2xl font-bold text-[#358054] mb-6">
-                    Lista de Solicitações de Vistoria (Recentes)
-                </h3>
-                
-                <div class="mt-4 overflow-x-auto">
-                    {{-- Verifica se tem dados --}}
-                    @if($vistorias->isEmpty())
-                        <p class="text-gray-500 text-center py-4">Nenhuma solicitação pendente no momento.</p>
-                    @else
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Protocolo</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Solicitação</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                {{-- Loop real pelos dados --}}
-                                @foreach ($vistorias as $vistoria)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-700">
-                                        #{{ $vistoria->id }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">{{ $vistoria->contact->nome_solicitante ?? 'Sem Solicitante' }}</div>
-                                        <div class="text-xs text-gray-500">{{ $vistoria->bairro }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $vistoria->created_at->format('d/m/Y') }}
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    @endif
-                </div>
-
+        {{-- Botões de Ação Rápida --}}
+         <div class="grid grid-cols-1 gap-6">
+             <a href="{{ route('analyst.vistorias.pendentes') }}" class="block p-8 bg-white border border-gray-200 rounded-lg shadow hover:bg-green-50 hover:border-green-300 transition group">
+                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 group-hover:text-[#358054] flex items-center gap-2">
+                <i data-lucide="list" class="w-8 h-8"></i> Minhas Tarefas
+                </h5>
+                <p class="text-lg font-normal text-gray-700">Visualize a lista completa de ordens de serviço atribuídas a você.</p>
+             </a>
+        </div>
             </div>
         </div>
 
