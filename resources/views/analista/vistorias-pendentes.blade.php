@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- ESTADO GLOBAL DO ALPINE --}}
-<div x-data="{ open: false, item: { contact: {} } }">
+<div x-data="{ open: false, showPhoto: false, photoUrl: '', item: { contact: {} } }">
 
     {{-- CABEÇALHO DA PÁGINA --}}
     <header class="bg-white shadow mb-8 rounded-lg p-6 flex flex-col md:flex-row justify-between items-center">
@@ -35,6 +35,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Local</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fotos</th>
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                             </tr>
                         </thead>
@@ -52,6 +53,15 @@
                                         Aguardando Vistoria
                                     </span>
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    @if($vistoria->contact->foto_path)
+                                        <button @click="showPhoto = true; photoUrl = '{{ Storage::url($vistoria->contact->foto_path) }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                            <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
+                                        </button>
+                                    @else
+                                        <span class="text-gray-400 italic">Sem foto</span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <button 
                                         @click="open = true; item = {{ $vistoria->toJson() }}"
@@ -65,6 +75,24 @@
                     </table>
                 </div>
             @endif
+        </div>
+    </div>
+
+    {{-- MODAL DE FOTO --}}
+    <div x-show="showPhoto" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-75 p-4" style="display: none;" x-cloak>
+        <div class="relative max-w-4xl w-full bg-white rounded-lg overflow-hidden shadow-2xl">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="font-bold text-gray-900">Foto da Solicitação</h3>
+                <button @click="showPhoto = false" class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-2 flex justify-center bg-gray-100">
+                <img :src="photoUrl" class="max-h-[80vh] object-contain rounded shadow-sm">
+            </div>
+            <div class="p-4 border-t flex justify-end">
+                <button @click="showPhoto = false" class="bg-gray-800 text-white px-4 py-2 rounded font-bold hover:bg-gray-700 transition">Fechar</button>
+            </div>
         </div>
     </div>
 
