@@ -71,7 +71,17 @@
 
                             {{-- FOTOS --}}
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                @if($os->contact->foto_path)
+                                @php
+                                    $fotos = $os->contact->fotos;
+                                    if (is_string($fotos)) {
+                                        $fotos = json_decode($fotos, true);
+                                    }
+                                @endphp
+                                @if(is_array($fotos) && count($fotos) > 0)
+                                    <button @click="showPhoto = true; photoUrl = '/storage/{{ $fotos[0] }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                        <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
+                                    </button>
+                                @elseif($os->contact->foto_path)
                                     <button @click="showPhoto = true; photoUrl = '{{ Storage::url($os->contact->foto_path) }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
                                         <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
                                     </button>
@@ -95,21 +105,13 @@
         </div>
     @endif
 
-    {{-- MODAL DE FOTO --}}
-    <div x-show="showPhoto" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-75 p-4" style="display: none;" x-cloak>
-        <div class="relative max-w-4xl w-full bg-white rounded-lg overflow-hidden shadow-2xl">
-            <div class="p-4 border-b flex justify-between items-center">
-                <h3 class="font-bold text-gray-900">Foto da Solicitação</h3>
-                <button @click="showPhoto = false" class="text-gray-500 hover:text-gray-700">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-            <div class="p-2 flex justify-center bg-gray-100">
-                <img :src="photoUrl" class="max-h-[80vh] object-contain rounded shadow-sm">
-            </div>
-            <div class="p-4 border-t flex justify-end">
-                <button @click="showPhoto = false" class="bg-gray-800 text-white px-4 py-2 rounded font-bold hover:bg-gray-700 transition">Fechar</button>
-            </div>
+    {{-- MODAL DE FOTO (LIGHTBOX) --}}
+    <div x-show="showPhoto" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-90 p-4" style="display: none;" x-cloak @click="showPhoto = false">
+        <div class="relative max-w-5xl w-full flex items-center justify-center">
+            <button @click="showPhoto = false" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition">
+                <i data-lucide="x" class="w-10 h-10"></i>
+            </button>
+            <img :src="photoUrl" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl border-2 border-white/20">
         </div>
     </div>
 
