@@ -35,11 +35,15 @@
                     <div class="grid grid-cols-2 gap-4 border-b border-gray-300 pb-2">
                         <div>
                             <label class="font-bold mb-1 uppercase text-black">Nº Solicitação:</label>
-                            <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black" x-text="item.contact ? + item.contact.id : ''"></p>
+                            <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black" x-text="item.contact ? item.contact.id : ''"></p>
                         </div>
                         <div>
                             <label class="font-bold mb-1 uppercase text-black">Data de Emissão:</label>
                             <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black" x-text="item.created_at ? new Date(item.created_at).toLocaleDateString('pt-BR') : 'N/A'"></p>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="font-bold mb-1 uppercase text-black">Solicitante:</label>
+                            <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black font-medium" x-text="item.contact ? item.contact.nome_solicitante : ''"></p>
                         </div>
                     </div>
 

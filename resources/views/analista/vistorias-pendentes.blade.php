@@ -115,6 +115,10 @@
                                 <label class="font-bold mb-1 uppercase text-black">Data de Envio:</label>
                                 <input type="text" class="w-full border-0 border-b border-gray-400 bg-gray-50/80 p-1 font-medium text-gray-900" :value="item.created_at ? new Date(item.created_at).toLocaleDateString('pt-BR') : ''" readonly>
                             </div>
+                            <div class="col-span-2">
+                                <label class="font-bold mb-1 uppercase text-black">Solicitante:</label>
+                                <input type="text" class="w-full border-0 border-b border-gray-400 bg-gray-50/80 p-1 font-medium text-gray-900" :value="item.contact ? item.contact.nome_solicitante : ''" readonly>
+                            </div>
                         </div>
 
                         <div class="mb-4 border-b border-gray-300 pb-2">

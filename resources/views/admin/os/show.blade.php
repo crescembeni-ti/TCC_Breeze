@@ -94,6 +94,10 @@
                         <label class="font-bold mb-1 uppercase text-black">Data Abertura:</label>
                         <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black">{{ $os->contact->created_at->format('d/m/Y') }}</p>
                     </div>
+                    <div class="col-span-2">
+                        <label class="font-bold mb-1 uppercase text-black">Solicitante:</label>
+                        <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black font-medium">{{ $os->contact->nome_solicitante }}</p>
+                    </div>
                 </div>
 
                 {{-- ÁREA --}}
