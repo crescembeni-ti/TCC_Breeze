@@ -99,7 +99,7 @@
             {{-- MAPA --}}
             <hr class="my-8 border-gray-200">
             <div class="mb-4">
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">🗺️ Mapa de Solicitações (Geral)</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">🗺️ Mapa de Solicitações</h3>
                 <p class="text-gray-600 text-sm">Visualizando <strong>todas</strong> as solicitações do período selecionado.</p>
             </div>
 

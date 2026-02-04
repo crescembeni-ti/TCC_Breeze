@@ -56,7 +56,7 @@
                         <tr class="hover:bg-gray-50 transition-colors">
                             {{-- PROTOCOLO --}}
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-500">
-                                {{ $os->contact->id }}
+                                #{{ $os->contact->id }}
                             </td>
                             
                             {{-- LOCAL --}}
