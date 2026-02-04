@@ -279,9 +279,32 @@ class TreeController extends Controller
         return redirect()->back()->with('success', 'Árvore aprovada com sucesso!'); 
     }
 
-    public function adminTreeList() 
+    public function adminTreeList(Request $request) 
     { 
-        $trees = Tree::latest()->get(); 
+        $query = Tree::with('bairro');
+
+        // Filtros
+        if ($request->filled('id')) {
+            $query->where('id', $request->id);
+        }
+
+        if ($request->filled('bairro')) {
+            $query->whereHas('bairro', function($q) use ($request) {
+                $q->where('nome', 'like', '%' . $request->bairro . '%');
+            });
+        }
+
+        // Ordenação
+        $sort = $request->get('sort', 'id_desc');
+        switch ($sort) {
+            case 'id_asc': $query->orderBy('id', 'asc'); break;
+            case 'id_desc': $query->orderBy('id', 'desc'); break;
+            case 'name_asc': $query->orderBy('scientific_name', 'asc'); break;
+            case 'name_desc': $query->orderBy('scientific_name', 'desc'); break;
+            default: $query->orderBy('id', 'desc'); break;
+        }
+
+        $trees = $query->get();
         return view('admin.trees.index', compact('trees')); 
     }
 
@@ -434,9 +457,34 @@ class TreeController extends Controller
         return view('analista.map', compact('bairros', 'trees', 'scientificNames', 'vulgarNames', 'speciesMap', 'vulgarToScientific')); 
     }
     
-    public function analystTreeList() 
+    public function analystTreeList(Request $request) 
     { 
-        $trees = Tree::latest()->get(); 
-        return view('analista.trees.index', compact('trees')); 
+        // Como o arquivo analista.trees.index não existe fisicamente, mas a rota aponta para ele,
+        // vou redirecionar para a view admin.trees.index que é a que realmente existe.
+        $query = Tree::with('bairro');
+
+        // Filtros
+        if ($request->filled('id')) {
+            $query->where('id', $request->id);
+        }
+
+        if ($request->filled('bairro')) {
+            $query->whereHas('bairro', function($q) use ($request) {
+                $q->where('nome', 'like', '%' . $request->bairro . '%');
+            });
+        }
+
+        // Ordenação
+        $sort = $request->get('sort', 'id_desc');
+        switch ($sort) {
+            case 'id_asc': $query->orderBy('id', 'asc'); break;
+            case 'id_desc': $query->orderBy('id', 'desc'); break;
+            case 'name_asc': $query->orderBy('scientific_name', 'asc'); break;
+            case 'name_desc': $query->orderBy('scientific_name', 'desc'); break;
+            default: $query->orderBy('id', 'desc'); break;
+        }
+
+        $trees = $query->get();
+        return view('admin.trees.index', compact('trees')); 
     }
 }

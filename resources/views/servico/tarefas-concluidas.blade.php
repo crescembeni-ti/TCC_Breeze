@@ -5,7 +5,7 @@
     <div x-data="{ 
     open: false, 
     showPhoto: false, 
-    showHistory: false,
+
     showLightbox: false,
     photoUrl: '', 
     item: { id: '', contact: { status: {} }, motivos: [], servicos: [], equipamentos: [] },
@@ -135,16 +135,10 @@
 
                             {{-- AÇÕES (BOTÃO VER OS) --}}
                             <td class="px-6 py-4 text-right">
-                                <div class="flex justify-end items-center gap-2">
-                                    <button @click="item = {{ json_encode($os->load(['analyst', 'service', 'supervisor'])) }}; showHistory = true;" 
-                                        class="bg-blue-50 text-blue-700 hover:bg-blue-100 p-2 rounded-lg transition border border-blue-200" title="Ver Responsáveis">
-                                        <i data-lucide="users" class="w-5 h-5"></i>
-                                    </button>
-                                    <button @click="open = true; item = {{ json_encode($os->load('contact.status')) }}" 
-                                        class="text-green-700 hover:text-blue-900 font-bold border border-green-700 px-4 py-1.5 rounded hover:bg-blue-50 transition flex items-center gap-2">
-                                        <i data-lucide="eye" class="w-4 h-4"></i> Ver OS
-                                    </button>
-                                </div>
+                                <button @click="open = true; item = {{ json_encode($os->load('contact.status')) }}" 
+                                    class="text-green-700 hover:text-blue-900 font-bold border border-green-700 px-4 py-1.5 rounded hover:bg-blue-50 transition flex items-center gap-2 ml-auto">
+                                    <i data-lucide="eye" class="w-4 h-4"></i> Ver OS
+                                </button>
                             </td>
                         </tr>
                         @endforeach
@@ -156,57 +150,7 @@
 
 
 
-    {{-- MODAL DE HISTÓRICO (QUEM PASSOU PELA OS) --}}
-    <div x-show="showHistory" 
-         class="fixed inset-0 z-[9999] flex items-center justify-center p-4" 
-         style="display: none;" 
-         x-cloak>
-        <div class="fixed inset-0 bg-black/60 transition-opacity" @click="showHistory = false"></div>
-        
-        <div class="relative bg-white rounded-xl shadow-2xl overflow-hidden transform transition-all z-10 mx-auto w-full max-w-md">
-            <div class="bg-[#358054] p-4 flex justify-between items-center">
-                <h3 class="text-white font-bold flex items-center gap-2">
-                    <i data-lucide="history" class="w-5 h-5"></i> Histórico de Responsáveis
-                </h3>
-                <button @click="showHistory = false" class="text-white/80 hover:text-white transition-colors">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-            
-            <div class="p-6 space-y-6">
-                {{-- Analista --}}
-                <div class="flex items-start gap-4">
-                    <div class="bg-blue-50 p-3 rounded-full">
-                        <i data-lucide="user-check" class="w-6 h-6 text-blue-600"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Analista Responsável</p>
-                        <p class="text-gray-900 font-bold text-lg" x-text="item.analyst ? item.analyst.name : (item.supervisor ? item.supervisor.name : 'Não passou por analista')"></p>
-                        <p class="text-xs text-gray-400 mt-1" x-show="!item.analyst && !item.supervisor">Atualizado diretamente pelo Admin</p>
-                    </div>
-                </div>
 
-                <div class="border-l-2 border-dashed border-gray-200 ml-6 h-4"></div>
-
-                {{-- Serviço --}}
-                <div class="flex items-start gap-4">
-                    <div class="bg-green-50 p-3 rounded-full">
-                        <i data-lucide="hammer" class="w-6 h-6 text-green-600"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Equipe de Serviço</p>
-                        <p class="text-gray-900 font-bold text-lg" x-text="item.service ? item.service.name : 'Não atribuído'"></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gray-50 p-4 text-center">
-                <button @click="showHistory = false" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg transition">
-                    Fechar
-                </button>
-            </div>
-        </div>
-    </div>
 
     {{-- MODAL DE FOTO CENTRALIZADO (ESTILO ADMIN CORRIGIDO) --}}
     <div x-show="showPhoto" 

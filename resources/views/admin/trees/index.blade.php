@@ -25,9 +25,58 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 p-4 md:p-10">
         <div class="bg-white shadow-sm rounded-lg p-4 md:p-8">
-            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-                <h2 class="text-3xl font-bold text-[#358054]">Gerenciar Árvores</h2>
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-[#358054]">Gerenciar Árvores</h2>
+                    <p class="text-gray-600 mt-1">Consulte e gerencie o inventário de árvores cadastradas.</p>
+                </div>
+                
+                {{-- BOTÃO EXPORTAR (Se existir a rota) --}}
+                @if(Route::has('admin.trees.export'))
+                <a href="{{ route('admin.trees.export', request()->all()) }}" class="flex items-center gap-2 bg-[#358054] text-white px-4 py-2 rounded-lg hover:bg-[#2d6947] transition shadow-sm font-semibold">
+                    <i data-lucide="download" class="w-4 h-4"></i> Exportar Excel
+                </a>
+                @endif
+            </div>
 
+            {{-- ÁREA DE FILTROS --}}
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-8">
+                <form action="{{ url()->current() }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {{-- Filtro por ID --}}
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">ID da Árvore</label>
+                        <input type="number" name="id" value="{{ request('id') }}" placeholder="Ex: 123" 
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#358054] focus:ring-[#358054] text-sm">
+                    </div>
+
+                    {{-- Filtro por Bairro --}}
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Bairro</label>
+                        <input type="text" name="bairro" value="{{ request('bairro') }}" placeholder="Nome do bairro..." 
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#358054] focus:ring-[#358054] text-sm">
+                    </div>
+
+                    {{-- Ordenação --}}
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Ordenar por</label>
+                        <select name="sort" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#358054] focus:ring-[#358054] text-sm">
+                            <option value="id_desc" {{ request('sort') == 'id_desc' ? 'selected' : '' }}>ID (Mais recente)</option>
+                            <option value="id_asc" {{ request('sort') == 'id_asc' ? 'selected' : '' }}>ID (Mais antigo)</option>
+                            <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Nome Científico (A-Z)</option>
+                            <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Nome Científico (Z-A)</option>
+                        </select>
+                    </div>
+
+                    {{-- Botões --}}
+                    <div class="flex items-end gap-2">
+                        <button type="submit" class="flex-1 bg-[#358054] text-white px-4 py-2 rounded-lg hover:bg-[#2d6947] transition font-bold text-sm shadow-sm flex items-center justify-center gap-2">
+                            <i data-lucide="search" class="w-4 h-4"></i> Filtrar
+                        </button>
+                        <a href="{{ url()->current() }}" class="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition shadow-sm" title="Limpar Filtros">
+                            <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </form>
             </div>
 
             <div class="overflow-x-auto">
@@ -61,8 +110,12 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                                    Nenhuma árvore cadastrada ainda.
+                                <td colspan="4" class="px-6 py-4 text-center py-12">
+                                    <div class="flex flex-col items-center justify-center text-gray-400">
+                                        <i data-lucide="tree-pine" class="w-12 h-12 mb-2 opacity-20"></i>
+                                        <p class="text-lg font-medium">Nenhuma árvore encontrada</p>
+                                        <p class="text-sm">Tente ajustar seus filtros para encontrar o que procura.</p>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
