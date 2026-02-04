@@ -5,18 +5,7 @@
 @section('content')
 
 {{-- ESTADO GLOBAL DO ALPINE --}}
-<div x-data="{ 
-    open: false, 
-    showPhoto: false, 
-    showLightbox: false,
-    photoUrl: '', 
-    item: { contact: {}, motivos: [], servicos: [], equipamentos: [] },
-    currentPhotos: [],
-    openCarousel(photos) {
-        this.currentPhotos = photos;
-        this.showPhoto = true;
-    }
-}">
+<div x-data="{ open: false, item: { contact: {}, motivos: [], servicos: [], equipamentos: [] } }">
 
     {{-- CABEÇALHO DA LISTAGEM --}}
     <header class="bg-white shadow mb-8 rounded-lg p-6 flex flex-col md:flex-row justify-between items-center">
@@ -51,7 +40,6 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Vistoria</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fotos</th>
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                             </tr>
                         </thead>
@@ -72,21 +60,6 @@
                                         Vistoriado
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    @php
-                                        $fotos = $os->contact->fotos;
-                                        if (is_string($fotos)) {
-                                            $fotos = json_decode($fotos, true);
-                                        }
-                                    @endphp
-                                    @if(is_array($fotos) && count($fotos) > 0)
-                                        <button @click="openCarousel({{ json_encode($fotos) }})" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
-                                            <i data-lucide="images" class="w-4 h-4"></i> Ver Fotos
-                                        </button>
-                                    @else
-                                        <span class="text-gray-400 italic">Sem foto</span>
-                                    @endif
-                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <button 
                                         @click="open = true; item = {{ $os->toJson() }}"
@@ -101,57 +74,6 @@
                 </div>
             @endif
         </div>
-    </div>
-
-    {{-- MODAL DE FOTOS (ESTILO ADMIN CORRIGIDO) --}}
-    <div x-show="showPhoto" 
-         class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6" 
-         style="display: none;" 
-         x-cloak>
-        <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity" @click="showPhoto = false"></div>
-        
-        <div class="relative bg-white w-full max-w-3xl rounded-2xl shadow-2xl p-6 sm:p-8 overflow-hidden transform transition-all z-10">
-            <button @click="showPhoto = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-            
-            <h2 class="text-2xl font-bold text-[#358054] mb-6 text-center">Fotos da Solicitação</h2>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto p-1 custom-scrollbar">
-                <template x-for="(photo, index) in currentPhotos" :key="index">
-                    <div class="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-md transition-all">
-                        <img :src="'/storage/' + photo" 
-                             class="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-110"
-                             @click="photoUrl = '/storage/' + photo; showLightbox = true;">
-                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all pointer-events-none"></div>
-                    </div>
-                </template>
-                <template x-if="currentPhotos.length === 0 && photoUrl">
-                    <div class="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-md transition-all">
-                        <img :src="photoUrl" 
-                             class="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-110"
-                             @click="showLightbox = true;">
-                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all pointer-events-none"></div>
-                    </div>
-                </template>
-            </div>
-            
-            <div class="mt-6 flex justify-center">
-                <button @click="showPhoto = false" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold transition-colors">
-                    Fechar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    {{-- LIGHTBOX PARA AMPLIAR (ESTILO ADMIN) --}}
-    <div x-show="showLightbox" 
-         class="fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-90 p-4" 
-         style="display: none;" 
-         x-cloak 
-         @click="showLightbox = false">
-        <span class="absolute top-5 right-10 text-white text-4xl cursor-pointer">&times;</span>
-        <img :src="photoUrl" class="max-w-full max-h-full object-contain">
     </div>
 
     {{-- MODAL DE VISUALIZAÇÃO (LAYOUT IDÊNTICO À SHOW BLADE COM MARCA D'ÁGUA) --}}
@@ -200,11 +122,13 @@
                                 <label class="font-bold mb-1 uppercase text-black">Data de Envio:</label>
                                 <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black" x-text="item.created_at ? new Date(item.created_at).toLocaleDateString('pt-BR') : ''"></p>
                             </div>
-                            <div class="col-span-2">
+                             <div class="col-span-2">
                                 <label class="font-bold mb-1 uppercase text-black">Solicitante:</label>
-                                <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black font-medium" x-text="item.contact ? item.contact.nome_solicitante : ''"></p>
-                            </div>
+                                <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black font-medium">{{ $os->contact->nome_solicitante }}</p>
+                             </div>
+
                         </div>
+
 
                         {{-- IDENTIFICAÇÃO DA ÁREA --}}
                         <div class="mb-4 border-b border-gray-300 pb-2">
@@ -244,7 +168,7 @@
                         <div class="mb-4 border-b border-gray-300 pb-2 bg-gray-50/80 p-2 rounded">
                             <h4 class="font-bold mb-1 uppercase text-black">Motivo da Intervenção</h4>
                             <div class="grid grid-cols-2 gap-y-1">
-                                <template x-for="opcao in ['Risco de Queda', 'Conflito rede eletrica', 'Danos infraestrutura', 'Outras']">
+                                <template x-for="opcao in ['Risco de Queda', 'Conflito com rede elétrica', 'Danos á infraestrutura', 'Outras razões']">
                                     <label class="flex items-center gap-2 text-gray-700 opacity-80">
                                         <input type="checkbox" disabled class="rounded border-gray-400 text-[#358054]" 
                                                :checked="item.motivos && item.motivos.includes(opcao)"> 
@@ -258,7 +182,7 @@
                         <div class="mb-4 border-b border-gray-300 pb-2 bg-gray-50/80 p-2 rounded">
                             <h4 class="font-bold mb-1 uppercase text-black">Serviços a Executar</h4>
                             <div class="grid grid-cols-2 gap-y-1">
-                                <template x-for="opcao in ['Levantamento copa', 'Desobstrucao', 'Limpeza', 'Adequacao', 'Remocao Total', 'Outras']">
+                                <template x-for="opcao in ['Poda de levantamento de copa', 'Poda de desobstrucão de rede', 'Poda de limpeza', 'Poda de adequação', 'Remoção total da árvore', 'Outras intervenções']">
                                     <label class="flex items-center gap-2 text-gray-700 opacity-80">
                                         <input type="checkbox" disabled class="rounded border-gray-400 text-[#358054]" 
                                                :checked="item.servicos && item.servicos.includes(opcao)"> 
@@ -283,7 +207,7 @@
                         </div>
 
                         {{-- DATAS E OBSERVAÇÕES --}}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div class="grid grid-cols-2 gap-6 mt-4">
                             <div>
                                 <label class="font-bold mb-1 uppercase text-black">Data Vistoria:</label>
                                 <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black" 
@@ -296,7 +220,7 @@
                             </div>
                             
                             {{-- OBSERVAÇÕES DO ADMIN --}}
-                            <div class="col-span-1 md:col-span-2">
+                            <div class="col-span-2">
                                 <label class="font-bold mb-1 uppercase text-black">OBSERVAÇÕES:</label>
                                 <div class="w-full border p-2 bg-gray-50 rounded italic text-gray-800 text-sm min-h-[40px]" x-text="item.observacoes || 'Sem observações.'"></div>
                             </div>
@@ -304,12 +228,8 @@
 
                         {{-- RODAPÉ (ASSINATURAS) --}}
                         <div class="grid grid-cols-2 gap-8 mt-12 pt-4 print:mt-6 text-center">
-                            <div class="border-t border-black pt-2">
-                                <p class="text-[10px] font-bold uppercase text-black">Responsável Técnico</p>
-                            </div>
-                            <div class="border-t border-black pt-2">
-                                <p class="text-[10px] font-bold uppercase text-black">Recebido por</p>
-                            </div>
+                            <div class="border-t border-black pt-2"><p class="text-xs font-bold uppercase">Responsável Técnico</p></div>
+                            <div class="border-t border-black pt-2"><p class="text-xs font-bold uppercase">Recebido por</p></div>
                         </div>
 
                     </div>
@@ -329,6 +249,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => { 
