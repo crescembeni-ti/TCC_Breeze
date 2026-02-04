@@ -16,23 +16,21 @@
     @vite('resources/css/contact.css')
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 
-    {{-- Ícones e Alpine --}}
+    {{-- Scripts Necessários --}}
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     <style>
         [x-cloak] { display: none !important; }
-        /* CSS mantido */
-        #preview-area { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
-        .preview-item { position: relative; width: 110px; height: 110px; }
-        .preview-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #ccc; cursor: pointer; }
-        .remove-btn { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; background: #ff4d4d; border-radius: 50%; color: white; font-size: 14px; text-align: center; line-height: 22px; cursor: pointer; border: 2px solid white; }
+        /* CSS para scrollbar da sidebar (se necessário) */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 
 <body class="font-sans antialiased">
     
-    {{-- CONTEXTO ALPINE --}}
+    {{-- SCOPE PRINCIPAL DO ALPINE --}}
     <div class="min-h-screen" x-data="fileUploader()">
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 md:py-12">
@@ -50,7 +48,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-                {{-- COLUNA DA ESQUERDA: INFOS --}}
+                {{-- LADO ESQUERDO: INFORMAÇÕES --}}
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden lg:mr-8">
                     <div class="p-6 sm:p-8">
                         <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
@@ -63,17 +61,14 @@
                                     CEP: 26600-000
                                 </p>
                             </div>
-
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800 mb-2">Telefone</h3>
                                 <p class="text-gray-600">(21) 2683-1897</p>
                             </div>
-
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800 mb-2">E-mail</h3>
                                 <p class="text-gray-600">meioambiente@paracambi.rj.gov.br</p>
                             </div>
-
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800 mb-2">Horário de Atendimento</h3>
                                 <p class="text-gray-600">
@@ -81,7 +76,6 @@
                                     Sábados, Domingos e Feriados: Fechado
                                 </p>
                             </div>
-
                             <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
                                 <h3 class="text-lg font-semibold text-red-700 mb-2 flex items-center gap-2">
                                     <i data-lucide="alert-triangle" class="w-5 h-5"></i>
@@ -100,23 +94,24 @@
                     </div>
                 </div>
 
-                {{-- COLUNA DA DIREITA: FORMULÁRIO --}}
+                {{-- LADO DIREITO: FORMULÁRIO --}}
                 <div class="bg-white rounded-lg shadow-lg p-6 sm:p-8">
                     <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Formulário de Contato</h2>
 
-                    {{-- FORMULÁRIO --}}
+                    {{-- Formulário com prevent default no submit para abrir modal --}}
                     <form id="contactForm" action="{{ route('contact.store') }}" method="POST" enctype="multipart/form-data" @submit.prevent="submitForm" class="space-y-6">
                         @csrf
 
-                        {{-- TÓPICO (Dropdown Customizado) --}}
-                        <div x-data="{ open: false, selected: '{{ old('topico') ?? '' }}' }" class="relative w-full">
+                        {{-- TÓPICO (Correção: z-50 para ficar por cima de tudo) --}}
+                        <div x-data="{ open: false, selected: '{{ old('topico') ?? '' }}' }" class="relative w-full z-50">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Solicitações Frequentes *</label>
+                            
                             <button @click="open = !open" type="button" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-left flex justify-between items-center focus:ring-2 focus:ring-[#358054] focus:border-transparent">
                                 <span x-text="selected || 'Escolha um tópico...'" :class="selected ? 'text-gray-900' : 'text-gray-500'"></span>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
                             </button>
                             
-                            <ul x-show="open" @click.outside="open=false" x-transition class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-20">
+                            <ul x-show="open" @click.outside="open=false" x-transition class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-50">
                                 @foreach ($topicos as $topico)
                                     <li @click="selected='{{ $topico->nome }}'; open=false" 
                                         class="px-4 py-2 cursor-pointer hover:bg-[#358054] hover:text-white transition-colors" 
@@ -129,7 +124,7 @@
                         </div>
 
                         {{-- TELEFONE --}}
-                        <div>
+                        <div class="relative z-0">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Telefone de Contato *</label>
                             <input type="text" 
                                    name="telefone" 
@@ -143,14 +138,14 @@
                             <small class="text-gray-500">Informe um número para contato caso a equipe precise.</small>
                         </div>
 
-                        {{-- BAIRRO (Dropdown Customizado) --}}
-                        <div x-data="{ open: false, selected: '{{ old('bairro') ?? '' }}' }" class="relative w-full">
+                        {{-- BAIRRO (Correção: z-40 para ficar acima do resto, mas abaixo do tópico se necessário) --}}
+                        <div x-data="{ open: false, selected: '{{ old('bairro') ?? '' }}' }" class="relative w-full z-40">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Bairro *</label>
                             <button @click="open = !open" type="button" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-left flex justify-between items-center focus:ring-2 focus:ring-[#358054] focus:border-transparent">
                                 <span x-text="selected || 'Escolha um bairro...'" :class="selected ? 'text-gray-900' : 'text-gray-500'"></span>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
                             </button>
-                            <ul x-show="open" @click.outside="open=false" x-transition class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-20">
+                            <ul x-show="open" @click.outside="open=false" x-transition class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-50">
                                 @foreach ($bairros as $bairro)
                                     <li @click="selected='{{ $bairro->nome }}'; open=false" 
                                         class="px-4 py-2 cursor-pointer hover:bg-[#358054] hover:text-white transition-colors" 
@@ -163,26 +158,26 @@
                         </div>
 
                         {{-- RUA --}}
-                        <div>
+                        <div class="relative z-0">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Rua *</label>
                             <input type="text" name="rua" required maxlength="255" value="{{ old('rua') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#358054] focus:border-[#358054]">
                         </div>
 
                         {{-- NÚMERO --}}
-                        <div>
+                        <div class="relative z-0">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Número</label>
                             <input type="text" name="numero" maxlength="10" value="{{ old('numero') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#358054] focus:border-[#358054]">
                         </div>
 
                         {{-- DESCRIÇÃO --}}
-                        <div>
+                        <div class="relative z-0">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Descrição *</label>
                             <small class="text-gray-500 mt-1 block mb-1">Descreva a situação da árvore e forneça um ponto de referência.</small>
                             <textarea name="descricao" rows="5" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#358054] focus:border-[#358054]">{{ old('descricao') }}</textarea>
                         </div>
 
-                        {{-- FOTOS --}}
-                        <div class="space-y-2">
+                        {{-- FOTOS (COM ALPINE) --}}
+                        <div class="space-y-2 relative z-0">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Anexar Fotos (Máx. 3)</label>
                             
                             <input type="file" class="hidden" id="inputFotos" name="fotos[]" accept="image/*" multiple @change="addFiles">
@@ -195,6 +190,7 @@
                                 <p class="text-gray-500 text-xs">Formatos: JPG, PNG, JPEG. Tamanho máx: 5MB.</p>
                             </div>
 
+                            {{-- Preview Area --}}
                             <div class="grid grid-cols-3 gap-3 mt-3">
                                 <template x-for="(foto, index) in fotos" :key="index">
                                     <div class="relative group aspect-square">
@@ -207,11 +203,11 @@
                             </div>
                         </div>
 
-                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg relative z-0">
                             <p class="text-yellow-800 text-sm"><strong>Atenção:</strong> Todos os campos marcados com * são obrigatórios.</p>
                         </div>
 
-                        <button type="submit" class="w-full bg-[#358054] text-white font-bold text-lg rounded-lg shadow-md hover:bg-[#2d6e4b] transition py-3 flex items-center justify-center gap-2">
+                        <button type="submit" class="w-full bg-[#358054] text-white font-bold text-lg rounded-lg shadow-md hover:bg-[#2d6e4b] transition py-3 flex items-center justify-center gap-2 relative z-0">
                             <span>Enviar Mensagem</span>
                             <i data-lucide="send" class="w-5 h-5"></i>
                         </button>
@@ -255,7 +251,7 @@
                 <div class="text-center">
                     <h3 class="text-xl font-bold text-gray-900 mb-2">Confirmar Envio?</h3>
                     <p class="text-gray-500 text-sm leading-relaxed">
-                        Você está prestes a enviar sua solicitação para a Secretaria de Meio Ambiente. Verifique se os dados e as fotos estão corretos antes de confirmar.
+                        Você está prestes a enviar sua solicitação. Verifique se os dados e as fotos estão corretos antes de confirmar.
                     </p>
                 </div>
 
@@ -281,6 +277,7 @@
     <script>
         lucide.createIcons();
 
+        // Máscara de Telefone
         function mascaraTelefone(input) {
             let v = input.value;
             v = v.replace(/\D/g, ""); 
@@ -331,7 +328,6 @@
                 },
 
                 submitForm() {
-                    // Validações
                     const inputTopico = document.querySelector('input[name="topico"]');
                     const inputBairro = document.querySelector('input[name="bairro"]');
                     const inputTelefone = document.getElementById('telefoneInput');
@@ -360,10 +356,8 @@
                 },
 
                 confirmSubmit() {
-                    // Sincroniza arquivos antes de enviar
                     this.syncFileInput();
                     
-                    // Feedback visual seguro
                     const btn = document.getElementById('btnConfirmarEnvio');
                     if(btn) {
                         btn.innerHTML = 'Enviando...';
@@ -371,7 +365,7 @@
                         btn.classList.add('opacity-75', 'cursor-not-allowed');
                     }
                     
-                    // Envio direto via formulário HTML (ignora Alpine prevent)
+                    // Envio nativo (Ignora Alpine prevent)
                     const form = document.getElementById('contactForm');
                     if (form) {
                         HTMLFormElement.prototype.submit.call(form);
@@ -384,10 +378,9 @@
                     img.style.maxWidth = "90vw";
                     img.style.maxHeight = "90vh";
                     img.style.borderRadius = "8px";
-                    img.style.boxShadow = "0 20px 25px -5px rgb(0 0 0 / 0.1)";
                     
                     let box = document.createElement("div");
-                    box.style = "position:fixed; inset:0; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; z-index:999999; cursor:zoom-out; backdrop-filter:blur(5px);";
+                    box.style = "position:fixed; inset:0; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; z-index:999999; cursor:pointer;";
                     
                     box.appendChild(img);
                     box.onclick = () => box.remove();
