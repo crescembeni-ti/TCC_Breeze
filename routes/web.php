@@ -269,4 +269,9 @@ Route::prefix('pbi-servico')->name('service.')->group(function () {
     });
 });
 
+// PWA Offline Route
+Route::get('/offline', function () {
+    return view('offline');
+});
+
 require __DIR__ . '/auth.php';

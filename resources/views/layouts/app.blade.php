@@ -15,6 +15,14 @@
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/perfil.css'])
 
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TCC Breeze">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+
     <!-- Ícone -->
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
 </head>

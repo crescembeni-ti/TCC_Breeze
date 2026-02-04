@@ -52,6 +52,16 @@
                     </x-dropdown>
                 </div>
 
+                <!-- PWA Install Button (Desktop) -->
+                <div id="pwa-install-container" class="hidden md:flex items-center ms-4">
+                    <button id="pwa-install-button" class="inline-flex items-center px-4 py-2 bg-slate-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-700 focus:bg-slate-700 active:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Instalar App
+                    </button>
+                </div>
+
                 <div class="hidden md:flex items-center ms-6 border-l border-gray-200 pl-6 h-10">
                     <img src="{{ asset('images/nova_logo.png') }}" 
                          alt="Nova Logo" 
@@ -79,6 +89,16 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            <!-- PWA Install Button (Mobile) -->
+            <div id="pwa-install-container-mobile" class="hidden px-4 py-2">
+                <button id="pwa-install-button-mobile" class="w-full flex items-center justify-center px-4 py-2 bg-slate-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-700 active:bg-slate-900 transition ease-in-out duration-150">
+                    <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Instalar Aplicativo
+                </button>
+            </div>
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200">
