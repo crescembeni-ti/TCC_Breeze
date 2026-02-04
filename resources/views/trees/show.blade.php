@@ -123,14 +123,14 @@
                         </div>
                     </div>
 
-                    {{-- DIÂMETRO --}}
-                    <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0] text-center">
-                        <p class="text-xs uppercase text-[#358054] font-bold tracking-wide">Diâmetro do Tronco</p>
+                    {{-- ÁREA DE SOMBREAMENTO --}}
+                    <div class="bg-[#f0fdf4] p-4 rounded-xl shadow-sm border border-[#bbf7d0]">
+                        <p class="text-sm font-bold  text-[#166534] uppercase tracking-wide mb-1">Área de Sombreamento</p>
                         <p class="text-lg text-gray-900">
-                            @if($tree->trunk_diameter && $tree->trunk_diameter > 0)
-                                {{ $tree->trunk_diameter }} cm
+                            @if($tree->shading_area && $tree->shading_area > 0)
+                                {{ $tree->shading_area }} m²
                             @else
-                                <span class="text-gray-500 text-base italic">Diâmetro não informado</span>
+                                <span class="text-gray-500 italic">Área de sombreamento não informada</span>
                             @endif
                         </p>
                     </div>
