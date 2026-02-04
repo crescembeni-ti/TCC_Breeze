@@ -76,6 +76,54 @@
         </div>
     </div>
 
+    {{-- MODAL DE FOTOS (ESTILO ADMIN CORRIGIDO) --}}
+    <div x-show="showPhoto" 
+         class="fixed inset-0 z-[9999] flex items-center justify-center p-4" 
+         style="display: none;" 
+         x-cloak>
+        <div class="fixed inset-0 bg-black bg-opacity-60 transition-opacity" @click="showPhoto = false"></div>
+        
+        <div class="relative bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden transform transition-all z-10 mx-auto">
+            {{-- Header do Modal --}}
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <h2 class="text-xl font-bold text-[#358054] flex-1 text-center">Fotos</h2>
+                <button @click="showPhoto = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            {{-- Conteúdo das Fotos --}}
+            <div class="p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[65vh] overflow-y-auto custom-scrollbar pr-1">
+                    <template x-for="(photo, index) in currentPhotos" :key="index">
+                        <div class="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 shadow-sm border border-gray-200">
+                            <img :src="'/storage/' + photo" 
+                                 class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                 @click="photoUrl = '/storage/' + photo; showLightbox = true;">
+                        </div>
+                    </template>
+                    <template x-if="currentPhotos.length === 0 && photoUrl">
+                        <div class="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 shadow-sm border border-gray-200">
+                            <img :src="photoUrl" 
+                                 class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                 @click="showLightbox = true;">
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- LIGHTBOX PARA AMPLIAR (ESTILO ADMIN) --}}
+    <div x-show="showLightbox" 
+         class="fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-90 p-4" 
+         style="display: none;" 
+         x-cloak 
+         @click="showLightbox = false">
+        <span class="absolute top-5 right-10 text-white text-4xl cursor-pointer">&times;</span>
+        <img :src="photoUrl" class="max-w-full max-h-full object-contain">
+    </div>
+
     {{-- MODAL DE VISUALIZAÇÃO (LAYOUT IDÊNTICO À SHOW BLADE COM MARCA D'ÁGUA) --}}
     <div x-show="open" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" x-cloak>
         <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" @click="open = false"></div>
