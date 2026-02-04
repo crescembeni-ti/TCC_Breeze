@@ -15,8 +15,15 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     {{-- ESTILOS --}}
-   <style>
+    <style>
         /* Estilos Gerais */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+        .welcome-page {
+            max-width: 100vw;
+        }
         .bairro-tooltip { background: rgba(0, 0, 0, 0.65); color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; border: none; }
         .leaflet-popup-content-wrapper { padding: 0; overflow: hidden; border-radius: 12px; }
         .leaflet-popup-content { margin: 0; width: 280px !important; }
@@ -24,9 +31,10 @@
         /* Botão de Filtros */
         .map-filter-toggle {
             position: absolute; top: 10px; right: 10px; z-index: 2000; 
-            background: #358054; color: white; padding: 10px 16px; border: none; border-radius: 8px; 
+            background: #358054; color: white; padding: 8px 12px; border: none; border-radius: 8px; 
             cursor: pointer; font-weight: 600; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); 
-            display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s;
+            display: flex; align-items: center; gap: 6px; transition: background 0.2s, transform 0.1s;
+            font-size: 13px;
         }
         .map-filter-toggle:hover { background: #2d6e4b; }
         .map-filter-toggle:active { transform: scale(0.98); }
@@ -37,8 +45,8 @@
             z-index: 2000; background: white; border-radius: 12px; 
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); display: none; 
             flex-direction: column; font-family: 'Instrument Sans', sans-serif;
-            max-height: calc(100% - 60px); /* Reduzi um pouco para dar folga no PC */
-            overflow-y: auto; /* Permite rolar o painel inteiro se necessário */
+            max-height: calc(100% - 60px); 
+            overflow-y: auto; 
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
         
@@ -82,7 +90,7 @@
         .legend-color { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
-    /* CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO (FORA DO MAPA) */
+    /* CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO */
     .shading-stats-box-external {
         background: linear-gradient(135deg, #358054 0%, #2d6e4b 100%);
         padding: 16px;
@@ -152,47 +160,36 @@
     }
 
     @keyframes slideInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
     }
 
-    /* LEGENDA DE MARGEM DE ERRO COM BOTÃO FECHAR */
+    /* LEGENDA DE MARGEM DE ERRO */
     .map-margin-note {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1000;
+        position: relative;
+        margin-top: 10px;
         background: rgba(255, 255, 255, 0.95);
         padding: 8px 34px 8px 16px; 
-        border-radius: 30px;
+        border-radius: 12px;
         font-size: 12px;
         font-weight: 600;
         color: #b45309;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         border: 1px solid #fcd34d;
-        white-space: nowrap;
-        pointer-events: auto; 
-        backdrop-filter: blur(4px);
         display: flex;
         align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
     }
 
     .note-close-btn {
         position: absolute;
-        right: 6px;
-        top: 50%;
-        transform: translateY(-50%);
+        right: 8px;
         border: none;
         background: transparent;
         color: #b45309; 
-        font-size: 16px;
+        font-size: 18px;
         font-weight: bold;
         cursor: pointer;
         width: 24px;
@@ -201,69 +198,65 @@
         align-items: center;
         justify-content: center;
         border-radius: 50%;
-        transition: background 0.2s;
-        line-height: 1;
-    }
-
-    .note-close-btn:hover {
-        background-color: rgba(180, 83, 9, 0.1);
     }
     
-        @media (max-width: 640px) {
+    @media (max-width: 640px) {
+        .map-filter-toggle {
+            top: 5px !important;
+            right: 5px !important;
+            padding: 6px 10px !important;
+            font-size: 12px !important;
+        }
         .map-filter-panel {
-            width: 90% !important; 
-            right: 5% !important;  
-            max-height: 80% !important;
-            top: 60px !important;
-            position: absolute !important;
-            border-radius: 12px !important;
-            z-index: 2000 !important;
-        }
-        .filter-content {
-            padding: 12px 16px !important;
-        }
-        .filter-footer {
-            padding: 10px 14px !important;
+            width: 94% !important; 
+            right: 3% !important;  
+            max-height: 70% !important;
+            top: 45px !important;
         }
         .leaflet-popup-content {
-            width: 220px !important; 
+            width: 240px !important; 
         }
         .map-legend {
             top: auto !important;
-            bottom: 80px !important;
-            left: 10px !important;
-            max-width: 150px;
-        }
-        .map-margin-note {
-            font-size: 10px !important;
-            padding: 6px 30px 6px 12px !important;
             bottom: 10px !important;
-            width: 90%;
-            white-space: normal !important;
-            text-align: center;
+            left: 5px !important;
+            max-width: 130px;
+            padding: 6px !important;
+            font-size: 10px !important;
+            display: block !important;
         }
         .shading-stats-box-external {
             width: 100% !important;
             min-width: unset !important;
             padding: 12px !important;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            justify-content: space-between !important;
+            order: 2; 
         }
         .shading-stats-title {
-            font-size: 9px !important;
-            margin-bottom: 8px !important;
+            width: 100% !important;
+            margin-bottom: 6px !important;
+            padding-bottom: 4px !important;
+            font-size: 10px !important;
         }
         .shading-stat-item {
-            padding: 6px !important;
-            margin-bottom: 8px !important;
+            flex: 1 !important;
+            min-width: 120px !important;
+            margin-bottom: 0 !important;
+            padding: 6px 10px !important;
         }
-        .shading-stat-label {
-            font-size: 8px !important;
+        .map-margin-note {
+            font-size: 11px !important;
+            padding: 8px 30px 8px 12px !important;
+            margin-top: 10px !important;
+            order: 3;
         }
-        .shading-stat-value {
-            font-size: 16px !important;
-        }
-        .shading-stat-unit {
-            font-size: 9px !important;
+        #map {
+            height: 50vh !important;
+            order: 1;
         }
     }
     </style>
@@ -275,8 +268,6 @@
         {{-- HEADER COMPACTO --}}
         <header class="site-header flex-shrink-0"> 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center flex-wrap gap-4">
-                
-                {{-- LADO ESQUERDO: Logo Site Menor --}}
                 <div class="flex items-center gap-3 flex-shrink-0">
                     <a href="{{ route('home') }}" class="flex items-center gap-3">
                         <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 sm:h-14 sm:w-14 object-contain">
@@ -287,10 +278,7 @@
                     </a>
                 </div>
 
-                {{-- LADO DIREITO: Menu + Nova Logo --}}
                 <div class="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
-                    
-                    {{-- 1. MENU (Aparece embaixo no mobile) --}}
                     <div class="flex items-center gap-2 sm:gap-4 relative order-2 sm:order-1">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Painel</a>
@@ -302,7 +290,6 @@
                             <a href="{{ route('login') }}" class="btn bg-green-600 hover:bg-green-700 hidden sm:block text-sm py-1.5 px-3">Entrar</a>
                             <a href="{{ route('register') }}" class="btn bg-gray-600 hover:bg-gray-700 hidden sm:block text-sm py-1.5 px-3">Cadastrar</a>
 
-                            {{-- MOBILE MENU PARA VISITANTES --}}
                             <div class="relative inline-block sm:hidden" x-data="{ open: false }">
                                 <button @click="open = !open" class="btn bg-[#358054] text-white hover:bg-[#2d6e4b] rounded-lg flex items-center gap-1.5 transition-all duration-200 py-1.5 px-3 text-xs">
                                     Menu
@@ -313,29 +300,20 @@
                                 </button>
                                 <div x-show="open" x-cloak @click.outside="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl z-[5000] overflow-hidden border border-gray-200">
                                     <div class="p-2 flex flex-col gap-1">
-                                        <a href="{{ route('login') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-bold text-white bg-[#358054] hover:bg-[#2d6e4b] rounded-lg transition-colors">
-                                            Entrar
-                                        </a>
-                                        <a href="{{ route('register') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-bold text-gray-800 bg-[#a0c520] hover:bg-[#8eb01c] rounded-lg transition-colors">
-                                            Cadastrar
-                                        </a>
+                                        <a href="{{ route('login') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-bold text-white bg-[#358054] hover:bg-[#2d6e4b] rounded-lg transition-colors">Entrar</a>
+                                        <a href="{{ route('register') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-bold text-gray-800 bg-[#a0c520] hover:bg-[#8eb01c] rounded-lg transition-colors">Cadastrar</a>
                                     </div>
                                 </div>
                             </div>
                         @endif
                     </div>
 
-                    {{-- 2. NOVA LOGO (Aparece em cima no mobile) --}}
-                    <img src="{{ asset('images/nova_logo.png') }}" 
-                         alt="Logo Prefeitura" 
-                         class="header-logo-right hover:opacity-90 transition-opacity order-1 sm:order-2"
-                         style="height: 3.5rem; width: auto;"> 
+                    <img src="{{ asset('images/nova_logo.png') }}" alt="Logo Prefeitura" class="header-logo-right hover:opacity-90 transition-opacity order-1 sm:order-2" style="height: 3.5rem; width: auto;"> 
                 </div>
             </div>
         </header>
 
-        {{-- CONTEÚDO PRINCIPAL MODIFICADO --}}
-        <main class="flex-grow max-w-[98%] mx-auto px-2 sm:px-4 lg:px-6 py-8 sm:py-12 w-full flex flex-col justify-center">
+        <main class="flex-grow max-w-[98%] mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-8 w-full flex flex-col">
             
             @if (session('success'))
                 <div id="success-alert" class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center justify-between shadow-md" role="alert">
@@ -346,857 +324,178 @@
                 </div>
             @endif
 
-            {{-- CARD DO MAPA --}}
-            <div class="bg-white rounded-lg shadow p-0.5 mb-8 relative w-full max-w-[98%] mx-auto">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-2 sm:p-4 mb-6 relative w-full">
                 
-                <h2 class="text-xl font-bold text-gray-900 mb-2 mt-1 pl-2">Mapa Interativo</h2>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3 pl-1">Mapa Interativo</h2>
                 
-                {{-- LAYOUT COM GRID: Caixa de Estatísticas + Mapa --}}
-                <div class="flex flex-col md:flex-row gap-2 md:gap-3 p-1">
+                <div class="flex flex-col md:flex-row gap-4">
                     
-                    {{-- CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO (FORA DO MAPA) --}}
-                    <div class="shading-stats-box-external">
-                        <div class="shading-stats-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="5"></circle>
-                                <line x1="12" y1="1" x2="12" y2="3"></line>
-                                <line x1="12" y1="21" x2="12" y2="23"></line>
-                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                                <line x1="1" y1="12" x2="3" y2="12"></line>
-                                <line x1="21" y1="12" x2="23" y2="12"></line>
-                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                            </svg>
-                            Sombreamento
-                        </div>
-                        
-                        <div class="shading-stat-item">
-                            <div class="shading-stat-label">Árvores</div>
-                            <div class="shading-stat-value">
-                                <span id="stats-tree-count">0</span>
+                    {{-- MAPA --}}
+                    <div id="map" class="z-0 flex-1 rounded-xl h-[50vh] md:h-[75vh] relative border border-gray-200 shadow-inner"></div>
+
+                    {{-- ESTATÍSTICAS --}}
+                    <div class="flex flex-col gap-3">
+                        <div class="shading-stats-box-external">
+                            <div class="shading-stats-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="5"></circle>
+                                    <line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                    <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                </svg>
+                                Sombreamento
+                            </div>
+                            
+                            <div class="shading-stat-item">
+                                <div class="shading-stat-label">Árvores</div>
+                                <div class="shading-stat-value"><span id="stats-tree-count">0</span></div>
+                            </div>
+                            
+                            <div class="shading-stat-item">
+                                <div class="shading-stat-label">Área Total</div>
+                                <div class="shading-stat-value"><span id="stats-shading-area">0</span><span class="shading-stat-unit">m²</span></div>
                             </div>
                         </div>
-                        
-                        <div class="shading-stat-item">
-                            <div class="shading-stat-label">Sombreamento Total</div>
-                            <div class="shading-stat-value">
-                                <span id="stats-shading-area">0</span>
-                                <span class="shading-stat-unit">m²</span>
-                            </div>
+
+                        {{-- AVISO --}}
+                        <div x-data="{ showNote: true }" x-show="showNote" x-transition.opacity class="map-margin-note">
+                            <span class="pr-2">⚠️ Localização aproximada devido à margem de erro das coordenadas.</span>
+                            <button @click="showNote = false" class="note-close-btn" title="Fechar">×</button>
                         </div>
                     </div>
                     
-                    {{-- MAPA --}}
-                    <div id="map" class="z-0 flex-1 rounded-lg h-[70vh] md:h-[85vh] relative"></div>
-                    
                 </div>
+            </div>
 
-                {{-- LEGENDA COM FECHAR (AlpineJS) --}}
-                <div x-data="{ showNote: true }" 
-                     x-show="showNote" 
-                     x-transition.opacity.duration.300ms
-                     class="map-margin-note">
-                    
-                    ⚠️ Pode conter um leve desvio de localização das árvores devido a margem de erro das coordenadas.
-                    
-                    <button @click="showNote = false" class="note-close-btn" title="Fechar aviso">
-                        &times;
-                    </button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="text-md font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#358054]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                        Georreferenciamento
+                    </h3>
+                    <p class="text-gray-600 text-xs">Localização exata de cada árvore urbana em Paracambi.</p>
                 </div>
-
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="text-md font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#a0c520]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Inventário
+                    </h3>
+                    <p class="text-gray-600 text-xs">Informações sobre espécies e estado fitossanitário.</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="text-md font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Gestão Verde
+                    </h3>
+                    <p class="text-gray-600 text-xs">Colaboração para uma cidade mais fresca e sustentável.</p>
+                </div>
             </div>
         </main>
 
-        {{-- FOOTER --}}
-        <footer class="bg-gray-800 shadow mt-auto flex-shrink-0">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <p class="text-center text-gray-300">© {{ date('Y') }} Árvores de Paracambi.</p>
+        <footer class="bg-white border-t border-gray-200 py-6 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <p class="text-xs text-gray-500">© {{ date('Y') }} Árvores de Paracambi - Secretaria de Meio Ambiente</p>
             </div>
         </footer>
     </div>
 
-    {{-- VLibras --}}
-    <div vw class="enabled">
-        <div vw-access-button class="active"></div>
-        <div vw-plugin-wrapper>
-            <div class="vw-plugin-top-wrapper"></div>
-        </div>
-    </div>
-    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-    <script>
-        window.vlibrasWidget = new window.VLibras.Widget('https://vlibras.gov.br/app');
-    </script>
-
-    {{-- SCRIPTS DO MAPA --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script>
-        /* CONFIGURAÇÃO */
-        const allBairros = @json($bairros);
-        const INITIAL_VIEW = [-22.6111, -43.7089];
-        const INITIAL_ZOOM = 14;
-        const PARACAMBI_BOUNDS = [[-22.7000, -43.8500], [-22.5000, -43.5500]];
-
-        // --- VERIFICAÇÃO DE PERMISSÕES ---
-        const isAdmin = @json(auth('admin')->check());
-        const isAnalista = @json(auth('analyst')->check());
-        const editRouteTemplate = "{{ route('admin.trees.edit', 'ID_PLACEHOLDER') }}";
-        const exportRoute = "{{ route('admin.trees.export') }}";
-
-        // Configuração dos Campos Extras do Admin/Analista
-        let adminFieldsConfig = [
-            { id: 'health_status', label: 'Estado da Árvore', key: 'health_status' },
-            { id: 'bifurcation_type', label: 'Tipo de Bifurcação', key: 'bifurcation_type' },
-            { id: 'stem_balance', label: 'Equilíbrio Fuste', key: 'stem_balance' },
-            { id: 'crown_balance', label: 'Equilíbrio Copa', key: 'crown_balance' },
-            { id: 'organisms', label: 'Organismos', key: 'organisms' },
-            { id: 'target', label: 'Alvo', key: 'target' },
-            { id: 'injuries', label: 'Injúrias', key: 'injuries' },
-            { id: 'wiring_status', label: 'Estado da Fiação', key: 'wiring_status' },
-        ];
-
-        if (isAnalista) {
-            adminFieldsConfig = [
-                { id: 'stem_balance', label: 'Equilíbrio Fuste', key: 'stem_balance' },
-                { id: 'target', label: 'Alvo', key: 'target' },
-                { id: 'wiring_status', label: 'Estado da Fiação', key: 'wiring_status' },
-            ];
-        }
-
-        const map = L.map('map', {
-            center: INITIAL_VIEW, zoom: INITIAL_ZOOM, minZoom: 13, maxBounds: PARACAMBI_BOUNDS, maxBoundsViscosity: 1.0
-        });
+        const INITIAL_VIEW = [-22.6080, -43.7120];
+        const INITIAL_ZOOM = 15;
+        const map = L.map('map', { zoomControl: false, attributionControl: true }).setView(INITIAL_VIEW, INITIAL_ZOOM);
 
         L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { maxZoom: 22, attribution: 'Google' }).addTo(map);
         L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png", { subdomains: "abcd", maxZoom: 20 }).addTo(map);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        /* UI DO FILTRO */
         const toggleBtn = L.DomUtil.create('button', 'map-filter-toggle');
-        toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg> Filtros`;
+        toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg> Filtros';
         map.getContainer().appendChild(toggleBtn);
 
         const panel = L.DomUtil.create("div", "map-filter-panel");
-        L.DomEvent.disableClickPropagation(panel);
-        L.DomEvent.disableScrollPropagation(panel); 
-
-        /* --- LEGENDA FLUTUANTE (ELEMENTO) --- */
-        const legendDiv = L.DomUtil.create("div", "map-legend");
-        map.getContainer().appendChild(legendDiv);
-
-        // CONFIGURAÇÃO DA LEGENDA E CORES
-        const legendConfig = {
-            'injuries': {
-                title: 'Injúrias',
-                items: [
-                    { label: 'Grave', color: '#dc2626' }, // Vermelho
-                    { label: 'Moderada', color: '#f97316' }, // Laranja
-                    { label: 'Leves ou Ausentes', color: '#22c55e' } // Verde
-                ]
-            },
-            'target': {
-                title: 'Alvo (Fluxo)',
-                items: [
-                    { label: 'Fluxo Intenso', color: '#dc2626' }, // Vermelho
-                    { label: 'Fluxo Moderado', color: '#f97316' }, // Laranja
-                    { label: 'Fluxo Leve', color: '#22c55e' } // Verde
-                ]
-            },
-            'wiring_status': {
-                title: 'Fiação',
-                items: [
-                    { label: 'Interfere', color: '#dc2626' }, // Vermelho
-                    { label: 'Pode Interferir', color: '#f97316' }, // Laranja
-                    { label: 'Não Interfere', color: '#22c55e' }, // Verde
-                    { label: 'Ausente', color: '#3b82f6' } // Azul
-                ]
-            },
-            'organisms': {
-                title: 'Organismos',
-                items: [
-                    { label: 'Infestação Avançada', color: '#dc2626' }, // Vermelho
-                    { label: 'Infestação Média', color: '#f97316' }, // Laranja
-                    { label: 'Infestação Inicial', color: '#22c55e' }, // Verde
-                    { label: 'Ausente', color: '#3b82f6' } // Azul
-                ]
-            },
-            'crown_balance': {
-                title: 'Equilíbrio Copa',
-                items: [
-                    { label: 'Muito Desequilibrada', color: '#991b1b' }, // Vermelho Escuro
-                    { label: 'Desequilibrada', color: '#dc2626' }, // Vermelho
-                    { label: 'Mediamente Equil.', color: '#f97316' }, // Laranja
-                    { label: 'Equilibrada', color: '#22c55e' } // Verde
-                ]
-            },
-            'stem_balance': {
-                title: 'Equilíbrio Fuste',
-                items: [
-                    { label: 'Acidental', color: '#000000' }, // Preto
-                    { label: 'Maior que 45°', color: '#f87171' }, // Vermelho Fraco
-                    { label: 'Menor que 45°', color: '#f97316' }, // Laranja
-                    { label: 'Ausente (Reto)', color: '#22c55e' } // Verde
-                ]
-            },
-            'health_status': {
-                title: 'Saúde',
-                items: [
-                    { label: 'Ruim', color: '#dc2626' },
-                    { label: 'Regular', color: '#f97316' },
-                    { label: 'Boa', color: '#22c55e' }
-                ]
-            }
-        };
-
-        // --- MONTAGEM DO HTML ---
-        let extraAdminHtml = '';
-        let downloadBtnHtml = '';
-
-        if (isAdmin || isAnalista) {
-            const title = isAdmin ? 'Admin' : 'Analista';
-            extraAdminHtml += `
-                <div class="admin-divider">Visualização (${title})</div>
-                <div class="filter-group">
-                    <label class="filter-label" style="color:#358054;">🎨 Colorir Mapa Por:</label>
-                    <select id="colorMode" style="border-color:#358054; font-weight:600; color:#358054;">
-                        <option value="species">Espécie (Padrão)</option>
-                        ${!isAnalista ? '<option value="injuries">Injúrias</option>' : ''}
-                        ${!isAnalista ? '<option value="organisms">Organismos</option>' : ''}
-                        ${!isAnalista ? '<option value="crown_balance">Equilíbrio de Copa</option>' : ''}
-                        <option value="stem_balance">Equilíbrio de Fuste</option>
-                        <option value="target">Alvo</option>
-                        <option value="wiring_status">Estado da Fiação</option>
-                        ${!isAnalista ? '<option value="health_status">Estado de Saúde</option>' : ''}
-                    </select>
-                </div>
-                <div class="admin-divider">Filtros Avançados</div>
-            `;
-
-            adminFieldsConfig.forEach(field => {
-                extraAdminHtml += `
-                    <div class="filter-group">
-                        <label class="filter-label">${field.label}</label>
-                        <select id="${field.id}">
-                            <option value="">Todos</option>
-                        </select>
-                    </div>
-                `;
-            });
-
-            downloadBtnHtml = `
-                <button id="downloadCsv" class="btn-download">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    Baixar Relatório (CSV)
-                </button>
-            `;
-        }
-
         panel.innerHTML = `
             <div class="filter-header">
-                <div class="header-title-box">
-                    <div class="header-icon" style="background: #e8f5e9; padding: 6px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#358054" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
-                    </div>
-                    <div class="header-text">
-                        <h3>Explorar Mapa</h3>
-                    </div>
-                </div>
-                <button id="closePanelBtn" style="background:none; border:none; color:#9ca3af; cursor:pointer; font-size:24px; padding: 10px; line-height: 1;">✕</button>
+                <div class="header-title-box"><div class="header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg></div><div class="header-text"><h3>Filtros</h3></div></div>
+                <button onclick="document.querySelector('.map-filter-panel').classList.remove('open')"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
-
             <div class="filter-content">
-                <div class="filter-group">
-                    <label class="filter-label">PESQUISAR</label>
-                    <input type="text" id="search" placeholder="Nome ou endereço..." autocomplete="off"/>
-                </div>
-                <div class="filter-group">
-                    <label class="filter-label">BAIRRO</label>
-                    <select id="bairro"><option value="">Todos os bairros</option></select>
-                </div>
-                <div class="filter-group">
-                    <label class="filter-label">ESPECIE</label>
-                    <select id="especie"><option value="">Todas as espécies</option></select>
-                </div>
-                ${extraAdminHtml}
+                <div class="filter-group"><label class="filter-label">Buscar</label><input type="text" id="filter-search" placeholder="Espécie..."></div>
+                <div class="filter-group"><label class="filter-label">Bairro</label><select id="filter-bairro"><option value="">Todos</option></select></div>
+                <div class="filter-group"><label class="filter-label">Estado</label><select id="filter-health"><option value="">Todos</option><option value="Ótimo">Ótimo</option><option value="Bom">Bom</option><option value="Regular">Regular</option><option value="Ruim">Ruim</option><option value="Morto">Morto</option></select></div>
             </div>
-
-            <div class="filter-footer">
-                <div class="btn-actions">
-                    <button id="limparFiltro" class="btn-clear">Limpar</button>
-                    <button id="aplicarFiltro" class="btn-filter">Filtrar</button>
-                </div>
-                ${downloadBtnHtml}
-                <div id="filterStatus" class="filter-status">Carregando...</div>
-            </div>
+            <div class="filter-footer"><div class="btn-actions"><button class="btn-filter" id="apply-filters">Filtrar</button><button class="btn-clear" id="clear-filters">Limpar</button></div><div id="filter-status" class="filter-status"></div></div>
         `;
-        
         map.getContainer().appendChild(panel);
+        toggleBtn.onclick = () => panel.classList.toggle('open');
 
-        toggleBtn.addEventListener("click", (e) => { 
-            L.DomEvent.stop(e); 
-            panel.classList.toggle("open");
-            if (panel.classList.contains("open") && window.innerWidth < 640) {
-                document.body.style.overflow = 'hidden'; // Trava o scroll do fundo no mobile
-            }
-        });
-        panel.querySelector('#closePanelBtn').addEventListener("click", (e) => { 
-            L.DomEvent.stop(e); 
-            panel.classList.remove("open");
-            document.body.style.overflow = ''; // Libera o scroll
-        });
+        const legendDiv = L.DomUtil.create("div", "map-legend");
+        legendDiv.innerHTML = `<div class="legend-title">Sombreamento</div><div class="legend-item"><div class="legend-color" style="background: rgba(160, 197, 32, 0.4)"></div><span>Área Projetada</span></div>`;
+        map.getContainer().appendChild(legendDiv);
 
-        /* VARIÁVEIS GLOBAIS */
-        let currentTrees = [], allTrees = [], filteredTrees = [], treeIndexGlobal = 0, treeMarkers = {};
+        let allTrees = [];
         let markersLayer = L.layerGroup().addTo(map);
-        let bairrosGeoLayer = null;
+        let polygonsLayer = L.layerGroup().addTo(map);
 
-        /* FETCH DADOS */
-        const bairrosIndex = {};
-        allBairros.forEach(b => bairrosIndex[b.nome.toUpperCase()] = b.id);
-
-        fetch("/bairros.json").then(r => r.json()).then(geo => {
-            const cleanedGeo = { type: "FeatureCollection", features: geo.features.filter(f => f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon") };
-            cleanedGeo.features.forEach(f => { f.properties.id_bairro = bairrosIndex[(f.properties.BAIRRO || "").toUpperCase()] ?? null; });
-            bairrosGeoLayer = L.geoJSON(cleanedGeo, {
-                style: { color: "#00000020", weight: 1, fillOpacity: 0.02, interactive: false },
-                onEachFeature: (feature, layer) => { layer.unbindTooltip(); layer.unbindPopup(); }
-            }).addTo(map);
-            bairrosGeoLayer.bringToBack();
-        });
-
-        fetch("{{ route('trees.data') }}").then(r => r.json()).then(data => {
-            allTrees = data;
-            popularSelects(allTrees);
-            exibirArvores(allTrees);
-            // Garante atualização das estatísticas no carregamento inicial
-            atualizarEstatisticasSombreamento(allTrees);
-        });
-
-        /* --- FUNÇÃO PARA ATUALIZAR A LEGENDA --- */
-        function updateLegend(mode) {
-            if (mode === 'species' || !legendConfig[mode]) {
-                legendDiv.style.display = 'none';
-                return;
-            }
-            const config = legendConfig[mode];
-            let html = `<div class="legend-title">${config.title}</div>`;
-            config.items.forEach(item => {
-                html += `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${item.color};"></div>
-                        <span>${item.label}</span>
-                    </div>
-                `;
-            });
-            legendDiv.innerHTML = html;
-            legendDiv.style.display = 'block';
-        }
-
-        /* --- FUNÇÃO PRINCIPAL DE COR DO MARCADOR --- */
-        function getMarkerColor(tree) {
-            const modeSelect = document.getElementById('colorMode');
-            const mode = modeSelect ? modeSelect.value : 'species';
-            const val = (tree[mode] || '').toLowerCase(); 
-
-            // Lógica Padrão: Cor baseada na Espécie
-            if (mode === 'species') {
-                return getColorBySpecies(tree.species_name, tree.vulgar_name);
-            }
-
-            // Lógica Admin (Outros Modos)
-            if (mode === 'injuries') {
-                if (val.includes('grave') || val.includes('extensa')) return '#dc2626';
-                if (val.includes('moderada')) return '#f97316';
-                return '#22c55e';
-            }
-            if (mode === 'target') {
-                if (val.includes('intenso')) return '#dc2626'; 
-                if (val.includes('moderado')) return '#f97316'; 
-                return '#22c55e'; 
-            }
-            if (mode === 'wiring_status') {
-                if (val.includes('interfere') && !val.includes('nao') && !val.includes('pode')) return '#dc2626'; 
-                if (val.includes('pode')) return '#f97316';
-                if (val.includes('ausente')) return '#3b82f6';
-                return '#22c55e';
-            }
-            if (mode === 'organisms') {
-                if (val.includes('avançada') || val.includes('avancada')) return '#dc2626'; 
-                if (val.includes('media') || val.includes('média')) return '#f97316'; 
-                if (val.includes('inicial')) return '#22c55e'; 
-                return '#3b82f6';
-            }
-            if (mode === 'crown_balance') {
-                if (val.includes('muito')) return '#991b1b'; 
-                if (val.includes('desequilibrada')) return '#dc2626'; 
-                if (val.includes('medianamente') || val.includes('mediamente')) return '#f97316'; 
-                return '#22c55e'; 
-            }
-            if (mode === 'stem_balance') {
-                if (val.includes('acidental')) return '#000000'; 
-                if (val.includes('maior')) return '#f87171';
-                if (val.includes('menor')) return '#f97316'; 
-                return '#22c55e'; 
-            }
-            if (mode === 'health_status') {
-                if (val === 'poor' || val === 'ruim') return '#dc2626'; 
-                if (val === 'fair' || val === 'regular') return '#f97316'; 
-                return '#22c55e'; 
-            }
-
-            return '#358054'; // Fallback Verde
-        }
-
-        /* --- LÓGICA DE COR POR ESPÉCIE --- */
-        function getColorBySpecies(speciesName, vulgarName) {
-            const nameCheck = (vulgarName || "").toLowerCase();
-            const fullName = nameCheck + " " + (speciesName || "").toLowerCase();
-
-            // 1. Árvore não identificada = Verde Escuro
-            if (nameCheck.includes('não identificada') || nameCheck.includes('nao identificada')) {
-                return '#064e3b'; 
-            }
-
-            // 2. Cores Base (Palavras-Chave)
-            let baseHue = 120; // Verde padrão (Espécies novas sem regra caem aqui)
-            let saturation = 60;
-            let lightness = 45;
-
-            if (fullName.includes('flamboyant') || fullName.includes('vermelho') || fullName.includes('pau-brasil')) {
-                baseHue = 0; // Vermelho
-            } else if (fullName.includes('amarelo') || fullName.includes('acacia') || fullName.includes('sibipiruna') || fullName.includes('canafistula')) {
-                baseHue = 50; // Amarelo/Ouro
-            } else if (fullName.includes('roxo') || fullName.includes('quaresmeira') || fullName.includes('jacaranda') || fullName.includes('manaca')) {
-                baseHue = 270; // Roxo
-            } else if (fullName.includes('rosa') || fullName.includes('paineira') || fullName.includes('jambo')) {
-                baseHue = 330; // Rosa
-            } else if (fullName.includes('branco')) {
-                baseHue = 200; saturation = 10; lightness = 85; // Branco/Cinza claro
-            } else if (fullName.includes('azul')) {
-                baseHue = 210; // Azul
-            }
-
-            // 3. Variação de Tom (Hash do nome)
-            // Isso garante que Ipê Roxo e Quaresmeira (ambos roxos) tenham tons levemente diferentes
-            let hash = 0;
-            for (let i = 0; i < fullName.length; i++) {
-                hash = fullName.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            
-            // Pequena variação para não descaracterizar a cor base
-            const hueVariation = (hash % 20) - 10;   // +/- 10 graus no disco de cor
-            const lightVariation = (hash % 15) - 7;  // +/- 7% na luminosidade
-
-            const finalHue = (baseHue + hueVariation + 360) % 360;
-            const finalLight = Math.max(25, Math.min(75, lightness + lightVariation));
-
-            return `hsl(${finalHue}, ${saturation}%, ${finalLight}%)`;
-        }
-
-        function popularSelects(trees) {
-            const especieSelect = document.getElementById("especie");
-            const bairroSelect = document.getElementById("bairro");
-            
-            // Popula Bairros
-            allBairros.forEach(b => {
-                const opt = document.createElement("option"); opt.value = b.id; opt.textContent = b.nome; bairroSelect.appendChild(opt);
-            });
-
-            // Popula Espécies
-            const nomesSet = new Set();
-            trees.forEach(t => {
-                let nome = t.vulgar_name;
-                if (nome && nome.trim() !== "" && !nome.toLowerCase().includes("não identificada")) {
-                    let nomeFormatado = nome.trim();
-                    nomeFormatado = nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1);
-                    nomesSet.add(nomeFormatado);
-                }
-            });
-            Array.from(nomesSet).sort().forEach(nome => {
-                const opt = document.createElement("option"); opt.value = nome; opt.textContent = nome; especieSelect.appendChild(opt);
-            });
-
-            // Popula Filtros de Admin
-            if (isAdmin || isAnalista) {
-                adminFieldsConfig.forEach(field => {
-                    const select = document.getElementById(field.id);
-                    if(select) {
-                        // Limpa opções anteriores (exceto "Todos")
-                        while (select.options.length > 1) { select.remove(1); }
-
-                        // LÓGICA ESPECIAL: Opções Fixas Obrigatórias
-                        let opcoesFixas = [];
-
-                        if (field.id === 'health_status') {
-                            opcoesFixas = ['Boa', 'Regular', 'Ruim'];
-                        } 
-                        else if (field.id === 'crown_balance') {
-                            // Adicionei "Desequilibrada" aqui para garantir que apareça
-                            opcoesFixas = ['Equilibrada', 'Mediamente Equilibrada', 'Desequilibrada', 'Muito Desequilibrada'];
-                        }
-                        else if (field.id === 'organisms') {
-                            // Adicionei "Ausente" aqui para garantir que apareça separado
-                            opcoesFixas = ['Ausente', 'Infestação Inicial', 'Infestação Média', 'Infestação Avançada'];
-                        }
-
-                        // Se tiver opções fixas, usa elas. Se não, pega do banco.
-                        if (opcoesFixas.length > 0) {
-                            opcoesFixas.forEach(valor => {
-                                const opt = document.createElement("option"); 
-                                opt.value = valor; 
-                                opt.textContent = valor; 
-                                select.appendChild(opt);
-                            });
-                        } else {
-                            // Padrão dinâmico para os outros campos
-                            const valoresUnicos = [...new Set(trees.map(t => t[field.key]).filter(v => v))].sort();
-                            valoresUnicos.forEach(valor => {
-                                const opt = document.createElement("option"); 
-                                opt.value = valor; 
-                                opt.textContent = valor; 
-                                select.appendChild(opt);
-                            });
-                        }
-                    }
-                });
-            }
-        }
-        
-        function atualizarStatus(count, total) {
-            const statusDiv = document.getElementById("filterStatus");
-            if (!statusDiv) return;
-            
-            statusDiv.className = "filter-status"; 
-            if (count === 0) {
-                statusDiv.classList.add("vazio");
-                statusDiv.innerHTML = `<span>Nenhuma árvore encontrada.</span>`;
-            } else if (count === total) {
-                statusDiv.innerHTML = `Exibindo todas as <b>${total}</b> árvores.`;
-            } else {
-                statusDiv.innerHTML = `Encontradas <b>${count}</b> de ${total} árvores.`;
-                statusDiv.style.color = "#358054";
-            }
-        }
-
-        // Função para calcular área de sombreamento usando a fórmula fornecida
-        function calcularSombreamento(tree) {
-            // Tenta pegar os diâmetros primeiro (mais confiável para cálculo em tempo real)
-            const longitudinal = parseFloat(tree.crown_diameter_longitudinal) || 0;
-            const perpendicular = parseFloat(tree.crown_diameter_perpendicular) || 0;
-            
-            // Se tiver os diâmetros, calcula na hora (garante que reflita mudanças imediatas)
-            if (longitudinal > 0 && perpendicular > 0) {
-                return (Math.PI * longitudinal * perpendicular) / 4;
-            }
-
-            // Se não tiver diâmetros mas tiver o valor pré-calculado do banco, usa ele
-            if (tree.shading_area !== undefined && tree.shading_area !== null) {
-                return parseFloat(tree.shading_area) || 0;
-            }
-            
-            return 0;
-        }
-
-        // Função para atualizar as estatísticas de sombreamento
-        function atualizarEstatisticasSombreamento(trees) {
-            const treeCountEl = document.getElementById('stats-tree-count');
-            const shadingAreaEl = document.getElementById('stats-shading-area');
-            
-            if (!treeCountEl || !shadingAreaEl) return;
-            
-            const totalTrees = trees.length;
-            let totalShadingArea = 0;
-            
+        function updateStats(trees) {
+            const countEl = document.getElementById('stats-tree-count');
+            const areaEl = document.getElementById('stats-shading-area');
+            if (!countEl || !areaEl) return;
+            let totalArea = 0;
             trees.forEach(tree => {
-                totalShadingArea += calcularSombreamento(tree);
+                const d = parseFloat(tree.canopy_diameter) || 0;
+                if (d > 0) totalArea += Math.PI * Math.pow(d / 2, 2);
             });
-            
-            // Atualiza os valores na interface com animação
-            treeCountEl.textContent = totalTrees.toLocaleString('pt-BR');
-            shadingAreaEl.textContent = totalShadingArea.toLocaleString('pt-BR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            countEl.innerText = trees.length.toLocaleString('pt-BR');
+            areaEl.innerText = totalArea.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
         }
 
-        function exibirArvores(trees) {
+        async function loadTrees() {
+            try {
+                const response = await fetch("{{ route('trees.data') }}");
+                allTrees = await response.json();
+                const bairros = [...new Set(allTrees.map(t => t.bairro).filter(b => b))].sort();
+                const bSelect = document.getElementById('filter-bairro');
+                bairros.forEach(b => bSelect.add(new Option(b, b)));
+                renderMarkers(allTrees);
+                updateStats(allTrees);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderMarkers(trees) {
             markersLayer.clearLayers();
-            treeMarkers = {};
-            filteredTrees = trees;
-            currentTrees = trees;
-            treeIndexGlobal = 0;
-            atualizarStatus(trees.length, allTrees.length);
-            
-            // Atualiza as estatísticas de sombreamento
-            atualizarEstatisticasSombreamento(trees);
-
-            if (trees.length === 0) return;
-
-            const diameters = trees.map(t => parseFloat(t.trunk_diameter) || 0);
-            const minDiameter = Math.min(...diameters);
-            const maxDiameter = Math.max(...diameters);
-            
-            function scaleDiameter(d) {
-                if (maxDiameter === minDiameter) return 7;
-                return 7 + (d - minDiameter) / (maxDiameter - minDiameter) * (15 - 7);
-            }
-
-            trees.forEach((tree) => {
-                if (!tree.latitude || !tree.longitude) return;
-                
-                // CHAMA A FUNÇÃO DE COR CORRETA
-                const treeColor = getMarkerColor(tree);
-                
-                const marker = L.circleMarker([tree.latitude, tree.longitude], {
-                    radius: scaleDiameter(parseFloat(tree.trunk_diameter) || 0),
-                    color: "#fff", weight: 2, fillColor: treeColor, fillOpacity: 0.85, interactive: true
-                }).addTo(markersLayer);
-
-                marker.on('click', () => {
-                    currentTrees = filteredTrees;
-                    treeIndexGlobal = trees.indexOf(tree);
-                    const targetPoint = map.latLngToContainerPoint([tree.latitude, tree.longitude]).add([0, -100]);
-                    map.setView(map.containerPointToLatLng(targetPoint), map.getZoom(), { animate: true });
-                    marker.bindPopup(criarConteudoPopup(currentTrees, treeIndexGlobal)).openPopup();
-                });
-                treeMarkers[tree.id] = marker;
+            polygonsLayer.clearLayers();
+            trees.forEach(tree => {
+                const d = parseFloat(tree.canopy_diameter) || 0;
+                if (d > 0) L.circle([tree.latitude, tree.longitude], { radius: d / 2, color: '#a0c520', weight: 1, opacity: 0.6, fillColor: '#a0c520', fillOpacity: 0.3, interactive: false }).addTo(polygonsLayer);
+                L.circleMarker([tree.latitude, tree.longitude], { radius: 6, fillColor: "#358054", color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.9 })
+                .bindPopup(`<div class="p-2"><h4 class="font-bold border-b mb-1">${tree.species_name || 'N/I'}</h4><p class="text-xs">Bairro: ${tree.bairro || '-'}</p><a href="/trees/${tree.id}" class="mt-2 block text-center bg-[#358054] text-white py-1 rounded font-bold text-xs">Ver</a></div>`)
+                .addTo(markersLayer);
             });
         }
 
-        function destacarBairro(bairroId, darZoom = true) {
-            if (!bairrosGeoLayer) return;
-            bairrosGeoLayer.eachLayer(layer => {
-                if (layer.feature.properties.id_bairro == bairroId) {
-                    layer.setStyle({ color: "#0084ff", weight: 3, fillOpacity: 0.1 });
-                    if (darZoom) map.fitBounds(layer.getBounds(), { padding: [20, 20] });
-                } else {
-                    layer.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 });
-                }
-            });
-        }
+        document.getElementById('apply-filters').onclick = () => {
+            const s = document.getElementById('filter-search').value.toLowerCase();
+            const b = document.getElementById('filter-bairro').value;
+            const h = document.getElementById('filter-health').value;
+            const f = allTrees.filter(t => (!s || (t.species_name && t.species_name.toLowerCase().includes(s))) && (!b || t.bairro === b) && (!h || t.health_condition === h));
+            renderMarkers(f);
+            updateStats(f);
+            document.getElementById('filter-status').innerText = `${f.length} encontradas`;
+            if (window.innerWidth < 640) panel.classList.remove('open');
+        };
 
-        function aplicarFiltro() {
-            const bairroVal = document.getElementById("bairro").value;
-            const especieVal = document.getElementById("especie").value;
-            const buscaVal = document.getElementById("search").value.toLowerCase().trim();
+        document.getElementById('clear-filters').onclick = () => {
+            ['filter-search', 'filter-bairro', 'filter-health'].forEach(id => document.getElementById(id).value = '');
+            renderMarkers(allTrees);
+            updateStats(allTrees);
+            document.getElementById('filter-status').innerText = '';
+            map.setView(INITIAL_VIEW, INITIAL_ZOOM);
+        };
 
-            const adminFilters = {};
-            if (isAdmin || isAnalista) {
-                adminFieldsConfig.forEach(field => {
-                    const el = document.getElementById(field.id);
-                    if (el && el.value) adminFilters[field.key] = el.value;
-                });
-            }
-
-            const filtradas = allTrees.filter(tree => {
-                const okBairro = bairroVal ? tree.bairro_id == bairroVal : true;
-                const nomeVulgarArvore = (tree.vulgar_name || "").toLowerCase().trim();
-                const okEspecie = especieVal ? nomeVulgarArvore === especieVal.toLowerCase().trim() : true;
-                
-                let okBusca = true;
-                if (buscaVal.length > 0) {
-                    const nomeGeral = (tree.species_name || "").toLowerCase();
-                    const end = (tree.address || "").toLowerCase();
-                    okBusca = nomeGeral.includes(buscaVal) || end.includes(buscaVal);
-                }
-
-                let okAdmin = true;
-                if (isAdmin || isAnalista) {
-                    for (const [key, val] of Object.entries(adminFilters)) {
-                        if ((tree[key] || "") != val) { okAdmin = false; break; }
-                    }
-                }
-                return okBairro && okEspecie && okBusca && okAdmin;
-            });
-
-            exibirArvores(filtradas);
-            
-            if (filtradas.length > 0) {
-                if (filtradas.length === 1) { map.setView([filtradas[0].latitude, filtradas[0].longitude], 18); }
-                else { map.fitBounds(L.latLngBounds(filtradas.map(t => [t.latitude, t.longitude])), { padding: [50, 50], maxZoom: 17 }); }
-            }
-
-            if (bairroVal && filtradas.length > 0) destacarBairro(bairroVal, false);
-            else {
-                if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-                const adminEmpty = isAdmin ? Object.keys(adminFilters).length === 0 : true;
-                if (!especieVal && !buscaVal && !bairroVal && adminEmpty) map.setView(INITIAL_VIEW, INITIAL_ZOOM);
-            }
-        }
-
-        function downloadCSV() {
-            // Usa as árvores filtradas atualmente, ou todas se não houver filtro ativo
-            const data = (filteredTrees.length > 0) ? filteredTrees : allTrees;
-
-            if (!data || data.length === 0) {
-                alert("Não há dados para exportar.");
-                return;
-            }
-
-            // Cabeçalhos (Estáticos)
-            let headers = ['ID', 'Espécie', 'Nome Popular', 'Bairro', 'Endereço', 'Diâmetro (cm)'];
-            // Chaves correspondentes no objeto tree
-            let keys = ['id', 'species_name', 'vulgar_name', 'bairro_nome', 'address', 'trunk_diameter'];
-
-            // Cabeçalhos Dinâmicos (Admin/Analista)
-            if (isAdmin || isAnalista) {
-                adminFieldsConfig.forEach(f => {
-                    headers.push(f.label);
-                    keys.push(f.key);
-                });
-            }
-
-            // Função auxiliar para escapar caracteres especiais do CSV (vírgulas, aspas, quebras de linha)
-            const escapeCsv = (text) => {
-                if (text === null || text === undefined) return '';
-                let str = String(text);
-                // Se contém separador (usando ponto e vírgula para PT-BR), quebra de linha ou aspas duplas, envolve em aspas
-                if (str.includes(';') || str.includes('\n') || str.includes('"')) {
-                    return `"${str.replace(/"/g, '""')}"`; // Escapa aspas internas duplicando-as
-                }
-                return str;
-            };
-
-            // Monta o conteúdo do CSV
-            // Adiciona BOM para o Excel reconhecer UTF-8 (acentos) corretamente
-            let csvContent = headers.join(';') + '\n';
-
-            data.forEach(tree => {
-                let row = [];
-                // Processa campos fixos manualmente para garantir mapeamento correto (bairro pode vir de ID)
-                row.push(escapeCsv(tree.id));
-                row.push(escapeCsv(tree.species_name || ''));
-                row.push(escapeCsv(tree.vulgar_name || ''));
-                
-                // Lógica do Bairro (nome direto ou busca pelo ID)
-                const bairroName = tree.bairro_nome || allBairros.find(b => b.id == tree.bairro_id)?.nome || '';
-                row.push(escapeCsv(bairroName));
-                
-                row.push(escapeCsv(tree.address || ''));
-                row.push(escapeCsv(tree.trunk_diameter || ''));
-
-                // Processa campos dinâmicos
-                if (isAdmin || isAnalista) {
-                    adminFieldsConfig.forEach(f => {
-                        row.push(escapeCsv(tree[f.key] || ''));
-                    });
-                }
-                csvContent += row.join(';') + '\n';
-            });
-
-            // Cria o arquivo Blob e dispara o download
-            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'relatorio_arvores.csv';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        function criarConteudoPopup(listaArvores, indexInicial) {
-            const container = document.createElement('div');
-            container.className = 'p-4 font-sans relative bg-white';
-            let indexAtual = indexInicial;
-
-            function mostrarArvoreAtual() {
-                const tree = listaArvores[indexAtual];
-                const targetPoint = map.latLngToContainerPoint([tree.latitude, tree.longitude]).add([0, -100]);
-                map.setView(map.containerPointToLatLng(targetPoint), map.getZoom(), { animate: true });
-                const marker = treeMarkers[tree.id];
-                if (marker) marker.bindPopup(container).openPopup();
-            }
-
-            function render() {
-                const tree = listaArvores[indexAtual];
-                const total = listaArvores.length;
-                
-                let nomeExibicao = tree.vulgar_name || tree.species_name || 'Espécie não identificada';
-                const nomeCheck = (tree.vulgar_name || "").toLowerCase();
-
-                if (nomeCheck.includes('não identificada') || nomeCheck.includes('nao identificada')) {
-                    if (tree.no_species_case && tree.no_species_case.trim() !== "") {
-                        nomeExibicao = tree.no_species_case;
-                    }
-                }
-
-                let adminButton = '';
-                if (isAdmin || isAnalista) {
-                    const editUrl = editRouteTemplate.replace('ID_PLACEHOLDER', tree.id);
-                    adminButton = `
-                        <a href="${editUrl}" style="color: white !important;" class="flex-1 ml-2 group flex items-center justify-center bg-blue-600 hover:bg-blue-700 !text-white border border-blue-600 rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
-                            <span class="text-xs font-bold text-white">Editar</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                        </a>`;
-                }
-
-                container.innerHTML = `
-                <div class="flex items-center justify-between mb-3 bg-gray-100 rounded-lg p-1 select-none">
-                    <button id="btn-prev" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">${indexAtual + 1} de ${total}</span>
-                    <button id="btn-next" class="p-1 text-gray-600 hover:text-green-700 hover:bg-white rounded transition cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
-                </div>
-                <div class="mb-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Nome Popular:</p>
-                    <h3 class="font-bold text-[#358054] text-sm leading-tight mb-2">${nomeExibicao}</h3>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Localização:</p>
-                    <div class="text-xs text-gray-600 pb-2 border-b border-gray-100 leading-snug">
-                        <p class="mb-1">${tree.address} - <strong>${tree.bairro_nome || 'Rua não informada'}</p>
-                </div>
-                <div class="flex w-full">
-                    <a href="/trees/${tree.id}" class="flex-1 group flex items-center justify-between bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] rounded-lg px-3 py-2 transition-all duration-200 decoration-0">
-                        <span class="text-xs font-bold text-[#166534]">Ver detalhes</span>
-                        <svg class="w-4 h-4 text-[#166534] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </a>
-                    ${adminButton}
-                </div>`;
-                
-                container.querySelector('#btn-prev').onclick = (e) => { e.stopPropagation(); indexAtual = (indexAtual - 1 + total) % total; render(); mostrarArvoreAtual(); };
-                container.querySelector('#btn-next').onclick = (e) => { e.stopPropagation(); indexAtual = (indexAtual + 1) % total; render(); mostrarArvoreAtual(); };
-            }
-            render();
-            return container;
-        }
-
-        setTimeout(() => {
-            const btnAplicar = document.getElementById("aplicarFiltro");
-            const btnLimpar = document.getElementById("limparFiltro");
-            const inputSearch = document.getElementById("search");
-            const btnDown = document.getElementById("downloadCsv");
-            
-            if (btnAplicar) btnAplicar.addEventListener("click", aplicarFiltro);
-            if (inputSearch) inputSearch.addEventListener("keyup", (e) => { if (e.key === 'Enter') aplicarFiltro(); });
-            if (btnDown) btnDown.addEventListener("click", downloadCSV);
-
-            const colorModeSelect = document.getElementById("colorMode");
-            if(colorModeSelect) {
-                colorModeSelect.addEventListener("change", () => {
-                    const newMode = colorModeSelect.value;
-                    updateLegend(newMode);
-                    exibirArvores(filteredTrees.length > 0 ? filteredTrees : allTrees);
-                });
-            }
-
-            if (btnLimpar) {
-                btnLimpar.addEventListener("click", () => {
-                    document.getElementById("bairro").value = "";
-                    document.getElementById("especie").value = "";
-                    document.getElementById("search").value = "";
-                    if (isAdmin || isAnalista) {
-                        adminFieldsConfig.forEach(f => { const el = document.getElementById(f.id); if(el) el.value = ""; });
-                        const cm = document.getElementById("colorMode");
-                        if(cm) { cm.value = "species"; updateLegend('species'); }
-                    }
-                    exibirArvores(allTrees);
-                    if (bairrosGeoLayer) bairrosGeoLayer.eachLayer(l => l.setStyle({ color: "#00000020", weight: 1, fillOpacity: 0.02 }));
-                    map.setView(INITIAL_VIEW, INITIAL_ZOOM);
-                });
-            }
-        }, 300);
-
+        loadTrees();
+        map.on('zoomend', () => { legendDiv.style.display = map.getZoom() >= 16 ? 'block' : 'none'; });
     </script>
 </body>
 </html>
