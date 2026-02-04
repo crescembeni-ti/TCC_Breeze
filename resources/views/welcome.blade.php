@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Árvores de Paracambi</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -37,8 +37,8 @@
             z-index: 2000; background: white; border-radius: 12px; 
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); display: none; 
             flex-direction: column; font-family: 'Instrument Sans', sans-serif;
-            max-height: calc(100% - 60px); /* Reduzi um pouco para dar folga no PC */
-            overflow-y: auto; /* Permite rolar o painel inteiro se necessário */
+            max-height: calc(100% - 60px); 
+            overflow-y: auto; 
         }
         .map-filter-panel.open { display: flex; animation: slideIn 0.2s ease-out; }
         
@@ -152,14 +152,8 @@
     }
 
     @keyframes slideInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
     }
 
     /* LEGENDA DE MARGEM DE ERRO COM BOTÃO FECHAR */
@@ -209,7 +203,8 @@
         background-color: rgba(180, 83, 9, 0.1);
     }
     
-        @media (max-width: 640px) {
+    /* === AJUSTES MOBILE E TABLET (ATÉ 1024px) === */
+    @media (max-width: 1024px) {
         .map-filter-panel {
             width: 90% !important; 
             right: 5% !important;  
@@ -242,28 +237,64 @@
             white-space: normal !important;
             text-align: center;
         }
+
+        /* Reestruturação da Caixa de Estatísticas para Horizontal */
         .shading-stats-box-external {
             width: 100% !important;
             min-width: unset !important;
-            padding: 12px !important;
-            margin-bottom: 8px;
+            padding: 8px 12px !important;
+            margin-bottom: 6px;
+            /* Layout Horizontal Flexível */
+            flex-direction: row !important;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
         }
+
+        /* Título ocupa linha inteira em cima */
         .shading-stats-title {
-            font-size: 9px !important;
-            margin-bottom: 8px !important;
+            width: 100%;
+            font-size: 10px !important;
+            margin-bottom: 4px !important;
+            padding-bottom: 4px !important;
+            border-bottom: 1px solid rgba(255,255,255,0.2) !important;
+            justify-content: center;
         }
+
+        /* Itens lado a lado */
         .shading-stat-item {
+            flex: 1; /* Crescem igualmente */
             padding: 6px !important;
-            margin-bottom: 8px !important;
+            margin-bottom: 0 !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
+        /* Ajuste de fonte um pouco maior para Tablets se houver espaço */
         .shading-stat-label {
-            font-size: 8px !important;
+            font-size: 9px !important; 
+            text-align: center;
         }
         .shading-stat-value {
-            font-size: 16px !important;
+            font-size: 18px !important;
         }
         .shading-stat-unit {
-            font-size: 9px !important;
+            font-size: 10px !important;
+        }
+
+        /* CORREÇÃO DO MAPA */
+        /* Sobrescreve o 600px do arquivo css externo e ocupa a tela */
+        #map {
+            height: calc(100vh - 240px) !important; 
+            min-height: 400px;
+        }
+        
+        /* Ajuste do padding do main */
+        main {
+            padding-top: 10px !important;
+            padding-bottom: 0 !important;
         }
     }
     </style>
@@ -290,7 +321,7 @@
                 {{-- LADO DIREITO: Menu + Nova Logo --}}
                 <div class="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
                     
-                    {{-- 1. MENU (Aparece embaixo no mobile) --}}
+                    {{-- 1. MENU --}}
                     <div class="flex items-center gap-2 sm:gap-4 relative order-2 sm:order-1">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}" class="btn bg-green-600 hover:bg-green-700 text-xs sm:text-sm py-1.5 px-3">Painel</a>
@@ -325,7 +356,7 @@
                         @endif
                     </div>
 
-                    {{-- 2. NOVA LOGO (Aparece em cima no mobile) --}}
+                    {{-- 2. NOVA LOGO --}}
                     <img src="{{ asset('images/nova_logo.png') }}" 
                          alt="Logo Prefeitura" 
                          class="header-logo-right hover:opacity-90 transition-opacity order-1 sm:order-2"
@@ -352,7 +383,8 @@
                 <h2 class="text-xl font-bold text-gray-900 mb-2 mt-1 pl-2">Mapa Interativo</h2>
                 
                 {{-- LAYOUT COM GRID: Caixa de Estatísticas + Mapa --}}
-                <div class="flex flex-col md:flex-row gap-2 md:gap-3 p-1">
+                {{-- MUDANÇA AQUI: Alterado de md:flex-row para lg:flex-row para garantir layout stack em tablets --}}
+                <div class="flex flex-col lg:flex-row gap-2 lg:gap-3 p-1">
                     
                     {{-- CAIXA DE ESTATÍSTICAS DE SOMBREAMENTO (FORA DO MAPA) --}}
                     <div class="shading-stats-box-external">
@@ -388,7 +420,7 @@
                     </div>
                     
                     {{-- MAPA --}}
-                    <div id="map" class="z-0 flex-1 rounded-lg h-[70vh] md:h-[85vh] relative"></div>
+                    <div id="map" class="z-0 flex-1 rounded-lg h-[70vh] lg:h-[85vh] relative"></div>
                     
                 </div>
 
@@ -635,8 +667,8 @@
         toggleBtn.addEventListener("click", (e) => { 
             L.DomEvent.stop(e); 
             panel.classList.toggle("open");
-            if (panel.classList.contains("open") && window.innerWidth < 640) {
-                document.body.style.overflow = 'hidden'; // Trava o scroll do fundo no mobile
+            if (panel.classList.contains("open") && window.innerWidth < 1024) { // Ajustado para Tablet
+                document.body.style.overflow = 'hidden'; // Trava o scroll do fundo no mobile/tablet
             }
         });
         panel.querySelector('#closePanelBtn').addEventListener("click", (e) => { 
