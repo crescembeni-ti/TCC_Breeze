@@ -28,12 +28,12 @@
 <body class="font-sans antialiased min-h-screen bg-fixed bg-center bg-no-repeat bg-cover relative"
     style="background-image: url('{{ asset('images/drone_fabrica.jpeg') }}');">
 
-    <div class="fixed inset-0 w-full h-full bg-inherit -z-10" style="background: inherit; filter: blur(8px) brightness(0.8); opacity: 0.6;"></div>
+    <div class="fixed inset-0 w-full h-full -z-10" style="background: inherit; filter: blur(10px) brightness(0.9); opacity: 0.4;"></div>
 
-    <div class="min-h-screen flex flex-col items-center justify-center sm:justify-center py-12 sm:py-0">
+    <div class="min-h-screen flex flex-col items-center justify-center sm:justify-center py-12 sm:py-0 relative z-10">
 
         {{-- Card principal --}}
-        <div class="w-full sm:max-w-md px-8 py-6 bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl animate-fadeInUp relative z-10">
+        <div class="w-full sm:max-w-md px-8 py-6 bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl animate-fadeInUp">
             {{ $slot }}
         </div>
 
