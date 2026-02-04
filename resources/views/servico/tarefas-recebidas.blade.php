@@ -131,17 +131,18 @@
          x-cloak>
         <div class="fixed inset-0 bg-black/75 transition-opacity" @click="showPhoto = false"></div>
         
-        <div class="relative bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden transform transition-all z-10 mx-auto">
+        <div class="relative bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden transform transition-all z-10 mx-auto flex flex-col items-center">
             {{-- Botão Fechar no Canto Superior Direito --}}
             <button @click="showPhoto = false" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors z-20 bg-white/80 rounded-full p-1 shadow-sm">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
             
             {{-- Conteúdo da Foto --}}
-            <div class="p-2">
-                <div class="relative aspect-auto max-h-[85vh] overflow-hidden rounded-lg bg-gray-100 shadow-inner">
+            <div class="p-2 w-full flex justify-center items-center">
+                <div class="relative w-full flex justify-center items-center overflow-hidden rounded-lg bg-gray-100 shadow-inner" style="max-height: 80vh;">
                     <img :src="photoUrl" 
-                         class="w-full h-auto max-h-[85vh] object-contain mx-auto"
+                         class="max-w-full h-auto object-contain mx-auto"
+                         style="max-height: 80vh; width: auto;"
                          @click.stop>
                 </div>
             </div>
