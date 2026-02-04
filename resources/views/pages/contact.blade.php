@@ -106,34 +106,37 @@
 
                     {{-- TÓPICO --}}
 <!-- Modal de Confirmação -->
-    <div x-show="showConfirmModal" class="fixed inset-0 z-[99999] overflow-y-auto" style="display: none;" x-cloak>
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showConfirmModal = false"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-            <div class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-green-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 class="text-lg font-medium leading-6 text-gray-900">Confirmar Envio</h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-gray-500">Você tem certeza que deseja enviar esta solicitação? Verifique se todas as informações estão corretas.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button @click="confirmSubmit" type="button" class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-                        Confirmar e Enviar
-                    </button>
-                    <button @click="showConfirmModal = false" type="button" class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Cancelar
-                    </button>
-                </div>
+    <div x-show="showConfirmModal" 
+         class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6" 
+         style="display: none;" 
+         x-cloak>
+        <div class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showConfirmModal = false"></div>
+        
+        <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-2xl transition-all sm:p-8">
+            <div class="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full mb-6">
+                <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            
+            <div class="text-center">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Confirmar Envio?</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">
+                    Você está prestes a enviar sua solicitação para a Secretaria de Meio Ambiente. Verifique se os dados e as fotos estão corretos antes de confirmar.
+                </p>
+            </div>
+
+            <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                <button @click="confirmSubmit" 
+                        type="button" 
+                        class="flex-1 inline-flex justify-center items-center px-6 py-3 text-base font-bold text-white bg-[#358054] border border-transparent rounded-xl shadow-sm hover:bg-green-700 focus:outline-none transition-all order-1 sm:order-2">
+                    Sim, Confirmar
+                </button>
+                <button @click="showConfirmModal = false" 
+                        type="button" 
+                        class="flex-1 inline-flex justify-center items-center px-6 py-3 text-base font-bold text-gray-700 bg-gray-100 border border-gray-200 rounded-xl shadow-sm hover:bg-gray-200 focus:outline-none transition-all order-2 sm:order-1">
+                    Cancelar
+                </button>
             </div>
         </div>
     </div>

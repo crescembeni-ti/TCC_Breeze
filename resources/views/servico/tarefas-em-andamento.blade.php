@@ -1,9 +1,28 @@
 @extends('layouts.dashboard')
 @section('title', 'Em Andamento')
 
-@section('content')
-<div x-data="{ open: false, showPhoto: false, photoUrl: '', item: { id: '', contact: { status: {} }, motivos: [], servicos: [], equipamentos: [] } }">
-    
+@section('content'<div x-data="{ 
+    open: false, 
+    showPhoto: false, 
+    photoUrl: '', 
+    item: { id: '', contact: { status: {} }, motivos: [], servicos: [], equipamentos: [] },
+    currentPhotos: [],
+    currentIndex: 0,
+    openCarousel(photos) {
+        this.currentPhotos = photos;
+        this.currentIndex = 0;
+        this.photoUrl = '/storage/' + this.currentPhotos[0];
+        this.showPhoto = true;
+    },
+    nextPhoto() {
+        this.currentIndex = (this.currentIndex + 1) % this.currentPhotos.length;
+        this.photoUrl = '/storage/' + this.currentPhotos[this.currentIndex];
+    },
+    prevPhoto() {
+        this.currentIndex = (this.currentIndex - 1 + this.currentPhotos.length) % this.currentPhotos.length;
+        this.photoUrl = '/storage/' + this.currentPhotos[this.currentIndex];
+    }
+}">  
     <header class="bg-white shadow mb-8 rounded-lg p-6">
         <h2 class="text-3xl font-semibold text-blue-700">Tarefas em Andamento</h2>
         <p class="text-gray-600 mt-1">Serviços iniciados que precisam ser concluídos.</p>
@@ -78,15 +97,11 @@
                                     }
                                 @endphp
                                 @if(is_array($fotos) && count($fotos) > 0)
-                                    <div class="flex flex-wrap gap-2">
-                                        @foreach($fotos as $foto)
-                                            <button @click="showPhoto = true; photoUrl = '/storage/{{ $foto }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
-                                                <i data-lucide="image" class="w-4 h-4"></i> Foto {{ $loop->iteration }}
-                                            </button>
-                                        @endforeach
-                                    </div>
+                                    <button @click="openCarousel({{ json_encode($fotos) }})" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                        <i data-lucide="images" class="w-4 h-4"></i> Ver Fotos ({{ count($fotos) }})
+                                    </button>
                                 @elseif($os->contact->foto_path)
-                                    <button @click="showPhoto = true; photoUrl = '{{ Storage::url($os->contact->foto_path) }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                    <button @click="showPhoto = true; photoUrl = '{{ Storage::url($os->contact->foto_path) }}'; currentPhotos = [];" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
                                         <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
                                     </button>
                                 @else
@@ -109,13 +124,44 @@
         </div>
     @endif
 
-    {{-- MODAL DE FOTO (LIGHTBOX) --}}
-    <div x-show="showPhoto" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-90 p-4" style="display: none;" x-cloak @click="showPhoto = false">
-        <div class="relative max-w-5xl w-full flex items-center justify-center">
+    {{-- MODAL DE FOTO (LIGHTBOX COM CARROSSEL) --}}
+    <div x-show="showPhoto" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-90 p-4" style="display: none;" x-cloak>
+        <div class="fixed inset-0" @click="showPhoto = false"></div>
+        
+        <div class="relative max-w-5xl w-full flex items-center justify-center z-10">
+            {{-- Botão Fechar --}}
             <button @click="showPhoto = false" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition">
                 <i data-lucide="x" class="w-10 h-10"></i>
             </button>
-            <img :src="photoUrl" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl border-2 border-white/20">
+
+            {{-- Navegação Esquerda --}}
+            <template x-if="currentPhotos.length > 1">
+                <button @click="prevPhoto()" class="absolute left-0 sm:-left-16 text-white hover:text-green-400 transition p-2 bg-black/20 rounded-full">
+                    <i data-lucide="chevron-left" class="w-12 h-12"></i>
+                </button>
+            </template>
+
+            {{-- Imagem --}}
+            <div class="flex flex-col items-center gap-4">
+                <img :src="photoUrl" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl border-2 border-white/20">
+                
+                {{-- Indicador de Fotos --}}
+                <template x-if="currentPhotos.length > 1">
+                    <div class="flex gap-2">
+                        <template x-for="(f, i) in currentPhotos" :key="i">
+                            <div class="w-2.5 h-2.5 rounded-full transition-all" 
+                                 :class="currentIndex === i ? 'bg-green-500 w-6' : 'bg-white/50'"></div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            {{-- Navegação Direita --}}
+            <template x-if="currentPhotos.length > 1">
+                <button @click="nextPhoto()" class="absolute right-0 sm:-right-16 text-white hover:text-green-400 transition p-2 bg-black/20 rounded-full">
+                    <i data-lucide="chevron-right" class="w-12 h-12"></i>
+                </button>
+            </template>
         </div>
     </div>
 
