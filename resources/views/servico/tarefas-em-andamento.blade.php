@@ -157,9 +157,9 @@
          class="fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-90 p-4" 
          style="display: none;" 
          x-cloak 
-         @click="showLightbox = false">
-        <span class="absolute top-5 right-10 text-white text-4xl cursor-pointer">&times;</span>
-        <img :src="photoUrl" class="max-w-full max-h-full object-contain">
+         @click.self="showLightbox = false">
+        <button @click="showLightbox = false" class="absolute top-5 right-10 text-white text-4xl cursor-pointer hover:text-gray-300 transition-colors z-10">&times;</button>
+        <img :src="photoUrl" class="max-w-[90vw] max-h-[90vh] object-contain">
     </div>
 
     {{-- MODAL (COM BOTÕES DE CONCLUSÃO ATIVADOS) --}}
