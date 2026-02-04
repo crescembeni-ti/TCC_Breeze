@@ -4,23 +4,13 @@
 @section('content'<div x-data="{ 
     open: false, 
     showPhoto: false, 
+    showLightbox: false,
     photoUrl: '', 
     item: { id: '', contact: { status: {} }, motivos: [], servicos: [], equipamentos: [] },
     currentPhotos: [],
-    currentIndex: 0,
     openCarousel(photos) {
         this.currentPhotos = photos;
-        this.currentIndex = 0;
-        this.photoUrl = '/storage/' + this.currentPhotos[0];
         this.showPhoto = true;
-    },
-    nextPhoto() {
-        this.currentIndex = (this.currentIndex + 1) % this.currentPhotos.length;
-        this.photoUrl = '/storage/' + this.currentPhotos[this.currentIndex];
-    },
-    prevPhoto() {
-        this.currentIndex = (this.currentIndex - 1 + this.currentPhotos.length) % this.currentPhotos.length;
-        this.photoUrl = '/storage/' + this.currentPhotos[this.currentIndex];
     }
 }">  
     <header class="bg-white shadow mb-8 rounded-lg p-6">
@@ -98,7 +88,7 @@
                                 @endphp
                                 @if(is_array($fotos) && count($fotos) > 0)
                                     <button @click="openCarousel({{ json_encode($fotos) }})" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
-                                        <i data-lucide="images" class="w-4 h-4"></i> Ver Fotos ({{ count($fotos) }})
+                                        <i data-lucide="images" class="w-4 h-4"></i> Ver Fotos
                                     </button>
                                 @elseif($os->contact->foto_path)
                                     <button @click="showPhoto = true; photoUrl = '{{ Storage::url($os->contact->foto_path) }}'; currentPhotos = [];" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
@@ -124,45 +114,36 @@
         </div>
     @endif
 
-    {{-- MODAL DE FOTO (LIGHTBOX COM CARROSSEL) --}}
-    <div x-show="showPhoto" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-90 p-4" style="display: none;" x-cloak>
-        <div class="fixed inset-0" @click="showPhoto = false"></div>
-        
-        <div class="relative max-w-5xl w-full flex items-center justify-center z-10">
-            {{-- Botão Fechar --}}
-            <button @click="showPhoto = false" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition">
-                <i data-lucide="x" class="w-10 h-10"></i>
+    {{-- MODAL DE FOTOS (ESTILO ADMIN) --}}
+    <div x-show="showPhoto" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4" style="display: none;" x-cloak>
+        <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative">
+            <button @click="showPhoto = false" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+                <i data-lucide="x"></i>
             </button>
-
-            {{-- Navegação Esquerda --}}
-            <template x-if="currentPhotos.length > 1">
-                <button @click="prevPhoto()" class="absolute left-0 sm:-left-16 text-white hover:text-green-400 transition p-2 bg-black/20 rounded-full">
-                    <i data-lucide="chevron-left" class="w-12 h-12"></i>
-                </button>
-            </template>
-
-            {{-- Imagem --}}
-            <div class="flex flex-col items-center gap-4">
-                <img :src="photoUrl" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl border-2 border-white/20">
-                
-                {{-- Indicador de Fotos --}}
-                <template x-if="currentPhotos.length > 1">
-                    <div class="flex gap-2">
-                        <template x-for="(f, i) in currentPhotos" :key="i">
-                            <div class="w-2.5 h-2.5 rounded-full transition-all" 
-                                 :class="currentIndex === i ? 'bg-green-500 w-6' : 'bg-white/50'"></div>
-                        </template>
-                    </div>
+            <h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Fotos</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-auto p-2">
+                <template x-for="(photo, index) in currentPhotos" :key="index">
+                    <img :src="'/storage/' + photo" 
+                         class="w-full h-64 object-cover rounded-lg shadow cursor-pointer hover:opacity-80"
+                         @click="photoUrl = '/storage/' + photo; showLightbox = true;">
+                </template>
+                <template x-if="currentPhotos.length === 0 && photoUrl">
+                    <img :src="photoUrl" 
+                         class="w-full h-64 object-cover rounded-lg shadow cursor-pointer hover:opacity-80"
+                         @click="showLightbox = true;">
                 </template>
             </div>
-
-            {{-- Navegação Direita --}}
-            <template x-if="currentPhotos.length > 1">
-                <button @click="nextPhoto()" class="absolute right-0 sm:-right-16 text-white hover:text-green-400 transition p-2 bg-black/20 rounded-full">
-                    <i data-lucide="chevron-right" class="w-12 h-12"></i>
-                </button>
-            </template>
         </div>
+    </div>
+
+    {{-- LIGHTBOX PARA AMPLIAR (ESTILO ADMIN) --}}
+    <div x-show="showLightbox" 
+         class="fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-90 p-4" 
+         style="display: none;" 
+         x-cloak 
+         @click="showLightbox = false">
+        <span class="absolute top-5 right-10 text-white text-4xl cursor-pointer">&times;</span>
+        <img :src="photoUrl" class="max-w-full max-h-full object-contain">
     </div>
 
     {{-- MODAL (COM BOTÕES DE CONCLUSÃO ATIVADOS) --}}
