@@ -94,8 +94,11 @@ Route::middleware(['auth:web', 'preventBack'])->group(function () {
 | USUÁRIO VERIFICADO (Dashboard, Solicitações)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
+Route::middleware(['auth:web,admin,analyst,service', 'preventBack'])->group(function () {
     Route::get('/sobre', [AboutPageController::class, 'index'])->name('about');
+});
+
+Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/contato', [ContactController::class, 'index'])->name('contact');
     Route::post('/contato', [ContactController::class, 'store'])->name('contact.store');
