@@ -27,7 +27,7 @@
     </style>
 </head>
 
-<body class="font-sans antialiased flex flex-col min-h-screen relative" style="background-image: url('{{ asset('images/fotofabrica2.jpeg') }}'); background-size: cover; background-attachment: fixed; background-position: center;">
+<body class="font-sans antialiased flex flex-col min-h-screen relative" style="background-image: url('{{ asset('images/avoperario.jpeg') }}'); background-size: cover; background-attachment: fixed; background-position: center;">
     <div class="fixed inset-0 w-full h-full -z-10" style="background: inherit; filter: blur(10px) brightness(0.9); opacity: 0.4;"></div>
 
     {{-- HEADER ATUALIZADO --}}
@@ -109,7 +109,9 @@
                     <a href="{{ route('admin.os.index') }}" class="sidebar-link"><i data-lucide="file-text" class="icon"></i> Ordens de Serviço</a>
                     <a href="{{ route('admin.profile.edit') }}" class="sidebar-link"><i data-lucide="user" class="icon"></i> Meu Perfil</a>
                     <a href="{{ route('admin.accounts.index') }}" class="sidebar-link"><i data-lucide="users" class="icon"></i> Gerenciar Contas</a>
-                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
+                    <a href="{{ route('admin.about.edit') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
+                    <a href="{{ route('admin.about.edit') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
+
 
                 {{-- ==================== MENU ANALISTA ==================== --}}
                 @elseif (auth('analyst')->check())
