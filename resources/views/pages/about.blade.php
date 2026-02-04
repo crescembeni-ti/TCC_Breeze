@@ -21,6 +21,19 @@
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            filter: blur(8px) brightness(0.8);
+            z-index: -1;
+            opacity: 0.6;
         }
         .prose p { margin-bottom: 1rem; line-height: 1.6; color: #4b5563; }
         .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }

@@ -11,7 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-pt-BR.min.js"></script>
 
-<div class="p-6 bg-gray-100 min-h-screen">
+<div class="p-6 min-h-screen">
     <div class="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
         
         {{-- Cabeçalho da página com título e link de visualização --}}

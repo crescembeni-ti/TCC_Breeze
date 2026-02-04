@@ -27,7 +27,8 @@
     </style>
 </head>
 
-<body class="font-sans antialiased flex flex-col min-h-screen">
+<body class="font-sans antialiased flex flex-col min-h-screen relative" style="background-image: url('{{ asset('images/fotofabrica2.jpeg') }}'); background-size: cover; background-attachment: fixed; background-position: center;">
+    <div class="fixed inset-0 w-full h-full -z-10" style="background: inherit; filter: blur(10px) brightness(0.9); opacity: 0.4;"></div>
 
     {{-- HEADER ATUALIZADO --}}
     <header class="site-header bg-[#beffb4] border-b-2 border-[#358054] shadow-md">

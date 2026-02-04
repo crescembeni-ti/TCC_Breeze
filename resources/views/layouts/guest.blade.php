@@ -17,8 +17,10 @@
 </head>
 
 {{-- ALTERAÇÃO AQUI: Adicionado bg-fixed, bg-center, bg-no-repeat e removido login-bg --}}
-<body class="font-sans antialiased min-h-screen bg-fixed bg-center bg-no-repeat bg-cover"
+<body class="font-sans antialiased min-h-screen bg-fixed bg-center bg-no-repeat bg-cover relative"
     style="background-image: url('{{ asset('images/drone_fabrica.jpeg') }}');">
+
+    <div class="fixed inset-0 w-full h-full bg-inherit -z-10" style="background: inherit; filter: blur(8px) brightness(0.8); opacity: 0.6;"></div>
 
     <div class="min-h-screen flex flex-col items-center justify-center sm:justify-center py-12 sm:py-0">
 
