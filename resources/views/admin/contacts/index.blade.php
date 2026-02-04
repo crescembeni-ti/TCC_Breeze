@@ -59,7 +59,7 @@
                        class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all w-full sm:w-auto {{ $filtro === 'pendentes' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Pendentes</a>
                     
                     <a href="{{ route('admin.contato.index') }}?filtro=resolvidas&period={{ request('period') }}&date_start={{ request('date_start') }}&date_end={{ request('date_end') }}" 
-                       class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all w-full sm:w-auto{{ $filtro === 'resolvidas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Resolvidas</a>
+                       class="px-4 py-2 text-center rounded-lg font-semibold shadow-sm transition-all w-full sm:w-auto {{ $filtro === 'resolvidas' ? 'bg-[#358054] text-white' : 'bg-[#38c224]/10 text-[#358054] hover:bg-[#38c224]/20' }}">Resolvidas</a>
                 </div>
 
                 {{-- Filtro de Data --}}
