@@ -28,7 +28,7 @@
 <body class="font-sans antialiased min-h-screen bg-fixed bg-center bg-no-repeat bg-cover relative"
     style="background-image: url('{{ asset('images/drone_fabrica.jpeg') }}');">
 
-    <div class="fixed inset-0 w-full h-full -z-10" style="background: inherit; filter: blur(10px) brightness(0.9); opacity: 0.4;"></div>
+    <div class="fixed inset-0 w-full h-full -z-10" style="background: inherit; filter: blur(4px) brightness(1); opacity: 0.7;"></div>
 
     <div class="min-h-screen flex flex-col items-center justify-center sm:justify-center py-12 sm:py-0 relative z-10">
 
