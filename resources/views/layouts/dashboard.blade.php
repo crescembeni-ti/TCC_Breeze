@@ -121,15 +121,17 @@
 	                    <a href="{{ route('analyst.vistorias.pendentes') }}" class="sidebar-link">
 	                        <i data-lucide="clipboard-check" class="icon"></i> Vistorias Pendentes
 	                    </a>
-	                    <a href="{{ url('/pbi-analista/ordens-enviadas') }}" class="sidebar-link">
-	                        <i data-lucide="file-text" class="icon"></i> OS Enviadas
-	                    </a>
+		                    <a href="{{ url('/pbi-analista/ordens-enviadas') }}" class="sidebar-link">
+		                        <i data-lucide="file-text" class="icon"></i> OS Enviadas
+		                    </a>
+		                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
 
                {{-- ==================== MENU SERVIÇO ==================== --}}
-                @elseif (auth('service')->check())
-                    <a href="{{ route('service.dashboard') }}" class="sidebar-link">
-                        <i data-lucide="layout-dashboard" class="icon"></i> Painel Serviço
-                    </a>
+		                @elseif (auth('service')->check())
+	                    <a href="{{ route('service.dashboard') }}" class="sidebar-link">
+	                        <i data-lucide="layout-dashboard" class="icon"></i> Painel Serviço
+	                    </a>
+	                    <a href="{{ route('about') }}" class="sidebar-link"><i data-lucide="info" class="icon"></i> Sobre o Site</a>
 
                     <a href="{{ route('service.tasks.recebidas') }}" class="sidebar-link">
                         <i data-lucide="inbox" class="icon"></i> Tarefas Recebidas

@@ -60,7 +60,7 @@ Route::middleware('preventBack')->group(function () {
     Route::get('/', [TreeController::class, 'index'])->name('home');
     Route::get('/api/trees', [TreeController::class, 'getTreesData'])->name('trees.data');
     Route::get('/trees/{id}', [TreeController::class, 'show'])->name('trees.show');
-    Route::get('/sobre', [AboutPageController::class, 'index'])->name('about');
+    // Route::get('/sobre', [AboutPageController::class, 'index'])->name('about');
     Route::get('/bairros/data', fn () => response()->json(Bairro::all()))->name('bairros.data');
 });
 
@@ -95,6 +95,7 @@ Route::middleware(['auth:web', 'preventBack'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:web', 'verified', 'preventBack'])->group(function () {
+    Route::get('/sobre', [AboutPageController::class, 'index'])->name('about');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/contato', [ContactController::class, 'index'])->name('contact');
     Route::post('/contato', [ContactController::class, 'store'])->name('contact.store');
