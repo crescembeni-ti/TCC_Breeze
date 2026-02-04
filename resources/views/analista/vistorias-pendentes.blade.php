@@ -139,12 +139,14 @@
 
     {{-- LIGHTBOX PARA AMPLIAR (ESTILO ADMIN) --}}
     <div x-show="showLightbox" 
-         class="fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-90 p-4" 
+         class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/95 p-4" 
          style="display: none;" 
          x-cloak 
          @click.self="showLightbox = false">
-        <button @click="showLightbox = false" class="absolute top-5 right-10 text-white text-4xl cursor-pointer hover:text-gray-300 transition-colors z-10">&times;</button>
-        <img :src="photoUrl" class="max-w-[90vw] max-h-[90vh] object-contain">
+        <button @click="showLightbox = false" class="absolute top-5 right-10 text-white text-5xl cursor-pointer hover:text-gray-300 transition-colors z-[10001]">&times;</button>
+        <img :src="photoUrl" 
+             class="max-w-full max-h-full sm:max-w-[90vw] sm:max-h-[90vh] object-contain shadow-2xl rounded-sm"
+             @click.stop>
     </div>
 
     {{-- MODAL (LAYOUT DA OS COM MARCA D'ÁGUA) --}}

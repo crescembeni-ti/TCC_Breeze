@@ -27,8 +27,8 @@
 
     <style>
         #lightbox-admin { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); display: none; align-items: center; justify-content: center; z-index: 99999; }
-        #lightbox-admin img { max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
-        #lightbox-close-admin { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer; }
+        #lightbox-admin img { max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain; pointer-events: auto; }
+        #lightbox-close-admin { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer; z-index: 100000; }
         #map-contacts { width: 100%; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 1; }
     </style>
 </head>
@@ -177,7 +177,7 @@
     
     {{-- (Outros modais de foto, status e encaminhamento mantidos, apenas omiti para poupar espaço mas devem estar aqui no seu código final) --}}
     <div id="modal-fotos" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[9999]"><div class="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative"><button onclick="closeFotosModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"><i data-lucide="x"></i></button><h2 class="text-2xl font-bold text-[#358054] mb-4 text-center">Fotos</h2><div id="fotos-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-auto p-2"></div></div></div>
-    <div id="lightbox-admin" onclick="closeLightbox()" style="display: none;"><span id="lightbox-close-admin">×</span><img id="lightbox-img-admin" src=""></div>
+    <div id="lightbox-admin" onclick="if(event.target === this) closeLightbox()" style="display: none;"><span id="lightbox-close-admin" onclick="closeLightbox()">×</span><img id="lightbox-img-admin" src="" onclick="event.stopPropagation()"></div>
     <div id="modal-status" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50"><div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative"><button onclick="closeStatusModal()" class="absolute top-3 right-3 text-gray-600"><i data-lucide="x"></i></button><h2 class="text-2xl font-bold text-blue-700 mb-4">Atualizar Status</h2><form id="status-form" onsubmit="return submitStatusForm(event)" class="space-y-3">@csrf @method('PATCH')<label class="font-semibold">Status</label><select name="status_id" id="status-select" class="w-full rounded-md border-gray-300 shadow-sm">@foreach ($allStatuses as $status)<option value="{{ $status->id }}">{{ $status->name }}</option>@endforeach</select><div id="just-box"><label class="font-semibold">Justificativa</label><textarea name="justificativa" id="status-justificativa" class="w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea></div><button class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Salvar</button></form></div></div>
     <div id="modal-forward" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50"><div class="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative"><button onclick="closeForwardModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"><i data-lucide="x"></i></button><h2 id="forward-title" class="text-2xl font-bold text-orange-700 mb-4">Encaminhar Solicitação</h2><form id="forward-form" onsubmit="return submitForwardForm(event)" class="space-y-3">@csrf @method('PATCH')<input type="hidden" name="forward_type" id="forward_type"><label id="forward-label" class="font-semibold">Selecione:</label><select id="forward-user-select" class="w-full rounded-md border-gray-300 shadow-sm" required><option value="">Carregando...</option></select><button id="forward-save-btn" class="w-full px-3 py-2 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700">Confirmar Encaminhamento</button></form></div></div>
 
