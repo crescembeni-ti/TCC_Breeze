@@ -2,7 +2,7 @@
 @section('title', 'Tarefas Concluídas')
 
 @section('content')
-<div x-data="{ open: false, item: { id: '', contact: { status: {} }, motivos: [], servicos: [], equipamentos: [] } }">
+<div x-data="{ open: false, showPhoto: false, photoUrl: '', item: { id: '', contact: { status: {} }, motivos: [], servicos: [], equipamentos: [] } }">
     
     {{-- CABEÇALHO DA PÁGINA --}}
     <header class="bg-white shadow mb-8 rounded-lg p-6">
@@ -62,6 +62,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Conclusão</th>
                             {{-- NOVA COLUNA: STATUS --}}
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fotos</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                         </tr>
                     </thead>
@@ -96,6 +97,17 @@
                                 </span>
                             </td>
 
+                            {{-- FOTOS --}}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @if($os->contact->foto_path)
+                                    <button @click="showPhoto = true; photoUrl = '{{ Storage::url($os->contact->foto_path) }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                        <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
+                                    </button>
+                                @else
+                                    <span class="text-gray-400 italic">Sem foto</span>
+                                @endif
+                            </td>
+
                             {{-- AÇÕES (BOTÃO VER OS) --}}
                             <td class="px-6 py-4 text-right">
                                 <button @click="open = true; item = {{ json_encode($os->load('contact.status')) }}" 
@@ -110,6 +122,24 @@
             </div>
         </div>
     @endif
+
+    {{-- MODAL DE FOTO --}}
+    <div x-show="showPhoto" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-75 p-4" style="display: none;" x-cloak>
+        <div class="relative max-w-4xl w-full bg-white rounded-lg overflow-hidden shadow-2xl">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="font-bold text-gray-900">Foto da Solicitação</h3>
+                <button @click="showPhoto = false" class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-2 flex justify-center bg-gray-100">
+                <img :src="photoUrl" class="max-h-[80vh] object-contain rounded shadow-sm">
+            </div>
+            <div class="p-4 border-t flex justify-end">
+                <button @click="showPhoto = false" class="bg-gray-800 text-white px-4 py-2 rounded font-bold hover:bg-gray-700 transition">Fechar</button>
+            </div>
+        </div>
+    </div>
 
     {{-- MODAL (APENAS LEITURA) --}}
     @include('servico.partials.modal_os', ['action' => 'none'])
