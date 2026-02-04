@@ -309,12 +309,33 @@
                             </div>
                         </div>
 
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="font-bold mb-1 uppercase text-black">Data da Vistoria:</label>
+                                <input type="date" name="data_vistoria" class="w-full border-0 border-b border-gray-400 bg-gray-50/50 p-1 focus:ring-0 text-black" value="{{ date('Y-m-d') }}">
+                            </div>
+                            <div>
+                                <label class="font-bold mb-1 uppercase text-black">Previsão de Execução:</label>
+                                <input type="date" name="data_execucao" class="w-full border-0 border-b border-gray-400 bg-gray-50/50 p-1 focus:ring-0 text-black">
+                            </div>
+                        </div>
+
                         <div class="mb-6">
                             <label class="font-bold mb-1 uppercase text-black">Observações Adicionais:</label>
                             <textarea name="observacoes" rows="2" class="w-full border-0 border-b border-gray-400 bg-gray-50/50 p-1 focus:ring-0 text-black" placeholder="Digite aqui observações relevantes..."></textarea>
                         </div>
 
-                        <div class="flex justify-end gap-3 mt-6 no-print">
+                        {{-- RODAPÉ (ASSINATURAS) --}}
+                        <div class="grid grid-cols-2 gap-8 mt-12 pt-4 print:mt-6 text-center">
+                            <div class="border-t border-black pt-2">
+                                <p class="text-[10px] font-bold uppercase text-black">Responsável Técnico</p>
+                            </div>
+                            <div class="border-t border-black pt-2">
+                                <p class="text-[10px] font-bold uppercase text-black">Recebido por</p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3 mt-8 no-print">
                             <button type="button" @click="open = false" class="bg-gray-500 text-white px-6 py-2 rounded font-bold hover:bg-gray-600 transition">Cancelar</button>
                             <button type="submit" class="bg-[#358054] text-white px-8 py-2 rounded font-bold hover:bg-green-700 shadow-lg transition">Gerar e Enviar OS</button>
                         </div>

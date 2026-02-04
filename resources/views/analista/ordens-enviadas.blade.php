@@ -283,7 +283,7 @@
                         </div>
 
                         {{-- DATAS E OBSERVAÇÕES --}}
-                        <div class="grid grid-cols-2 gap-6 mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             <div>
                                 <label class="font-bold mb-1 uppercase text-black">Data Vistoria:</label>
                                 <p class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black" 
@@ -296,7 +296,7 @@
                             </div>
                             
                             {{-- OBSERVAÇÕES DO ADMIN --}}
-                            <div class="col-span-2">
+                            <div class="col-span-1 md:col-span-2">
                                 <label class="font-bold mb-1 uppercase text-black">OBSERVAÇÕES:</label>
                                 <div class="w-full border p-2 bg-gray-50 rounded italic text-gray-800 text-sm min-h-[40px]" x-text="item.observacoes || 'Sem observações.'"></div>
                             </div>
@@ -304,8 +304,12 @@
 
                         {{-- RODAPÉ (ASSINATURAS) --}}
                         <div class="grid grid-cols-2 gap-8 mt-12 pt-4 print:mt-6 text-center">
-                            <div class="border-t border-black pt-2"><p class="text-xs font-bold uppercase">Responsável Técnico</p></div>
-                            <div class="border-t border-black pt-2"><p class="text-xs font-bold uppercase">Recebido por</p></div>
+                            <div class="border-t border-black pt-2">
+                                <p class="text-[10px] font-bold uppercase text-black">Responsável Técnico</p>
+                            </div>
+                            <div class="border-t border-black pt-2">
+                                <p class="text-[10px] font-bold uppercase text-black">Recebido por</p>
+                            </div>
                         </div>
 
                     </div>
