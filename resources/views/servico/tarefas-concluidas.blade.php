@@ -144,41 +144,38 @@
 
     {{-- MODAL DE FOTOS (ESTILO ADMIN CORRIGIDO) --}}
     <div x-show="showPhoto" 
-         class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6" 
+         class="fixed inset-0 z-[9999] flex items-center justify-center p-4" 
          style="display: none;" 
          x-cloak>
-        <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity" @click="showPhoto = false"></div>
+        <div class="fixed inset-0 bg-black bg-opacity-60 transition-opacity" @click="showPhoto = false"></div>
         
-        <div class="relative bg-white w-full max-w-3xl rounded-2xl shadow-2xl p-6 sm:p-8 overflow-hidden transform transition-all z-10">
-            <button @click="showPhoto = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-            
-            <h2 class="text-2xl font-bold text-[#358054] mb-6 text-center">Fotos da Solicitação</h2>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto p-1 custom-scrollbar">
-                <template x-for="(photo, index) in currentPhotos" :key="index">
-                    <div class="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-md transition-all">
-                        <img :src="'/storage/' + photo" 
-                             class="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-110"
-                             @click="photoUrl = '/storage/' + photo; showLightbox = true;">
-                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all pointer-events-none"></div>
-                    </div>
-                </template>
-                <template x-if="currentPhotos.length === 0 && photoUrl">
-                    <div class="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-md transition-all">
-                        <img :src="photoUrl" 
-                             class="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-110"
-                             @click="showLightbox = true;">
-                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all pointer-events-none"></div>
-                    </div>
-                </template>
+        <div class="relative bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden transform transition-all z-10 mx-auto">
+            {{-- Header do Modal --}}
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <h2 class="text-xl font-bold text-[#358054] flex-1 text-center">Fotos</h2>
+                <button @click="showPhoto = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
             
-            <div class="mt-6 flex justify-center">
-                <button @click="showPhoto = false" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold transition-colors">
-                    Fechar
-                </button>
+            {{-- Conteúdo das Fotos --}}
+            <div class="p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[65vh] overflow-y-auto custom-scrollbar pr-1">
+                    <template x-for="(photo, index) in currentPhotos" :key="index">
+                        <div class="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 shadow-sm border border-gray-200">
+                            <img :src="'/storage/' + photo" 
+                                 class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                 @click="photoUrl = '/storage/' + photo; showLightbox = true;">
+                        </div>
+                    </template>
+                    <template x-if="currentPhotos.length === 0 && photoUrl">
+                        <div class="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 shadow-sm border border-gray-200">
+                            <img :src="photoUrl" 
+                                 class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                 @click="showLightbox = true;">
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
     </div>
