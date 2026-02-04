@@ -274,11 +274,17 @@
                 }
                 actionButtons += `<button onclick="openStatusModal(${m.id})" class="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700">Status</button>`;
 
+                // Lógica para o link "Ver mais"
+                const statusParaVerMais = ['Vistoriado', 'Em Execução', 'Concluído', 'Indeferido', 'Sem Pendências'];
+                const podeVerMais = statusParaVerMais.some(s => statusName.includes(s));
+                const verMaisLink = podeVerMais ? `<div class="mt-1"><button onclick="openViewModal(${m.id})" class="text-[#358054] font-bold hover:underline text-xs">Ver mais</button></div>` : '';
+
                 return `<tr class="border-t hover:bg-gray-50 transition">
                     <td class="px-6 py-4 align-top text-sm text-gray-500">${escapeHtml(created)}</td>
                     <td class="px-6 py-4 align-top">
                         <div class="text-sm font-medium text-gray-900"><span class="font-semibold text-[#358054]">${escapeHtml(topico)}</span> - ${escapeHtml(endereco)}</div>
                         <div class="text-xs text-gray-500 mt-1">${escapeHtml(descricao.substring(0,100))}...</div>
+                        ${verMaisLink}
                     </td>
                     <td class="px-6 py-4 align-top text-right text-sm"><div class="flex justify-end gap-2 items-center flex-wrap">${actionButtons}</div></td>
                 </tr>`;

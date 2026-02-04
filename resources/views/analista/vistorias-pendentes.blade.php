@@ -64,6 +64,10 @@
                                         <button @click="showPhoto = true; photoUrl = '/storage/{{ $fotos[0] }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
                                             <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
                                         </button>
+                                    @elseif($vistoria->contact->foto_path)
+                                        <button @click="showPhoto = true; photoUrl = '{{ Storage::url($vistoria->contact->foto_path) }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                            <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
+                                        </button>
                                     @else
                                         <span class="text-gray-400 italic">Sem foto</span>
                                     @endif
@@ -206,95 +210,61 @@
                             <div class="grid grid-cols-2 gap-y-1">
                                 <label class="flex items-center gap-2 cursor-pointer text-gray-700">
                                     <input type="checkbox" name="servico[]" value="Levantamento copa" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
-                                    <span class="text-[14px]">Poda de levantamento de copa</span>
+                                    <span class="text-[14px]">Levantamento de copa</span>
                                 </label>
                                 <label class="flex items-center gap-2 cursor-pointer text-gray-700">
                                     <input type="checkbox" name="servico[]" value="Desobstrucao" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
-                                    <span class="text-[14px]">Poda de desobstrução de rede</span>
+                                    <span class="text-[14px]">Desobstrução</span>
                                 </label>
                                 <label class="flex items-center gap-2 cursor-pointer text-gray-700">
                                     <input type="checkbox" name="servico[]" value="Limpeza" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
-                                    <span class="text-[14px]">Poda de limpeza</span>
+                                    <span class="text-[14px]">Limpeza</span>
                                 </label>
                                 <label class="flex items-center gap-2 cursor-pointer text-gray-700">
                                     <input type="checkbox" name="servico[]" value="Adequacao" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
-                                    <span class="text-[14px]">Poda de adequação</span>
+                                    <span class="text-[14px]">Adequação</span>
                                 </label>
                                 <label class="flex items-center gap-2 cursor-pointer text-gray-700">
                                     <input type="checkbox" name="servico[]" value="Remocao Total" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
-                                    <span class="text-[14px]">Remoção total da árvore</span>
+                                    <span class="text-[14px]">Remoção Total</span>
                                 </label>
                                 <label class="flex items-center gap-2 cursor-pointer text-gray-700">
                                     <input type="checkbox" name="servico[]" value="Outras" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
-                                    <span class="text-[14px]">Outras intervenções</span>
+                                    <span class="text-[14px]">Outras</span>
                                 </label>
                             </div>
                         </div>
 
-                        <div class="mb-4 border-b border-gray-300 pb-2">
+                        <div class="mb-4 border-b border-gray-300 pb-2 bg-gray-50/80 p-2 rounded">
                             <h4 class="font-bold mb-1 uppercase text-black">Equipamentos Necessários</h4>
-                            <div class="flex flex-wrap gap-4">
-                                <label class="flex items-center gap-1 cursor-pointer text-gray-700">
-                                    <input type="checkbox" name="equip[]" value="Motosserra" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
+                            <div class="grid grid-cols-2 gap-y-1">
+                                <label class="flex items-center gap-2 cursor-pointer text-gray-700">
+                                    <input type="checkbox" name="equipamento[]" value="Caminhao Cesto" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
+                                    <span class="text-[14px]">Caminhão Cesto</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer text-gray-700">
+                                    <input type="checkbox" name="equipamento[]" value="Caminhao Garra" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
+                                    <span class="text-[14px]">Caminhão Garra</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer text-gray-700">
+                                    <input type="checkbox" name="equipamento[]" value="Motosserra" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
                                     <span class="text-[14px]">Motosserra</span>
                                 </label>
-                                <label class="flex items-center gap-1 cursor-pointer text-gray-700">
-                                    <input type="checkbox" name="equip[]" value="Motopoda" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
+                                <label class="flex items-center gap-2 cursor-pointer text-gray-700">
+                                    <input type="checkbox" name="equipamento[]" value="Motopoda" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
                                     <span class="text-[14px]">Motopoda</span>
                                 </label>
-                                <label class="flex items-center gap-1 cursor-pointer text-gray-700">
-                                    <input type="checkbox" name="equip[]" value="EPIs" checked class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
-                                    <span class="text-[14px]">EPIs</span>
-                                </label>
-                                <label class="flex items-center gap-1 cursor-pointer text-gray-700">
-                                    <input type="checkbox" name="equip[]" value="Cordas" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
-                                    <span class="text-[14px]">Cordas</span>
-                                </label>
-                                <label class="flex items-center gap-1 cursor-pointer text-gray-700">
-                                    <input type="checkbox" name="equip[]" value="Cones" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
-                                    <span class="text-[14px]">Cones</span>
-                                </label>
-                                <label class="flex items-center gap-1 cursor-pointer text-gray-700">
-                                    <input type="checkbox" name="equip[]" value="Caminhão" class="rounded border-gray-400 text-[#358054] focus:ring-[#358054]"> 
-                                    <span class="text-[14px]">Caminhão</span>
-                                </label>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-6 mt-4">
-                            <div>
-                                <label class="font-bold mb-1 uppercase text-black">DATA VISTORIA:</label>
-                                <input type="date" name="data_vistoria" 
-                                       class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black" 
-                                       max="{{ date('Y-m-d') }}" required>
-                                <p class="text-[10px] text-gray-500 mt-1">* Não pode ser data futura</p>
-                            </div>
-                            <div>
-                                <label class="font-bold mb-1 uppercase text-black">PREVISÃO EXECUÇÃO:</label>
-                                <input type="date" name="data_execucao" 
-                                       class="w-full border-0 border-b border-gray-400 bg-gray-50 p-1 focus:ring-0 text-black"
-                                       min="{{ date('Y-m-d') }}">
-                                <p class="text-[10px] text-gray-500 mt-1">* Se souber, defina a data.</p>
-                            </div>
-                            
-                            <div class="col-span-2">
-                                <label class="font-bold mb-1 uppercase text-black">OBSERVAÇÕES DO ADMIN:</label>
-                                <div class="w-full border p-2 bg-yellow-50 rounded italic text-gray-800 text-sm min-h-[40px]" x-text="item.observacoes || 'Sem observações.'"></div>
-                            </div>
+                        <div class="mb-6">
+                            <label class="font-bold mb-1 uppercase text-black">Observações Adicionais:</label>
+                            <textarea name="observacoes" rows="2" class="w-full border-0 border-b border-gray-400 bg-gray-50/50 p-1 focus:ring-0 text-black" placeholder="Digite aqui observações relevantes..."></textarea>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-8 mt-12 pt-4 print:mt-6 text-center">
-                            <div class="border-t border-black pt-2"><p class="text-xs font-bold uppercase">Responsável Técnico</p></div>
-                            <div class="border-t border-black pt-2"><p class="text-xs font-bold uppercase">Recebido por</p></div>
-                        </div>
-
-                        <div class="mt-8 flex justify-end gap-3">
-                            <button type="button" @click="open = false" class="inline-flex items-center justify-center rounded-md bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-200 transition">
-                                Cancelar
-                            </button>
-                            <button type="submit" class="inline-flex items-center justify-center rounded-md bg-[#358054] px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-[#2a6643] transition">
-                                <i data-lucide="save" class="w-4 h-4 mr-2"></i> Gerar Ordem de Serviço
-                            </button>
+                        <div class="flex justify-end gap-3 mt-6 no-print">
+                            <button type="button" @click="open = false" class="bg-gray-500 text-white px-6 py-2 rounded font-bold hover:bg-gray-600 transition">Cancelar</button>
+                            <button type="submit" class="bg-[#358054] text-white px-8 py-2 rounded font-bold hover:bg-green-700 shadow-lg transition">Gerar e Enviar OS</button>
                         </div>
                     </form>
                 </div>
@@ -308,5 +278,4 @@
         lucide.createIcons(); 
     });
 </script>
-
 @endsection

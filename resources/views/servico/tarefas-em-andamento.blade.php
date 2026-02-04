@@ -42,7 +42,7 @@
                         <tr class="hover:bg-gray-50 transition-colors">
                             {{-- PROTOCOLO --}}
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-500">
-                                {{ $os->contact->id }}
+                                #{{ $os->contact->id }}
                             </td>
                             
                             {{-- LOCAL --}}
@@ -79,6 +79,10 @@
                                 @endphp
                                 @if(is_array($fotos) && count($fotos) > 0)
                                     <button @click="showPhoto = true; photoUrl = '/storage/{{ $fotos[0] }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
+                                        <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
+                                    </button>
+                                @elseif($os->contact->foto_path)
+                                    <button @click="showPhoto = true; photoUrl = '{{ Storage::url($os->contact->foto_path) }}'" class="flex items-center gap-1 text-[#358054] hover:underline font-bold">
                                         <i data-lucide="image" class="w-4 h-4"></i> Ver Foto
                                     </button>
                                 @else

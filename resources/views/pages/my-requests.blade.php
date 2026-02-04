@@ -131,6 +131,12 @@
                                             <p class="text-gray-700 font-medium">
                                                 {{ $request->topico ?? 'Solicitação Geral' }}
                                             </p>
+                                            <div class="mt-2 text-sm text-gray-600 line-clamp-2">
+                                                {{ Str::limit($request->descricao, 100) }}
+                                                @if(strlen($request->descricao) > 100)
+                                                    <button @click="open = true" class="text-[#358054] font-bold hover:underline ml-1">Ver mais</button>
+                                                @endif
+                                            </div>
                                         </div>
 
                                         <div class="flex items-center self-start">
