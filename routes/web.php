@@ -127,65 +127,62 @@ Route::prefix('pbi-admin')->name('admin.')->group(function () {
         Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
         Route::get('/dashboard', [TreeController::class, 'adminDashboard'])->name('dashboard');
 
-        // Perfil
-        Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/profile', [AdminProfileController::class, 'destroy'])->name('profile.destroy');
-        Route::patch('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.password.update');
+        // --- ROTAS COMPARTILHADAS (Admin e Analista) ---
+        Route::middleware('throttle:60,1')->group(function () {
+            // Perfil
+            Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+            Route::patch('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
+            Route::delete('/profile', [AdminProfileController::class, 'destroy'])->name('profile.destroy');
+            Route::patch('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.password.update');
 
-        // Sobre e Espécies
-        Route::get('/sobre', [AboutPageController::class, 'edit'])->name('about.edit');
-        Route::put('/sobre', [AboutPageController::class, 'update'])->name('about.update');
-        
-        Route::post('/sobre/upload-video', [AboutPageController::class, 'uploadVideo'])->name('upload.video');
+            // Árvores (Visualização e Edição Básica)
+            Route::get('/map', [TreeController::class, 'adminMap'])->name('map');
+            Route::post('/map', [TreeController::class, 'storeTree'])->name('map.store');
+            Route::get('/trees', [TreeController::class, 'adminTreeList'])->name('trees.index');
+            Route::get('/trees/{tree}/edit', [TreeController::class, 'adminTreeEdit'])->name('trees.edit');
+            Route::patch('/trees/{tree}', [TreeController::class, 'adminTreeUpdate'])->name('trees.update');
 
-        Route::post('/species', [SpeciesController::class, 'store'])->name('species.store');
+            // Ordens de Serviço (Visualização e Update Técnico)
+            Route::get('/os', [AdminServiceController::class, 'index'])->name('os.index');
+            Route::get('/os/pendentes', [AdminServiceController::class, 'ordensPendentes'])->name('os.pendentes');
+            Route::get('/os/resultados', [AdminServiceController::class, 'resultados'])->name('os.resultados');
+            Route::get('/os/{os}', [AdminServiceController::class, 'show'])->name('os.show');
+            Route::put('/os/{os}', [AdminServiceController::class, 'update'])->name('os.update');
+        });
 
-        // Árvores
-        Route::get('/map', [TreeController::class, 'adminMap'])->name('map');
-        Route::post('/map', [TreeController::class, 'storeTree'])->name('map.store');
-        
-        // --- ROTA DE EXPORTAÇÃO ---
-        Route::get('/trees/export', [TreeController::class, 'exportTrees'])->name('trees.export'); 
-        // --------------------------
+        // --- ROTAS EXCLUSIVAS DO ADMINISTRADOR ---
+        Route::middleware(['admin', 'throttle:30,1'])->group(function () {
+            
+            // Gestão de Contas (CRÍTICO)
+            Route::prefix('accounts')->name('accounts.')->group(function () {
+                Route::get('/', [AccountManagementController::class, 'index'])->name('index');
+                Route::post('/store', [AccountManagementController::class, 'store'])->name('store');
+                Route::put('/update/{type}/{id}', [AccountManagementController::class, 'update'])->name('update');
+                Route::delete('/delete/{type}/{id}', [AccountManagementController::class, 'destroy'])->name('destroy');
+            });
 
-        Route::get('/trees', [TreeController::class, 'adminTreeList'])->name('trees.index');
-        Route::get('/trees/{tree}/edit', [TreeController::class, 'adminTreeEdit'])->name('trees.edit')->middleware('auth:admin,analyst');
-        Route::patch('/trees/{tree}', [TreeController::class, 'adminTreeUpdate'])->name('trees.update')->middleware('auth:admin,analyst');
-        Route::delete('/trees/{tree}', [TreeController::class, 'adminTreeDestroy'])->name('trees.destroy');
+            // Exportação (Sensível)
+            Route::get('/trees/export', [TreeController::class, 'exportTrees'])->name('trees.export')->middleware('throttle:5,1'); 
 
-        /*
-         * CONTATOS (SOLICITAÇÕES)
-         */
-        Route::get('/contacts', [ContactController::class, 'adminContactList'])
-            ->name('contato.index');
+            // Ações Destrutivas e Aprovação
+            Route::delete('/trees/{tree}', [TreeController::class, 'adminTreeDestroy'])->name('trees.destroy');
+            Route::get('/trees/pending', [TreeController::class, 'pendingTrees'])->name('trees.pending');
+            Route::patch('/trees/{id}/approve', [TreeController::class, 'approveTree'])->name('trees.approve');
 
-        Route::patch('/contacts/{contact}', [ContactController::class, 'adminContactUpdateStatus'])
-            ->name('contacts.updateStatus');
+            // Gestão de Conteúdo e Configurações
+            Route::get('/sobre', [AboutPageController::class, 'edit'])->name('about.edit');
+            Route::put('/sobre', [AboutPageController::class, 'update'])->name('about.update');
+            Route::post('/sobre/upload-video', [AboutPageController::class, 'uploadVideo'])->name('upload.video')->middleware('throttle:10,1');
+            Route::post('/species', [SpeciesController::class, 'store'])->name('species.store');
 
-        Route::patch('/contacts/{contact}/forward', [ContactController::class, 'forward'])
-            ->name('contacts.forward');
+            // Triagem de Contatos
+            Route::get('/contacts', [ContactController::class, 'adminContactList'])->name('contato.index');
+            Route::patch('/contacts/{contact}', [ContactController::class, 'adminContactUpdateStatus'])->name('contacts.updateStatus');
+            Route::patch('/contacts/{contact}/forward', [ContactController::class, 'forward'])->name('contacts.forward');
 
-        /*
-         * ORDENS DE SERVIÇO
-         */
-        Route::get('/os', [AdminServiceController::class, 'index'])->name('os.index');
-        Route::get('/os/pendentes', [AdminServiceController::class, 'ordensPendentes'])->name('os.pendentes');
-        Route::get('/os/resultados', [AdminServiceController::class, 'resultados'])->name('os.resultados');
-        Route::get('/os/{os}', [AdminServiceController::class, 'show'])->name('os.show');
-        Route::put('/os/{os}', [AdminServiceController::class, 'update'])->name('os.update');
-        Route::put('/os/{os}/cancelar', [AdminServiceController::class, 'cancelar'])->name('os.cancelar');
-        Route::post('/os/{id}/enviar-servico', [AdminServiceController::class, 'enviarParaServico'])->name('os.enviar');
-
-        // Outros
-        Route::get('/trees/pending', [TreeController::class, 'pendingTrees'])->name('trees.pending');
-        Route::patch('/trees/{id}/approve', [TreeController::class, 'approveTree'])->name('trees.approve');
-       
-        Route::prefix('accounts')->name('accounts.')->group(function () {
-            Route::get('/', [AccountManagementController::class, 'index'])->name('index');
-            Route::post('/store', [AccountManagementController::class, 'store'])->name('store');
-            Route::put('/update/{type}/{id}', [AccountManagementController::class, 'update'])->name('update');
-            Route::delete('/delete/{type}/{id}', [AccountManagementController::class, 'destroy'])->name('destroy');
+            // Controle de Fluxo de OS
+            Route::put('/os/{os}/cancelar', [AdminServiceController::class, 'cancelar'])->name('os.cancelar');
+            Route::post('/os/{id}/enviar-servico', [AdminServiceController::class, 'enviarParaServico'])->name('os.enviar');
         });
     });
 });

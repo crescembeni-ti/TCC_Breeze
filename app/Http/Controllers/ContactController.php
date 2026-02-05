@@ -202,6 +202,11 @@ class ContactController extends Controller
      */
     public function forward(Request $request, $id)
     {
+        // Trava de Segurança: Apenas Admin pode encaminhar
+        if (!auth('admin')->check()) {
+            return response()->json(['message' => 'Ação não autorizada.'], 403);
+        }
+
         $contact = Contact::findOrFail($id);
 
         // Se houver ID de analista na requisição, chama o método de envio para analista

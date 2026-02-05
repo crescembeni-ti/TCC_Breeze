@@ -71,6 +71,11 @@ class AboutPageController extends Controller
     // 1. Exibe o formulário com Summernote
     public function edit()
     {
+        // Trava de Segurança: Apenas Admin pode editar
+        if (!auth('admin')->check()) {
+            return redirect()->route('admin.dashboard')->with('error', 'Acesso restrito.');
+        }
+
         $pageContent = $this->getPageContent();
         return view('admin.about.edit', ['pageContent' => $pageContent]);
     }
@@ -78,6 +83,11 @@ class AboutPageController extends Controller
     // 2. Salva as alterações no banco de dados
     public function update(Request $request)
     {
+        // Trava de Segurança: Apenas Admin pode atualizar
+        if (!auth('admin')->check()) {
+            return back()->with('error', 'Ação não autorizada.');
+        }
+
         // Validação
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -113,6 +123,11 @@ class AboutPageController extends Controller
     // 3. Upload de Vídeo via AJAX (Summernote)
     public function uploadVideo(Request $request)
     {
+        // Trava de Segurança: Apenas Admin pode fazer upload
+        if (!auth('admin')->check()) {
+            return response()->json(['error' => 'Ação não autorizada.'], 403);
+        }
+
         if ($request->hasFile('video')) {
             $request->validate([
                 'video' => 'required|file|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime|max:51200', 

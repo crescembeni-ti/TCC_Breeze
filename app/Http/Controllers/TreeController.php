@@ -87,6 +87,19 @@ class TreeController extends Controller
 
     public function exportTrees(Request $request)
     {
+        // Auditoria: Registra quem exportou os dados
+        if (auth('admin')->check() || auth('analyst')->check()) {
+            $user = auth('admin')->user() ?? auth('analyst')->user();
+            $guard = auth('admin')->check() ? 'admin' : 'analyst';
+            
+            // Se for analista, o admin_id será null, mas a descrição conterá os dados do analista
+            AdminLog::create([
+                'admin_id' => $guard === 'admin' ? $user->id : null,
+                'action' => 'export_trees',
+                'description' => "Exportação massiva de árvores realizada por " . ($guard === 'admin' ? 'Admin' : 'Analista') . ": " . $user->name . " (ID: " . $user->id . ")"
+            ]);
+        }
+
         $fileName = 'relatorio_arvores_' . date('d-m-Y_H-i') . '.xlsx';
         return Excel::download(new TreesExport($request), $fileName);
     }
@@ -267,6 +280,11 @@ class TreeController extends Controller
 
     public function approveTree($id) 
     { 
+        // Trava de Segurança: Apenas Admin pode aprovar
+        if (!auth('admin')->check()) {
+            return redirect()->back()->with('error', 'Ação não autorizada.');
+        }
+
         $tree = Tree::findOrFail($id); 
         $tree->update(['aprovado' => 1]); 
         
@@ -433,15 +451,20 @@ class TreeController extends Controller
 
     public function adminTreeDestroy(Tree $tree) 
     { 
+        // Trava de Segurança: Apenas Admin pode excluir
+        if (!auth('admin')->check()) {
+            return redirect()->back()->with('error', 'Ação não autorizada.');
+        }
+
         $id = $tree->id; 
         $tree->delete(); 
-        if (auth('admin')->check()) { 
-            AdminLog::create([
-                'admin_id' => auth('admin')->id(), 
-                'action' => 'delete_tree', 
-                'description' => "Árvore deletada (ID $id)"
-            ]); 
-        } 
+        
+        AdminLog::create([
+            'admin_id' => auth('admin')->id(), 
+            'action' => 'delete_tree', 
+            'description' => "Árvore deletada (ID $id)"
+        ]); 
+        
         return redirect()->route('admin.trees.index')->with('success', 'Árvore excluída!'); 
     }
     

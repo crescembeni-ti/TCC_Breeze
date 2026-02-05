@@ -118,6 +118,11 @@ class ServiceOrderController extends Controller
      */
     public function enviarParaServico($id)
     {
+        // Trava de Segurança: Apenas Admin pode enviar para serviço
+        if (!auth('admin')->check()) {
+            return back()->with('error', 'Ação não autorizada. Apenas administradores podem encaminhar para execução.');
+        }
+
         $os = ServiceOrder::with('contact')->findOrFail($id);
 
         if ($os->destino === 'servico') {

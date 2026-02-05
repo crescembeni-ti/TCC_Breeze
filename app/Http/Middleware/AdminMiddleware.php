@@ -13,10 +13,10 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Se NÃO estiver logado como ADMIN
+        // Se NÃO estiver logado como ADMIN (Verifica explicitamente o guard e o tipo de usuário)
         if (!auth('admin')->check()) {
             return redirect()->route('admin.login')
-                ->with('error', 'Acesso restrito ao painel administrativo.');
+                ->with('error', 'Acesso restrito. Esta área é exclusiva para administradores.');
         }
 
         return $next($request);

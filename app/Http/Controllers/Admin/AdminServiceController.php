@@ -82,6 +82,11 @@ class AdminServiceController extends Controller
      */
     public function cancelar($id)
     {
+        // Trava de Segurança: Apenas Admin pode cancelar
+        if (!auth('admin')->check()) {
+            return back()->with('error', 'Ação não autorizada. Apenas administradores podem cancelar ordens de serviço.');
+        }
+
         $os = ServiceOrder::findOrFail($id);
 
         // Cancelamento de OS enviada ao ANALISTA
@@ -137,5 +142,13 @@ class AdminServiceController extends Controller
     // Métodos extras (pendentes, resultados, enviarParaServico) mantenha se você usa
     public function ordensPendentes() { return view('admin.os.pendentes'); } 
     public function resultados() { return view('admin.os.resultados'); }
-    public function enviarParaServico(Request $request, $id) { /* ... */ }
+    public function enviarParaServico(Request $request, $id) 
+    { 
+        // Trava de Segurança: Apenas Admin pode enviar para serviço
+        if (!auth('admin')->check()) {
+            return back()->with('error', 'Ação não autorizada. Apenas administradores podem encaminhar para execução.');
+        }
+        
+        // ... lógica existente ...
+    }
 }
