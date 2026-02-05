@@ -70,12 +70,28 @@ class AdminProfileController extends Controller
      */
     public function destroy(Request $request)
     {
+        // Validação de Segurança: Exige a senha para excluir a própria conta
+        $request->validate([
+            'password' => ['required', 'string'],
+        ]);
+
         $admin = $request->user('admin');
+
+        // Verifica se a senha informada está correta
+        if (!Hash::check($request->password, $admin->password)) {
+            return back()->withErrors([
+                'password' => 'A senha informada está incorreta.',
+            ], 'userDeletion');
+        }
+
         $admin->delete();
 
         // Encerra a sessão no guard específico de admin
         auth('admin')->logout();
 
-        return redirect('/')->with('success', 'Conta de administrador excluída com sucesso.');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('success', 'Sua conta de administrador foi excluída permanentemente.');
     }
 }
