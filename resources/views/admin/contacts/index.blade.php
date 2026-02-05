@@ -141,7 +141,7 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
                             <button id="btn-clear-map" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-semibold rounded transition"><i data-lucide="x" class="w-3 h-3"></i> Limpar Filtros</button>
-                            <button id="btn-export-map" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#217346] hover:bg-[#1e6b41] text-white text-sm font-semibold rounded transition shadow-sm"><i data-lucide="file-spreadsheet" class="w-3 h-3"></i> Baixar Excel</button>
+                            <button id="btn-export-map" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#217346] hover:bg-[#1e6b41] text-white text-sm font-semibold rounded transition shadow-sm"><i data-lucide="file-spreadsheet" class="w-3 h-3"></i> Baixar Relatório</button>
                         </div>
                     </div>
 
