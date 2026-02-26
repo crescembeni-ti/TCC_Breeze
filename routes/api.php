@@ -62,5 +62,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // =======================================================
     //  2. ROTA ADICIONADA: Criar Notícia (Admin)
     // =======================================================
-    Route::post('/noticias', [NoticiaApiController::class, 'store']);
+   //Route::post('/noticias', [NoticiaApiController::class, 'store']);
 });
