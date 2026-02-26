@@ -23,9 +23,9 @@ class PreventBackHistory
 
             // Verificação por código
             'verify-email-code',
-            'verify-email-code/*',
+           // 'verify-email-code/*',
             'verify-code',
-            'verify-code/*',
+           // 'verify-code/*',
 
             // API pública
             'api',
