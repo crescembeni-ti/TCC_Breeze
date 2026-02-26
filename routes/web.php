@@ -69,11 +69,11 @@ Route::middleware('preventBack')->group(function () {
 | VERIFICAÇÃO DE E-MAIL
 |--------------------------------------------------------------------------
 */
-Route::middleware('guest')->group(function () {
-    Route::get('/verification/code', [VerifyEmailCodeController::class, 'show'])->name('verification.code.show');
-    Route::post('/verification/code', [VerifyEmailCodeController::class, 'verify'])->name('verification.code.verify');
-    Route::post('/verification/code/resend', [VerifyEmailCodeController::class, 'resend'])->name('verification.code.resend');
-});
+// Route::middleware('guest')->group(function () {
+//    Route::get('/verification/code', [VerifyEmailCodeController::class, 'show'])->name('verification.code.show');
+//    Route::post('/verification/code', [VerifyEmailCodeController::class, 'verify'])->name('verification.code.verify');
+//    Route::post('/verification/code/resend', [VerifyEmailCodeController::class, 'resend'])->name('verification.code.resend');
+//});
 
 /*
 |--------------------------------------------------------------------------
