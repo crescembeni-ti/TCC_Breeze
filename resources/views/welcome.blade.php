@@ -750,7 +750,7 @@
         function getMarkerColor(tree) {
             const modeSelect = document.getElementById('colorMode');
             const mode = modeSelect ? modeSelect.value : 'species';
-            const val = (tree[mode] || '').toLowerCase(); 
+            const val = (tree[mode] || '').toString().toLowerCase().trim();
 
             // Lógica Padrão: Cor baseada na Espécie
             if (mode === 'species') {
