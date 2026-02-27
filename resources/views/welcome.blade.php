@@ -1059,6 +1059,17 @@
                     for (const [key, val] of Object.entries(adminFilters)) {
                         const treeVal = (tree[key] || "").toLowerCase().trim();
                         const filterVal = val.toLowerCase().trim();
+                        
+                        // Lógica especial para Equilíbrio Copa para suportar nomes antigos/alternativos
+                        if (key === 'crown_balance') {
+                            if (filterVal === 'medianamente desequilibrada') {
+                                if (treeVal !== 'medianamente desequilibrada' && treeVal !== 'mediamente equilibrada' && treeVal !== 'mediamente desequilibrada') {
+                                    okAdmin = false; break;
+                                }
+                                continue;
+                            }
+                        }
+
                         if (treeVal !== filterVal) {
                             okAdmin = false;
                             break;
