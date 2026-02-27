@@ -557,7 +557,7 @@
                 items: [
                     { label: 'Muito Desequilibrada', color: '#991b1b' }, // Vermelho Escuro
                     { label: 'Desequilibrada', color: '#dc2626' }, // Vermelho
-                    { label: 'Mediamente Equil.', color: '#f97316' }, // Laranja
+                    { label: 'Medianamente Desequilibrada', color: '#f97316' }, // Laranja
                     { label: 'Equilibrada', color: '#22c55e' } // Verde
                 ]
             },
@@ -782,9 +782,10 @@
             }
             if (mode === 'crown_balance') {
                 if (val.includes('muito')) return '#991b1b'; 
-                if (val.includes('desequilibrada')) return '#dc2626'; 
                 if (val.includes('medianamente') || val.includes('mediamente')) return '#f97316'; 
-                return '#22c55e'; 
+                if (val.includes('desequilibrada')) return '#dc2626'; 
+                if (val.includes('equilibrada')) return '#22c55e';
+                return '#358054'; 
             }
             if (mode === 'stem_balance') {
                 if (val.includes('acidental')) return '#000000'; 
@@ -885,8 +886,7 @@
                             opcoesFixas = ['Boa', 'Regular', 'Ruim'];
                         } 
                         else if (field.id === 'crown_balance') {
-                            // Adicionei "Desequilibrada" aqui para garantir que apareça
-                            opcoesFixas = ['Equilibrada', 'Mediamente Equilibrada', 'Desequilibrada', 'Muito Desequilibrada'];
+                            opcoesFixas = ['Equilibrada', 'Medianamente Desequilibrada', 'Desequilibrada', 'Muito Desequilibrada'];
                         }
                         else if (field.id === 'organisms') {
                             // Adicionei "Ausente" aqui para garantir que apareça separado
@@ -1057,10 +1057,13 @@
                 let okAdmin = true;
                 if (isAdmin || isAnalista) {
                     for (const [key, val] of Object.entries(adminFilters)) {
-                        if ((tree[key] || "").toLowerCase().trim() !== val.toLowerCase().trim()) {
-    okAdmin = false;
-    break;
-}
+                        const treeVal = (tree[key] || "").toLowerCase().trim();
+                        const filterVal = val.toLowerCase().trim();
+                        if (treeVal !== filterVal) {
+                            okAdmin = false;
+                            break;
+                        }
+                    }
                 }
                 return okBairro && okEspecie && okBusca && okAdmin;
             });
