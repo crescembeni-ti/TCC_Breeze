@@ -1057,8 +1057,10 @@
                 let okAdmin = true;
                 if (isAdmin || isAnalista) {
                     for (const [key, val] of Object.entries(adminFilters)) {
-                        if ((tree[key] || "") != val) { okAdmin = false; break; }
-                    }
+                        if ((tree[key] || "").toLowerCase().trim() !== val.toLowerCase().trim()) {
+    okAdmin = false;
+    break;
+}
                 }
                 return okBairro && okEspecie && okBusca && okAdmin;
             });
