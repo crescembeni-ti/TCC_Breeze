@@ -169,6 +169,31 @@ class TreeController extends Controller
             ->get()
             ->mapWithKeys(fn($i) => [$i->vulgar_name => $i->scientific_name]);
 
+        // Extrair opções únicas dos campos para popular os selects dinamicamente
+        $fields = ['health_status', 'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms', 'target', 'injuries', 'wiring_status'];
+        $dynamicOptions = [];
+        foreach ($fields as $field) {
+            $options = Tree::whereNotNull($field)
+                ->where($field, '!=', '')
+                ->distinct()
+                ->orderBy($field)
+                ->pluck($field)
+                ->map(function($opt) use ($field) {
+                    // Normalização para exibição (mesma lógica da migration)
+                    $normalized = trim($opt);
+                    if ($field === 'injuries' && strtolower($normalized) === 'leves ou ausentes') return 'Leves ou Ausentes';
+                    if ($field === 'crown_balance' && (str_contains(strtolower($normalized), 'medianamente') || str_contains(strtolower($normalized), 'mediamente'))) return 'Medianamente Desequilibrada';
+                    if ($field === 'organisms') {
+                        if (strtolower($normalized) === 'infestação média' || strtolower($normalized) === 'infestação media') return 'Infestação Média';
+                        if (strtolower($normalized) === 'infestação avançada' || strtolower($normalized) === 'infestação avancada') return 'Infestação Avançada';
+                    }
+                    return mb_convert_case($normalized, MB_CASE_TITLE, "UTF-8");
+                })
+                ->unique()
+                ->values();
+            $dynamicOptions[$field] = $options;
+        }
+
         return view('admin.trees.map', [
             'trees' => Tree::with(['bairro'])->get(),
             'bairros' => Bairro::orderBy('nome')->get(),
@@ -176,6 +201,7 @@ class TreeController extends Controller
             'vulgarNames' => $vulgarNames,
             'speciesMap' => $speciesMap,
             'vulgarToScientific' => $vulgarToScientific,
+            'dynamicOptions' => $dynamicOptions,
         ]);
     }
 
@@ -335,13 +361,38 @@ class TreeController extends Controller
         $speciesMap = Tree::select('scientific_name', 'vulgar_name')->distinct()->get()->mapWithKeys(fn($i) => [$i->scientific_name => $i->vulgar_name]);
         $vulgarToScientific = Tree::select('scientific_name', 'vulgar_name')->distinct()->get()->mapWithKeys(fn($i) => [$i->vulgar_name => $i->scientific_name]);
         
+        // Extrair opções únicas dos campos para popular os selects dinamicamente
+        $fields = ['health_status', 'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms', 'target', 'injuries', 'wiring_status'];
+        $dynamicOptions = [];
+        foreach ($fields as $field) {
+            $options = Tree::whereNotNull($field)
+                ->where($field, '!=', '')
+                ->distinct()
+                ->orderBy($field)
+                ->pluck($field)
+                ->map(function($opt) use ($field) {
+                    $normalized = trim($opt);
+                    if ($field === 'injuries' && strtolower($normalized) === 'leves ou ausentes') return 'Leves ou Ausentes';
+                    if ($field === 'crown_balance' && (str_contains(strtolower($normalized), 'medianamente') || str_contains(strtolower($normalized), 'mediamente'))) return 'Medianamente Desequilibrada';
+                    if ($field === 'organisms') {
+                        if (strtolower($normalized) === 'infestação média' || strtolower($normalized) === 'infestação media') return 'Infestação Média';
+                        if (strtolower($normalized) === 'infestação avançada' || strtolower($normalized) === 'infestação avancada') return 'Infestação Avançada';
+                    }
+                    return mb_convert_case($normalized, MB_CASE_TITLE, "UTF-8");
+                })
+                ->unique()
+                ->values();
+            $dynamicOptions[$field] = $options;
+        }
+
         return view('admin.trees.edit', [
             'tree' => $tree, 
             'bairros' => Bairro::orderBy('nome')->get(), 
             'scientificNames' => $scientificNames, 
             'vulgarNames' => $vulgarNames, 
             'speciesMap' => $speciesMap, 
-            'vulgarToScientific' => $vulgarToScientific
+            'vulgarToScientific' => $vulgarToScientific,
+            'dynamicOptions' => $dynamicOptions,
         ]);
     }
 

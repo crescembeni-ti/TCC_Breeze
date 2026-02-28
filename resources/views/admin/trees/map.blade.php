@@ -237,16 +237,16 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div x-data="{ open: false, selected: '{{ old('health_status') }}', selectedName: 'Selecione...' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('health_status') }}', selectedName: '{{ old('health_status') ?: 'Selecione...' }}' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Estado de Saúde</label>
                             <button @click="open = !open" type="button" class="w-full border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between px-3 py-2 shadow-sm focus:ring-green-500 focus:border-green-500">
                                 <span x-text="selectedName"></span>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </button>
                             <ul x-show="open" @click.outside="open = false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Boa'; selectedName='Boa'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Boa</li>
-                                <li @click="selected='Regular'; selectedName='Regular'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Regular</li>
-                                <li @click="selected='Ruim'; selectedName='Ruim'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruim</li>
+                                @foreach($dynamicOptions['health_status'] as $option)
+                                    <li @click="selected='{{ $option }}'; selectedName='{{ $option }}'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">{{ $option }}</li>
+                                @endforeach
                             </ul>
                             <input type="hidden" name="health_status" :value="selected">
                         </div>
@@ -330,37 +330,35 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div x-data="{ open: false, selected: '{{ old('bifurcation_type') }}', selectedName: 'Selecione...' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('bifurcation_type') }}', selectedName: '{{ old('bifurcation_type') ?: 'Selecione...' }}' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Bifurcação</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
-                                <li @click="selected='U'; selectedName='U'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">U</li>
-                                <li @click="selected='V'; selectedName='V'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">V</li>
+                                @foreach($dynamicOptions['bifurcation_type'] as $option)
+                                    <li @click="selected='{{ $option }}'; selectedName='{{ $option }}'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">{{ $option }}</li>
+                                @endforeach
                             </ul>
                             <input type="hidden" name="bifurcation_type" :value="selected">
                         </div>
 
-                        <div x-data="{ open: false, selected: '{{ old('stem_balance') }}', selectedName: 'Selecione...' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('stem_balance') }}', selectedName: '{{ old('stem_balance') ?: 'Selecione...' }}' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio Fuste</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
-                                <li @click="selected='Maior que 45°'; selectedName='Maior que 45°'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Maior que 45°</li>
-                                <li @click="selected='Menor que 45°'; selectedName='Menor que 45°'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Menor que 45°</li>
-                                <li @click="selected='Acidental ou associada à elevação da superfície do terreno pelo conjunto de raízes no lado oposto à inclinação'; selectedName='Acidental ou associada à elevação da superfície do terreno pelo conjunto de raízes no lado oposto à inclinação'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Acidental ou associada à elevação da superfície do terreno pelo conjunto de raízes no lado oposto à inclinação</li>
+                                @foreach($dynamicOptions['stem_balance'] as $option)
+                                    <li @click="selected='{{ $option }}'; selectedName='{{ $option }}'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">{{ $option }}</li>
+                                @endforeach
                             </ul>
                             <input type="hidden" name="stem_balance" :value="selected">
                         </div>
 
-                        <div x-data="{ open: false, selected: '{{ old('crown_balance') }}', selectedName: 'Selecione...' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('crown_balance') }}', selectedName: '{{ old('crown_balance') ?: 'Selecione...' }}' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Equilíbrio Copa</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Equilibrada'; selectedName='Equilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Equilibrada</li>
-                                <li @click="selected='Medianamente Desequilibrada'; selectedName='Medianamente Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Medianamente Desequilibrada</li>
-                                <li @click="selected='Desequilibrada'; selectedName='Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Desequilibrada</li>
-                                <li @click="selected='Muito Desequilibrada'; selectedName='Muito Desequilibrada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Muito Desequilibrada</li>
+                                @foreach($dynamicOptions['crown_balance'] as $option)
+                                    <li @click="selected='{{ $option }}'; selectedName='{{ $option }}'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">{{ $option }}</li>
+                                @endforeach
                             </ul>
                             <input type="hidden" name="crown_balance" :value="selected">
                         </div>
@@ -380,55 +378,52 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         
                         {{-- Organismos --}}
-                        <div x-data="{ open: false, selected: '{{ old('organisms') }}', selectedName: 'Selecione...' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('organisms') }}', selectedName: '{{ old('organisms') ?: 'Selecione...' }}' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Organismos</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
-                                <li @click="selected='Infestação Inicial'; selectedName='Infestação Inicial'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Infestação Inicial</li>
-                                <li @click="selected='Infestação Média'; selectedName='Infestação Média'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Infestação Média</li>
-                                <li @click="selected='Infestação Avançada'; selectedName='Infestação Avançada'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Infestação Avançada</li>
+                                @foreach($dynamicOptions['organisms'] as $option)
+                                    <li @click="selected='{{ $option }}'; selectedName='{{ $option }}'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">{{ $option }}</li>
+                                @endforeach
                             </ul>
                             <input type="hidden" name="organisms" :value="selected">
                         </div>
 
                         {{-- Alvo --}}
-                        <div x-data="{ open: false, selected: '{{ old('target') }}', selectedName: 'Selecione...' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('target') }}', selectedName: '{{ old('target') ?: 'Selecione...' }}' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Alvo</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas'; selectedName='Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas secundárias estritamente residenciais com pouca circulação de veículos e pessoas</li>
-                                <li @click="selected='Ruas principais ou secundárias com fluxo intermediário de veículos e pessoas'; selectedName='Ruas principais ou secundárias com fluxo intermediário de veículos e pessoas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ruas principais ou secundárias com fluxo intermediário de veículos e pessoas</li>
-                                <li @click="selected='Avenidas ou ruas principais com fluxo intenso de veículos e pessoas'; selectedName='Avenidas ou ruas principais com fluxo intenso de veículos e pessoas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Avenidas ou ruas principais com fluxo intenso de veículos e pessoas</li>
+                                @foreach($dynamicOptions['target'] as $option)
+                                    <li @click="selected='{{ $option }}'; selectedName='{{ $option }}'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">{{ $option }}</li>
+                                @endforeach
                             </ul>
                             <input type="hidden" name="target" :value="selected">
                         </div>
 
                         {{-- Injúrias --}}
-                        <div x-data="{ open: false, selected: '{{ old('injuries') }}', selectedName: 'Selecione...' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('injuries') }}', selectedName: '{{ old('injuries') ?: 'Selecione...' }}' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Injúrias Mecânicas</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Leves ou Ausentes'; selectedName='Leves ou Ausentes'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Leves ou Ausentes</li>
-                                <li @click="selected='Moderadas'; selectedName='Moderadas'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Moderadas</li>
-                                <li @click="selected='Graves'; selectedName='Graves'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Graves</li>
+                                @foreach($dynamicOptions['injuries'] as $option)
+                                    <li @click="selected='{{ $option }}'; selectedName='{{ $option }}'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">{{ $option }}</li>
+                                @endforeach
                             </ul>
                             <input type="hidden" name="injuries" :value="selected">
                         </div>
 
                         {{-- Fiação --}}
-                        <div x-data="{ open: false, selected: '{{ old('wiring_status') }}', selectedName: 'Selecione...' }" class="relative w-full">
+                        <div x-data="{ open: false, selected: '{{ old('wiring_status') }}', selectedName: '{{ old('wiring_status') ?: 'Selecione...' }}' }" class="relative w-full">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Estado da fiação</label>
                             <button @click="open = !open" type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-left flex items-center justify-between shadow-sm focus:ring-green-500 focus:border-green-500"><span x-text="selectedName"></span><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                             <ul x-show="open" @click.outside="open=false" class="absolute w-full mt-0 bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-auto z-10">
-                                <li @click="selected='Não Interfere'; selectedName='Não Interfere'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Não Interfere</li>
-                                <li @click="selected='Pode Interferir'; selectedName='Pode Interferir'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Pode Interferir</li>
-                                <li @click="selected='Interfere'; selectedName='Interfere'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Interfere</li>
-                                <li @click="selected='Ausente'; selectedName='Ausente'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">Ausente</li>
+                                @foreach($dynamicOptions['wiring_status'] as $option)
+                                    <li @click="selected='{{ $option }}'; selectedName='{{ $option }}'; open=false" class="px-3 py-2 cursor-pointer hover:bg-[#358054] hover:text-white">{{ $option }}</li>
+                                @endforeach
                             </ul>
                             <input type="hidden" name="wiring_status" :value="selected">
                         </div>
-                    </div>
                 </div>
 
                 {{-- BOTÃO CADASTRAR --}}

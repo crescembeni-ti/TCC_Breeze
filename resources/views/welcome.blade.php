@@ -879,38 +879,41 @@
                         // Limpa opções anteriores (exceto "Todos")
                         while (select.options.length > 1) { select.remove(1); }
 
-                        // LÓGICA ESPECIAL: Opções Fixas Obrigatórias
-                        let opcoesFixas = [];
+                        // LÓGICA DINÂMICA: Pega as opções direto dos dados do BD
+                        const valoresSet = new Set();
+                        trees.forEach(t => {
+                            let val = t[field.key];
+                            if (val && val.trim() !== "") {
+                                // Normalização visual para o filtro
+                                let normalized = val.trim();
+                                if (field.id === 'crown_balance') {
+                                    if (normalized.toLowerCase().includes('medianamente') || normalized.toLowerCase().includes('mediamente')) normalized = 'Medianamente Desequilibrada';
+                                    else if (normalized.toLowerCase() === 'equilibrada') normalized = 'Equilibrada';
+                                    else if (normalized.toLowerCase() === 'desequilibrada') normalized = 'Desequilibrada';
+                                    else if (normalized.toLowerCase() === 'muito desequilibrada') normalized = 'Muito Desequilibrada';
+                                } else if (field.id === 'injuries') {
+                                    if (normalized.toLowerCase() === 'leves ou ausentes') normalized = 'Leves ou Ausentes';
+                                } else if (field.id === 'organisms') {
+                                    if (normalized.toLowerCase() === 'infestação média' || normalized.toLowerCase() === 'infestação media') normalized = 'Infestação Média';
+                                    if (normalized.toLowerCase() === 'infestação avançada' || normalized.toLowerCase() === 'infestação avancada') normalized = 'Infestação Avançada';
+                                }
+                                
+                                // Capitaliza primeira letra se não for normalizado acima
+                                if (normalized === val.trim()) {
+                                    normalized = normalized.charAt(0).toUpperCase() + normalized.slice(1);
+                                }
+                                valoresSet.add(normalized);
+                            }
+                        });
 
-                        if (field.id === 'health_status') {
-                            opcoesFixas = ['Boa', 'Regular', 'Ruim'];
-                        } 
-                        else if (field.id === 'crown_balance') {
-                            opcoesFixas = ['Equilibrada', 'Medianamente Desequilibrada', 'Desequilibrada', 'Muito Desequilibrada'];
-                        }
-                        else if (field.id === 'organisms') {
-                            // Adicionei "Ausente" aqui para garantir que apareça separado
-                            opcoesFixas = ['Ausente', 'Infestação Inicial', 'Infestação Média', 'Infestação Avançada'];
-                        }
-
-                        // Se tiver opções fixas, usa elas. Se não, pega do banco.
-                        if (opcoesFixas.length > 0) {
-                            opcoesFixas.forEach(valor => {
-                                const opt = document.createElement("option"); 
-                                opt.value = valor; 
-                                opt.textContent = valor; 
-                                select.appendChild(opt);
-                            });
-                        } else {
-                            // Padrão dinâmico para os outros campos
-                            const valoresUnicos = [...new Set(trees.map(t => t[field.key]).filter(v => v))].sort();
-                            valoresUnicos.forEach(valor => {
-                                const opt = document.createElement("option"); 
-                                opt.value = valor; 
-                                opt.textContent = valor; 
-                                select.appendChild(opt);
-                            });
-                        }
+                        // Converte Set para Array, ordena e adiciona ao select
+                        const valoresOrdenados = Array.from(valoresSet).sort();
+                        valoresOrdenados.forEach(valor => {
+                            const opt = document.createElement("option"); 
+                            opt.value = valor; 
+                            opt.textContent = valor; 
+                            select.appendChild(opt);
+                        });
                     }
                 });
             }
@@ -1060,17 +1063,19 @@
                         const treeVal = (tree[key] || "").toLowerCase().trim();
                         const filterVal = val.toLowerCase().trim();
                         
-                        // Lógica especial para Equilíbrio Copa para suportar nomes antigos/alternativos
+                        // Lógica de normalização no filtro para garantir que dados antigos/não migrados funcionem
+                        let normalizedTreeVal = treeVal;
+                        
                         if (key === 'crown_balance') {
-                            if (filterVal === 'medianamente desequilibrada') {
-                                if (treeVal !== 'medianamente desequilibrada' && treeVal !== 'mediamente equilibrada' && treeVal !== 'mediamente desequilibrada') {
-                                    okAdmin = false; break;
-                                }
-                                continue;
-                            }
+                            if (treeVal.includes('medianamente') || treeVal.includes('mediamente')) normalizedTreeVal = 'medianamente desequilibrada';
+                        } else if (key === 'injuries') {
+                            if (treeVal === 'leves ou ausentes') normalizedTreeVal = 'leves ou ausentes';
+                        } else if (key === 'organisms') {
+                            if (treeVal === 'infestação média' || treeVal === 'infestação media') normalizedTreeVal = 'infestação média';
+                            if (treeVal === 'infestação avançada' || treeVal === 'infestação avancada') normalizedTreeVal = 'infestação avançada';
                         }
 
-                        if (treeVal !== filterVal) {
+                        if (normalizedTreeVal !== filterVal) {
                             okAdmin = false;
                             break;
                         }
