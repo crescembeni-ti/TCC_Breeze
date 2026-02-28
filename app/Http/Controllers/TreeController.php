@@ -7,15 +7,13 @@ use App\Models\AdminLog;
 use App\Models\Bairro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; 
-use Illuminate\Support\Facades\Storage; // Importante para deletar fotos antigas se necessário
+use Illuminate\Support\Facades\Storage; 
 use App\Exports\TreesExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Contact;
 
 class TreeController extends Controller
 {
-    // ... (métodos index, getTreesData, exportTrees, show, adminDashboard, adminMap mantidos iguais) ...
-
     public function index()
     {
         $stats = [
@@ -80,19 +78,16 @@ class TreeController extends Controller
             'shading_area' => $tree->shading_area,
             'crown_diameter_longitudinal' => $tree->crown_diameter_longitudinal,
             'crown_diameter_perpendicular' => $tree->crown_diameter_perpendicular,
-            // Adicionado caminho da foto para uso futuro no mapa se necessário
             'photo' => $tree->photo ? asset('storage/' . $tree->photo) : null,
         ]);
     }
 
     public function exportTrees(Request $request)
     {
-        // Auditoria: Registra quem exportou os dados
         if (auth('admin')->check() || auth('analyst')->check()) {
             $user = auth('admin')->user() ?? auth('analyst')->user();
             $guard = auth('admin')->check() ? 'admin' : 'analyst';
             
-            // Se for analista, o admin_id será null, mas a descrição conterá os dados do analista
             AdminLog::create([
                 'admin_id' => $guard === 'admin' ? $user->id : null,
                 'action' => 'export_trees',
@@ -179,7 +174,6 @@ class TreeController extends Controller
                 ->pluck($field)
                 ->toArray();
 
-            // Opções padrão para campos que podem estar vazios no início
             $baseOptions = [];
             if ($field === 'health_status') {
                 $baseOptions = ['Boa', 'Regular', 'Ruim'];
@@ -187,7 +181,6 @@ class TreeController extends Controller
 
             $options = collect(array_merge($baseOptions, $queryOptions))
                 ->map(function($opt) use ($field) {
-                    // Normalização para exibição (mesma lógica da migration)
                     $normalized = trim($opt);
                     $lower = strtolower($normalized);
                     
@@ -198,7 +191,6 @@ class TreeController extends Controller
                         if ($lower === 'infestação avançada' || $lower === 'infestação avancada') return 'Infestação Avançada';
                     }
                     
-                    // Se já estiver no formato correto (case sensitive), mantém, senão aplica Title Case
                     if ($normalized === 'Boa' || $normalized === 'Regular' || $normalized === 'Ruim') return $normalized;
                     if ($normalized === 'Leves ou Ausentes') return $normalized;
                     
@@ -222,15 +214,12 @@ class TreeController extends Controller
         ]);
     }
 
-    /* ============================================================
-     * CADASTRAR ÁRVORE (MODIFICADO PARA FOTO)
-     * ============================================================ */
     public function storeTree(Request $request)
     {
         $validated = $request->validate([
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240', // Validação da foto (Máx 10MB)
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240', 
             'health_status' => 'nullable|string|max:255',
             'planted_at' => 'nullable|date|before_or_equal:today',
             'address' => 'nullable|string|max:255',
@@ -251,102 +240,37 @@ class TreeController extends Controller
             'injuries' => 'nullable|string|max:255', 
             'wiring_status' => 'nullable|string|max:100', 
             'total_width' => 'nullable|numeric|min:0', 
-            'street_width' => 'nullable|numeric|min:0', 
-            'gutter_height' => 'nullable|numeric|min:0', 
-            'gutter_width' => 'nullable|numeric|min:0', 
-            'gutter_length' => 'nullable|numeric|min:0', 
-            'description' => 'nullable|string|max:1000',
-            'cap2' => 'nullable|numeric|min:0', 'cap3' => 'nullable|numeric|min:0', 'cap4' => 'nullable|numeric|min:0', 'cap5' => 'nullable|numeric|min:0',
-            'cap6' => 'nullable|numeric|min:0', 'cap7' => 'nullable|numeric|min:0', 'cap8' => 'nullable|numeric|min:0', 'cap9' => 'nullable|numeric|min:0', 'cap10' => 'nullable|numeric|min:0',
-            'cap11' => 'nullable|numeric|min:0', 'cap12' => 'nullable|numeric|min:0', 'cap13' => 'nullable|numeric|min:0', 'cap14' => 'nullable|numeric|min:0', 'cap15' => 'nullable|numeric|min:0',
-            'cap16' => 'nullable|numeric|min:0', 'cap17' => 'nullable|numeric|min:0', 'cap18' => 'nullable|numeric|min:0', 'cap19' => 'nullable|numeric|min:0', 'cap20' => 'nullable|numeric|min:0',
+            'street_width' => 'nullable|numeric|min:0',
+            'gutter_height' => 'nullable|numeric|min:0',
+            'gutter_width' => 'nullable|numeric|min:0',
+            'gutter_length' => 'nullable|numeric|min:0',
         ]);
 
-        $treeData = $validated;
-
-        // UPLOAD DA FOTO
-        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-            // Salva na pasta 'storage/app/public/trees'
-            $path = $request->file('photo')->store('trees', 'public');
-            $treeData['photo'] = $path;
+        if ($request->hasFile('photo')) {
+            $validated['photo'] = $request->file('photo')->store('trees', 'public');
         }
 
-        // Calcular DAPs
-        if (!empty($treeData["cap"])) {
-            $treeData["dap1"] = round($treeData["cap"] / pi(), 2);
-        }
-        for ($i = 2; $i <= 20; $i++) {
-            if (!empty($treeData["cap$i"])) {
-                $treeData["dap$i"] = round($treeData["cap$i"] / pi(), 2);
-            }
-        }
-        if (empty($treeData['scientific_name'])) $treeData['scientific_name'] = 'Não identificada';
-        if (empty($treeData['vulgar_name'])) $treeData['vulgar_name'] = 'Não identificada';
+        $tree = Tree::create($validated);
 
-        if (auth()->guard('analyst')->check()) {
-            $treeData['admin_id'] = null; 
-            $treeData['analyst_id'] = auth()->guard('analyst')->id(); 
-            $treeData['aprovado'] = 0; 
-        } elseif (auth()->guard('admin')->check()) {
-            $treeData['admin_id'] = auth()->guard('admin')->id(); 
-            $treeData['analyst_id'] = null; 
-            $treeData['aprovado'] = 1; 
-        } else { 
-            $treeData['aprovado'] = 0; 
-        }
-
-        $tree = Tree::create($treeData);
-
-        if (auth()->guard('admin')->check()) {
-            $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? $tree->scientific_name;
-            AdminLog::create([
-                'admin_id' => auth()->guard('admin')->id(), 
-                'action' => 'create_tree', 
-                'description' => 'Árvore criada (ID ' . $tree->id . ') - Nome: ' . $nomeLog
-            ]);
-        }
-
-        $msg = $treeData['aprovado'] ? 'Árvore cadastrada com sucesso!' : 'Árvore enviada para aprovação!';
-        $route = auth()->guard('admin')->check() ? 'admin.map' : 'analyst.map';
-
-        return redirect()
-            ->route($route)
-            ->with('success', $msg)
-            ->with('new_tree_id', $tree->id);
-    }
-
-    public function pendingTrees() 
-    { 
-        $pendingTrees = Tree::where('aprovado', 0)->with('analyst')->latest()->get(); 
-        return view('admin.trees.pending', compact('pendingTrees')); 
-    }
-
-    public function approveTree($id) 
-    { 
-        // Trava de Segurança: Apenas Admin pode aprovar
-        if (!auth('admin')->check()) {
-            return redirect()->back()->with('error', 'Ação não autorizada.');
-        }
-
-        $tree = Tree::findOrFail($id); 
-        $tree->update(['aprovado' => 1]); 
-        
         AdminLog::create([
-            'admin_id' => auth('admin')->id(), 
-            'action' => 'approve_tree', 
-            'description' => "Árvore aprovada (ID $id)"
-        ]); 
-        
-        return redirect()->back()->with('success', 'Árvore aprovada com sucesso!'); 
+            'admin_id' => Auth::guard('admin')->id(),
+            'action' => 'create_tree',
+            'description' => "Cadastrou a árvore ID: {$tree->id}"
+        ]);
+
+        return redirect()->route('admin.map')->with(['success' => 'Árvore cadastrada com sucesso!', 'new_tree_id' => $tree->id]);
     }
 
-    public function adminTreeList(Request $request) 
-    { 
+    public function adminTrees(Request $request) 
+    {
         $query = Tree::with('bairro');
 
-        // Filtros
-        if ($request->filled('id')) {
-            $query->where('id', $request->id);
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('scientific_name', 'like', '%' . $request->search . '%')
+                  ->orWhere('vulgar_name', 'like', '%' . $request->search . '%')
+                  ->orWhere('address', 'like', '%' . $request->search . '%');
+            });
         }
 
         if ($request->filled('bairro')) {
@@ -355,7 +279,6 @@ class TreeController extends Controller
             });
         }
 
-        // Ordenação
         $sort = $request->get('sort', 'id_desc');
         switch ($sort) {
             case 'id_asc': $query->orderBy('id', 'asc'); break;
@@ -376,7 +299,9 @@ class TreeController extends Controller
         $vulgarNames = Tree::whereNotNull('vulgar_name')->distinct()->pluck('vulgar_name');
         
         $speciesMap = Tree::select('scientific_name', 'vulgar_name')->distinct()->get()->mapWithKeys(fn($i) => [$i->scientific_name => $i->vulgar_name]);
-        $vulgarToScientific = Tree::select('scientific_name', 'vulgar_name')->distinct()->get()->mapW        // Extrair opções únicas dos campos para popular os selects dinamicamente (para edição)
+        $vulgarToScientific = Tree::select('scientific_name', 'vulgar_name')->distinct()->get()->mapWithKeys(fn($i) => [$i->vulgar_name => $i->scientific_name]);
+
+        // Extrair opções únicas dos campos para popular os selects dinamicamente (para edição)
         $fields = ['health_status', 'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms', 'target', 'injuries', 'wiring_status'];
         $dynamicOptions = [];
         foreach ($fields as $field) {
@@ -386,7 +311,6 @@ class TreeController extends Controller
                 ->pluck($field)
                 ->toArray();
 
-            // Opções padrão para campos que podem estar vazios no início
             $baseOptions = [];
             if ($field === 'health_status') {
                 $baseOptions = ['Boa', 'Regular', 'Ruim'];
@@ -394,7 +318,6 @@ class TreeController extends Controller
 
             $options = collect(array_merge($baseOptions, $queryOptions))
                 ->map(function($opt) use ($field) {
-                    // Normalização para exibição (mesma lógica da migration)
                     $normalized = trim($opt);
                     $lower = strtolower($normalized);
                     
@@ -415,7 +338,9 @@ class TreeController extends Controller
                 ->toArray();
                 
             $dynamicOptions[$field] = $options;
-        }'admin.trees.edit', [
+        }
+
+        return view('admin.trees.edit', [
             'tree' => $tree, 
             'bairros' => Bairro::orderBy('nome')->get(), 
             'scientificNames' => $scientificNames, 
@@ -426,15 +351,12 @@ class TreeController extends Controller
         ]);
     }
 
-    /* ============================================================
-     * ATUALIZAR ÁRVORE (MODIFICADO PARA FOTO)
-     * ============================================================ */
     public function adminTreeUpdate(Request $request, Tree $tree) 
     {
         $validated = $request->validate([
             'latitude' => 'required|numeric|between:-90,90', 
             'longitude' => 'required|numeric|between:-180,180', 
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240', // Validação da foto
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240', 
             'scientific_name' => 'nullable|string|max:255', 
             'vulgar_name' => 'nullable|string|max:255', 
             'health_status' => 'nullable|string|max:255', 
@@ -447,150 +369,47 @@ class TreeController extends Controller
             'crown_height' => 'nullable|numeric|min:0', 
             'crown_diameter_longitudinal' => 'nullable|numeric|min:0', 
             'crown_diameter_perpendicular' => 'nullable|numeric|min:0', 
-            'bifurcation_type' => 'nullable|string|max:255', 
+            'bifurcation_type' => 'nullable|string|max:500', 
             'stem_balance' => 'nullable|string|max:500', 
-            'crown_balance' => 'nullable|string|max:255', 
+            'crown_balance' => 'nullable|string|max:500', 
             'organisms' => 'nullable|string|max:255', 
             'target' => 'nullable|string|max:500', 
             'injuries' => 'nullable|string|max:255', 
-            'wiring_status' => 'nullable|string|max:255', 
+            'wiring_status' => 'nullable|string|max:100', 
             'total_width' => 'nullable|numeric|min:0', 
-            'street_width' => 'nullable|numeric|min:0', 
-            'gutter_height' => 'nullable|numeric|min:0', 
-            'gutter_width' => 'nullable|numeric|min:0', 
-            'gutter_length' => 'nullable|numeric|min:0', 
-            'description' => 'nullable|string|max:1000',
-            'cap2' => 'nullable|numeric|min:0', 'cap3' => 'nullable|numeric|min:0', 'cap4' => 'nullable|numeric|min:0', 'cap5' => 'nullable|numeric|min:0',
-            'cap6' => 'nullable|numeric|min:0', 'cap7' => 'nullable|numeric|min:0', 'cap8' => 'nullable|numeric|min:0', 'cap9' => 'nullable|numeric|min:0', 'cap10' => 'nullable|numeric|min:0',
-            'cap11' => 'nullable|numeric|min:0', 'cap12' => 'nullable|numeric|min:0', 'cap13' => 'nullable|numeric|min:0', 'cap14' => 'nullable|numeric|min:0', 'cap15' => 'nullable|numeric|min:0',
-            'cap16' => 'nullable|numeric|min:0', 'cap17' => 'nullable|numeric|min:0', 'cap18' => 'nullable|numeric|min:0', 'cap19' => 'nullable|numeric|min:0', 'cap20' => 'nullable|numeric|min:0',
+            'street_width' => 'nullable|numeric|min:0',
+            'gutter_height' => 'nullable|numeric|min:0',
+            'gutter_width' => 'nullable|numeric|min:0',
+            'gutter_length' => 'nullable|numeric|min:0',
         ]);
 
-        $updateData = $validated;
-
-        // UPLOAD DA FOTO NO EDIT
-        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-            // (Opcional) Deletar a foto antiga para não acumular lixo
-            // if ($tree->photo) { Storage::disk('public')->delete($tree->photo); }
-            
-            $path = $request->file('photo')->store('trees', 'public');
-            $updateData['photo'] = $path;
+        if ($request->hasFile('photo')) {
+            if ($tree->photo) Storage::disk('public')->delete($tree->photo);
+            $validated['photo'] = $request->file('photo')->store('trees', 'public');
         }
 
-        // Calcular DAPs
-        if (isset($updateData["cap"])) {
-            if (!empty($updateData["cap"])) {
-                $updateData["dap1"] = round($updateData["cap"] / pi(), 2);
-            } else {
-                $updateData["dap1"] = null;
-            }
-        }
-        for ($i = 2; $i <= 20; $i++) {
-            if (isset($updateData["cap$i"])) {
-                if (!empty($updateData["cap$i"])) {
-                    $updateData["dap$i"] = round($updateData["cap$i"] / pi(), 2);
-                } else {
-                    $updateData["cap$i"] = null;
-                    $updateData["dap$i"] = null;
-                }
-            }
-        }
+        $tree->update($validated);
 
-        // TRAVA DE SEGURANÇA BACKEND: Se for Analista, filtra apenas os campos permitidos
-        if (auth('analyst')->check()) {
-            // ADICIONADO 'photo' À LISTA DE PERMISSÕES DO ANALISTA
-            $updateData = $request->only([
-                'stem_balance', 
-                'wiring_status', 
-                'target',
-                'photo' // Analista pode editar a foto
-            ]);
-            
-            // Re-aplicar o upload da foto caso o ->only() tenha removido se não foi enviado no request como campo simples
-            if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-                 $path = $request->file('photo')->store('trees', 'public');
-                 $updateData['photo'] = $path;
-            }
-        } else {
-            if (empty($updateData['scientific_name'])) $updateData['scientific_name'] = 'Não identificada';
-            if (empty($updateData['vulgar_name'])) $updateData['vulgar_name'] = 'Não identificada';
-        }
-        
-        $tree->update($updateData);
-        
-        if (auth('admin')->check()) { 
-            $nomeLog = $tree->vulgar_name ?? $tree->no_species_case ?? 'Atualizada'; 
-            AdminLog::create([
-                'admin_id' => auth('admin')->id(), 
-                'action' => 'update_tree', 
-                'description' => 'Árvore atualizada (ID ' . $tree->id . ') - Nome: ' . $nomeLog
-            ]); 
-        }
-        
-        return redirect()->route('admin.trees.edit', $tree->id)->with('success', 'Árvore atualizada com sucesso!');
+        AdminLog::create([
+            'admin_id' => Auth::guard('admin')->id(),
+            'action' => 'update_tree',
+            'description' => "Atualizou a árvore ID: {$tree->id}"
+        ]);
+
+        return redirect()->route('admin.trees')->with('success', 'Árvore atualizada com sucesso!');
     }
 
     public function adminTreeDestroy(Tree $tree) 
-    { 
-        // Trava de Segurança: Apenas Admin pode excluir
-        if (!auth('admin')->check()) {
-            return redirect()->back()->with('error', 'Ação não autorizada.');
-        }
-
-        $id = $tree->id; 
-        $tree->delete(); 
+    {
+        if ($tree->photo) Storage::disk('public')->delete($tree->photo);
         
         AdminLog::create([
-            'admin_id' => auth('admin')->id(), 
-            'action' => 'delete_tree', 
-            'description' => "Árvore deletada (ID $id)"
-        ]); 
-        
-        return redirect()->route('admin.trees.index')->with('success', 'Árvore excluída!'); 
-    }
-    
-    public function analystMap() 
-    { 
-        $bairros = Bairro::orderBy('nome')->get(); 
-        $trees = Tree::all(); 
-        $scientificNames = Tree::whereNotNull('scientific_name')->distinct()->orderBy('scientific_name')->pluck('scientific_name');
-        $vulgarNames = Tree::whereNotNull('vulgar_name')->distinct()->orderBy('vulgar_name')->pluck('vulgar_name');
-        
-        $speciesMap = Tree::select('scientific_name', 'vulgar_name')->distinct()->get()->mapWithKeys(fn($i) => [$i->scientific_name => $i->vulgar_name]);
-        $vulgarToScientific = Tree::select('scientific_name', 'vulgar_name')->distinct()->get()->mapWithKeys(fn($i) => [$i->vulgar_name => $i->scientific_name]);
-        
-        return view('analista.map', compact('bairros', 'trees', 'scientificNames', 'vulgarNames', 'speciesMap', 'vulgarToScientific')); 
-    }
-    
-    public function analystTreeList(Request $request) 
-    { 
-        // Como o arquivo analista.trees.index não existe fisicamente, mas a rota aponta para ele,
-        // vou redirecionar para a view admin.trees.index que é a que realmente existe.
-        $query = Tree::with('bairro');
+            'admin_id' => Auth::guard('admin')->id(),
+            'action' => 'delete_tree',
+            'description' => "Excluiu a árvore ID: {$tree->id}"
+        ]);
 
-        // Filtros
-        if ($request->filled('id')) {
-            $query->where('id', $request->id);
-        }
-
-        if ($request->filled('bairro')) {
-            $query->whereHas('bairro', function($q) use ($request) {
-                $q->where('nome', 'like', '%' . $request->bairro . '%');
-            });
-        }
-
-        // Ordenação
-        $sort = $request->get('sort', 'id_desc');
-        switch ($sort) {
-            case 'id_asc': $query->orderBy('id', 'asc'); break;
-            case 'id_desc': $query->orderBy('id', 'desc'); break;
-            case 'name_asc': $query->orderBy('scientific_name', 'asc'); break;
-            case 'name_desc': $query->orderBy('scientific_name', 'desc'); break;
-            default: $query->orderBy('id', 'desc'); break;
-        }
-
-        $trees = $query->get();
-        $bairros = Bairro::orderBy('nome')->get();
-        return view('admin.trees.index', compact('trees', 'bairros')); 
+        $tree->delete();
+        return redirect()->route('admin.trees')->with('success', 'Árvore excluída com sucesso!');
     }
 }
