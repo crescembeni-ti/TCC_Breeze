@@ -396,7 +396,7 @@ class TreeController extends Controller
             'description' => "Atualizou a árvore ID: {$tree->id}"
         ]);
 
-        return redirect()->route('admin.trees')->with('success', 'Árvore atualizada com sucesso!');
+        return redirect()->route('admin.trees.index')->with('success', 'Árvore atualizada com sucesso!');
     }
 
     public function adminTreeDestroy(Tree $tree) 
@@ -410,6 +410,6 @@ class TreeController extends Controller
         ]);
 
         $tree->delete();
-        return redirect()->route('admin.trees')->with('success', 'Árvore excluída com sucesso!');
+        return redirect()->route('admin.trees.index')->with('success', 'Árvore excluída com sucesso!');
     }
 }
