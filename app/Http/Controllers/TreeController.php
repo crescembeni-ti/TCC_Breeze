@@ -173,24 +173,41 @@ class TreeController extends Controller
         $fields = ['health_status', 'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms', 'target', 'injuries', 'wiring_status'];
         $dynamicOptions = [];
         foreach ($fields as $field) {
-            $options = Tree::whereNotNull($field)
+            $queryOptions = Tree::whereNotNull($field)
                 ->where($field, '!=', '')
                 ->distinct()
-                ->orderBy($field)
                 ->pluck($field)
+                ->toArray();
+
+            // Opções padrão para campos que podem estar vazios no início
+            $baseOptions = [];
+            if ($field === 'health_status') {
+                $baseOptions = ['Boa', 'Regular', 'Ruim'];
+            }
+
+            $options = collect(array_merge($baseOptions, $queryOptions))
                 ->map(function($opt) use ($field) {
                     // Normalização para exibição (mesma lógica da migration)
                     $normalized = trim($opt);
-                    if ($field === 'injuries' && strtolower($normalized) === 'leves ou ausentes') return 'Leves ou Ausentes';
-                    if ($field === 'crown_balance' && (str_contains(strtolower($normalized), 'medianamente') || str_contains(strtolower($normalized), 'mediamente'))) return 'Medianamente Desequilibrada';
+                    $lower = strtolower($normalized);
+                    
+                    if ($field === 'injuries' && $lower === 'leves ou ausentes') return 'Leves ou Ausentes';
+                    if ($field === 'crown_balance' && (str_contains($lower, 'medianamente') || str_contains($lower, 'mediamente'))) return 'Medianamente Desequilibrada';
                     if ($field === 'organisms') {
-                        if (strtolower($normalized) === 'infestação média' || strtolower($normalized) === 'infestação media') return 'Infestação Média';
-                        if (strtolower($normalized) === 'infestação avançada' || strtolower($normalized) === 'infestação avancada') return 'Infestação Avançada';
+                        if ($lower === 'infestação média' || $lower === 'infestação media') return 'Infestação Média';
+                        if ($lower === 'infestação avançada' || $lower === 'infestação avancada') return 'Infestação Avançada';
                     }
+                    
+                    // Se já estiver no formato correto (case sensitive), mantém, senão aplica Title Case
+                    if ($normalized === 'Boa' || $normalized === 'Regular' || $normalized === 'Ruim') return $normalized;
+                    if ($normalized === 'Leves ou Ausentes') return $normalized;
+                    
                     return mb_convert_case($normalized, MB_CASE_TITLE, "UTF-8");
                 })
                 ->unique()
-                ->values();
+                ->values()
+                ->toArray();
+                
             $dynamicOptions[$field] = $options;
         }
 
@@ -359,33 +376,46 @@ class TreeController extends Controller
         $vulgarNames = Tree::whereNotNull('vulgar_name')->distinct()->pluck('vulgar_name');
         
         $speciesMap = Tree::select('scientific_name', 'vulgar_name')->distinct()->get()->mapWithKeys(fn($i) => [$i->scientific_name => $i->vulgar_name]);
-        $vulgarToScientific = Tree::select('scientific_name', 'vulgar_name')->distinct()->get()->mapWithKeys(fn($i) => [$i->vulgar_name => $i->scientific_name]);
-        
-        // Extrair opções únicas dos campos para popular os selects dinamicamente
+        $vulgarToScientific = Tree::select('scientific_name', 'vulgar_name')->distinct()->get()->mapW        // Extrair opções únicas dos campos para popular os selects dinamicamente (para edição)
         $fields = ['health_status', 'bifurcation_type', 'stem_balance', 'crown_balance', 'organisms', 'target', 'injuries', 'wiring_status'];
         $dynamicOptions = [];
         foreach ($fields as $field) {
-            $options = Tree::whereNotNull($field)
+            $queryOptions = Tree::whereNotNull($field)
                 ->where($field, '!=', '')
                 ->distinct()
-                ->orderBy($field)
                 ->pluck($field)
+                ->toArray();
+
+            // Opções padrão para campos que podem estar vazios no início
+            $baseOptions = [];
+            if ($field === 'health_status') {
+                $baseOptions = ['Boa', 'Regular', 'Ruim'];
+            }
+
+            $options = collect(array_merge($baseOptions, $queryOptions))
                 ->map(function($opt) use ($field) {
+                    // Normalização para exibição (mesma lógica da migration)
                     $normalized = trim($opt);
-                    if ($field === 'injuries' && strtolower($normalized) === 'leves ou ausentes') return 'Leves ou Ausentes';
-                    if ($field === 'crown_balance' && (str_contains(strtolower($normalized), 'medianamente') || str_contains(strtolower($normalized), 'mediamente'))) return 'Medianamente Desequilibrada';
+                    $lower = strtolower($normalized);
+                    
+                    if ($field === 'injuries' && $lower === 'leves ou ausentes') return 'Leves ou Ausentes';
+                    if ($field === 'crown_balance' && (str_contains($lower, 'medianamente') || str_contains($lower, 'mediamente'))) return 'Medianamente Desequilibrada';
                     if ($field === 'organisms') {
-                        if (strtolower($normalized) === 'infestação média' || strtolower($normalized) === 'infestação media') return 'Infestação Média';
-                        if (strtolower($normalized) === 'infestação avançada' || strtolower($normalized) === 'infestação avancada') return 'Infestação Avançada';
+                        if ($lower === 'infestação média' || $lower === 'infestação media') return 'Infestação Média';
+                        if ($lower === 'infestação avançada' || $lower === 'infestação avancada') return 'Infestação Avançada';
                     }
+                    
+                    if ($normalized === 'Boa' || $normalized === 'Regular' || $normalized === 'Ruim') return $normalized;
+                    if ($normalized === 'Leves ou Ausentes') return $normalized;
+                    
                     return mb_convert_case($normalized, MB_CASE_TITLE, "UTF-8");
                 })
                 ->unique()
-                ->values();
+                ->values()
+                ->toArray();
+                
             $dynamicOptions[$field] = $options;
-        }
-
-        return view('admin.trees.edit', [
+        }'admin.trees.edit', [
             'tree' => $tree, 
             'bairros' => Bairro::orderBy('nome')->get(), 
             'scientificNames' => $scientificNames, 
