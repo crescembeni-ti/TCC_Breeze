@@ -261,7 +261,7 @@ class TreeController extends Controller
         return redirect()->route('admin.map')->with(['success' => 'Árvore cadastrada com sucesso!', 'new_tree_id' => $tree->id]);
     }
 
-    public function adminTrees(Request $request) 
+    public function adminTreesList(Request $request) 
     {
         $query = Tree::with('bairro');
 
